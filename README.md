@@ -1,2 +1,2 @@
-# enonic-ui
-UI Component Library
+# Enonic UI Component Library
+
