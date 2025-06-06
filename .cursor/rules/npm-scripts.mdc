@@ -1,0 +1,64 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Using pnpm Scripts
+
+## Dependency Management
+
+- Always use `pnpm` instead of `npm` if possible:
+```bash
+# Manage dependencies
+pnpm install
+pnpm add <pkg>
+pnpm add -D <pkg>
+pnpm remove <pkg>
+
+# List packages with newer versions available
+pnpm update
+
+# List packages with newer versions available
+pnpm outdated
+
+# List packages with newer versions available
+pnpm dedupe
+
+# Prefer over `npx` to run one-off commands without installing globally
+pnpm dlx <cli>
+```
+- Pin critical dev tools (eslint, prettier, jest) to exact versions in `devDependencies` to avoid unexpected CI failures.
+
+## Project Scripts
+
+Use these commands to keep your code healthy, consistent, and secure:
+
+- **`pnpm lint`**
+  Run ESLint to catch code-style issues and potential bugs, if automatic fxes are not needed.
+
+- **`pnpm lint:fix`**
+  Auto-fix minor linting problems (use after quick edits).
+
+- **`pnpm typecheck`**
+  Validate TypeScript types; can run before commits or CI.
+
+- **`pnpm check`**
+  Shortcut to `lint:fix` + `typecheck` - always after refactoring.
+
+- **`pnpm format`**
+  Run Prettier to normalize code style; always after all code changes and before commits.
+
+- **`pnpm audit`**
+  Scan dependencies for known security vulnerabilities.
+
+- **`pnpm test`**
+  Run your test suite in parallel (fast feedback during dev).
+
+- **`pnpm test:ci`**
+  Run tests sequentially (use in CI pipelines for stability or locally for reliability).
+
+- **`pnpm coverage`**
+  Generate a test coverage report to track untested code.
+
+- **`pnpm analyze`**
+  Analyze bundle size.

@@ -1,0 +1,101 @@
+---
+description:
+globs: *.tsx
+alwaysApply: false
+---
+# React Component Standards
+
+## Component Structure
+```typescript
+// ✅ Always use functional components
+// ✅ Define and export Props from the same component's file
+// ✅ Always add component name before Props, e.g. `ButtonProps` for `Button` component
+// ❌ Avoid using default export in component file
+
+export type MyComponentProps = {
+  title: string;
+  // ✅ Drop prefixes for boolean flags
+  active?: boolean;
+  // ✅ Put `className?` and `children?` last in the Props definition
+  className?: string;
+  children?: React.ReactNode;
+};
+
+export function MyComponent({
+  title,
+  active = false,
+  className,
+  children,
+}: MyComponentProps) {
+  // ✅ Hoist store/ref hooks at the very top
+  const data = useStore(myStore);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // ✅ Other hooks next: state, memo, effects, etc.
+  const [count, setCount] = useState(0);
+  const expensive = useMemo(() => heavyCalc(data), [data]);
+
+  // ✅ Effects are last hooks, if possible
+  useEffect(() => { /* side-effect */ }, [data]);
+
+  // ✅ If className list grows long, factor into `classNames` before return
+  const classNames = twMerge(
+    'p-4 rounded shadow',
+    active && 'bg-blue-500',
+    className,
+  );
+
+  // ✅ Early return for loading / error / guard clauses
+  if (!data) return <LoadingIndicator />;
+
+  // ✅ Set ARIA attributes where appropriate
+  return (
+    <div
+      ref={containerRef }
+      className={classNames }
+      aria-pressed={ isActive }
+      role='button'
+    >
+      <h1>{title}</h1>
+      {children}
+    </div>
+  );
+}
+```
+
+## Perfromance Patters
+```typescript
+// 1️⃣ Keep renders cheap & predictable
+// ✅ Split UI into small, pure components; wrap heavy ones in React.memo
+const ImageGrid = React.memo(function ImageGrid({ images }: { images: Image[] }) {
+  return images.map(img => <img key={img.id} src={img.src} />);
+});
+
+// 2️⃣ `useMemo` only for **expensive** calculations or reference-equality
+// ✅ Heavy work
+const sorted = useMemo(() => heavySort(list), [list]);  // good
+// ❌ Cheap math doesn’t need it
+const sum = a + b;                                      // simpler + faster
+
+// 3️⃣ `useCallback` only when a child​/​hook depends on function identity
+// ✅ Stable handler passed to memoized child
+const handleSave = useCallback((u: User) => onSave(u), [onSave]);
+<SaveButton onClick={handleSave} />;
+
+// ❌ Redundant inside same component scope
+<button onClick={() => onSave(user)}>Save</button>      // fine—re-creation is cheap
+
+// 4️⃣ Prefer `useEffect`; reserve `useLayoutEffect` for sync DOM reads/writes
+// ✅ Measure before paint, then mutate quickly
+useLayoutEffect(() => {
+  const rect = ref.current!.getBoundingClientRect();
+  setPos(rect.top);
+}, []); // keep work minimal & cleanup promptly
+
+// 5️⃣ Throttle / debounce high-frequency events (scroll, resize)
+// ✅ Check and apply to cases, where no fast/instant feedback is needed
+const throttledScroll = useCallback(throttle(handleScroll, 100), [handleScroll]);
+
+// 6️⃣ If store is a map, listen for the used keys only
+const { account } = useStore($application, {keys: ['account']});
+```
