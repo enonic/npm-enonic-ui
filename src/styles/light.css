@@ -1,0 +1,21 @@
+@layer base {
+  :root {
+    --color-bg: oklch(99% 0 0);
+    --color-fg: oklch(15% 0.01 240);
+    --color-muted: oklch(96% 0.01 240);
+    --color-muted-fg: oklch(45% 0.02 240);
+
+    --color-primary: oklch(60% 0.28 240);
+    --color-primary-fg: oklch(98% 0 0);
+    --color-success: oklch(68% 0.22 155);
+    --color-success-fg: oklch(98% 0 0);
+    --color-destructive: oklch(58% 0.25 20);
+    --color-destructive-fg: oklch(98% 0 0);
+    --color-secondary: oklch(52% 0.05 240);
+    --color-secondary-fg: oklch(98% 0 0);
+
+    --color-border: oklch(85% 0.02 240);
+    --color-input: oklch(85% 0.02 240);
+    --color-ring: oklch(60% 0.28 240);
+  }
+}

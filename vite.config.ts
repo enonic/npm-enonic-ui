@@ -1,15 +1,19 @@
 import preact from '@preact/preset-vite';
-import autoprefixer from 'autoprefixer';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { defineConfig } from 'vite';
 import EnvironmentPlugin from 'vite-plugin-environment';
 
 export default defineConfig({
-  plugins: [preact(), EnvironmentPlugin('all')],
-  css: {
-    postcss: {
-      plugins: [autoprefixer({})],
-    },
+  base: './',
+  plugins: [preact(), tailwindcss(), EnvironmentPlugin('all')],
+  server: {
+    port: 4001,
+    open: true,
+  },
+  preview: {
+    port: 4001,
+    open: true,
   },
   build: {
     lib: {

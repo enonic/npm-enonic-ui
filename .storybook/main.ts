@@ -1,16 +1,21 @@
 import type { StorybookConfig } from '@storybook/preact-vite';
 import path from 'path';
 
-export default {
+const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
   addons: [
-    // '@storybook/addon-docs',
+    '@storybook/addon-docs',
     // '@storybook/addon-a11y',
-    '@storybook/addon-essentials',
+    // '@storybook/addon-essentials',
+    '@storybook/addon-links',
+    '@storybook/addon-themes',
   ],
   framework: {
     name: '@storybook/preact-vite',
     options: {},
+  },
+  core: {
+    disableTelemetry: true,
   },
   viteFinal: config => {
     // Mirror the library build aliases
@@ -20,6 +25,9 @@ export default {
       ...config.resolve.alias,
       '@': path.resolve(process.cwd(), 'src'),
     };
+
     return config;
   },
-} satisfies StorybookConfig;
+};
+
+export default config;
