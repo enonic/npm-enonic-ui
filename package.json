@@ -18,7 +18,7 @@
     "./style.css": "./dist/style.css"
   },
   "scripts": {
-    "build": "tsc -b && vite build && storybook build",
+    "build": "pnpm compile && vite build && storybook build",
     "dev": "storybook dev -p 6006",
     "compile": "tsc -b",
     "vite": "vite build",
@@ -95,8 +95,9 @@
     ]
   },
   "engines": {
-    "node": ">= 22.15.0",
-    "pnpm": ">= 10.11.0"
+    "node": ">=20.18.0",
+    "pnpm": ">= 10.11.0",
+    "npm": ">=10.8.2"
   },
   "packageManager": "pnpm@10.12.1"
 }
