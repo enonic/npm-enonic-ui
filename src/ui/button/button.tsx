@@ -135,6 +135,7 @@ export type ButtonProps = {
   kind?: ButtonKind;
   size?: ButtonSize;
   disabled?: boolean;
+  title?: string;
   className?: string;
 };
 
@@ -145,10 +146,16 @@ export function Button({
   kind,
   size,
   disabled = false,
+  title,
   className,
 }: ButtonProps): JSX.Element {
   return (
-    <button onClick={onClick} disabled={disabled} className={cn(buttonVariants({ color, kind, size }), className)}>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(buttonVariants({ color, kind, size }), className)}
+      title={title}
+    >
       {label}
     </button>
   );
