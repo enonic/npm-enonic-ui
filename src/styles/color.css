@@ -1,0 +1,38 @@
+@layer base {
+  :root {
+    /* Neutrals */
+    --color-black: #000000;
+    --color-grey-950: #242829;
+    --color-grey-900: #3d4142;
+    --color-grey-800: #5b5f60;
+    --color-grey-700: #797d7e;
+    --color-grey-600: #8d9192;
+    --color-grey-500: #b2b2b2;
+    --color-grey-400: #b5b9ba;
+    --color-grey-300: #d3d7d8;
+    --color-grey-200: #dde1e2;
+    --color-grey-100: #e7ebeb;
+    --color-grey-50: #f1f5f6;
+    --color-white: #ffffff;
+
+    /* Feedback */
+    --color-info: #0270a0;
+    --color-info-sub: #208ebe;
+    --color-info-bg: #d7f3ff;
+
+    --color-warn: #cb9126;
+    --color-warn-sub: #e9af44;
+    --color-warn-bg: #f7e5c4;
+
+    --color-success: #499349;
+    --color-success-sub: #67b167;
+    --color-success-bg: #cee2ce;
+
+    --color-danger: #d33030;
+    --color-danger-sub: #f56262;
+    --color-danger-bg: #f6d7d7;
+
+    /* Misc */
+    --color-juke: #9747ff;
+  }
+}

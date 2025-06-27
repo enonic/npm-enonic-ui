@@ -2,27 +2,39 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@import './styles/base.css';
+@import './styles/color.css';
+
 @import './styles/light.css';
 @import './styles/dark.css';
 
 @theme {
   --radius: 0.5rem;
 
-  --color-bg: var(--color-bg);
-  --color-fg: var(--color-fg);
-  --color-muted: var(--color-muted);
-  --color-muted-fg: var(--color-muted-fg);
+  /* Backgrounds & Surfaces */
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-primary-act: var(--color-bg-primary-act);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-success: var(--color-bg-success);
+  --color-bg-info: var(--color-bg-info);
+  --color-bg-important: var(--color-bg-important);
+  --color-bg-warning: var(--color-bg-warning);
 
-  --color-primary: var(--color-primary);
-  --color-primary-fg: var(--color-primary-fg);
-  --color-success: var(--color-success);
-  --color-success-fg: var(--color-success-fg);
-  --color-destructive: var(--color-destructive);
-  --color-destructive-fg: var(--color-destructive-fg);
-  --color-secondary: var(--color-secondary);
-  --color-secondary-fg: var(--color-secondary-fg);
+  /* Borders */
+  --color-bdr-subtle: var(--color-bdr-subtle);
+  --color-bdr-soft: var(--color-bdr-soft);
+  --color-bdr-strong: var(--color-bdr-strong);
+  --color-bdr-danger: var(--color-bdr-danger);
 
-  --color-border: var(--color-border);
-  --color-input: var(--color-input);
-  --color-ring: var(--color-ring);
+  /* Buttons */
+  --color-btn-primary: var(--color-btn-primary);
+  --color-btn-primary-hov: var(--color-btn-primary-hov);
+  --color-btn-secondary: var(--color-btn-secondary);
+  --color-btn-secondary-hov: var(--color-btn-secondary-hov);
+  --color-btn-tertiary: var(--color-btn-tertiary);
+  --color-btn-tertiary-hov: var(--color-btn-tertiary-hov);
+  --color-btn-active: var(--color-btn-active);
+
+  /* Documentation */
+  --color-doc-only: var(--color-doc-only);
 }

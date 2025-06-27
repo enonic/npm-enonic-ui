@@ -16,20 +16,19 @@ export default {
       control: 'text',
       description: 'The label of the button',
     },
-    color: {
+    variant: {
       control: 'select',
-      options: ['primary', 'success', 'destructive', 'neutral'],
-      description: 'The semantic color/purpose of the button',
-    },
-    kind: {
-      control: 'select',
-      options: ['solid', 'outline', 'ghost', 'link'],
-      description: 'The visual style of the button',
+      options: ['primary', 'secondary', 'tertiary'],
+      description: 'The visual variant of the button',
     },
     size: {
       control: 'select',
-      options: ['md', 'lg'],
+      options: ['sm', 'md', 'lg'],
       description: 'The size of the button',
+    },
+    border: {
+      control: 'boolean',
+      description: 'Whether the button has a border (only available for primary variant)',
     },
     disabled: {
       control: 'boolean',
@@ -38,69 +37,49 @@ export default {
   },
 } satisfies Meta<typeof Button>;
 
-// Primary color examples
 export const Primary: Story = {
   args: {
-    label: 'Primary Action',
-    color: 'primary',
-    kind: 'solid',
+    label: 'Primary Button',
+    variant: 'primary',
   },
 };
 
-export const Success: Story = {
+export const Secondary: Story = {
   args: {
-    label: 'Save Changes',
-    color: 'success',
-    kind: 'solid',
+    label: 'Secondary Button',
+    variant: 'secondary',
   },
 };
 
-export const Destructive: Story = {
+export const Tertiary: Story = {
   args: {
-    label: 'Delete Item',
-    color: 'destructive',
-    kind: 'solid',
+    label: 'Tertiary Button',
+    variant: 'tertiary',
   },
 };
 
-export const Neutral: Story = {
+export const PrimaryWithBorder: Story = {
   args: {
-    label: 'Cancel',
-    color: 'neutral',
-    kind: 'solid',
+    label: 'Primary with Border',
+    variant: 'primary',
+    border: true,
   },
 };
 
-// Kind variations
-export const Solid: Story = {
+export const Small: Story = {
   args: {
-    label: 'Solid Button',
-    kind: 'solid',
+    label: 'Small Button',
+    size: 'sm',
   },
 };
 
-export const Outline: Story = {
+export const Medium: Story = {
   args: {
-    label: 'Outline Button',
-    kind: 'outline',
+    label: 'Medium Button',
+    size: 'md',
   },
 };
 
-export const Ghost: Story = {
-  args: {
-    label: 'Ghost Button',
-    kind: 'ghost',
-  },
-};
-
-export const Link: Story = {
-  args: {
-    label: 'Link Button',
-    kind: 'link',
-  },
-};
-
-// Size variations
 export const Large: Story = {
   args: {
     label: 'Large Button',
@@ -108,7 +87,6 @@ export const Large: Story = {
   },
 };
 
-// Disabled state
 export const Disabled: Story = {
   args: {
     label: 'Disabled Button',
@@ -116,71 +94,65 @@ export const Disabled: Story = {
   },
 };
 
-// Comprehensive showcase
 export const AllVariations: Story = {
   render: () => (
     <div className='space-y-6'>
-      {/* Colors with solid kind */}
       <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Solid Buttons</h3>
+        <h3 className='text-sm font-medium'>Button Variants</h3>
         <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' color='primary' kind='solid' />
-          <Button label='Success' color='success' kind='solid' />
-          <Button label='Destructive' color='destructive' kind='solid' />
-          <Button label='Neutral' color='neutral' kind='solid' />
+          <Button label='Primary' variant='primary' />
+          <Button label='Secondary' variant='secondary' />
+          <Button label='Tertiary' variant='tertiary' />
         </div>
       </div>
 
-      {/* Outline variants */}
       <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Outline Buttons</h3>
+        <h3 className='text-sm font-medium'>Primary with Border</h3>
         <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' color='primary' kind='outline' />
-          <Button label='Success' color='success' kind='outline' />
-          <Button label='Destructive' color='destructive' kind='outline' />
-          <Button label='Neutral' color='neutral' kind='outline' />
+          <Button label='Primary' variant='primary' border={false} />
+          <Button label='Primary with Border' variant='primary' border={true} />
         </div>
       </div>
 
-      {/* Ghost variants */}
       <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Ghost Buttons</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' color='primary' kind='ghost' />
-          <Button label='Success' color='success' kind='ghost' />
-          <Button label='Destructive' color='destructive' kind='ghost' />
-          <Button label='Neutral' color='neutral' kind='ghost' />
-        </div>
-      </div>
-
-      {/* Link variants */}
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Link Buttons</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' color='primary' kind='link' />
-          <Button label='Success' color='success' kind='link' />
-          <Button label='Destructive' color='destructive' kind='link' />
-          <Button label='Neutral' color='neutral' kind='link' />
-        </div>
-      </div>
-
-      {/* Sizes */}
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Sizes</h3>
+        <h3 className='text-sm font-medium'>Button Sizes</h3>
         <div className='flex items-center gap-2'>
+          <Button label='Small' size='sm' />
           <Button label='Medium' size='md' />
           <Button label='Large' size='lg' />
         </div>
       </div>
 
-      {/* Disabled states */}
       <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Disabled States</h3>
+        <h3 className='text-sm font-medium'>Disabled States</h3>
         <div className='flex flex-wrap gap-2'>
-          <Button label='Disabled Solid' kind='solid' disabled />
-          <Button label='Disabled Outline' kind='outline' disabled />
-          <Button label='Disabled Ghost' kind='ghost' disabled />
-          <Button label='Disabled Link' kind='link' disabled />
+          <Button label='Primary Disabled' variant='primary' disabled />
+          <Button label='Secondary Disabled' variant='secondary' disabled />
+          <Button label='Tertiary Disabled' variant='tertiary' disabled />
+        </div>
+      </div>
+
+      <div className='space-y-2'>
+        <h3 className='text-sm font-medium'>All Size Variants</h3>
+        <div className='space-y-3'>
+          <div className='flex items-center gap-2'>
+            <span className='w-16 text-xs'>Primary:</span>
+            <Button label='Small' variant='primary' size='sm' />
+            <Button label='Medium' variant='primary' size='md' />
+            <Button label='Large' variant='primary' size='lg' />
+          </div>
+          <div className='flex items-center gap-2'>
+            <span className='w-16 text-xs'>Secondary:</span>
+            <Button label='Small' variant='secondary' size='sm' />
+            <Button label='Medium' variant='secondary' size='md' />
+            <Button label='Large' variant='secondary' size='lg' />
+          </div>
+          <div className='flex items-center gap-2'>
+            <span className='w-16 text-xs'>Tertiary:</span>
+            <Button label='Small' variant='tertiary' size='sm' />
+            <Button label='Medium' variant='tertiary' size='md' />
+            <Button label='Large' variant='tertiary' size='lg' />
+          </div>
         </div>
       </div>
     </div>
