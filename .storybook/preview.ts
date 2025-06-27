@@ -1,6 +1,10 @@
+import { withThemeByClassName } from '@storybook/addon-themes';
 import type { Preview } from '@storybook/preact-vite';
 
-export default {
+import '../src/style.css';
+import '../src/styles/story.css';
+
+const preview: Preview = {
   parameters: {
     controls: {
       matchers: {
@@ -9,4 +13,15 @@ export default {
       },
     },
   },
-} satisfies Preview;
+  decorators: [
+    withThemeByClassName({
+      themes: {
+        light: 'light',
+        dark: 'dark',
+      },
+      defaultTheme: 'light',
+    }),
+  ],
+};
+
+export default preview;

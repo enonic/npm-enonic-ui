@@ -1,15 +1,31 @@
 import preact from '@preact/preset-vite';
-import autoprefixer from 'autoprefixer';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
 import EnvironmentPlugin from 'vite-plugin-environment';
 
 export default defineConfig({
-  plugins: [preact(), EnvironmentPlugin('all')],
-  css: {
-    postcss: {
-      plugins: [autoprefixer({})],
-    },
+  base: './',
+  plugins: [
+    preact(),
+    tailwindcss(),
+    EnvironmentPlugin('all'),
+    dts({
+      tsconfigPath: './tsconfig.app.json',
+      outDir: 'dist/types',
+      aliasesExclude: ['react', 'react-dom', 'react-dom/test-utils'],
+      exclude: ['**/*.stories.tsx', '.storybook/**/*'],
+      logLevel: 'warn',
+    }),
+  ],
+  server: {
+    port: 4001,
+    open: true,
+  },
+  preview: {
+    port: 4001,
+    open: true,
   },
   build: {
     lib: {
@@ -24,6 +40,7 @@ export default defineConfig({
         globals: {
           preact: 'Preact',
         },
+        assetFileNames: 'style[extname]',
       },
     },
   },

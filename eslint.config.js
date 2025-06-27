@@ -14,7 +14,7 @@ export default [
   {
     languageOptions: {
       parserOptions: {
-        project: './tsconfig.app.json',
+        project: ['./tsconfig.app.json', './.storybook/tsconfig.json'],
         tsconfigRootDir: '.',
         ecmaFeatures: {
           jsx: true,
@@ -75,7 +75,7 @@ export default [
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: './tsconfig.app.json',
+          project: ['./tsconfig.app.json', './.storybook/tsconfig.json'],
         },
         alias: {
           map: [['@', './src']],
@@ -94,7 +94,7 @@ export default [
     },
   },
   {
-    files: ['vite.config.ts', '*.config.ts'],
+    files: ['*.config.ts', '*.config.js'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.node.json',
