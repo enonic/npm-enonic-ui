@@ -1,13 +1,13 @@
 @layer base {
   .dark {
-    /* Backgrounds & Surfaces */
-    --color-bg-primary: var(--color-grey-900);
-    --color-bg-primary-act: var(--color-grey-800);
-    --color-bg-secondary: var(--color-white);
-    --color-bg-success: var(--color-success-bg);
-    --color-bg-info: var(--color-info-bg);
-    --color-bg-important: var(--color-warn-bg);
-    --color-bg-warning: var(--color-danger-bg);
+    /* Main Colors */
+    --color-main: var(--color-white);
+    --color-subtle: var(--color-grey-100);
+    --color-alt: var(--color-grey-950);
+    --color-rev: var(--color-black);
+
+    /* Feedback Colors*/
+    /* ... same as in color.css */
 
     /* Borders */
     --color-bdr-subtle: var(--color-grey-500);
@@ -17,11 +17,11 @@
 
     /* Buttons */
     --color-btn-primary: var(--color-grey-950);
-    --color-btn-primary-hov: var(--color-grey-900);
+    --color-btn-primary-hover: var(--color-grey-900);
     --color-btn-secondary: var(--color-grey-900);
-    --color-btn-secondary-hov: var(--color-grey-800);
+    --color-btn-secondary-hover: var(--color-grey-800);
     --color-btn-tertiary: var(--color-grey-600);
-    --color-btn-tertiary-hov: var(--color-grey-700);
+    --color-btn-tertiary-hover: var(--color-grey-700);
     --color-btn-active: var(--color-grey-800);
 
     /* Documentation */

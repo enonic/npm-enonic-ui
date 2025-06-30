@@ -18,17 +18,13 @@ export default {
     },
     variant: {
       control: 'select',
-      options: ['primary', 'secondary', 'tertiary'],
+      options: ['text', 'filled', 'solid', 'outline'],
       description: 'The visual variant of the button',
     },
     size: {
       control: 'select',
       options: ['sm', 'md', 'lg'],
       description: 'The size of the button',
-    },
-    border: {
-      control: 'boolean',
-      description: 'Whether the button has a border (only available for primary variant)',
     },
     disabled: {
       control: 'boolean',
@@ -37,124 +33,137 @@ export default {
   },
 } satisfies Meta<typeof Button>;
 
-export const Primary: Story = {
+export const Text: Story = {
   args: {
-    label: 'Primary Button',
-    variant: 'primary',
+    label: 'Text Button',
+    variant: 'text',
   },
 };
 
-export const Secondary: Story = {
+export const Filled: Story = {
   args: {
-    label: 'Secondary Button',
-    variant: 'secondary',
+    label: 'Filled Button',
+    variant: 'filled',
   },
 };
 
-export const Tertiary: Story = {
+export const Solid: Story = {
   args: {
-    label: 'Tertiary Button',
-    variant: 'tertiary',
+    label: 'Solid Button',
+    variant: 'solid',
   },
 };
 
-export const PrimaryWithBorder: Story = {
+export const Outline: Story = {
   args: {
-    label: 'Primary with Border',
-    variant: 'primary',
-    border: true,
+    label: 'Outline Button',
+    variant: 'outline',
   },
 };
 
-export const Small: Story = {
-  args: {
-    label: 'Small Button',
-    size: 'sm',
-  },
-};
-
-export const Medium: Story = {
-  args: {
-    label: 'Medium Button',
-    size: 'md',
-  },
-};
-
-export const Large: Story = {
-  args: {
-    label: 'Large Button',
-    size: 'lg',
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    label: 'Disabled Button',
-    disabled: true,
-  },
-};
-
-export const AllVariations: Story = {
+export const AllVariantsComparison: Story = {
+  name: 'All Variants Comparison',
   render: () => (
-    <div className='space-y-6'>
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium'>Button Variants</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' variant='primary' />
-          <Button label='Secondary' variant='secondary' />
-          <Button label='Tertiary' variant='tertiary' />
+    <div className='space-y-6 p-4'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>All Variants - Medium Size</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Text' variant='text' />
+          <Button label='Filled' variant='filled' />
+          <Button label='Solid' variant='solid' />
+          <Button label='Outline' variant='outline' />
         </div>
       </div>
-
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium'>Primary with Border</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' variant='primary' border={false} />
-          <Button label='Primary with Border' variant='primary' border={true} />
-        </div>
-      </div>
-
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium'>Button Sizes</h3>
-        <div className='flex items-center gap-2'>
-          <Button label='Small' size='sm' />
-          <Button label='Medium' size='md' />
-          <Button label='Large' size='lg' />
-        </div>
-      </div>
-
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium'>Disabled States</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary Disabled' variant='primary' disabled />
-          <Button label='Secondary Disabled' variant='secondary' disabled />
-          <Button label='Tertiary Disabled' variant='tertiary' disabled />
-        </div>
-      </div>
-
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium'>All Size Variants</h3>
-        <div className='space-y-3'>
-          <div className='flex items-center gap-2'>
-            <span className='w-16 text-xs'>Primary:</span>
-            <Button label='Small' variant='primary' size='sm' />
-            <Button label='Medium' variant='primary' size='md' />
-            <Button label='Large' variant='primary' size='lg' />
-          </div>
-          <div className='flex items-center gap-2'>
-            <span className='w-16 text-xs'>Secondary:</span>
-            <Button label='Small' variant='secondary' size='sm' />
-            <Button label='Medium' variant='secondary' size='md' />
-            <Button label='Large' variant='secondary' size='lg' />
-          </div>
-          <div className='flex items-center gap-2'>
-            <span className='w-16 text-xs'>Tertiary:</span>
-            <Button label='Small' variant='tertiary' size='sm' />
-            <Button label='Medium' variant='tertiary' size='md' />
-            <Button label='Large' variant='tertiary' size='lg' />
-          </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>All Variants - Disabled</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Text' variant='text' disabled />
+          <Button label='Filled' variant='filled' disabled />
+          <Button label='Solid' variant='solid' disabled />
+          <Button label='Outline' variant='outline' disabled />
         </div>
       </div>
     </div>
   ),
+};
+
+export const TextSizes: Story = {
+  name: 'Text Variant - Size Comparison',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Text Variant - All Sizes</h3>
+      <div className='flex items-center gap-3'>
+        <Button label='Small' variant='text' size='sm' />
+        <Button label='Medium' variant='text' size='md' />
+        <Button label='Large' variant='text' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const FilledSizes: Story = {
+  name: 'Filled Variant - Size Comparison',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Filled Variant - All Sizes</h3>
+      <div className='flex items-center gap-3'>
+        <Button label='Small' variant='filled' size='sm' />
+        <Button label='Medium' variant='filled' size='md' />
+        <Button label='Large' variant='filled' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const SolidSizes: Story = {
+  name: 'Solid Variant - Size Comparison',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Solid Variant - All Sizes</h3>
+      <div className='flex items-center gap-3'>
+        <Button label='Small' variant='solid' size='sm' />
+        <Button label='Medium' variant='solid' size='md' />
+        <Button label='Large' variant='solid' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const OutlineSizes: Story = {
+  name: 'Outline Variant - Size Comparison',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Outline Variant - All Sizes</h3>
+      <div className='flex items-center gap-3'>
+        <Button label='Small' variant='outline' size='sm' />
+        <Button label='Medium' variant='outline' size='md' />
+        <Button label='Large' variant='outline' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const DisabledStates: Story = {
+  name: 'Disabled States',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>All Variants - Disabled</h3>
+      <div className='flex flex-wrap gap-3'>
+        <Button label='Text' variant='text' disabled />
+        <Button label='Filled' variant='filled' disabled />
+        <Button label='Solid' variant='solid' disabled />
+        <Button label='Outline' variant='outline' disabled />
+      </div>
+    </div>
+  ),
+};
+
+export const InteractivePlayground: Story = {
+  name: 'Interactive Playground',
+  args: {
+    label: 'Click Me',
+    variant: 'text',
+    size: 'md',
+    disabled: false,
+  },
 };

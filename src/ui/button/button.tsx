@@ -6,7 +6,8 @@ import { cn } from '../../lib/utils';
 const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'rounded-md font-medium transition-colors',
+    'text-main dark:text-main font-medium',
+    'box-border rounded-sm',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
     'disabled:pointer-events-none disabled:opacity-30',
     'cursor-pointer',
@@ -14,45 +15,35 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-btn-primary text-bg-secondary hover:bg-btn-primary-hov active:bg-btn-active',
-        secondary: 'bg-btn-secondary text-bg-secondary hover:bg-btn-secondary-hov active:bg-btn-active',
-        tertiary: 'bg-transparent text-btn-tertiary hover:bg-btn-tertiary-hov active:bg-btn-active',
+        text: 'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-rev dark:active:text-main',
+        filled:
+          'bg-btn-secondary hover:bg-btn-secondary-hover active:bg-btn-active active:text-rev dark:active:text-main',
+        solid:
+          'bg-btn-tertiary text-rev dark:text-main hover:bg-btn-tertiary-hover active:bg-btn-active dark:active:text-main',
+        outline:
+          'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-rev dark:active:text-main border border-bdr-strong',
       },
       size: {
-        sm: 'h-8 px-3 py-1 text-sm',
-        md: 'h-10 px-4 py-2',
-        lg: 'h-12 px-6 py-3 text-lg',
-      },
-      border: {
-        true: 'border-2 border-bdr-strong',
-        false: '',
+        sm: 'h-9 px-3.5 gap-2 text-sm',
+        md: 'h-10 px-3.5 gap-2.5 text-base',
+        lg: 'h-11.5 px-4 gap-3 text-lg',
       },
     },
-    compoundVariants: [
-      {
-        variant: 'primary',
-        border: true,
-        className: 'border-bdr-strong',
-      },
-    ],
     defaultVariants: {
-      variant: 'primary',
+      variant: 'text',
       size: 'md',
-      border: false,
     },
   },
 );
 
 export type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
 export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
-export type ButtonBorder = VariantProps<typeof buttonVariants>['border'];
 
 export type ButtonProps = {
   label: string;
   onClick?: () => void;
   variant?: ButtonVariant;
   size?: ButtonSize;
-  border?: ButtonBorder;
   disabled?: boolean;
   title?: string;
   className?: string;
@@ -61,20 +52,18 @@ export type ButtonProps = {
 export function Button({
   label,
   onClick,
-  variant = 'primary',
+  variant = 'text',
   size = 'md',
-  border = false,
   disabled = false,
   title,
   className,
 }: ButtonProps): JSX.Element {
-  const showBorder = border && variant === 'primary';
-
   return (
     <button
+      type='button'
       onClick={onClick}
       disabled={disabled}
-      className={cn(buttonVariants({ variant, size, border: showBorder }), className)}
+      className={cn(buttonVariants({ variant, size }), className ?? '')}
       title={title}
     >
       {label}

@@ -9,16 +9,11 @@
 @import './styles/dark.css';
 
 @theme {
-  --radius: 0.5rem;
-
-  /* Backgrounds & Surfaces */
-  --color-bg-primary: var(--color-bg-primary);
-  --color-bg-primary-act: var(--color-bg-primary-act);
-  --color-bg-secondary: var(--color-bg-secondary);
-  --color-bg-success: var(--color-bg-success);
-  --color-bg-info: var(--color-bg-info);
-  --color-bg-important: var(--color-bg-important);
-  --color-bg-warning: var(--color-bg-warning);
+  /* Main Colors */
+  --color-main: var(--color-main);
+  --color-subtle: var(--color-subtle);
+  --color-alt: var(--color-alt);
+  --color-rev: var(--color-rev);
 
   /* Borders */
   --color-bdr-subtle: var(--color-bdr-subtle);
@@ -28,11 +23,11 @@
 
   /* Buttons */
   --color-btn-primary: var(--color-btn-primary);
-  --color-btn-primary-hov: var(--color-btn-primary-hov);
+  --color-btn-primary-hover: var(--color-btn-primary-hover);
   --color-btn-secondary: var(--color-btn-secondary);
-  --color-btn-secondary-hov: var(--color-btn-secondary-hov);
+  --color-btn-secondary-hover: var(--color-btn-secondary-hover);
   --color-btn-tertiary: var(--color-btn-tertiary);
-  --color-btn-tertiary-hov: var(--color-btn-tertiary-hov);
+  --color-btn-tertiary-hover: var(--color-btn-tertiary-hover);
   --color-btn-active: var(--color-btn-active);
 
   /* Documentation */

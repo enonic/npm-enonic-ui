@@ -1,5 +1,6 @@
 @layer base {
   body {
-    background-color: var(--color-bg-primary);
+    background-color: var(--color-alt);
+    color: var(--color-main);
   }
 }
