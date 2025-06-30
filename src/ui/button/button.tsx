@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority';
+import type { LucideIcon } from 'lucide-react';
 import type { JSX } from 'react';
 
 import { cn } from '../../lib/utils';
@@ -40,24 +41,43 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
 export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
 
 export type ButtonProps = {
-  label: string;
-  onClick?: () => void;
+  className?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
-  disabled?: boolean;
+  startIcon?: LucideIcon;
+  label: string;
+  endIcon?: LucideIcon;
   title?: string;
-  className?: string;
+  disabled?: boolean;
+  onClick?: () => void;
+};
+
+const getIconSize = (size: NonNullable<ButtonSize>): number => {
+  switch (size) {
+    case 'sm':
+      return 16;
+    case 'md':
+      return 18;
+    case 'lg':
+      return 20;
+  }
 };
 
 export function Button({
-  label,
-  onClick,
+  className,
   variant = 'text',
   size = 'md',
-  disabled = false,
+  startIcon,
+  label,
+  endIcon,
   title,
-  className,
+  disabled = false,
+  onClick,
 }: ButtonProps): JSX.Element {
+  const StartIcon = startIcon;
+  const EndIcon = endIcon;
+  const iconSize = getIconSize(size ?? 'md');
+
   return (
     <button
       type='button'
@@ -66,7 +86,9 @@ export function Button({
       className={cn(buttonVariants({ variant, size }), className ?? '')}
       title={title}
     >
+      {StartIcon && <StartIcon size={iconSize} />}
       {label}
+      {EndIcon && <EndIcon size={iconSize} />}
     </button>
   );
 }

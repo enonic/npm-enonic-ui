@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { Monitor, ChevronDown, Save, Upload, Trash2, Download, RefreshCw, Share } from 'lucide-react';
 
 import { Button } from './button';
 
@@ -29,6 +30,14 @@ export default {
     disabled: {
       control: 'boolean',
       description: 'Whether the button is disabled',
+    },
+    startIcon: {
+      control: false,
+      description: 'Icon on the left side of the button',
+    },
+    endIcon: {
+      control: false,
+      description: 'Icon on the right side of the button',
     },
   },
 } satisfies Meta<typeof Button>;
@@ -138,6 +147,49 @@ export const OutlineSizes: Story = {
         <Button label='Small' variant='outline' size='sm' />
         <Button label='Medium' variant='outline' size='md' />
         <Button label='Large' variant='outline' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const WithIcons: Story = {
+  name: 'With Icons',
+  render: () => (
+    <div className='space-y-6 p-4'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Buttons with Left Icons</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Monitor' variant='text' startIcon={Monitor} />
+          <Button label='Save' variant='filled' startIcon={Save} />
+          <Button label='Upload' variant='solid' startIcon={Upload} />
+          <Button label='Delete' variant='outline' startIcon={Trash2} />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Buttons with Right Icons</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Options' variant='text' endIcon={ChevronDown} />
+          <Button label='More Actions' variant='filled' endIcon={ChevronDown} />
+          <Button label='Menu' variant='solid' endIcon={ChevronDown} />
+          <Button label='Settings' variant='outline' endIcon={ChevronDown} />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Buttons with Both Icons</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Export' variant='text' startIcon={Download} endIcon={ChevronDown} />
+          <Button label='Import' variant='filled' startIcon={Upload} endIcon={ChevronDown} />
+          <Button label='Sync' variant='solid' startIcon={RefreshCw} endIcon={ChevronDown} />
+          <Button label='Share' variant='outline' startIcon={Share} endIcon={ChevronDown} />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Icon Button Sizes</h3>
+        <div className='flex items-center gap-3'>
+          <Button label='Small' variant='filled' size='sm' startIcon={Monitor} endIcon={ChevronDown} />
+          <Button label='Medium' variant='filled' size='md' startIcon={Monitor} endIcon={ChevronDown} />
+          <Button label='Large' variant='filled' size='lg' startIcon={Monitor} endIcon={ChevronDown} />
+        </div>
       </div>
     </div>
   ),
