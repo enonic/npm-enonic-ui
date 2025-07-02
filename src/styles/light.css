@@ -2,9 +2,10 @@
   :root {
     /* Main Colors */
     --color-main: var(--color-black);
-    --color-subtle: var(--color-grey-900);
+    --color-subtle: var(--color-grey-800);
     --color-alt: var(--color-white);
     --color-rev: var(--color-white);
+    --color-surface-primary: var(--color-grey-50);
 
     /* Feedback Colors*/
     /* ... same as in color.css */
@@ -15,6 +16,9 @@
     --color-bdr-strong: var(--color-black);
     --color-bdr-danger: var(--color-danger);
 
+    /* Outline Ring */
+    --color-ring: var(--color-grey-500);
+
     /* Buttons */
     --color-btn-primary: var(--color-white);
     --color-btn-primary-hover: var(--color-grey-50);
@@ -23,6 +27,9 @@
     --color-btn-tertiary: var(--color-black);
     --color-btn-tertiary-hover: var(--color-grey-900);
     --color-btn-active: var(--color-grey-800);
+
+    /* Inputs */
+    --color-input-disabled: var(--color-grey-100);
 
     /* Documentation */
     --color-docs: var(--color-juke);
