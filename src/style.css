@@ -2,27 +2,55 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@import './styles/base.css';
+@import './styles/color.css';
+
 @import './styles/light.css';
 @import './styles/dark.css';
 
 @theme {
-  --radius: 0.5rem;
+  /* Main Colors */
+  --color-main: var(--color-main);
+  --color-subtle: var(--color-subtle);
+  --color-alt: var(--color-alt);
+  --color-rev: var(--color-rev);
+  --color-surface-primary: var(--color-surface-primary);
 
-  --color-bg: var(--color-bg);
-  --color-fg: var(--color-fg);
-  --color-muted: var(--color-muted);
-  --color-muted-fg: var(--color-muted-fg);
-
-  --color-primary: var(--color-primary);
-  --color-primary-fg: var(--color-primary-fg);
+  /* Feedback Colors*/
+  --color-info: var(--color-info);
+  --color-info-subtle: var(--color-info-subtle);
+  --color-info-surface: var(--color-info-surface);
+  --color-warn: var(--color-warn);
+  --color-warn-subtle: var(--color-warn-subtle);
+  --color-warn-surface: var(--color-warn-surface);
   --color-success: var(--color-success);
-  --color-success-fg: var(--color-success-fg);
-  --color-destructive: var(--color-destructive);
-  --color-destructive-fg: var(--color-destructive-fg);
-  --color-secondary: var(--color-secondary);
-  --color-secondary-fg: var(--color-secondary-fg);
+  --color-success-subtle: var(--color-success-subtle);
+  --color-success-surface: var(--color-success-surface);
+  --color-danger: var(--color-danger);
+  --color-danger-subtle: var(--color-danger-subtle);
+  --color-danger-surface: var(--color-danger-surface);
 
-  --color-border: var(--color-border);
-  --color-input: var(--color-input);
+  /* Borders */
+  --color-bdr-subtle: var(--color-bdr-subtle);
+  --color-bdr-soft: var(--color-bdr-soft);
+  --color-bdr-strong: var(--color-bdr-strong);
+  --color-bdr-danger: var(--color-bdr-danger);
+
+  /* Outline Ring */
   --color-ring: var(--color-ring);
+
+  /* Buttons */
+  --color-btn-primary: var(--color-btn-primary);
+  --color-btn-primary-hover: var(--color-btn-primary-hover);
+  --color-btn-secondary: var(--color-btn-secondary);
+  --color-btn-secondary-hover: var(--color-btn-secondary-hover);
+  --color-btn-tertiary: var(--color-btn-tertiary);
+  --color-btn-tertiary-hover: var(--color-btn-tertiary-hover);
+  --color-btn-active: var(--color-btn-active);
+
+  /* Inputs */
+  --color-input-disabled: var(--color-input-disabled);
+
+  /* Documentation */
+  --color-doc-only: var(--color-doc-only);
 }

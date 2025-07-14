@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { Monitor, ChevronDown, Save, Upload, Trash2, Download, RefreshCw, Share } from 'lucide-react';
 
 import { Button } from './button';
 
@@ -16,173 +17,205 @@ export default {
       control: 'text',
       description: 'The label of the button',
     },
-    color: {
+    variant: {
       control: 'select',
-      options: ['primary', 'success', 'destructive', 'neutral'],
-      description: 'The semantic color/purpose of the button',
-    },
-    kind: {
-      control: 'select',
-      options: ['solid', 'outline', 'ghost', 'link'],
-      description: 'The visual style of the button',
+      options: ['text', 'filled', 'solid', 'outline'],
+      description: 'The visual variant of the button',
     },
     size: {
       control: 'select',
-      options: ['md', 'lg'],
+      options: ['sm', 'md', 'lg'],
       description: 'The size of the button',
     },
     disabled: {
       control: 'boolean',
       description: 'Whether the button is disabled',
     },
+    startIcon: {
+      control: false,
+      description: 'Icon on the left side of the button',
+    },
+    endIcon: {
+      control: false,
+      description: 'Icon on the right side of the button',
+    },
   },
 } satisfies Meta<typeof Button>;
 
-// Primary color examples
-export const Primary: Story = {
+export const Text: Story = {
   args: {
-    label: 'Primary Action',
-    color: 'primary',
-    kind: 'solid',
+    label: 'Text Button',
+    variant: 'text',
   },
 };
 
-export const Success: Story = {
+export const Filled: Story = {
   args: {
-    label: 'Save Changes',
-    color: 'success',
-    kind: 'solid',
+    label: 'Filled Button',
+    variant: 'filled',
   },
 };
 
-export const Destructive: Story = {
-  args: {
-    label: 'Delete Item',
-    color: 'destructive',
-    kind: 'solid',
-  },
-};
-
-export const Neutral: Story = {
-  args: {
-    label: 'Cancel',
-    color: 'neutral',
-    kind: 'solid',
-  },
-};
-
-// Kind variations
 export const Solid: Story = {
   args: {
     label: 'Solid Button',
-    kind: 'solid',
+    variant: 'solid',
   },
 };
 
 export const Outline: Story = {
   args: {
     label: 'Outline Button',
-    kind: 'outline',
+    variant: 'outline',
   },
 };
 
-export const Ghost: Story = {
-  args: {
-    label: 'Ghost Button',
-    kind: 'ghost',
-  },
-};
-
-export const Link: Story = {
-  args: {
-    label: 'Link Button',
-    kind: 'link',
-  },
-};
-
-// Size variations
-export const Large: Story = {
-  args: {
-    label: 'Large Button',
-    size: 'lg',
-  },
-};
-
-// Disabled state
-export const Disabled: Story = {
-  args: {
-    label: 'Disabled Button',
-    disabled: true,
-  },
-};
-
-// Comprehensive showcase
-export const AllVariations: Story = {
+export const AllVariantsComparison: Story = {
+  name: 'All Variants Comparison',
   render: () => (
-    <div className='space-y-6'>
-      {/* Colors with solid kind */}
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Solid Buttons</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' color='primary' kind='solid' />
-          <Button label='Success' color='success' kind='solid' />
-          <Button label='Destructive' color='destructive' kind='solid' />
-          <Button label='Neutral' color='neutral' kind='solid' />
+    <div className='space-y-6 p-4'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>All Variants - Medium Size</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Text' variant='text' />
+          <Button label='Filled' variant='filled' />
+          <Button label='Solid' variant='solid' />
+          <Button label='Outline' variant='outline' />
         </div>
       </div>
-
-      {/* Outline variants */}
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Outline Buttons</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' color='primary' kind='outline' />
-          <Button label='Success' color='success' kind='outline' />
-          <Button label='Destructive' color='destructive' kind='outline' />
-          <Button label='Neutral' color='neutral' kind='outline' />
-        </div>
-      </div>
-
-      {/* Ghost variants */}
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Ghost Buttons</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' color='primary' kind='ghost' />
-          <Button label='Success' color='success' kind='ghost' />
-          <Button label='Destructive' color='destructive' kind='ghost' />
-          <Button label='Neutral' color='neutral' kind='ghost' />
-        </div>
-      </div>
-
-      {/* Link variants */}
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Link Buttons</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Primary' color='primary' kind='link' />
-          <Button label='Success' color='success' kind='link' />
-          <Button label='Destructive' color='destructive' kind='link' />
-          <Button label='Neutral' color='neutral' kind='link' />
-        </div>
-      </div>
-
-      {/* Sizes */}
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Sizes</h3>
-        <div className='flex items-center gap-2'>
-          <Button label='Medium' size='md' />
-          <Button label='Large' size='lg' />
-        </div>
-      </div>
-
-      {/* Disabled states */}
-      <div className='space-y-2'>
-        <h3 className='text-sm font-medium text-fg'>Disabled States</h3>
-        <div className='flex flex-wrap gap-2'>
-          <Button label='Disabled Solid' kind='solid' disabled />
-          <Button label='Disabled Outline' kind='outline' disabled />
-          <Button label='Disabled Ghost' kind='ghost' disabled />
-          <Button label='Disabled Link' kind='link' disabled />
+      <div>
+        <h3 className='text-sm font-medium mb-3'>All Variants - Disabled</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Text' variant='text' disabled />
+          <Button label='Filled' variant='filled' disabled />
+          <Button label='Solid' variant='solid' disabled />
+          <Button label='Outline' variant='outline' disabled />
         </div>
       </div>
     </div>
   ),
+};
+
+export const TextSizes: Story = {
+  name: 'Text Variant - Size Comparison',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Text Variant - All Sizes</h3>
+      <div className='flex items-center gap-3'>
+        <Button label='Small' variant='text' size='sm' />
+        <Button label='Medium' variant='text' size='md' />
+        <Button label='Large' variant='text' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const FilledSizes: Story = {
+  name: 'Filled Variant - Size Comparison',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Filled Variant - All Sizes</h3>
+      <div className='flex items-center gap-3'>
+        <Button label='Small' variant='filled' size='sm' />
+        <Button label='Medium' variant='filled' size='md' />
+        <Button label='Large' variant='filled' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const SolidSizes: Story = {
+  name: 'Solid Variant - Size Comparison',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Solid Variant - All Sizes</h3>
+      <div className='flex items-center gap-3'>
+        <Button label='Small' variant='solid' size='sm' />
+        <Button label='Medium' variant='solid' size='md' />
+        <Button label='Large' variant='solid' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const OutlineSizes: Story = {
+  name: 'Outline Variant - Size Comparison',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Outline Variant - All Sizes</h3>
+      <div className='flex items-center gap-3'>
+        <Button label='Small' variant='outline' size='sm' />
+        <Button label='Medium' variant='outline' size='md' />
+        <Button label='Large' variant='outline' size='lg' />
+      </div>
+    </div>
+  ),
+};
+
+export const WithIcons: Story = {
+  name: 'With Icons',
+  render: () => (
+    <div className='space-y-6 p-4'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Buttons with Left Icons</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Monitor' variant='text' startIcon={Monitor} />
+          <Button label='Save' variant='filled' startIcon={Save} />
+          <Button label='Upload' variant='solid' startIcon={Upload} />
+          <Button label='Delete' variant='outline' startIcon={Trash2} />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Buttons with Right Icons</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Options' variant='text' endIcon={ChevronDown} />
+          <Button label='More Actions' variant='filled' endIcon={ChevronDown} />
+          <Button label='Menu' variant='solid' endIcon={ChevronDown} />
+          <Button label='Settings' variant='outline' endIcon={ChevronDown} />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Buttons with Both Icons</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Export' variant='text' startIcon={Download} endIcon={ChevronDown} />
+          <Button label='Import' variant='filled' startIcon={Upload} endIcon={ChevronDown} />
+          <Button label='Sync' variant='solid' startIcon={RefreshCw} endIcon={ChevronDown} />
+          <Button label='Share' variant='outline' startIcon={Share} endIcon={ChevronDown} />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Icon Button Sizes</h3>
+        <div className='flex items-center gap-3'>
+          <Button label='Small' variant='filled' size='sm' startIcon={Monitor} endIcon={ChevronDown} />
+          <Button label='Medium' variant='filled' size='md' startIcon={Monitor} endIcon={ChevronDown} />
+          <Button label='Large' variant='filled' size='lg' startIcon={Monitor} endIcon={ChevronDown} />
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+export const DisabledStates: Story = {
+  name: 'Disabled States',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>All Variants - Disabled</h3>
+      <div className='flex flex-wrap gap-3'>
+        <Button label='Text' variant='text' disabled />
+        <Button label='Filled' variant='filled' disabled />
+        <Button label='Solid' variant='solid' disabled />
+        <Button label='Outline' variant='outline' disabled />
+      </div>
+    </div>
+  ),
+};
+
+export const InteractivePlayground: Story = {
+  name: 'Interactive Playground',
+  args: {
+    label: 'Click Me',
+    variant: 'text',
+    size: 'md',
+    disabled: false,
+  },
 };

@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority';
+import type { LucideIcon } from 'lucide-react';
 import type { JSX } from 'react';
 
 import { cn } from '../../lib/utils';
@@ -6,157 +7,90 @@ import { cn } from '../../lib/utils';
 const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'rounded-md font-medium transition-colors',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-    'disabled:pointer-events-none disabled:opacity-50',
+    'text-main dark:text-main font-medium',
+    'box-border rounded-sm transition-highlight duration-100',
+    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-0',
+    'disabled:pointer-events-none disabled:opacity-30',
     'cursor-pointer',
   ],
   {
     variants: {
-      color: {
-        primary: '',
-        success: '',
-        destructive: '',
-        neutral: '',
-      },
-      kind: {
-        solid: '',
-        outline: 'border-2 bg-transparent',
-        ghost: 'bg-transparent',
-        link: 'bg-transparent underline-offset-4 hover:underline',
+      variant: {
+        text: 'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-rev dark:active:text-main',
+        filled:
+          'bg-btn-secondary hover:bg-btn-secondary-hover active:bg-btn-active active:text-rev dark:active:text-main',
+        solid:
+          'bg-btn-tertiary text-rev dark:text-main hover:bg-btn-tertiary-hover active:bg-btn-active dark:active:text-main',
+        outline:
+          'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-rev dark:active:text-main border border-bdr-strong',
       },
       size: {
-        md: 'h-10 px-4 py-2',
-        lg: 'h-11 px-8 text-lg',
+        sm: 'h-9 px-3.5 gap-2 text-sm',
+        md: 'h-10 px-3.5 gap-2.5 text-base',
+        lg: 'h-11.5 px-4 gap-3 text-lg',
       },
     },
-    compoundVariants: [
-      // Primary color variants
-      {
-        color: 'primary',
-        kind: 'solid',
-        className: 'bg-primary text-primary-fg hover:bg-primary/90',
-      },
-      {
-        color: 'primary',
-        kind: 'outline',
-        className: 'border-primary text-primary hover:bg-primary hover:text-primary-fg',
-      },
-      {
-        color: 'primary',
-        kind: 'ghost',
-        className: 'text-primary hover:bg-primary/10',
-      },
-      {
-        color: 'primary',
-        kind: 'link',
-        className: 'text-primary hover:bg-transparent',
-      },
-      // Success color variants
-      {
-        color: 'success',
-        kind: 'solid',
-        className: 'bg-success text-success-fg hover:bg-success/90',
-      },
-      {
-        color: 'success',
-        kind: 'outline',
-        className: 'border-success text-success hover:bg-success hover:text-success-fg',
-      },
-      {
-        color: 'success',
-        kind: 'ghost',
-        className: 'text-success hover:bg-success/10',
-      },
-      {
-        color: 'success',
-        kind: 'link',
-        className: 'text-success hover:bg-transparent',
-      },
-      // Destructive color variants
-      {
-        color: 'destructive',
-        kind: 'solid',
-        className: 'bg-destructive text-destructive-fg hover:bg-destructive/90',
-      },
-      {
-        color: 'destructive',
-        kind: 'outline',
-        className: 'border-destructive text-destructive hover:bg-destructive hover:text-destructive-fg',
-      },
-      {
-        color: 'destructive',
-        kind: 'ghost',
-        className: 'text-destructive hover:bg-destructive/10',
-      },
-      {
-        color: 'destructive',
-        kind: 'link',
-        className: 'text-destructive hover:bg-transparent',
-      },
-      // Neutral color variants
-      {
-        color: 'neutral',
-        kind: 'solid',
-        className: 'bg-secondary text-secondary-fg hover:bg-secondary/80',
-      },
-      {
-        color: 'neutral',
-        kind: 'outline',
-        className: 'border-secondary text-secondary hover:bg-secondary hover:text-secondary-fg',
-      },
-      {
-        color: 'neutral',
-        kind: 'ghost',
-        className: 'text-secondary hover:bg-secondary/10',
-      },
-      {
-        color: 'neutral',
-        kind: 'link',
-        className: 'text-secondary hover:bg-transparent',
-      },
-    ],
     defaultVariants: {
-      color: 'primary',
-      kind: 'solid',
+      variant: 'text',
       size: 'md',
     },
   },
 );
 
-export type ButtonColor = VariantProps<typeof buttonVariants>['color'];
-export type ButtonKind = VariantProps<typeof buttonVariants>['kind'];
+export type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
 export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
 
 export type ButtonProps = {
-  label: string;
-  onClick?: () => void;
-  color?: ButtonColor;
-  kind?: ButtonKind;
-  size?: ButtonSize;
-  disabled?: boolean;
-  title?: string;
   className?: string;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  startIcon?: LucideIcon;
+  label: string;
+  endIcon?: LucideIcon;
+  title?: string;
+  disabled?: boolean;
+  onClick?: () => void;
+};
+
+const getIconSize = (size: NonNullable<ButtonSize>): number => {
+  switch (size) {
+    case 'sm':
+      return 16;
+    case 'md':
+      return 18;
+    case 'lg':
+      return 20;
+  }
 };
 
 export function Button({
-  label,
-  onClick,
-  color = 'primary',
-  kind,
-  size,
-  disabled = false,
-  title,
   className,
+  variant = 'text',
+  size = 'md',
+  startIcon,
+  label,
+  endIcon,
+  title,
+  disabled = false,
+  onClick,
 }: ButtonProps): JSX.Element {
+  const StartIcon = startIcon;
+  const EndIcon = endIcon;
+  const iconSize = getIconSize(size ?? 'md');
+
   return (
     <button
+      type='button'
+      className={cn(buttonVariants({ variant, size }), className ?? '')}
+      title={title}
       onClick={onClick}
       disabled={disabled}
-      className={cn(buttonVariants({ color, kind, size }), className)}
-      title={title}
+      aria-label={title ?? label}
+      aria-disabled={disabled}
     >
+      {StartIcon && <StartIcon size={iconSize} />}
       {label}
+      {EndIcon && <EndIcon size={iconSize} />}
     </button>
   );
 }
