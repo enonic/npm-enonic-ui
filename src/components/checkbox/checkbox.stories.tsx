@@ -16,10 +16,6 @@ export default {
       control: 'boolean',
       description: 'Whether the checkbox is checked',
     },
-    disabled: {
-      control: 'boolean',
-      description: 'Whether the checkbox is disabled',
-    },
     label: {
       control: 'text',
       description: 'Label for the checkbox',
@@ -28,6 +24,11 @@ export default {
       control: 'select',
       options: ['sm', 'md', 'lg'],
       description: 'Size of the checkbox',
+    },
+    state: {
+      control: 'select',
+      options: ['default', 'readOnly', 'disabled', 'error'],
+      description: 'Visual state',
     },
   },
 } satisfies Meta<typeof Checkbox>;
@@ -46,11 +47,39 @@ export const Checked: Story = {
   },
 };
 
-export const Disabled: Story = {
+export const ErrorState: Story = {
+  name: 'Error State',
   args: {
-    label: 'Disabled Checkbox',
-    disabled: true,
+    label: 'Error Checkbox',
+    checked: false,
+    state: 'error',
   },
+};
+
+export const ReadOnly: Story = {
+  name: 'Read Only',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Read Only checkbox</h3>
+      <div className='flex items-center gap-3'>
+        <Checkbox label='Unchecked' checked={false} state='readOnly'/>
+        <Checkbox label='Checked' checked={true} state='readOnly'/>
+      </div>
+    </div>
+  ),
+};
+
+export const Disabled: Story = {
+  name: 'Disabled',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Disabled checkbox</h3>
+      <div className='flex items-center gap-3'>
+        <Checkbox label='Unchecked' checked={false} state='disabled'/>
+        <Checkbox label='Checked' checked={true} state='disabled'/>
+      </div>
+    </div>
+  ),
 };
 
 export const Sizes: Story = {
@@ -60,7 +89,7 @@ export const Sizes: Story = {
       <h3 className='text-sm font-medium mb-3'>Checkbox Sizes</h3>
       <div className='flex items-center gap-3'>
         <Checkbox label='Small' size='sm' />
-        <Checkbox label='Medium' size='md' />
+        <Checkbox label='Medium' checked={true} size='md' />
         <Checkbox label='Large' size='lg' />
       </div>
     </div>

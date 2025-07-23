@@ -2,37 +2,70 @@ import { cn } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import type { JSX } from 'react';
 
-const checkboxVariants = cva(
-  ['relative flex items-center cursor-pointer select-none', 'disabled:opacity-30 disabled:pointer-events-none'],
+const checkboxContainerVariants = cva(['relative flex items-center cursor-pointer select-none gap-2'], {
+  variants: {
+    state: {
+      default: '',
+      error: '',
+      readOnly: 'pointer-events-none',
+      disabled: 'pointer-events-none  opacity-30',
+    },
+  },
+  defaultVariants: {
+    state: 'default',
+  },
+});
+
+const checkboxBoxVariants = cva(
+  [
+    'inline-block bg-bg-main transition-colors duration-100',
+    'flex-shrink-0',
+    'rounded-sm flex items-center justify-center',
+    'peer-checked:[&>svg]:opacity-100',
+  ],
   {
     variants: {
       size: {
-        sm: 'text-sm gap-2',
-        md: 'text-base gap-2.5',
-        lg: 'text-lg gap-3',
+        sm: 'h-3.5 w-3.5 border',
+        md: 'h-4 w-4 border',
+        lg: 'h-4.5 w-4.5 border',
+      },
+      state: {
+        default: [
+          'border border-bdr-strong peer-checked:bg-btn-tertiary peer-checked:border-bt-tertiary',
+          'peer-checked:[&>svg]:stroke-white',
+        ].join(' '),
+        error: [
+          'border-red-500 peer-checked:bg-red-500 peer-checked:border-red-500',
+          'peer-checked:[&>svg]:stroke-white',
+        ].join(' '),
+        readOnly: [
+          'border-bdr-subtle peer-checked:bg-bdr-subtle peer-checked:border-bdr-subtle',
+          'peer-checked:[&>svg]:stroke-white pointer-events-none',
+        ].join(' '),
+        disabled: [
+          'border border-bdr-strong peer-checked:bg-btn-tertiary peer-checked:border-bt-tertiary',
+          'peer-checked:[&>svg]:stroke-white pointer-events-none',
+        ].join(' '),
       },
     },
     defaultVariants: {
       size: 'md',
+      state: 'default',
     },
   },
 );
 
-const boxSize = {
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-6 w-6',
-} as const;
-
-export type CheckboxSize = VariantProps<typeof checkboxVariants>['size'];
+export type CheckboxSize = VariantProps<typeof checkboxBoxVariants>['size'];
+export type CheckboxState = VariantProps<typeof checkboxBoxVariants>['state'];
 
 export type CheckboxProps = {
   className?: string;
   label?: string;
   checked?: boolean;
   defaultChecked?: boolean;
-  disabled?: boolean;
   size?: CheckboxSize;
+  state?: CheckboxState;
   onChange?: (checked: boolean) => void;
   id?: string;
 };
@@ -42,41 +75,31 @@ export function Checkbox({
   label,
   checked,
   defaultChecked,
-  disabled = false,
   size = 'md',
+  state = 'default',
   onChange,
   id,
 }: CheckboxProps): JSX.Element {
-  const iconSize = boxSize[size ?? 'md'];
+  const isDisabled = state === 'disabled';
 
   return (
-    <label className={cn(checkboxVariants({ size }), className)} htmlFor={id}>
+    <label htmlFor={id} className={cn(checkboxContainerVariants({ state }), className)}>
       <input
         id={id}
         type='checkbox'
         className='peer sr-only'
         checked={checked}
         defaultChecked={defaultChecked}
-        disabled={disabled}
-        //onChange={e => onChange?.(e.target?.checked ?? false)}
-        onChange={e => {
-          onChange?.(Boolean(e.currentTarget.checked));
-        }}
+        disabled={isDisabled || state === 'readOnly'}
+        onChange={e => onChange?.(e.currentTarget.checked)}
         aria-checked={checked}
-        aria-disabled={disabled}
+        aria-disabled={isDisabled}
       />
-      <span
-        className={cn(
-          'inline-block border border-bdr-strong bg-bg-main transition-colors duration-100',
-          iconSize,
-          'rounded-sm flex items-center justify-center',
-          'peer-checked:bg-btn-primary peer-checked:border-btn-primary peer-disabled:bg-bg-main',
-        )}
-        aria-hidden='true'
-      >
+
+      <span className={cn(checkboxBoxVariants({ size, state }))} aria-hidden='true'>
         {/* Checkmark */}
         <svg
-          className={cn('opacity-0 peer-checked:opacity-100 transition-opacity', iconSize)}
+          className='opacity-0 transition-opacity'
           viewBox='0 0 20 20'
           fill='none'
           stroke='currentColor'
@@ -85,6 +108,7 @@ export function Checkbox({
           <polyline points='5 10 9 14 15 6' />
         </svg>
       </span>
+
       {label && <span className='ml-2'>{label}</span>}
     </label>
   );
