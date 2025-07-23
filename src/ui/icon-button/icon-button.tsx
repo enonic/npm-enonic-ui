@@ -1,9 +1,8 @@
 import { cn } from '@/lib/utils';
+import type { LucideIcon } from '@/types';
+import { Button, type ButtonSize, type ButtonVariant } from '@/ui/button';
 import { cva } from 'class-variance-authority';
-import type { LucideIcon } from 'lucide-react';
 import type { JSX } from 'react';
-
-import { Button, type ButtonSize, type ButtonVariant } from '../button/button';
 
 export type IconButtonVariant = ButtonVariant;
 export type IconButtonSize = ButtonSize;

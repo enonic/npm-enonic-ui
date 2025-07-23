@@ -1,8 +1,7 @@
+import { cn } from '@/lib/utils';
+import type { LucideIcon } from '@/types';
 import { cva, type VariantProps } from 'class-variance-authority';
-import type { LucideIcon } from 'lucide-react';
 import type { JSX } from 'react';
-
-import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
   [

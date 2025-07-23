@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { Monitor, ChevronDown, Save, Upload, Trash2, Download, RefreshCw, Share } from 'lucide-react';
+import { ChevronDown, Download, Monitor, RefreshCw, Save, Share, Trash2, Upload } from 'lucide-react';
 
 import { Button } from './button';
 
