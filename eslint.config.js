@@ -103,6 +103,6 @@ export default [
     },
   },
   {
-    ignores: ['node_modules/', 'build/', 'public/', 'dist/', 'eslint.config.js', 'storybook-static/', '**/*.d.ts'],
+    ignores: ['node_modules/', 'build/', 'public/', 'dist/', 'eslint.config.js', 'storybook-static/', '**/*.d.ts', 'tailwind.config.js'],
   },
 ];
