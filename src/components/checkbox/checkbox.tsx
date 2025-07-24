@@ -19,20 +19,21 @@ const checkboxContainerVariants = cva(['relative flex items-center cursor-pointe
 const checkboxBoxVariants = cva(
   [
     'inline-block bg-bg-main transition-colors duration-100',
+    'border-2',
     'flex-shrink-0',
-    'rounded-sm flex items-center justify-center',
+    'rounded-[2px] flex items-center justify-center',
     'peer-checked:[&>svg]:opacity-100',
   ],
   {
     variants: {
       size: {
-        sm: 'h-3.5 w-3.5 border',
-        md: 'h-4 w-4 border',
-        lg: 'h-4.5 w-4.5 border',
+        sm: 'h-3.5 w-3.5 border-2',
+        md: 'h-3.5 w-3.5 border-2',
+        lg: 'h-3.5 w-3.5 border-2',
       },
       state: {
         default: [
-          'border border-bdr-strong peer-checked:bg-btn-tertiary peer-checked:border-bt-tertiary',
+          'border-bdr-strong peer-checked:bg-btn-tertiary peer-checked:border-bt-tertiary',
           'peer-checked:[&>svg]:stroke-white',
         ].join(' '),
         error: [
@@ -68,6 +69,7 @@ export type CheckboxProps = {
   state?: CheckboxState;
   onChange?: (checked: boolean) => void;
   id?: string;
+  name?: string;
 };
 
 export function Checkbox({
@@ -79,6 +81,7 @@ export function Checkbox({
   state = 'default',
   onChange,
   id,
+  name,
 }: CheckboxProps): JSX.Element {
   const isDisabled = state === 'disabled';
 
@@ -86,30 +89,27 @@ export function Checkbox({
     <label htmlFor={id} className={cn(checkboxContainerVariants({ state }), className)}>
       <input
         id={id}
+        name={name}
         type='checkbox'
         className='peer sr-only'
         checked={checked}
         defaultChecked={defaultChecked}
-        disabled={isDisabled || state === 'readOnly'}
+        disabled={state === 'readOnly' || state === 'disabled'}
         onChange={e => onChange?.(e.currentTarget.checked)}
         aria-checked={checked}
         aria-disabled={isDisabled}
+        aria-invalid={state === 'error'}
+        aria-readonly={state === 'readOnly'}
       />
 
       <span className={cn(checkboxBoxVariants({ size, state }))} aria-hidden='true'>
         {/* Checkmark */}
-        <svg
-          className='opacity-0 transition-opacity'
-          viewBox='0 0 20 20'
-          fill='none'
-          stroke='currentColor'
-          strokeWidth='2'
-        >
-          <polyline points='5 10 9 14 15 6' />
+        <svg className='opacity-0 transition-opacity' viewBox='0 0 20 20' fill='none' stroke='currentColor'>
+          <polyline className='stroke-[3] [stroke-linecap:round] [stroke-linejoin:round]' points='4 11 9 15 17 5' />
         </svg>
       </span>
 
-      {label && <span className='ml-2'>{label}</span>}
+      {label && <span>{label}</span>}
     </label>
   );
 }
