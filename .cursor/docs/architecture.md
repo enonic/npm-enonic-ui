@@ -69,14 +69,14 @@ Components are authored separately within the host XP app but rely on shared var
 2. **Preact Consumers**
 
 ```ts
-import {Button} from '@org/ui/preact';
+import { Button } from '@org/ui/preact';
 import '@org/ui/styles.css';
 ```
 
 3. **React Consumers**
 
 ```ts
-import {Button} from '@org/ui/react';
+import { Button } from '@org/ui/react';
 ```
 
 Alias layer maps React runtime calls to Preact internals transparently, so existing React apps adopt the library without additional peer deps.

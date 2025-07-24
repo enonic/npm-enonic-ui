@@ -291,12 +291,7 @@ export const ReadOnlyStates: Story = {
     <div className='space-y-6 p-4 w-96'>
       <div>
         <h3 className='text-sm font-medium mb-3'>Read Only - No Addons</h3>
-        <Input
-          label='User ID'
-          description='This identifier cannot be changed'
-          value='USR-12345'
-          readOnly
-        />
+        <Input label='User ID' description='This identifier cannot be changed' value='USR-12345' readOnly />
       </div>
 
       <div>

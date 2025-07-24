@@ -3,11 +3,13 @@ description:
 globs:
 alwaysApply: true
 ---
+
 # Using pnpm Scripts
 
 ## Dependency Management
 
 - Always use `pnpm` instead of `npm` if possible:
+
 ```bash
 # Manage dependencies
 pnpm install
@@ -27,38 +29,92 @@ pnpm dedupe
 # Prefer over `npx` to run one-off commands without installing globally
 pnpm dlx <cli>
 ```
+
 - Pin critical dev tools (eslint, prettier, jest) to exact versions in `devDependencies` to avoid unexpected CI failures.
 
 ## Project Scripts
 
 Use these commands to keep your code healthy, consistent, and secure:
 
-- **`pnpm lint`**
-  Run ESLint to catch code-style issues and potential bugs, if automatic fxes are not needed.
+### Development
 
-- **`pnpm lint:fix`**
-  Auto-fix minor linting problems (use after quick edits).
+- **`pnpm dev`**
+  Start Storybook development server on port 6006 for component development.
 
-- **`pnpm typecheck`**
-  Validate TypeScript types; can run before commits or CI.
+- **`pnpm preview`**
+  Serve examples on port 4000 using a static file server without Vite.
+
+### Building
+
+- **`pnpm build`**
+  Build the library for production (cleans + compiles + bundles).
+
+- **`pnpm build:lib`**
+  Build only the library (TypeScript compilation + Vite bundle).
+
+- **`pnpm build:storybook`**
+  Build Storybook for static hosting.
+
+- **`pnpm build:all`**
+  Build both library and Storybook.
+
+- **`pnpm compile`**
+  Run TypeScript compiler in build mode.
+
+- **`pnpm clean`**
+  Remove all build artifacts (dist, coverage, reports, storybook-static).
+
+### Code Quality
 
 - **`pnpm check`**
-  Shortcut to `lint:fix` + `typecheck` - always after refactoring.
+  Run complete code quality check: typecheck + lint + format:check.
+
+- **`pnpm typecheck`**
+  Validate TypeScript types without emitting files.
+
+- **`pnpm lint`**
+  Run ESLint to catch code-style issues and potential bugs.
+
+- **`pnpm lint:fix`**
+  Auto-fix minor ESLint problems (use after quick edits).
 
 - **`pnpm format`**
-  Run Prettier to normalize code style; always after all code changes and before commits.
+  Run Prettier to normalize code style; always after code changes.
 
-- **`pnpm audit`**
-  Scan dependencies for known security vulnerabilities.
+- **`pnpm format:check`**
+  Check if files are properly formatted without making changes.
+
+### Testing
 
 - **`pnpm test`**
-  Run your test suite in parallel (fast feedback during dev).
+  Run the test suite (currently placeholder).
 
 - **`pnpm test:ci`**
-  Run tests sequentially (use in CI pipelines for stability or locally for reliability).
+  Run tests in CI mode (currently placeholder).
 
-- **`pnpm coverage`**
-  Generate a test coverage report to track untested code.
+### Bundle Analysis
 
 - **`pnpm analyze`**
-  Analyze bundle size.
+  Build and open bundle analyzer to inspect package size.
+
+- **`pnpm size`**
+  Check bundle sizes against defined limits using size-limit.
+
+### Publishing
+
+- **`pnpm release:dry`**
+  Dry run of npm publish to test package configuration.
+
+- **`pnpm release`**
+  Publish package to npm with public access.
+
+### Hooks
+
+- **`pnpm prepare`**
+  Set up Husky git hooks (runs automatically after install).
+
+- **`prepack`**
+  Automatically runs build before packing (npm publish).
+
+- **`prepublishOnly`**
+  Runs quality checks and build before publishing.
