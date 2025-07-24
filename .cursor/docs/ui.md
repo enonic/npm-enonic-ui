@@ -82,11 +82,11 @@ Interactive button component supporting icons, multiple variants, and sizes.
 
 #### Variants
 
-| Variant          | Description              | Theme Reference     |
-| ---------------- | ------------------------ | ------------------- |
-| `text` (default) | Minimal styling          | Primary button      |
-| `filled`         | Light background         | Secondary button    |
-| `solid`          | Strong background        | Tertiary button     |
+| Variant          | Description              | Theme Reference         |
+| ---------------- | ------------------------ | ----------------------- |
+| `text` (default) | Minimal styling          | Primary button          |
+| `filled`         | Light background         | Secondary button        |
+| `solid`          | Strong background        | Tertiary button         |
 | `outline`        | Text variant with border | Primary + strong border |
 
 #### States
@@ -185,13 +185,13 @@ Description?
 
 #### States
 
-| State        | Border        | Background         | Text  |
-| ------------ | ------------- | ------------------ | ----- |
-| Default      | Subtle border | Standard background| Main text |
-| Active/Focus | Strong border | Standard background| Main text |
-| Error        | Danger border | Standard background| Main text |
-| Disabled     | -             | Disabled background| -     |
-| Readonly     | -             | Primary surface    | -     |
+| State        | Border        | Background          | Text      |
+| ------------ | ------------- | ------------------- | --------- |
+| Default      | Subtle border | Standard background | Main text |
+| Active/Focus | Strong border | Standard background | Main text |
+| Error        | Danger border | Standard background | Main text |
+| Disabled     | -             | Disabled background | -         |
+| Readonly     | -             | Primary surface     | -         |
 
 #### Props
 
@@ -207,5 +207,6 @@ Description?
 - Plus standard HTML input attributes (value, onChange, etc.)
 
 **Addon Behavior:**
+
 - String addons render with primary surface background
 - Component addons render as-is with no additional styling

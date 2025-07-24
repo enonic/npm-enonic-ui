@@ -1,16 +1,18 @@
-// @ts-check
-import * as importPlugin from 'eslint-plugin-import';
 import eslint from '@eslint/js';
+import type { Linter } from 'eslint';
+import { flatConfigs } from 'eslint-plugin-import';
+// @ts-expect-error - No types available for eslint-plugin-jsx-a11y
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
-import tsEslint from 'typescript-eslint';
+import { configs as tsConfigs } from 'typescript-eslint';
 
 export default [
   eslint.configs.recommended,
-  importPlugin.flatConfigs?.recommended,
+  flatConfigs.recommended,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   jsxA11yPlugin.flatConfigs.strict,
-  ...tsEslint.configs.strictTypeChecked,
-  ...tsEslint.configs.stylisticTypeChecked,
+  ...tsConfigs.strictTypeChecked,
+  ...tsConfigs.stylisticTypeChecked,
   {
     languageOptions: {
       parserOptions: {
@@ -77,18 +79,14 @@ export default [
           alwaysTryTypes: true,
           project: ['./tsconfig.app.json', './.storybook/tsconfig.json'],
         },
-        alias: {
-          map: [['@', './src']],
-          extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
-        },
       },
     },
   },
   {
     files: ['**/*.tsx'],
-    ...reactPlugin.configs.flat?.recommended,
+    ...reactPlugin.configs.flat.recommended,
     rules: {
-      ...reactPlugin.configs.flat?.recommended?.rules,
+      ...reactPlugin.configs.flat.recommended.rules,
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off',
     },
@@ -103,6 +101,6 @@ export default [
     },
   },
   {
-    ignores: ['node_modules/', 'build/', 'public/', 'dist/', 'eslint.config.js', 'storybook-static/', '**/*.d.ts', 'tailwind.config.js'],
+    ignores: ['node_modules/', 'build/', 'public/', 'dist/', 'storybook-static/', '**/*.d.ts'],
   },
-];
+] satisfies Linter.Config[];

@@ -1,6 +1,7 @@
 import preact from '@preact/preset-vite';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import EnvironmentPlugin from 'vite-plugin-environment';
@@ -18,27 +19,51 @@ export default defineConfig({
       exclude: ['**/*.stories.tsx', '.storybook/**/*'],
       logLevel: 'warn',
     }),
+    visualizer({
+      filename: 'dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
-  server: {
-    port: 4001,
-    open: true,
-  },
-  preview: {
-    port: 4001,
-    open: true,
-  },
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'EnonicUI',
-      fileName: format => `enonic-ui.${format}.js`,
-      formats: ['es', 'cjs', 'umd'],
+      fileName: format => (format === 'cjs' ? `enonic-ui.cjs` : `enonic-ui.${format}.js`),
+      formats: ['es', 'cjs'],
+    },
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
     },
     rollupOptions: {
-      external: ['preact', 'preact-render-to-string'],
+      external: [
+        'preact',
+        'preact-render-to-string',
+        'preact/hooks',
+        'preact/compat',
+        'react',
+        'react-dom',
+        '@preact/compat',
+        //? Several lucide icons are bundled, so we don't need to import them
+        // 'lucide-react',
+        // 'lucide-preact',
+        // /^lucide-react\/.*/,
+        // /^lucide-preact\/.*/,
+      ],
       output: {
         globals: {
           preact: 'Preact',
+          'preact/hooks': 'PreactHooks',
+          'preact/compat': 'PreactCompat',
+          react: 'React',
+          'react-dom': 'ReactDOM',
+          // 'lucide-react': 'LucideReact',
+          // 'lucide-preact': 'LucidePreact',
         },
         assetFileNames: 'style[extname]',
       },
