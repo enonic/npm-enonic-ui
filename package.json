@@ -1,6 +1,6 @@
 {
   "name": "@enonic/ui",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Enonic UI Component Library",
   "author": "Enonic",
   "license": "Apache-2.0",
@@ -57,7 +57,7 @@
     "test:ci": "exit 0",
     "prepack": "echo 'Packaging...'",
     "prepublishOnly": "pnpm check && pnpm build && pnpm size",
-    "release": "pnpm publish --access public",
+    "release": "pnpm publish --access public --no-git-checks",
     "release:dry": "pnpm publish --dry-run --access public --no-git-checks",
     "analyze": "pnpm build && open dist/stats.html",
     "size": "size-limit",
