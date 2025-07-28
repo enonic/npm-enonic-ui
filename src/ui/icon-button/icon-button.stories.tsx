@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Edit, Heart, Monitor, Plus, Save, Search, Settings, Upload } from 'lucide-react';
 
-import { IconButton } from './icon-button';
+import { IconButton, type IconButtonProps } from './icon-button';
 
-type Story = StoryObj<typeof IconButton>;
+type Story = StoryObj<IconButtonProps>;
 
 export default {
   title: 'Components/IconButton',
@@ -41,7 +41,7 @@ export default {
       description: 'Tooltip text shown on hover',
     },
   },
-} satisfies Meta<typeof IconButton>;
+} satisfies Meta<IconButtonProps>;
 
 export const Text: Story = {
   args: {

@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Calendar, Eye, EyeOff, Mail, Search, User } from 'lucide-react';
 
-import { Input } from './input';
+import { Input, type InputProps } from './input';
 
-type Story = StoryObj<typeof Input>;
+type Story = StoryObj<InputProps>;
 
 export default {
   title: 'Components/Input',
@@ -51,7 +51,7 @@ export default {
       description: 'Optional suffix content (string or component)',
     },
   },
-} satisfies Meta<typeof Input>;
+} satisfies Meta<InputProps>;
 
 export const Default: Story = {
   args: {

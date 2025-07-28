@@ -1,7 +1,7 @@
-import { cn } from '@/lib/utils';
+import { cn, unwrap } from '@/lib/utils';
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
-import type { JSX } from 'react';
+import { forwardRef, type JSX, useId } from 'react';
 
 const inputContainerVariants = cva(
   [
@@ -77,127 +77,63 @@ export type InputProps = {
   className?: string;
   label?: string;
   description?: string;
-  placeholder?: string;
   error?: string;
   startAddon?: string | JSX.Element;
   endAddon?: string | JSX.Element;
-  value?: string;
-  defaultValue?: string;
-  disabled?: boolean;
-  readOnly?: boolean;
-  onChange?: (event: Event & { currentTarget: HTMLInputElement }) => void;
-  onInput?: (event: Event & { currentTarget: HTMLInputElement }) => void;
-  onFocus?: (event: FocusEvent & { currentTarget: HTMLInputElement }) => void;
-  onBlur?: (event: FocusEvent & { currentTarget: HTMLInputElement }) => void;
-  type?: 'text' | 'password' | 'email' | 'number' | 'tel' | 'url' | 'search';
-  name?: string;
-  id?: string;
-  required?: boolean;
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
-  step?: number;
-  pattern?: string;
-  autoComplete?: string;
-  tabIndex?: number;
-};
+} & React.InputHTMLAttributes;
 
 const renderAddon = (addon: string | JSX.Element): JSX.Element => {
   return <div className={cn(addonVariants())}>{addon}</div>;
 };
 
-export function Input({
-  className,
-  label,
-  description,
-  placeholder,
-  error,
-  startAddon,
-  endAddon,
-  value,
-  defaultValue,
-  disabled = false,
-  readOnly = false,
-  onChange,
-  onInput,
-  onFocus,
-  onBlur,
-  type = 'text',
-  name,
-  id,
-  required = false,
-  minLength,
-  maxLength,
-  min,
-  max,
-  step,
-  pattern,
-  autoComplete,
-  tabIndex,
-}: InputProps): JSX.Element {
-  const hasError = Boolean(error);
-  const inputId = id ?? `input-${Math.random().toString(36).slice(2, 11)}`;
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  (
+    { className, label, description, error, startAddon, endAddon, id, ...props }: InputProps,
+    ref: React.ForwardedRef<HTMLInputElement>,
+  ): JSX.Element => {
+    const inputId = id ?? useId();
 
-  return (
-    <div className={cn('w-full', disabled && 'opacity-30', className)}>
-      <div className='mb-2'>
-        {label && (
-          <label htmlFor={inputId} className={cn(labelVariants({ disabled }))}>
-            <div className='flex items-center gap-1'>
-              {readOnly && <LockKeyhole size={16} />}
-              {label}
-            </div>
-          </label>
-        )}
+    const disabled = unwrap(props.disabled) ?? false;
+    const readOnly = unwrap(props.readOnly) ?? false;
+    const state = error ? 'error' : 'default';
 
-        {description && <div className={cn(descriptionVariants({ disabled }))}>{description}</div>}
-      </div>
+    return (
+      <div className={cn('w-full', disabled && 'opacity-30', className)}>
+        <div className='mb-2'>
+          {label && (
+            <label htmlFor={inputId} className={cn(labelVariants({ disabled }))}>
+              <div className='flex items-center gap-1'>
+                {readOnly && <LockKeyhole size={16} />}
+                {label}
+              </div>
+            </label>
+          )}
 
-      <div
-        className={cn(
-          inputContainerVariants({
-            state: hasError ? 'error' : 'default',
-            disabled,
-          }),
-        )}
-      >
-        {startAddon && renderAddon(startAddon)}
-
-        <input
-          id={inputId}
-          type={type}
-          name={name}
-          value={value}
-          defaultValue={defaultValue}
-          placeholder={placeholder}
-          disabled={disabled}
-          readOnly={readOnly}
-          required={required}
-          minLength={minLength}
-          maxLength={maxLength}
-          min={min}
-          max={max}
-          step={step}
-          pattern={pattern}
-          autoComplete={autoComplete}
-          tabIndex={tabIndex}
-          onChange={onChange}
-          onInput={onInput}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          className={cn(inputVariants(), startAddon && 'rounded-l-none', endAddon && 'rounded-r-none', 'flex-1')}
-        />
-
-        {endAddon && renderAddon(endAddon)}
-      </div>
-
-      {error && (
-        <div className={cn(errorVariants())}>
-          <OctagonAlert size={16} />
-          {error}
+          {description && <div className={cn(descriptionVariants({ disabled }))}>{description}</div>}
         </div>
-      )}
-    </div>
-  );
-}
+
+        <div className={cn(inputContainerVariants({ state, disabled }))}>
+          {startAddon && renderAddon(startAddon)}
+
+          <input
+            ref={ref}
+            id={inputId}
+            {...props}
+            className={cn(inputVariants(), startAddon && 'rounded-l-none', endAddon && 'rounded-r-none', 'flex-1')}
+          />
+
+          {endAddon && renderAddon(endAddon)}
+        </div>
+
+        {error && (
+          <div className={cn(errorVariants())}>
+            <OctagonAlert size={16} />
+            {error}
+          </div>
+        )}
+      </div>
+    );
+  },
+);
+
+Input.displayName = 'Input';
