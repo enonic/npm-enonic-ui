@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss';
 
 export default {
   darkMode: 'class',
-  content: ['./src/ui/**/*.{ts,tsx}'],
+  content: ['./src/components/**/*.{ts,tsx}'],
   theme: {
     extend: {
       height: {

@@ -210,3 +210,30 @@ Description?
 
 - String addons render with primary surface background
 - Component addons render as-is with no additional styling
+
+### Tooltip
+
+Tooltip component with customizable position and content.
+
+#### Structure
+
+```
+┌─ trigger ─┐
+└─ content ─┘
+```
+
+**Elements:**
+
+- `trigger` - is a child component, that works like Slot in Radix UI with a `asChild` behavior by default. It accepts any component as a child and smarlty attaches logic to it, using it as a component to trigger the tooltip on.
+- `content` - is a component that will be rendered as a tooltip. It can be a string or a component.
+
+#### Styling
+
+- **Border Radius**: 4px (`rounded-sm`)
+- **Arrow**: a small triangle that points to the trigger element.
+- **Animation**: smooth transition when the tooltip is shown, shadcn/ui style.
+
+#### Props
+
+- **position** - tooltip position: top, bottom
+- **children** - trigger and content components.

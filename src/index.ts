@@ -1,7 +1,5 @@
-import '@/style.css';
+import '@/styles/index.css';
 
-export { cn } from '@/lib/utils';
-export type { LucideIcon } from '@/types';
-export { Button, type ButtonProps } from '@/ui/button';
-export { IconButton, type IconButtonProps } from '@/ui/icon-button';
-export { Input, type InputProps } from '@/ui/input';
+export * from '@/components';
+export * from '@/types';
+export * from '@/utils';

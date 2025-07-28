@@ -1,6 +1,6 @@
-import { cn } from '@/lib/utils';
+import { Button, type ButtonVariantsProps } from '@/components/button';
 import type { LucideIcon } from '@/types';
-import { Button, type ButtonVariantsProps } from '@/ui/button';
+import { cn } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { forwardRef, type JSX } from 'react';
 
