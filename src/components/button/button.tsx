@@ -1,18 +1,7 @@
-import { cn } from '@/lib/utils';
 import type { LucideIcon } from '@/types';
+import { cn } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { forwardRef, type JSX } from 'react';
-
-export type ButtonVariantsProps = VariantProps<typeof buttonVariants>;
-export type ButtonVariant = NonNullable<ButtonVariantsProps['variant']>;
-export type ButtonSize = NonNullable<ButtonVariantsProps['size']>;
-
-export type ButtonProps = {
-  startIcon?: LucideIcon;
-  label: string;
-  endIcon?: LucideIcon;
-} & ButtonVariantsProps &
-  React.ButtonHTMLAttributes;
 
 const buttonVariants = cva(
   [
@@ -46,6 +35,17 @@ const buttonVariants = cva(
     },
   },
 );
+
+export type ButtonVariantsProps = VariantProps<typeof buttonVariants>;
+export type ButtonVariant = NonNullable<ButtonVariantsProps['variant']>;
+export type ButtonSize = NonNullable<ButtonVariantsProps['size']>;
+
+export type ButtonProps = {
+  startIcon?: LucideIcon;
+  label: string;
+  endIcon?: LucideIcon;
+} & ButtonVariantsProps &
+  React.ButtonHTMLAttributes;
 
 const getIconSize = (size: NonNullable<ButtonSize>): number => {
   switch (size) {

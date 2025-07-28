@@ -1,4 +1,4 @@
-import { cn, unwrap } from '@/lib/utils';
+import { cn, unwrap } from '@/utils';
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
 import { forwardRef, type JSX, useId } from 'react';

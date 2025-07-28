@@ -1,12 +1,13 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@import './styles/base.css';
-@import './styles/color.css';
+@import './base.css';
+@import './color.css';
 
-@import './styles/light.css';
-@import './styles/dark.css';
+@import './light.css';
+@import './dark.css';
 
 @theme {
   /* Main Colors */
