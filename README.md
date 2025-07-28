@@ -4,11 +4,21 @@ A modern UI component library built with Preact/React, TypeScript, and Tailwind 
 
 ## Installation
 
+#### NPM
+
 ```bash
 npm install @enonic/ui
-# or
+```
+
+#### PNPM
+
+```bash
 pnpm add @enonic/ui
-# or
+```
+
+#### Yarn
+
+```bash
 yarn add @enonic/ui
 ```
 
@@ -43,8 +53,8 @@ If you only need the CSS styles:
 ## Components
 
 - **Button** - Versatile button component with multiple variants and sizes
-- **Input** - Form input component with built-in validation states
 - **IconButton** - Button component optimized for icon usage
+- **Input** - Form input component with built-in validation states
 
 ## Peer Dependencies
 
@@ -54,8 +64,8 @@ This library requires one of the following frameworks:
 
 ```json
 {
-  "react": ">=16.8.0",
-  "react-dom": ">=16.8.0"
+  "react": ">=18.0.0 || >=19.0.0",
+  "react-dom": ">=18.0.0 || >=19.0.0"
 }
 ```
 
@@ -64,7 +74,7 @@ This library requires one of the following frameworks:
 ```json
 {
   "preact": ">=10.0.0",
-  "@preact/compat": ">=17.0.0"
+  "@preact/compat": ">=17.0.0 || >=18.0.0"
 }
 ```
 
@@ -106,14 +116,4 @@ pnpm size
 
 ## License
 
-Apache-2.0
-
-## Contributing
-
-See [Contributing Guide](https://github.com/enonic/enonic-ui/blob/main/CONTRIBUTING.md)
-
-## Links
-
-- [Documentation](https://github.com/enonic/enonic-ui#readme)
-- [Storybook](https://enonic.github.io/enonic-ui)
-- [Issue Tracker](https://github.com/enonic/enonic-ui/issues)
+MIT

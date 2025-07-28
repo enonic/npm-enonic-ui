@@ -1,7 +1,18 @@
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from '@/types';
 import { cva, type VariantProps } from 'class-variance-authority';
-import type { JSX } from 'react';
+import { forwardRef, type JSX } from 'react';
+
+export type ButtonVariantsProps = VariantProps<typeof buttonVariants>;
+export type ButtonVariant = NonNullable<ButtonVariantsProps['variant']>;
+export type ButtonSize = NonNullable<ButtonVariantsProps['size']>;
+
+export type ButtonProps = {
+  startIcon?: LucideIcon;
+  label: string;
+  endIcon?: LucideIcon;
+} & ButtonVariantsProps &
+  React.ButtonHTMLAttributes;
 
 const buttonVariants = cva(
   [
@@ -36,21 +47,6 @@ const buttonVariants = cva(
   },
 );
 
-export type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
-export type ButtonSize = VariantProps<typeof buttonVariants>['size'];
-
-export type ButtonProps = {
-  className?: string;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  startIcon?: LucideIcon;
-  label: string;
-  endIcon?: LucideIcon;
-  title?: string;
-  disabled?: boolean;
-  onClick?: () => void;
-};
-
 const getIconSize = (size: NonNullable<ButtonSize>): number => {
   switch (size) {
     case 'sm':
@@ -62,34 +58,32 @@ const getIconSize = (size: NonNullable<ButtonSize>): number => {
   }
 };
 
-export function Button({
-  className,
-  variant = 'text',
-  size = 'md',
-  startIcon,
-  label,
-  endIcon,
-  title,
-  disabled = false,
-  onClick,
-}: ButtonProps): JSX.Element {
-  const StartIcon = startIcon;
-  const EndIcon = endIcon;
-  const iconSize = getIconSize(size ?? 'md');
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    { className, variant = 'text', size = 'md', startIcon, label, endIcon, title, children, ...props },
+    ref: React.ForwardedRef<HTMLButtonElement>,
+  ): JSX.Element => {
+    const StartIcon = startIcon;
+    const EndIcon = endIcon;
+    const iconSize = getIconSize(size ?? 'md');
 
-  return (
-    <button
-      type='button'
-      className={cn(buttonVariants({ variant, size }), className ?? '')}
-      title={title}
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={title ?? label}
-      aria-disabled={disabled}
-    >
-      {StartIcon && <StartIcon size={iconSize} />}
-      {label}
-      {EndIcon && <EndIcon size={iconSize} />}
-    </button>
-  );
-}
+    return (
+      <button
+        ref={ref}
+        type='button'
+        className={cn(buttonVariants({ variant, size }), className)}
+        title={title}
+        aria-label={title ?? label}
+        aria-disabled={props.disabled}
+        {...props}
+      >
+        {StartIcon && <StartIcon size={iconSize} />}
+        {children}
+        {label}
+        {EndIcon && <EndIcon size={iconSize} />}
+      </button>
+    );
+  },
+);
+
+Button.displayName = 'Button';

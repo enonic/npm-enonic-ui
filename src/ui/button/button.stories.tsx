@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ChevronDown, Download, Monitor, RefreshCw, Save, Share, Trash2, Upload } from 'lucide-react';
 
-import { Button } from './button';
+import { Button, type ButtonProps } from './button';
 
-type Story = StoryObj<typeof Button>;
+type Story = StoryObj<ButtonProps>;
 
 export default {
   title: 'Components/Button',
@@ -40,7 +40,7 @@ export default {
       description: 'Icon on the right side of the button',
     },
   },
-} satisfies Meta<typeof Button>;
+} satisfies Meta<ButtonProps>;
 
 export const Text: Story = {
   args: {

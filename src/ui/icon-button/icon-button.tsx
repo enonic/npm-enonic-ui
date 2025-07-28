@@ -1,23 +1,13 @@
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from '@/types';
-import { Button, type ButtonSize, type ButtonVariant } from '@/ui/button';
-import { cva } from 'class-variance-authority';
-import type { JSX } from 'react';
+import { Button, type ButtonVariantsProps } from '@/ui/button';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { forwardRef, type JSX } from 'react';
 
-export type IconButtonVariant = ButtonVariant;
-export type IconButtonSize = ButtonSize;
-export type IconButtonShape = 'square' | 'round';
-
-export type IconButtonProps = {
-  className?: string;
-  variant?: IconButtonVariant;
-  size?: IconButtonSize;
-  shape?: IconButtonShape;
-  icon: LucideIcon;
-  title?: string;
-  disabled?: boolean;
-  onClick?: () => void;
-};
+export type IconButtonVariantsProps = VariantProps<typeof iconButtonVariants> & ButtonVariantsProps;
+export type IconButtonVariant = NonNullable<IconButtonVariantsProps['variant']>;
+export type IconButtonSize = NonNullable<IconButtonVariantsProps['size']>;
+export type IconButtonShape = NonNullable<IconButtonVariantsProps['shape']>;
 
 const iconButtonVariants = cva(['p-0'], {
   variants: {
@@ -37,26 +27,28 @@ const iconButtonVariants = cva(['p-0'], {
   },
 });
 
-export function IconButton({
-  className,
-  variant = 'text',
-  size = 'md',
-  shape = 'square',
-  icon,
-  title,
-  disabled = false,
-  onClick,
-}: IconButtonProps): JSX.Element {
-  return (
-    <Button
-      variant={variant}
-      size={size}
-      startIcon={icon}
-      label=''
-      title={title}
-      disabled={disabled}
-      onClick={onClick}
-      className={cn(iconButtonVariants({ size, shape }), className)}
-    />
-  );
-}
+export type IconButtonProps = {
+  icon: LucideIcon;
+} & IconButtonVariantsProps &
+  React.ButtonHTMLAttributes;
+
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  (
+    { className, variant = 'text', size = 'md', shape = 'square', icon, ...props }: IconButtonProps,
+    ref: React.ForwardedRef<HTMLButtonElement>,
+  ): JSX.Element => {
+    return (
+      <Button
+        ref={ref}
+        className={cn(iconButtonVariants({ size, shape }), className)}
+        variant={variant}
+        size={size}
+        startIcon={icon}
+        label=''
+        {...props}
+      />
+    );
+  },
+);
+
+IconButton.displayName = 'IconButton';
