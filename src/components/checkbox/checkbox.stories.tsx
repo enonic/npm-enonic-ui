@@ -16,6 +16,10 @@ export default {
       control: 'boolean',
       description: 'Whether the checkbox is checked',
     },
+    partial: {
+      control: 'boolean',
+      description: 'Whether the checkbox is in the indeterminate (partial) state',
+    },
     label: {
       control: 'text',
       description: 'Label for the checkbox',
@@ -30,6 +34,11 @@ export default {
       options: ['default', 'readOnly', 'disabled', 'error'],
       description: 'Visual state',
     },
+    alignment: {
+      control: 'select',
+      options: ['left','right','top','bottom'],
+      description: 'Where the checkbox sits relative to the label'
+    }
   },
 } satisfies Meta<typeof Checkbox>;
 
@@ -37,6 +46,7 @@ export const Default: Story = {
   args: {
     label: 'Default Checkbox',
     checked: false,
+    partial: false,
   },
 };
 
@@ -44,16 +54,32 @@ export const Checked: Story = {
   args: {
     label: 'Checked Checkbox',
     checked: true,
+    partial: false,
   },
 };
 
+export const Indeterminate: Story = {
+  name: 'Indeterminate',
+  args: {
+    label: 'Indeterminate Checkbox',
+    checked: false,
+    partial: true,
+  },
+};
+
+
 export const ErrorState: Story = {
   name: 'Error State',
-  args: {
-    label: 'Error Checkbox',
-    checked: false,
-    state: 'error',
-  },
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>Read Only checkbox</h3>
+      <div className='flex items-center gap-3'>
+        <Checkbox label='Unchecked' checked={false} state='error'/>
+        <Checkbox label='Checked' checked={true} state='error'/>
+        <Checkbox label='indeterminate' checked={false} partial={true} state='error'/>
+      </div>
+    </div>
+  ),
 };
 
 export const ReadOnly: Story = {
@@ -64,6 +90,7 @@ export const ReadOnly: Story = {
       <div className='flex items-center gap-3'>
         <Checkbox label='Unchecked' checked={false} state='readOnly'/>
         <Checkbox label='Checked' checked={true} state='readOnly'/>
+        <Checkbox label='indeterminate' checked={false} partial={true} state='readOnly'/>
       </div>
     </div>
   ),
@@ -77,6 +104,7 @@ export const Disabled: Story = {
       <div className='flex items-center gap-3'>
         <Checkbox label='Unchecked' checked={false} state='disabled'/>
         <Checkbox label='Checked' checked={true} state='disabled'/>
+        <Checkbox label='Indeterminate' partial={true} checked={true} state='disabled'/>
       </div>
     </div>
   ),
@@ -101,6 +129,7 @@ export const InteractivePlayground: Story = {
   args: {
     label: 'Playground Checkbox',
     checked: false,
+    partial: false,
     size: 'md',
     disabled: false,
   },
