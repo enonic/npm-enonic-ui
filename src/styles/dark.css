@@ -31,6 +31,10 @@
     /* Inputs */
     --color-input-disabled: var(--color-grey-800);
 
+    /* Tooltips */
+    --color-tooltip: var(--color-grey-600);
+    --color-tooltip-foreground: var(--color-white);
+
     /* Documentation */
     --color-doc-only: var(--color-juke);
   }

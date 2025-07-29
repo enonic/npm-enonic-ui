@@ -173,9 +173,9 @@ function TooltipContent({ children, actualSide, className, position, tooltipRef 
     >
       <div
         className={cn(
-          'relative w-fit rounded-md px-3 py-1.5 text-xs',
-          'bg-main text-rev shadow-md',
-          'animate-in fade-in-0 zoom-in-95 duration-200',
+          'relative w-fit rounded-xs px-2 py-1 text-xs',
+          'bg-tooltip text-tooltip-foreground shadow-md',
+          'animate-in fade-in-0 zoom-in-95',
           actualSide === 'top' && 'slide-in-from-top-2',
           actualSide === 'bottom' && 'slide-in-from-bottom-2',
           actualSide === 'left' && 'slide-in-from-left-2',
