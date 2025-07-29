@@ -1,22 +1,15 @@
-import { cn } from '@/utils';
+import { cn, unwrap } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-import type { JSX } from 'react';
+import { Check, Minus } from 'lucide-react';
+import { forwardRef, useId } from 'react';
 
 const checkboxContainerVariants = cva(
-  [
-    'relative flex items-center cursor-pointer select-none gap-2',
-    'focus-within:w-fit',
-    'focus-within:ring-1 focus-within:ring-bt-tertiary',
-    'rounded-[2px] border border-transparent',
-    'focus-within:border-bt-tertiary focus-within:ring-2 focus-within:ring-bt-tertiary',
-  ],
+  ['relative flex items-center select-none gap-2', 'transition-opacity duration-100'],
   {
     variants: {
-      state: {
-        default: '',
-        error: '',
-        readOnly: 'pointer-events-none',
-        disabled: 'pointer-events-none opacity-30',
+      disabled: {
+        true: 'pointer-events-none cursor-not-allowed',
+        false: 'cursor-pointer',
       },
       alignment: {
         left: 'flex-row',
@@ -26,7 +19,7 @@ const checkboxContainerVariants = cva(
       },
     },
     defaultVariants: {
-      state: 'default',
+      disabled: false,
       alignment: 'left',
     },
   },
@@ -34,123 +27,116 @@ const checkboxContainerVariants = cva(
 
 const checkboxBoxVariants = cva(
   [
-    'inline-block bg-bg-main transition-colors duration-100',
-    'border-2',
-    'flex-shrink-0',
-    'rounded-[2px] flex items-center justify-center',
-    'peer-checked:[&>svg>.check]:opacity-100',
-    'peer-indeterminate:[&>svg>.dash]:opacity-100',
+    'inline-block transition-all duration-100',
+    'border-2 rounded-xs',
+    'flex-shrink-0 flex items-center justify-center',
+    'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-offset-0',
+    'h-3.5 w-3.5',
   ],
   {
     variants: {
-      size: {
-        sm: 'h-3.5 w-3.5 border-2',
-        md: 'h-3.5 w-3.5 border-2',
-        lg: 'h-3.5 w-3.5 border-2',
-      },
       state: {
         default: [
-          'border-bdr-strong peer-checked:bg-btn-tertiary peer-checked:border-bt-tertiary peer-checked:[&>svg]:stroke-white',
-          'peer-indeterminate:bg-btn-tertiary peer-indeterminate:border-bt-tertiary peer-indeterminate:[&>svg]:stroke-white',
-        ].join(' '),
+          'border-bdr-subtle bg-transparent peer-hover:border-bdr-strong',
+          'peer-checked:bg-btn-tertiary peer-checked:border-btn-tertiary',
+          'peer-indeterminate:bg-btn-tertiary peer-indeterminate:border-btn-tertiary',
+        ],
         error: [
-          'border-red-500 peer-checked:bg-red-500 peer-checked:border-red-500',
-          'peer-checked:[&>svg]:stroke-white',
-          'peer-indeterminate:[&>svg]:stroke-white peer-indeterminate:bg-red-500 peer-indeterminate:border-red-500',
-        ].join(' '),
+          'border-bdr-danger bg-transparent',
+          'peer-checked:bg-danger peer-checked:border-danger',
+          'peer-indeterminate:bg-danger peer-indeterminate:border-danger',
+        ],
         readOnly: [
-          'border-bdr-subtle peer-checked:bg-bdr-subtle peer-checked:border-bdr-subtle',
-          'peer-checked:[&>svg]:stroke-white pointer-events-none',
-          'peer-indeterminate:[&>svg]:stroke-white pointer-events-none peer-indeterminate:bg-bdr-subtle',
-        ].join(' '),
-        disabled: [
-          'border border-bdr-strong peer-checked:bg-btn-tertiary peer-checked:border-bt-tertiary',
-          'peer-checked:[&>svg]:stroke-white pointer-events-none',
-          'peer-indeterminate:[&>svg]:stroke-white pointer-events-none peer-indeterminate:bg-btn-tertiary peer-checked:border-bt-tertiary',
-        ].join(' '),
+          'border-bdr-subtle bg-transparent',
+          'peer-checked:bg-bdr-subtle peer-checked:border-bdr-subtle',
+          'peer-indeterminate:bg-bdr-subtle peer-indeterminate:border-bdr-subtle',
+        ],
       },
     },
     defaultVariants: {
-      size: 'md',
       state: 'default',
     },
   },
 );
 
-export type CheckboxSize = VariantProps<typeof checkboxBoxVariants>['size'];
-export type CheckboxState = VariantProps<typeof checkboxBoxVariants>['state'];
-export type CheckboxAlignment = 'left' | 'right' | 'top' | 'bottom';
+export type CheckboxState = NonNullable<VariantProps<typeof checkboxBoxVariants>['state']>;
+export type CheckboxAlignment = NonNullable<VariantProps<typeof checkboxContainerVariants>['alignment']>;
 
 export type CheckboxProps = {
   className?: string;
   label?: string;
   checked?: boolean;
-  size?: CheckboxSize;
   state?: CheckboxState;
   alignment?: CheckboxAlignment;
-  onChange?: (checked: boolean) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onFocus?: () => void;
-  id?: string;
-  name?: string;
   partial?: boolean;
-};
+  error?: boolean;
+} & Omit<React.InputHTMLAttributes, 'type'>;
 
-export function Checkbox({
-  className,
-  label,
-  checked,
-  size = 'md',
-  state = 'default',
-  alignment = 'left',
-  onChange,
-  id,
-  onBlur,
-  onFocus,
-  name,
-  partial = false,
-}: CheckboxProps): JSX.Element {
-  const isDisabled = state === 'disabled';
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
+  (
+    {
+      className,
+      label,
+      checked,
+      state = 'default',
+      alignment = 'left',
+      partial = false,
+      error,
+      disabled,
+      readOnly,
+      id,
+      ...props
+    },
+    ref,
+  ) => {
+    const inputId = id ?? useId();
+    const isDisabled = disabled ?? false;
+    const isReadOnly = readOnly ?? state === 'readOnly';
+    const actualState = error ? 'error' : isReadOnly ? 'readOnly' : state;
 
-  return (
-    <label htmlFor={id} className={cn(checkboxContainerVariants({ state, alignment }), className)}>
-      <input
-        id={id}
-        name={name}
-        type='checkbox'
-        className='peer sr-only'
-        checked={checked}
-        disabled={state === 'readOnly' || state === 'disabled'}
-        onChange={e => onChange?.(e.currentTarget.checked)}
-        ref={el => {
-          if (el) el.indeterminate = partial;
-        }}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        aria-checked={partial ? 'mixed' : checked}
-        aria-disabled={isDisabled}
-        aria-invalid={state === 'error'}
-        aria-readonly={state === 'readOnly'}
-      />
+    return (
+      <label
+        htmlFor={inputId}
+        className={cn(
+          checkboxContainerVariants({ disabled: unwrap(isDisabled || isReadOnly), alignment }),
+          isDisabled && 'opacity-30',
+          isReadOnly && 'cursor-not-allowed',
+          className,
+        )}
+      >
+        <input
+          ref={el => {
+            if (typeof ref === 'function') {
+              ref(el);
+            } else if (ref) {
+              ref.current = el;
+            }
+            if (el) el.indeterminate = partial;
+          }}
+          id={inputId}
+          type='checkbox'
+          className='peer sr-only'
+          checked={checked}
+          disabled={isDisabled || isReadOnly}
+          aria-checked={partial ? 'mixed' : checked}
+          aria-disabled={isDisabled}
+          aria-invalid={error ?? actualState === 'error'}
+          aria-readonly={isReadOnly}
+          {...props}
+        />
 
-      <span className={cn(checkboxBoxVariants({ size, state }))} aria-hidden='true'>
-        {/* Checkmark */}
-        <svg viewBox='0 0 20 20' fill='none' stroke='currentColor' strokeWidth='2'>
-          <line
-            className='dash opacity-0 transition-opacity stroke-[4] [stroke-linecap:round]'
-            x1='4'
-            y1='10'
-            x2='16'
-            y2='10'
-          />
-          <polyline
-            className='check opacity-0 transition-opacity stroke-[3] [stroke-linecap:round] [stroke-linejoin:round]'
-            points='4 11 9 15 17 5'
-          />
-        </svg>
-      </span>
+        <span className={cn(checkboxBoxVariants({ state: actualState }))} aria-hidden='true'>
+          {partial ? (
+            <Minus size={'0.625rem'} className='text-white' strokeWidth={4} />
+          ) : checked ? (
+            <Check size={'0.625rem'} className='text-white' strokeWidth={4} />
+          ) : null}
+        </span>
 
-      {label && <span>{label}</span>}
-    </label>
-  );
-}
+        {label && <span className='text-main'>{label}</span>}
+      </label>
+    );
+  },
+);
+
+Checkbox.displayName = 'Checkbox';

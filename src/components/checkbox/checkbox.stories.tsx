@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { useState } from 'react';
 
-import { Checkbox } from './checkbox';
+import { Checkbox, type CheckboxProps } from './checkbox';
 
-type Story = StoryObj<typeof Checkbox>;
+type Story = StoryObj<CheckboxProps>;
 
 export default {
   title: 'Components/Checkbox',
@@ -36,17 +37,22 @@ export default {
     },
     alignment: {
       control: 'select',
-      options: ['left','right','top','bottom'],
-      description: 'Where the checkbox sits relative to the label'
-    }
+      options: ['left', 'right', 'top', 'bottom'],
+      description: 'Where the checkbox sits relative to the label',
+    },
   },
-} satisfies Meta<typeof Checkbox>;
+} satisfies Meta<CheckboxProps>;
 
 export const Default: Story = {
   args: {
     label: 'Default Checkbox',
     checked: false,
     partial: false,
+  },
+  render: args => {
+    const [checked, setChecked] = useState(args.checked ?? false);
+
+    return <Checkbox {...args} checked={checked} onChange={e => setChecked(Boolean(e.currentTarget.checked))} />;
   },
 };
 
@@ -67,16 +73,15 @@ export const Indeterminate: Story = {
   },
 };
 
-
 export const ErrorState: Story = {
   name: 'Error State',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Read Only checkbox</h3>
       <div className='flex items-center gap-3'>
-        <Checkbox label='Unchecked' checked={false} state='error'/>
-        <Checkbox label='Checked' checked={true} state='error'/>
-        <Checkbox label='indeterminate' checked={false} partial={true} state='error'/>
+        <Checkbox label='Unchecked' checked={false} state='error' />
+        <Checkbox label='Checked' checked={true} state='error' />
+        <Checkbox label='indeterminate' checked={false} partial={true} state='error' />
       </div>
     </div>
   ),
@@ -88,37 +93,9 @@ export const ReadOnly: Story = {
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Read Only checkbox</h3>
       <div className='flex items-center gap-3'>
-        <Checkbox label='Unchecked' checked={false} state='readOnly'/>
-        <Checkbox label='Checked' checked={true} state='readOnly'/>
-        <Checkbox label='indeterminate' checked={false} partial={true} state='readOnly'/>
-      </div>
-    </div>
-  ),
-};
-
-export const Disabled: Story = {
-  name: 'Disabled',
-  render: () => (
-    <div className='space-y-4 p-4'>
-      <h3 className='text-sm font-medium mb-3'>Disabled checkbox</h3>
-      <div className='flex items-center gap-3'>
-        <Checkbox label='Unchecked' checked={false} state='disabled'/>
-        <Checkbox label='Checked' checked={true} state='disabled'/>
-        <Checkbox label='Indeterminate' partial={true} checked={true} state='disabled'/>
-      </div>
-    </div>
-  ),
-};
-
-export const Sizes: Story = {
-  name: 'Size Comparison',
-  render: () => (
-    <div className='space-y-4 p-4'>
-      <h3 className='text-sm font-medium mb-3'>Checkbox Sizes</h3>
-      <div className='flex items-center gap-3'>
-        <Checkbox label='Small' size='sm' />
-        <Checkbox label='Medium' checked={true} size='md' />
-        <Checkbox label='Large' size='lg' />
+        <Checkbox label='Unchecked' checked={false} state='readOnly' />
+        <Checkbox label='Checked' checked={true} state='readOnly' />
+        <Checkbox label='indeterminate' checked={false} partial={true} state='readOnly' />
       </div>
     </div>
   ),
@@ -130,7 +107,11 @@ export const InteractivePlayground: Story = {
     label: 'Playground Checkbox',
     checked: false,
     partial: false,
-    size: 'md',
     disabled: false,
+  },
+  render: args => {
+    const [checked, setChecked] = useState(args.checked ?? false);
+
+    return <Checkbox {...args} checked={checked} onChange={e => setChecked(e.currentTarget.checked)} />;
   },
 };
