@@ -49,6 +49,9 @@
   --color-btn-tertiary-hover: var(--color-btn-tertiary-hover);
   --color-btn-active: var(--color-btn-active);
 
+  /* Checkboxes */
+  --color-box-danger: var(--color-box-danger);
+
   /* Inputs */
   --color-input-disabled: var(--color-input-disabled);
 

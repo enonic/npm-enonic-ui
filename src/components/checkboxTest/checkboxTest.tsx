@@ -14,8 +14,6 @@ const checkboxContainerVariants = cva(
       alignment: {
         left: 'flex-row',
         right: 'flex-row-reverse justify-end',
-        top: 'flex-col',
-        bottom: 'flex-col-reverse',
       },
     },
     defaultVariants: {
@@ -70,7 +68,7 @@ const checkboxBoxVariants = cva(
 export type CheckboxState = NonNullable<VariantProps<typeof checkboxBoxVariants>['state']>;
 export type CheckboxAlignment = NonNullable<VariantProps<typeof checkboxContainerVariants>['alignment']>;
 
-export type CheckboxProps = {
+export type CheckboxPropsTest = {
   className?: string;
   label?: string;
   checked?: boolean;
@@ -82,15 +80,15 @@ export type CheckboxProps = {
   onChange?: (checked: boolean) => void;
 } & Omit<React.InputHTMLAttributes, 'type' | 'onChange'>;
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
+export const CheckboxTest = forwardRef<HTMLInputElement, CheckboxPropsTest>(
   (
     {
       className,
       label,
-      checked,
+      checked: controlledChecked,
+      partial: controlledPartial,
       state = 'default',
       alignment = 'left',
-      partial = false,
       error,
       disabled,
       readOnly,
@@ -102,32 +100,35 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     ref,
   ) => {
     const inputId = id ?? useId();
+
+    const [checked, setChecked] = useState(controlledChecked ?? false);
+    const [partial, setPartial] = useState(controlledPartial ?? false);
+
+    useEffect(() => {
+      setChecked(controlledChecked ?? false);
+    }, [controlledChecked]);
+    useEffect(() => {
+      setPartial(controlledPartial ?? false);
+    }, [controlledPartial]);
+
     const isDisabled = disabled ?? state === 'disabled';
     const isReadOnly = readOnly ?? state === 'readOnly';
     const actualState = error ? 'error' : isReadOnly ? 'readOnly' : isDisabled ? 'disabled' : state;
-    const [wasPreviouslyPartial, setWasPreviouslyPartial] = useState(partial);
-
-    useEffect(() => {
-      setWasPreviouslyPartial(partial);
-    }, [partial]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
       if (isDisabled || isReadOnly) return;
 
-      const newChecked = e.currentTarget.checked;
+      const next = e.currentTarget.checked;
 
       if (partial) {
-        e.preventDefault();
+        setPartial(false);
+        setChecked(false);
         onChange?.(false);
         return;
       }
 
-      if (wasPreviouslyPartial && newChecked) {
-        e.preventDefault();
-        onChange?.(false);
-        return;
-      }
-      onChange?.(newChecked);
+      setChecked(next);
+      onChange?.(next);
     };
 
     return (
@@ -142,11 +143,6 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           )}
         >
           <input
-            ref={el => {
-              if (typeof ref === 'function') ref(el);
-              else if (ref) ref.current = el;
-              if (el) el.indeterminate = partial;
-            }}
             id={inputId}
             type='checkbox'
             className='peer sr-only'
@@ -157,6 +153,11 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             aria-invalid={error ?? actualState === 'error'}
             aria-readonly={isReadOnly}
             onChange={handleChange}
+            ref={el => {
+              if (typeof ref === 'function') ref(el);
+              else if (ref) ref.current = el;
+              if (el) el.indeterminate = partial;
+            }}
             {...props}
           />
 
@@ -181,4 +182,4 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   },
 );
 
-Checkbox.displayName = 'Checkbox';
+CheckboxTest.displayName = 'CheckboxTest';
