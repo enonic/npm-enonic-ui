@@ -1,64 +1,42 @@
-import { cn, unwrap } from '@/utils';
+import { cn } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Check, Minus, OctagonAlert } from 'lucide-react';
-import { forwardRef, useEffect, useId, useState } from 'react';
-
-const checkboxContainerVariants = cva(
-  ['relative flex items-center select-none gap-2', 'transition-opacity duration-100'],
-  {
-    variants: {
-      disabled: {
-        true: 'pointer-events-none cursor-not-allowed',
-        false: 'cursor-pointer',
-      },
-      alignment: {
-        left: 'flex-row',
-        right: 'flex-row-reverse justify-end',
-        top: 'flex-col',
-        bottom: 'flex-col-reverse',
-      },
-    },
-    defaultVariants: {
-      disabled: false,
-      alignment: 'left',
-    },
-  },
-);
-
-const errorVariants = cva(['flex items-center gap-1 text-box-danger mt-1']);
+import { forwardRef, useId, useState } from 'react';
 
 const checkboxBoxVariants = cva(
   [
-    'inline-block transition-all duration-100',
-    'border-2 rounded-xs',
+    'inline-block',
     'flex-shrink-0 flex items-center justify-center',
-    'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring/75 peer-focus-visible:ring-offset-0',
-    'peer-hover:outline-none peer-hover:ring-3 peer-hover:ring-ring/50 peer-hover:ring-offset-0',
     'h-3.5 w-3.5',
+    'border-[1.5px] rounded-xs',
+    'bg-transparent',
+    'transition-all duration-100',
   ],
   {
     variants: {
       state: {
         default: [
-          'border-bdr-strong bg-transparent',
+          'border-bdr-strong',
           'peer-checked:bg-btn-tertiary peer-checked:border-btn-tertiary',
           'peer-indeterminate:bg-btn-tertiary peer-indeterminate:border-btn-tertiary',
         ],
         error: [
-          'border-box-danger bg-transparent',
+          'border-box-danger',
           'peer-checked:bg-box-danger peer-checked:border-box-danger',
           'peer-indeterminate:bg-box-danger peer-indeterminate:border-box-danger',
         ],
         readOnly: [
-          'border-bdr-subtle bg-transparent',
+          'border-bdr-subtle',
           'peer-checked:bg-bdr-subtle peer-checked:border-bdr-subtle',
           'peer-indeterminate:bg-bdr-subtle peer-indeterminate:border-bdr-subtle',
         ],
-        disabled: [
-          'border-bdr-strong bg-transparent',
-          'peer-checked:bg-btn-tertiary peer-checked:border-btn-tertiary',
-          'peer-indeterminate:bg-btn-tertiary peer-indeterminate:border-btn-tertiary',
+      },
+      editable: {
+        true: [
+          'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring/75 peer-focus-visible:ring-offset-0',
+          'peer-hover:outline-none peer-hover:ring-3 peer-hover:ring-ring/50 peer-hover:ring-offset-0',
         ],
+        false: null,
       },
     },
     defaultVariants: {
@@ -68,66 +46,81 @@ const checkboxBoxVariants = cva(
 );
 
 export type CheckboxState = NonNullable<VariantProps<typeof checkboxBoxVariants>['state']>;
-export type CheckboxAlignment = NonNullable<VariantProps<typeof checkboxContainerVariants>['alignment']>;
+export type CheckboxAlign = 'left' | 'right';
+export type CheckboxChecked = boolean | 'indeterminate';
 
 export type CheckboxProps = {
   className?: string;
   label?: string;
-  checked?: boolean;
-  state?: CheckboxState;
-  alignment?: CheckboxAlignment;
-  partial?: boolean;
+  defaultChecked?: CheckboxChecked;
+  checked?: CheckboxChecked;
+  align?: CheckboxAlign;
   error?: boolean;
-  errorText?: string;
-  onChange?: (checked: boolean) => void;
-} & Omit<React.InputHTMLAttributes, 'type' | 'onChange'>;
+  errorMessage?: string;
+  readOnly?: boolean;
+  disabled?: boolean;
+  required?: boolean;
+  name?: string;
+  value?: string;
+  onCheckedChange?: (checked: CheckboxChecked) => void;
+} & Omit<
+  React.InputHTMLAttributes,
+  'type' | 'readOnly' | 'disabled' | 'onChange' | 'checked' | 'defaultChecked' | 'required' | 'name' | 'value'
+>;
+
+function calcState(error: boolean | undefined, readOnly: boolean | undefined): CheckboxState {
+  if (error) return 'error';
+  if (readOnly) return 'readOnly';
+  return 'default';
+}
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   (
     {
+      id,
       className,
+      name,
       label,
+      defaultChecked,
       checked,
-      state = 'default',
-      alignment = 'left',
-      partial = false,
+      align = 'left',
       error,
       disabled,
       readOnly,
-      id,
-      onChange,
-      errorText,
+      required,
+      value = 'on',
+      onCheckedChange,
+      errorMessage,
       ...props
     },
     ref,
   ) => {
     const inputId = id ?? useId();
-    const isDisabled = disabled ?? state === 'disabled';
-    const isReadOnly = readOnly ?? state === 'readOnly';
-    const actualState = error ? 'error' : isReadOnly ? 'readOnly' : isDisabled ? 'disabled' : state;
-    const [wasPreviouslyPartial, setWasPreviouslyPartial] = useState(partial);
+    const state = calcState(error, readOnly);
+    const editable = !disabled && !readOnly;
 
-    useEffect(() => {
-      setWasPreviouslyPartial(partial);
-    }, [partial]);
+    const [uncontrolledChecked, setUncontrolledChecked] = useState<boolean | 'indeterminate'>(defaultChecked ?? false);
+    const isControlled = checked !== undefined;
+    const checkedState = isControlled ? checked : uncontrolledChecked;
+    const isIndeterminate = checkedState === 'indeterminate';
+    const isChecked = checkedState === true;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-      if (isDisabled || isReadOnly) return;
+      if (!editable) return;
 
-      const newChecked = e.currentTarget.checked;
+      let nextValue: boolean | 'indeterminate';
 
-      if (partial) {
-        e.preventDefault();
-        onChange?.(false);
-        return;
+      if (isIndeterminate) {
+        nextValue = false;
+      } else {
+        nextValue = e.currentTarget.checked;
       }
 
-      if (wasPreviouslyPartial && newChecked) {
-        e.preventDefault();
-        onChange?.(false);
-        return;
+      if (!isControlled) {
+        setUncontrolledChecked(nextValue);
       }
-      onChange?.(newChecked);
+
+      onCheckedChange?.(nextValue);
     };
 
     return (
@@ -135,9 +128,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         <label
           htmlFor={inputId}
           className={cn(
-            checkboxContainerVariants({ disabled: unwrap(isDisabled || isReadOnly), alignment }),
-            isDisabled && 'opacity-30 cursor-not-allowed',
-            isReadOnly && 'cursor-not-allowed',
+            'relative flex items-center select-none gap-2',
+            'transition-opacity duration-100',
+            align === 'right' && 'flex-row-reverse justify-end',
+            disabled ? 'opacity-30 cursor-default' : readOnly ? 'cursor-default' : 'cursor-pointer',
             className,
           )}
         >
@@ -145,35 +139,40 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             ref={el => {
               if (typeof ref === 'function') ref(el);
               else if (ref) ref.current = el;
-              if (el) el.indeterminate = partial;
+              if (el) el.indeterminate = isIndeterminate;
             }}
+            {...props}
             id={inputId}
             type='checkbox'
             className='peer sr-only'
-            checked={checked}
-            disabled={isDisabled || isReadOnly}
-            aria-checked={partial ? 'mixed' : checked}
-            aria-disabled={isDisabled}
-            aria-invalid={error ?? actualState === 'error'}
-            aria-readonly={isReadOnly}
+            checked={isChecked}
+            disabled={readOnly ?? disabled}
+            required={required}
+            name={name}
+            value={value}
+            aria-checked={isIndeterminate ? 'mixed' : isChecked}
+            aria-disabled={disabled}
+            aria-invalid={error}
+            aria-readonly={readOnly}
+            data-state={isIndeterminate ? 'indeterminate' : isChecked ? 'checked' : 'unchecked'}
+            data-disabled={disabled ? '' : undefined}
             onChange={handleChange}
-            {...props}
           />
 
-          <span className={cn(checkboxBoxVariants({ state: actualState }))} aria-hidden='true'>
-            {partial ? (
-              <Minus size={'0.625rem'} className='text-white' strokeWidth={4} />
-            ) : checked ? (
-              <Check size={'0.625rem'} className='text-white' strokeWidth={4} />
+          <span className={cn(checkboxBoxVariants({ state, editable }))} aria-hidden='true'>
+            {isIndeterminate ? (
+              <Minus size={10} className='text-rev' strokeWidth={4} />
+            ) : isChecked ? (
+              <Check size={10} className='text-rev' strokeWidth={4} />
             ) : null}
           </span>
 
           {label && <span className='text-main'>{label}</span>}
         </label>
-        {state === 'error' && errorText && (
-          <div className={cn(errorVariants())}>
-            <OctagonAlert size={16} />
-            {errorText}
+        {state === 'error' && errorMessage && (
+          <div className={'flex items-center gap-2 text-box-danger mt-1'}>
+            <OctagonAlert size={14} strokeWidth={2.5} />
+            {errorMessage}
           </div>
         )}
       </div>

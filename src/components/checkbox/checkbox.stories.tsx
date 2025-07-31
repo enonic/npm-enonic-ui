@@ -11,16 +11,25 @@ export default {
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
   argTypes: {
-    checked: { control: 'boolean', description: 'Controls the checked state' },
-    partial: { control: 'boolean', description: 'Sets the indeterminate state' },
-    label: { control: 'text', description: 'Text label for the checkbox' },
-    errorText: { control: 'text', description: 'Error message displayed when in error state' },
-    state: {
+    checked: {
       control: 'select',
-      options: ['default', 'readOnly', 'disabled', 'error'],
-      description: 'Controls the visual state',
+      options: [false, true, 'indeterminate'],
+      description: 'Controls the checked state',
     },
-    alignment: {
+    defaultChecked: {
+      control: 'select',
+      options: [false, true, 'indeterminate'],
+      description: 'Default checked state for uncontrolled usage',
+    },
+    label: { control: 'text', description: 'Text label for the checkbox' },
+    errorMessage: { control: 'text', description: 'Error message displayed when in error state' },
+    error: { control: 'boolean', description: 'Shows error state' },
+    disabled: { control: 'boolean', description: 'Disables the checkbox' },
+    readOnly: { control: 'boolean', description: 'Makes the checkbox read-only' },
+    required: { control: 'boolean', description: 'Makes the checkbox required' },
+    name: { control: 'text', description: 'Form field name' },
+    value: { control: 'text', description: 'Form field value' },
+    align: {
       control: 'select',
       options: ['left', 'right'],
       description: 'Controls label placement',
@@ -29,56 +38,53 @@ export default {
 } satisfies Meta<CheckboxProps>;
 
 const useCheckboxState = (
-  initialChecked = false,
-  initialPartial = false,
+  initialChecked: boolean | 'indeterminate' = false,
 ): {
-  checked: boolean;
-  partial: boolean;
-  handleChange: (newChecked: boolean) => void;
-  setChecked: React.Dispatch<React.SetStateAction<boolean>>;
-  setPartial: React.Dispatch<React.SetStateAction<boolean>>;
+  checked: boolean | 'indeterminate';
+  handleChange: (newChecked: boolean | 'indeterminate') => void;
+  setChecked: React.Dispatch<React.SetStateAction<boolean | 'indeterminate'>>;
 } => {
-  const [checked, setChecked] = useState(initialChecked);
-  const [partial, setPartial] = useState(initialPartial);
+  const [checked, setChecked] = useState<boolean | 'indeterminate'>(initialChecked);
 
-  const handleChange = (newChecked: boolean): void => {
-    if (partial) {
-      setPartial(false);
-    }
+  const handleChange = (newChecked: boolean | 'indeterminate'): void => {
     setChecked(newChecked);
   };
 
-  return { checked, partial, handleChange, setChecked, setPartial };
+  return { checked, handleChange, setChecked };
 };
 
-const renderCheckboxGroup = (state: CheckboxProps['state'], errorText?: string): JSX.Element => {
+const renderCheckboxGroup = (options: {
+  error?: boolean;
+  disabled?: boolean;
+  readOnly?: boolean;
+  errorMessage?: string;
+}): JSX.Element => {
   const uncheckedBox = useCheckboxState(false);
   const checkedBox = useCheckboxState(true);
-  const indeterminateBox = useCheckboxState(false, true);
+  const indeterminateBox = useCheckboxState('indeterminate');
 
   return (
     <div className='flex items-center gap-3'>
       <Checkbox
         label='Unchecked'
-        state={state}
+        {...options}
         checked={uncheckedBox.checked}
-        onChange={uncheckedBox.handleChange}
-        errorText={errorText}
+        onCheckedChange={uncheckedBox.handleChange}
+        errorMessage={options.errorMessage}
       />
       <Checkbox
         label='Checked'
-        state={state}
+        {...options}
         checked={checkedBox.checked}
-        onChange={checkedBox.handleChange}
-        errorText={errorText}
+        onCheckedChange={checkedBox.handleChange}
+        errorMessage={options.errorMessage}
       />
       <Checkbox
         label='Indeterminate'
-        state={state}
+        {...options}
         checked={indeterminateBox.checked}
-        partial={indeterminateBox.partial}
-        onChange={indeterminateBox.handleChange}
-        errorText={errorText}
+        onCheckedChange={indeterminateBox.handleChange}
+        errorMessage={options.errorMessage}
       />
     </div>
   );
@@ -89,21 +95,17 @@ export const DefaultState: Story = {
   render: () => (
     <div className='p-4'>
       <h3 className='text-sm font-medium mb-3'>Default checkboxes</h3>
-      {renderCheckboxGroup('default')}
+      {renderCheckboxGroup({})}
     </div>
   ),
 };
 
 export const ErrorState: Story = {
   name: 'Error State',
-  args: {
-    state: 'error',
-    errorText: 'Error text',
-  },
   render: () => (
     <div className='p-4'>
       <h3 className='text-sm font-medium mb-3 '>Error checkboxes</h3>
-      {renderCheckboxGroup('error')}
+      {renderCheckboxGroup({ error: true })}
     </div>
   ),
 };
@@ -111,13 +113,12 @@ export const ErrorState: Story = {
 export const ErrorWithText: Story = {
   name: 'Error with Text',
   args: {
-    state: 'error',
-    errorText: 'Error text',
+    errorMessage: 'Error message',
   },
   render: args => (
     <div className='p-4'>
       <h3 className='text-sm font-medium mb-3'>Error checkboxes with text</h3>
-      {renderCheckboxGroup('error', args.errorText)}
+      {renderCheckboxGroup({ error: true, errorMessage: args.errorMessage })}
     </div>
   ),
 };
@@ -127,7 +128,7 @@ export const ReadOnlyState: Story = {
   render: () => (
     <div className='p-4'>
       <h3 className='text-sm font-medium mb-3'>ReadOnly checkboxes</h3>
-      {renderCheckboxGroup('readOnly')}
+      {renderCheckboxGroup({ readOnly: true })}
     </div>
   ),
 };
@@ -137,7 +138,7 @@ export const DisabledState: Story = {
   render: () => (
     <div className='p-4'>
       <h3 className='text-sm font-medium mb-3'>Disabled checkboxes</h3>
-      {renderCheckboxGroup('disabled')}
+      {renderCheckboxGroup({ disabled: true })}
     </div>
   ),
 };
@@ -145,31 +146,74 @@ export const DisabledState: Story = {
 export const InteractivePlayground: Story = {
   name: 'Interactive Playground',
   args: {
-    label: 'Playground CheckboxTest',
+    label: 'Playground Checkbox',
     checked: false,
-    partial: false,
-    state: 'default',
-    alignment: 'left',
+    align: 'left',
+    error: false,
+    disabled: false,
+    readOnly: false,
+    required: false,
   },
   render: args => {
-    const [checked, setChecked] = useState(args.checked ?? false);
-    const [partial, setPartial] = useState(args.partial ?? false);
+    const [checked, setChecked] = useState<boolean | 'indeterminate'>(args.checked ?? false);
 
     useEffect(() => {
       setChecked(args.checked ?? false);
-      setPartial(args.partial ?? false);
-    }, [args.checked, args.partial]);
+    }, [args.checked]);
 
     return (
       <Checkbox
         {...args}
         checked={checked}
-        partial={partial}
-        onChange={newChecked => {
-          if (partial) setPartial(false);
+        onCheckedChange={(newChecked: boolean | 'indeterminate') => {
           setChecked(newChecked);
         }}
       />
+    );
+  },
+};
+
+export const UncontrolledExample: Story = {
+  name: 'Uncontrolled Example',
+  render: () => (
+    <div className='p-4 space-y-4'>
+      <h3 className='text-sm font-medium mb-3'>Uncontrolled checkboxes</h3>
+      <div className='space-y-2'>
+        <Checkbox label='Default unchecked' />
+        <Checkbox label='Default checked' defaultChecked />
+        <Checkbox label='Default indeterminate' defaultChecked='indeterminate' />
+      </div>
+    </div>
+  ),
+};
+
+export const SummaryCheckbox: Story = {
+  name: 'Summary Checkbox',
+  render: () => {
+    const [option1, setOption1] = useState(false);
+    const [option2, setOption2] = useState(false);
+
+    const allChecked = option1 && option2;
+    const someChecked = option1 || option2;
+    const summaryState = allChecked ? true : someChecked ? 'indeterminate' : false;
+
+    const handleSummaryChange = (checked: boolean | 'indeterminate'): void => {
+      const newValue = checked === true;
+      setOption1(newValue);
+      setOption2(newValue);
+    };
+
+    return (
+      <div className='p-4 space-y-3'>
+        <h3 className='text-sm font-medium mb-3'>Summary checkbox with child options</h3>
+        <div className='space-y-2'>
+          <Checkbox label='Select All' checked={summaryState} onCheckedChange={handleSummaryChange} />
+          <div className='ml-6 space-y-2'>
+            <Checkbox label='Option 1' checked={option1} onCheckedChange={checked => setOption1(checked === true)} />
+            <Checkbox label='Option 2' checked={option2} onCheckedChange={checked => setOption2(checked === true)} />
+          </div>
+        </div>
+      </div>
     );
   },
 };
