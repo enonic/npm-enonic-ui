@@ -14,7 +14,7 @@
     --color-bdr-subtle: var(--color-grey-500);
     --color-bdr-soft: var(--color-grey-800);
     --color-bdr-strong: var(--color-white);
-    --color-bdr-danger: var(--color-danger-sub);
+    --color-bdr-danger: var(--color-danger-subtle);
 
     /* Outline Ring */
     --color-ring: var(--color-grey-500);
@@ -27,6 +27,9 @@
     --color-btn-tertiary: var(--color-grey-600);
     --color-btn-tertiary-hover: var(--color-grey-700);
     --color-btn-active: var(--color-grey-800);
+
+    /* Checkboxes */
+    --color-box-danger: var(--color-danger-subtle);
 
     /* Inputs */
     --color-input-disabled: var(--color-grey-800);
