@@ -11,30 +11,37 @@ concurrency:
 
 jobs:
   precheck:
-    name: Verify tag points to main/master
+    name: Verify tag points to main/master or version branches (x.y)
     runs-on: ubuntu-latest
     outputs:
-      on_main_or_master: ${{ steps.contains.outputs.on_main_or_master }}
+      allowed: ${{ steps.contains.outputs.allowed }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check if tag commit is contained in main/master
+      - name: Check if tag commit is in allowed branches
         id: contains
+        shell: bash
         run: |
-          git fetch --quiet origin main master || true
-          if git branch -r --contains "${GITHUB_SHA}" | grep -Eq 'origin/(main|master)'; then
-            echo "on_main_or_master=true" >> "$GITHUB_OUTPUT"
+          git fetch --quiet origin '+refs/heads/*:refs/remotes/origin/*' || true
+
+          contains="$(git branch -r --contains "${GITHUB_SHA}" | sed 's/^[ *]*//')"
+
+          echo "Branches containing the tag commit:"
+          echo "${contains}"
+
+          if echo "${contains}" | grep -Eq '^origin/(main|master|[0-9]+\.[0-9]+)$'; then
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "on_main_or_master=false" >> "$GITHUB_OUTPUT"
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
           fi
 
   npm-publish:
     name: Publish to NPM
     needs: precheck
-    if: needs.precheck.outputs.on_main_or_master == 'true'
+    if: needs.precheck.outputs.allowed == 'true'
     runs-on: ubuntu-latest
 
     steps:
