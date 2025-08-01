@@ -5,11 +5,36 @@ on:
     tags:
       - 'v*'
 
-concurrency: release
+concurrency:
+  group: release
+  cancel-in-progress: true
 
 jobs:
+  precheck:
+    name: Verify tag points to main/master
+    runs-on: ubuntu-latest
+    outputs:
+      on_main_or_master: ${{ steps.contains.outputs.on_main_or_master }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if tag commit is contained in main/master
+        id: contains
+        run: |
+          git fetch --quiet origin main master || true
+          if git branch -r --contains "${GITHUB_SHA}" | grep -Eq 'origin/(main|master)'; then
+            echo "on_main_or_master=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "on_main_or_master=false" >> "$GITHUB_OUTPUT"
+          fi
+
   npm-publish:
     name: Publish to NPM
+    needs: precheck
+    if: needs.precheck.outputs.on_main_or_master == 'true'
     runs-on: ubuntu-latest
 
     steps:
