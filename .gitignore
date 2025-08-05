@@ -20,6 +20,7 @@ docs/
 node_modules/
 .pnpm-store/
 pnpm-lock.yaml
+pnpm-workspace.yaml
 
 # OS files
 .DS_Store
