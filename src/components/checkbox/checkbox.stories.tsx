@@ -129,6 +129,7 @@ export const ReadOnlyState: Story = {
     <div className='p-4'>
       <h3 className='text-sm font-medium mb-3'>ReadOnly checkboxes</h3>
       {renderCheckboxGroup({ readOnly: true })}
+      {renderCheckboxGroup({ readOnly: true, error: true })}
     </div>
   ),
 };
@@ -139,6 +140,7 @@ export const DisabledState: Story = {
     <div className='p-4'>
       <h3 className='text-sm font-medium mb-3'>Disabled checkboxes</h3>
       {renderCheckboxGroup({ disabled: true })}
+      {renderCheckboxGroup({ disabled: true, error: true })}
     </div>
   ),
 };

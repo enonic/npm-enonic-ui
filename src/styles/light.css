@@ -7,14 +7,13 @@
     --color-rev: var(--color-white);
     --color-surface-primary: var(--color-grey-50);
 
-    /* Feedback Colors*/
-    /* ... same as in color.css */
+    /* Feedback Colors */
+    --color-error: var(--color-danger);
 
     /* Borders */
     --color-bdr-subtle: var(--color-grey-500);
     --color-bdr-soft: var(--color-grey-200);
     --color-bdr-strong: var(--color-black);
-    --color-bdr-danger: var(--color-danger);
 
     /* Outline Ring */
     --color-ring: var(--color-grey-500);
@@ -27,9 +26,6 @@
     --color-btn-tertiary: var(--color-black);
     --color-btn-tertiary-hover: var(--color-grey-900);
     --color-btn-active: var(--color-grey-800);
-
-    /* Checkboxes */
-    --color-box-danger: var(--color-danger);
 
     /* Inputs */
     --color-input-disabled: var(--color-grey-100);

@@ -18,18 +18,7 @@
   --color-surface-primary: var(--color-surface-primary);
 
   /* Feedback Colors*/
-  --color-info: var(--color-info);
-  --color-info-subtle: var(--color-info-subtle);
-  --color-info-surface: var(--color-info-surface);
-  --color-warn: var(--color-warn);
-  --color-warn-subtle: var(--color-warn-subtle);
-  --color-warn-surface: var(--color-warn-surface);
-  --color-success: var(--color-success);
-  --color-success-subtle: var(--color-success-subtle);
-  --color-success-surface: var(--color-success-surface);
-  --color-danger: var(--color-danger);
-  --color-danger-subtle: var(--color-danger-subtle);
-  --color-danger-surface: var(--color-danger-surface);
+  --color-error: var(--color-error);
 
   /* Borders */
   --color-bdr-subtle: var(--color-bdr-subtle);

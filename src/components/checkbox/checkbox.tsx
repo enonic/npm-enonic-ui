@@ -10,42 +10,40 @@ const checkboxBoxVariants = cva(
     'h-3.5 w-3.5',
     'border-[1.5px] rounded-xs',
     'bg-transparent',
-    'transition-all duration-100',
+    'transition-highlight duration-100',
   ],
   {
     variants: {
-      state: {
-        default: [
-          'border-bdr-strong',
-          'peer-checked:bg-btn-tertiary peer-checked:border-btn-tertiary',
-          'peer-indeterminate:bg-btn-tertiary peer-indeterminate:border-btn-tertiary',
-        ],
-        error: [
-          'border-box-danger',
-          'peer-checked:bg-box-danger peer-checked:border-box-danger',
-          'peer-indeterminate:bg-box-danger peer-indeterminate:border-box-danger',
-        ],
-        readOnly: [
-          'border-bdr-subtle',
-          'peer-checked:bg-bdr-subtle peer-checked:border-bdr-subtle',
-          'peer-indeterminate:bg-bdr-subtle peer-indeterminate:border-bdr-subtle',
-        ],
-      },
       editable: {
         true: [
           'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring/75 peer-focus-visible:ring-offset-0',
           'peer-hover:outline-none peer-hover:ring-3 peer-hover:ring-ring/50 peer-hover:ring-offset-0',
         ],
-        false: null,
+        false: 'opacity-30',
+      },
+      state: {
+        default: [
+          'border-main',
+          'peer-checked:bg-main peer-checked:border-main',
+          'peer-indeterminate:bg-main peer-indeterminate:border-main',
+        ],
+        error: [
+          'border-error',
+          'peer-checked:bg-error peer-checked:border-error',
+          'peer-indeterminate:bg-error peer-indeterminate:border-error',
+          'peer-focus-visible:border-error peer-focus-visible:ring-error/50',
+          'peer-hover:border-error peer-hover:ring-error/50',
+        ],
       },
     },
     defaultVariants: {
       state: 'default',
+      editable: true,
     },
   },
 );
 
-export type CheckboxState = NonNullable<VariantProps<typeof checkboxBoxVariants>['state']>;
+type CheckboxState = NonNullable<VariantProps<typeof checkboxBoxVariants>['state']>;
 export type CheckboxAlign = 'left' | 'right';
 export type CheckboxChecked = boolean | 'indeterminate';
 
@@ -67,12 +65,6 @@ export type CheckboxProps = {
   React.InputHTMLAttributes,
   'type' | 'readOnly' | 'disabled' | 'onChange' | 'checked' | 'defaultChecked' | 'required' | 'name' | 'value'
 >;
-
-function calcState(error: boolean | undefined, readOnly: boolean | undefined): CheckboxState {
-  if (error) return 'error';
-  if (readOnly) return 'readOnly';
-  return 'default';
-}
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   (
@@ -96,7 +88,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     ref,
   ) => {
     const inputId = id ?? useId();
-    const state = calcState(error, readOnly);
+    const state: CheckboxState = error ? 'error' : 'default';
     const editable = !disabled && !readOnly;
 
     const [uncontrolledChecked, setUncontrolledChecked] = useState<boolean | 'indeterminate'>(defaultChecked ?? false);
@@ -129,9 +121,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           htmlFor={inputId}
           className={cn(
             'relative flex items-center select-none gap-2',
-            'transition-opacity duration-100',
             align === 'right' && 'flex-row-reverse justify-end',
-            disabled ? 'opacity-30 cursor-default' : readOnly ? 'cursor-default' : 'cursor-pointer',
+            editable ? 'cursor-pointer' : 'cursor-default',
             className,
           )}
         >
@@ -167,10 +158,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             ) : null}
           </span>
 
-          {label && <span className='text-main'>{label}</span>}
+          {label && <span className={cn('text-main', disabled && 'opacity-30')}>{label}</span>}
         </label>
         {state === 'error' && errorMessage && (
-          <div className={'flex items-center gap-2 text-box-danger mt-1'}>
+          <div className={cn('flex items-center gap-2 text-error mt-1', disabled && 'opacity-30')}>
             <OctagonAlert size={14} strokeWidth={2.5} />
             {errorMessage}
           </div>
