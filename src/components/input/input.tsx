@@ -30,7 +30,7 @@ const inputContainerVariants = cva(
 
 const inputVariants = cva([
   'w-full px-3 text-base h-10',
-  'text-main bg-alt',
+  'text-main bg-surface-neutral',
   'placeholder:text-subtle',
   'focus:outline-none',
   'disabled:pointer-events-none',

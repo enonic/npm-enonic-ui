@@ -17,6 +17,7 @@
   --color-rev: var(--color-rev);
 
   /* Surface Colors */
+  --color-surface-neutral: var(--color-surface-neutral);
   --color-surface-primary: var(--color-surface-primary);
   --color-surface-primary-hover: var(--color-surface-primary-hover);
   --color-surface-primary-selected: var(--color-surface-primary-selected);

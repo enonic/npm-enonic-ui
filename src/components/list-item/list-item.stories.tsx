@@ -14,20 +14,48 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta<typeof ListItem>;
 
-export const Basic: Story = {
-  name: 'Basic',
+export const ContentVariations: Story = {
+  name: 'Content Variations',
   render: () => (
     <div className='w-80 space-y-2'>
+      <h3 className='text-sm font-semibold text-subtle mb-2'>Label Only</h3>
       <ListItem>
-        <ListItem.Content>
-          <div className='font-medium truncate'>Normal list item</div>
-        </ListItem.Content>
+        <ListItem.Content label='Simple item' />
+      </ListItem>
+      <ListItem selected>
+        <ListItem.Content label='Selected simple item' />
       </ListItem>
 
+      <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Label + Description</h3>
+      <ListItem>
+        <ListItem.Content label='Document.pdf' description='Shared by John Doe' />
+      </ListItem>
       <ListItem selected>
-        <ListItem.Content>
-          <div className='font-medium truncate'>Selected list item</div>
-        </ListItem.Content>
+        <ListItem.Content label='Presentation.pptx' description='Last modified yesterday' />
+      </ListItem>
+
+      <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Label + Metadata</h3>
+      <ListItem>
+        <ListItem.Content label='Image.png' metadata='2.4 MB • PNG Image' />
+      </ListItem>
+      <ListItem selected>
+        <ListItem.Content label='Video.mp4' metadata='156 MB • MP4 Video' />
+      </ListItem>
+
+      <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Full Content</h3>
+      <ListItem>
+        <ListItem.Content
+          label='Project Report'
+          description='Quarterly performance analysis'
+          metadata='Modified 2 hours ago • 1.2 MB'
+        />
+      </ListItem>
+      <ListItem selected>
+        <ListItem.Content
+          label='Meeting Notes'
+          description='Team sync discussion points'
+          metadata='Created today • 245 KB'
+        />
       </ListItem>
     </div>
   ),
@@ -38,99 +66,72 @@ export const WithIcons: Story = {
   render: () => {
     const [checked1, setChecked1] = useState<CheckboxChecked>(false);
     const [checked2, setChecked2] = useState<CheckboxChecked>(true);
-    const [checked3, setChecked3] = useState<CheckboxChecked>(false);
-    const [checked4, setChecked4] = useState<CheckboxChecked>('indeterminate');
-    const [checked5, setChecked5] = useState<CheckboxChecked>(false);
+    const [checked3, setChecked3] = useState<CheckboxChecked>('indeterminate');
 
     return (
       <div className='w-80 space-y-2'>
-        {/* 1 icon on the left */}
+        <h3 className='text-sm font-semibold text-subtle mb-2'>File Browser Example</h3>
+
         <ListItem>
           <ListItem.Left>
             <Checkbox checked={checked1} onCheckedChange={setChecked1} aria-label='Select folder' />
+            <IconButton icon={ChevronDown} variant='text' aria-label='Expand' className='w-5 h-5' />
           </ListItem.Left>
-          <ListItem.Content>
-            <div className='font-medium truncate'>Documents folder</div>
-          </ListItem.Content>
+          <ListItem.Content label='src' description='Source files' metadata='12 items' />
         </ListItem>
 
-        {/* 1 icon on the right */}
-        <ListItem>
-          <ListItem.Content>
-            <div className='min-w-0'>
-              <div className='font-medium truncate'>Project settings</div>
-              <div className='text-sm truncate'>Configure project options</div>
-            </div>
-          </ListItem.Content>
-          <ListItem.Right>
-            <IconButton icon={X} variant='text' size='sm' aria-label='Delete' />
-          </ListItem.Right>
-        </ListItem>
-
-        {/* Icons on both sides */}
-        <ListItem>
+        <ListItem selected>
           <ListItem.Left>
             <Checkbox checked={checked2} onCheckedChange={setChecked2} aria-label='Select file' />
           </ListItem.Left>
-          <ListItem.Content>
-            <div className='min-w-0'>
-              <div className='font-medium truncate'>main.tsx</div>
-              <div className='text-sm truncate'>Entry point file</div>
-            </div>
-          </ListItem.Content>
+          <ListItem.Content label='index.tsx' description='Main entry point' metadata='Modified 2 hours ago' />
           <ListItem.Right>
             <IconButton icon={Pen} variant='text' size='sm' aria-label='Edit' />
-          </ListItem.Right>
-        </ListItem>
-
-        {/* 2 icons on the left */}
-        <ListItem>
-          <ListItem.Left>
-            <Checkbox checked={checked3} onCheckedChange={setChecked3} aria-label='Select folder' />
-            <IconButton icon={ChevronDown} variant='text' size='sm' aria-label='Expand' />
-          </ListItem.Left>
-          <ListItem.Content>
-            <div className='min-w-0'>
-              <div className='font-medium truncate'>src folder</div>
-              <div className='text-sm truncate'>Source files</div>
-            </div>
-          </ListItem.Content>
-        </ListItem>
-
-        {/* 1 icon and 1 text on the right */}
-        <ListItem>
-          <ListItem.Left>
-            <Checkbox checked={checked4} onCheckedChange={setChecked4} aria-label='Select package' />
-          </ListItem.Left>
-          <ListItem.Content>
-            <div className='min-w-0'>
-              <div className='font-medium truncate'>package.json</div>
-              <div className='text-sm truncate'>Package configuration</div>
-            </div>
-          </ListItem.Content>
-          <ListItem.Right>
-            <span className='text-xs'>2.1 KB</span>
             <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
           </ListItem.Right>
         </ListItem>
 
-        {/* Demonstrating automatic organization - children in any order */}
         <ListItem>
-          <ListItem.Right>
-            <IconButton icon={X} variant='text' size='sm' aria-label='Remove' />
-          </ListItem.Right>
-          <ListItem.Content>
-            <div className='font-medium truncate'>Order does not matter</div>
-          </ListItem.Content>
           <ListItem.Left>
-            <Checkbox checked={checked5} onCheckedChange={setChecked5} aria-label='Select' />
+            <Checkbox checked={checked3} onCheckedChange={setChecked3} aria-label='Select file' />
           </ListItem.Left>
+          <ListItem.Content label='package.json' description='Dependencies and scripts' metadata='2.4 KB' />
+          <ListItem.Right>
+            <span className='text-xs text-subtle'>JSON</span>
+            <IconButton icon={X} variant='text' size='sm' aria-label='Delete' />
+          </ListItem.Right>
         </ListItem>
+      </div>
+    );
+  },
+};
 
-        {/* Plain text without explicit Content wrapper */}
-        <ListItem>
-          <div className='font-medium truncate'>Auto-wrapped in Content</div>
-        </ListItem>
+export const Interactive: Story = {
+  name: 'Interactive Selection',
+  render: () => {
+    const [selectedIndex, setSelectedIndex] = useState<number | null>(1);
+
+    const items = [
+      { label: 'Dashboard', description: 'Overview and analytics', metadata: 'Home page' },
+      { label: 'Projects', description: 'Manage your projects', metadata: '8 active projects' },
+      { label: 'Team', description: 'Collaborate with others', metadata: '12 members' },
+      { label: 'Settings', description: 'Configure preferences', metadata: 'Last updated today' },
+      { label: 'Help & Support', description: 'Get assistance', metadata: 'Documentation' },
+    ];
+
+    return (
+      <div className='w-80 space-y-1'>
+        <h3 className='text-sm font-semibold text-subtle mb-3'>Click to select items</h3>
+        {items.map((item, index) => (
+          <ListItem
+            key={index}
+            selected={selectedIndex === index}
+            onClick={() => setSelectedIndex(index)}
+            className='cursor-pointer'
+          >
+            <ListItem.Content {...item} />
+          </ListItem>
+        ))}
       </div>
     );
   },
