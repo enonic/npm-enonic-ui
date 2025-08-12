@@ -15,7 +15,11 @@
   --color-subtle: var(--color-subtle);
   --color-alt: var(--color-alt);
   --color-rev: var(--color-rev);
+
+  /* Surface Colors */
   --color-surface-primary: var(--color-surface-primary);
+  --color-surface-primary-hover: var(--color-surface-primary-hover);
+  --color-surface-primary-selected: var(--color-surface-primary-selected);
 
   /* Feedback Colors*/
   --color-error: var(--color-error);

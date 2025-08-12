@@ -5,7 +5,11 @@
     --color-subtle: var(--color-grey-200);
     --color-alt: var(--color-grey-950);
     --color-rev: var(--color-black);
+
+    /* Surface Colors */
     --color-surface-primary: var(--color-grey-900);
+    --color-surface-primary-hover: var(--color-grey-900);
+    --color-surface-primary-selected: var(--color-grey-800);
 
     /* Feedback Colors*/
     --color-error: var(--color-danger-subtle);
