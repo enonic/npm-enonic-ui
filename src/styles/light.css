@@ -7,6 +7,7 @@
     --color-rev: var(--color-white);
 
     /* Surface Colors */
+    --color-surface-neutral: var(--color-white);
     --color-surface-primary: var(--color-grey-50);
     --color-surface-primary-hover: var(--color-grey-50);
     --color-surface-primary-selected: var(--color-grey-800);
@@ -30,10 +31,6 @@
     --color-btn-tertiary: var(--color-black);
     --color-btn-tertiary-hover: var(--color-grey-900);
     --color-btn-active: var(--color-grey-800);
-
-    /* List Item */
-    --color-list-item-focus: var(--color-grey-800);
-    --color-list-item-hover: var(--color-grey-700);
 
     /* Inputs */
     --color-input-disabled: var(--color-grey-100);

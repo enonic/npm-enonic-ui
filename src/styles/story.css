@@ -2,7 +2,7 @@
 
 @layer base {
   body {
-    background-color: var(--color-alt);
+    background-color: var(--color-surface-neutral);
     color: var(--color-main);
     font-family: 'Open Sans', sans-serif;
   }
