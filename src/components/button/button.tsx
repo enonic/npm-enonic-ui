@@ -1,7 +1,7 @@
 import type { LucideIcon } from '@/types';
 import { cn } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { forwardRef, type JSX } from 'react';
+import { forwardRef } from 'react';
 
 const buttonVariants = cva(
   [
@@ -62,7 +62,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     { className, variant = 'text', size = 'md', startIcon, label, endIcon, title, children, ...props },
     ref: React.ForwardedRef<HTMLButtonElement>,
-  ): JSX.Element => {
+  ) => {
     const StartIcon = startIcon;
     const EndIcon = endIcon;
     const iconSize = getIconSize(size ?? 'md');

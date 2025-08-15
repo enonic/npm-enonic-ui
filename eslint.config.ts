@@ -31,6 +31,8 @@ export default [
         {
           allowExpressions: true,
           allowConciseArrowFunctionExpressionsStartingWithVoid: true,
+          allowHigherOrderFunctions: true,
+          allowTypedFunctionExpressions: true,
         },
       ],
       '@typescript-eslint/no-confusing-void-expression': [

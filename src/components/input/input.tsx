@@ -1,7 +1,7 @@
 import { cn, unwrap } from '@/utils';
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
-import { forwardRef, type JSX, useId } from 'react';
+import { forwardRef, useId } from 'react';
 
 const inputContainerVariants = cva(
   [
@@ -78,19 +78,19 @@ export type InputProps = {
   label?: string;
   description?: string;
   error?: string;
-  startAddon?: string | JSX.Element;
-  endAddon?: string | JSX.Element;
+  startAddon?: string | React.ReactElement;
+  endAddon?: string | React.ReactElement;
 } & React.InputHTMLAttributes;
 
-const renderAddon = (addon: string | JSX.Element): JSX.Element => {
-  return <div className={cn(addonVariants())}>{addon}</div>;
-};
+const renderAddon = (addon: string | React.ReactElement): React.ReactElement => (
+  <div className={cn(addonVariants())}>{addon}</div>
+);
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     { className, label, description, error, startAddon, endAddon, id, ...props }: InputProps,
     ref: React.ForwardedRef<HTMLInputElement>,
-  ): JSX.Element => {
+  ) => {
     const inputId = id ?? useId();
 
     const disabled = unwrap(props.disabled) ?? false;

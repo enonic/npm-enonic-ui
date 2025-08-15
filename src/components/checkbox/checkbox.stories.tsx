@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { type JSX, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Checkbox, type CheckboxProps } from './checkbox';
 
@@ -58,7 +58,7 @@ const renderCheckboxGroup = (options: {
   disabled?: boolean;
   readOnly?: boolean;
   errorMessage?: string;
-}): JSX.Element => {
+}): React.ReactElement => {
   const uncheckedBox = useCheckboxState(false);
   const checkedBox = useCheckboxState(true);
   const indeterminateBox = useCheckboxState('indeterminate');
