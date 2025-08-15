@@ -1,9 +1,11 @@
 import { cn } from '@/utils';
-import { forwardRef, type ReactNode } from 'react';
+import { findComponentByType } from '@/utils/find';
+import type { ReactNode } from 'react';
 
 export type ListItemProps = {
   className?: string;
   selected?: boolean;
+  children: ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export type ListItemLeftProps = {
@@ -54,20 +56,31 @@ export const ListItemRight = ({
 );
 ListItemRight.displayName = 'ListItem.Right';
 
-const ListItemRoot = forwardRef<HTMLDivElement, ListItemProps>(({ children, className, selected, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'group flex items-center px-2.5 py-1 gap-2.5',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50',
-      selected ? 'bg-surface-primary-selected text-rev' : 'hover:bg-surface-primary-hover',
-      className,
-    )}
-    {...props}
-  >
-    {children}
-  </div>
-));
+const ListItemRoot = ({
+  children,
+  className,
+  selected,
+  ...props
+}: ListItemProps): React.ReactElement<ListItemProps> => {
+  const left = findComponentByType(children, ListItemLeft);
+  const content = findComponentByType(children, ListItemContent);
+  const right = findComponentByType(children, ListItemRight);
+
+  return (
+    <div
+      className={cn(
+        'group flex items-center px-2.5 py-1 gap-2.5',
+        selected ? 'bg-surface-primary-selected text-rev' : 'hover:bg-surface-primary-hover',
+        className,
+      )}
+      {...props}
+    >
+      {left}
+      {content}
+      {right}
+    </div>
+  );
+};
 ListItemRoot.displayName = 'ListItem';
 
 export const ListItem = Object.assign(ListItemRoot, {

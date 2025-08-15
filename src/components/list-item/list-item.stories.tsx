@@ -40,6 +40,7 @@ export const WithIcons: Story = {
     const [checked2, setChecked2] = useState<CheckboxChecked>(true);
     const [checked3, setChecked3] = useState<CheckboxChecked>(false);
     const [checked4, setChecked4] = useState<CheckboxChecked>('indeterminate');
+    const [checked5, setChecked5] = useState<CheckboxChecked>(false);
 
     return (
       <div className='w-80 space-y-2'>
@@ -111,6 +112,24 @@ export const WithIcons: Story = {
             <span className='text-xs'>2.1 KB</span>
             <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
           </ListItem.Right>
+        </ListItem>
+
+        {/* Demonstrating automatic organization - children in any order */}
+        <ListItem>
+          <ListItem.Right>
+            <IconButton icon={X} variant='text' size='sm' aria-label='Remove' />
+          </ListItem.Right>
+          <ListItem.Content>
+            <div className='font-medium truncate'>Order does not matter</div>
+          </ListItem.Content>
+          <ListItem.Left>
+            <Checkbox checked={checked5} onCheckedChange={setChecked5} aria-label='Select' />
+          </ListItem.Left>
+        </ListItem>
+
+        {/* Plain text without explicit Content wrapper */}
+        <ListItem>
+          <div className='font-medium truncate'>Auto-wrapped in Content</div>
         </ListItem>
       </div>
     );
