@@ -155,3 +155,21 @@ export const AsChildFalse: Story = {
     </Tooltip>
   ),
 };
+
+export const EmptyTooltip: Story = {
+  render: () => (
+    <div className='flex gap-4'>
+      <Tooltip value=''>
+        <Button label='Empty string tooltip' />
+      </Tooltip>
+
+      <Tooltip value={null}>
+        <Button label='Null tooltip' />
+      </Tooltip>
+
+      <Tooltip value={undefined}>
+        <Button label='Undefined tooltip' />
+      </Tooltip>
+    </div>
+  ),
+};
