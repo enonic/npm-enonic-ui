@@ -17,7 +17,7 @@ type TooltipPosition = TooltipCoordinates & {
 
 export type TooltipProps = {
   children: ReactNode;
-  value: string;
+  value?: string | null;
   side?: TooltipSide;
   className?: string;
   asChild?: boolean;
@@ -218,7 +218,8 @@ export function Tooltip({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number>();
 
-  const coords = useTooltipPosition(isOpen, side, triggerRef, tooltipRef);
+  const hasContent = value != null && value !== '';
+  const coords = useTooltipPosition(isOpen && hasContent, side, triggerRef, tooltipRef);
 
   useEffect(() => {
     return () => {
@@ -227,20 +228,23 @@ export function Tooltip({
   }, []);
 
   const handleMouseEnter = useCallback(() => {
+    if (!hasContent) return;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (delay > 0) {
       timeoutRef.current = window.setTimeout(() => setIsOpen(true), delay);
     } else {
       setIsOpen(true);
     }
-  }, [delay]);
+  }, [delay, hasContent]);
 
   const handleMouseLeave = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setIsOpen(false);
   }, []);
 
-  const handleFocus = useCallback(() => setIsOpen(true), []);
+  const handleFocus = useCallback(() => {
+    if (hasContent) setIsOpen(true);
+  }, [hasContent]);
   const handleBlur = useCallback(() => setIsOpen(false), []);
 
   return (
@@ -257,6 +261,7 @@ export function Tooltip({
         {children}
       </TooltipTrigger>
       {isOpen &&
+        hasContent &&
         createPortal(
           <TooltipContent
             actualSide={coords.actualSide}
