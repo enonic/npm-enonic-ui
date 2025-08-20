@@ -1,6 +1,7 @@
 import { IconButton } from '@/components';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { MoreVertical, Pen, X } from 'lucide-react';
+import { useEffect, useState } from 'preact/hooks';
 
 import { SelectableListItem } from './selectable-list-item';
 
@@ -82,59 +83,84 @@ export const Examples: Story = {
   ),
 };
 
-type ControlsArgs = {
-  initialCheckedState: 'unchecked' | 'checked' | 'indeterminate';
+type PlaygroundArgs = {
+  checked: boolean | 'indeterminate';
   selected: boolean;
   readOnly: boolean;
   label: string;
   description: string;
   metadata: string;
+  showActions: boolean;
 };
 
-export const Controls: StoryObj = {
-  name: 'Playground (Controls)',
+export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
+  name: 'Interactive Playground',
   args: {
-    initialCheckedState: 'unchecked',
+    checked: false,
     selected: false,
     readOnly: false,
     label: 'Report.pdf',
     description: 'Shared by John',
     metadata: '12 KB',
-  } as ControlsArgs,
-  argTypes: {
-    initialCheckedState: {
-      options: ['unchecked', 'checked', 'indeterminate'],
-      control: { type: 'inline-radio' },
-    },
-    selected: { control: 'boolean' },
-    readOnly: { control: 'boolean' },
-    label: { control: 'text' },
-    description: { control: 'text' },
-    metadata: { control: 'text' },
+    showActions: true,
   },
-  render: raw => {
-    const args = raw as ControlsArgs;
+  argTypes: {
+    checked: {
+      control: 'select',
+      options: [false, true, 'indeterminate'],
+      description: 'Controls the checked state',
+    },
+    selected: {
+      control: 'boolean',
+      description: 'Controls the selected background state',
+    },
+    readOnly: {
+      control: 'boolean',
+      description: 'Makes the checkbox read-only',
+    },
+    label: {
+      control: 'text',
+      description: 'Main label text',
+    },
+    description: {
+      control: 'text',
+      description: 'Description text',
+    },
+    metadata: {
+      control: 'text',
+      description: 'Metadata text',
+    },
+    showActions: {
+      control: 'boolean',
+      description: 'Show action buttons',
+    },
+  },
+  render: args => {
+    const [checked, setChecked] = useState<boolean | 'indeterminate'>(args.checked);
 
-    const defaultChecked =
-      args.initialCheckedState === 'checked'
-        ? true
-        : args.initialCheckedState === 'indeterminate'
-          ? 'indeterminate'
-          : false;
+    useEffect(() => {
+      setChecked(args.checked);
+    }, [args.checked]);
 
     return (
       <div className='w-96'>
         <SelectableListItem
-          key={args.initialCheckedState}
           selected={args.selected}
           readOnly={args.readOnly}
           label={args.label}
           description={args.description}
           metadata={args.metadata}
-          defaultChecked={defaultChecked}
+          checked={checked}
+          onCheckedChange={(newChecked: boolean | 'indeterminate') => {
+            setChecked(newChecked);
+          }}
         >
-          <IconButton icon={Pen} variant='text' size='sm' aria-label='Edit' />
-          <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
+          {args.showActions && (
+            <>
+              <IconButton icon={Pen} variant='text' size='sm' aria-label='Edit' />
+              <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
+            </>
+          )}
         </SelectableListItem>
       </div>
     );

@@ -1,19 +1,13 @@
 import { Checkbox, type CheckboxProps } from '@/components/checkbox/checkbox';
-import { ListItem } from '@/components/list-item/list-item';
+import { ListItem, type ListItemContentProps, type ListItemProps } from '@/components/list-item/list-item';
 import type { ReactNode } from 'react';
 
 export type SelectableListItemProps = {
-  className?: string;
-  selected?: boolean;
   children?: ReactNode;
-  label: string;
-  description?: string;
-  metadata?: string;
   readOnly?: boolean;
-  checked?: CheckboxProps['checked'];
-  defaultChecked?: CheckboxProps['defaultChecked'];
-  onCheckedChange?: CheckboxProps['onCheckedChange'];
-} & Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>;
+} & Pick<ListItemContentProps, 'label' | 'description' | 'metadata' | 'icon'> &
+  Pick<CheckboxProps, 'checked' | 'defaultChecked' | 'onCheckedChange'> &
+  Omit<ListItemProps, 'children'>;
 
 export const SelectableListItem = ({
   className,
