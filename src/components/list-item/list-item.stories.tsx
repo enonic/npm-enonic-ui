@@ -1,7 +1,7 @@
 import { Checkbox, type CheckboxChecked, IconButton } from '@/components';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ChevronDown, MoreVertical, Pen, X } from 'lucide-react';
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 
 import { ListItem } from './list-item';
 
@@ -132,6 +132,106 @@ export const Interactive: Story = {
             <ListItem.Content {...item} />
           </ListItem>
         ))}
+      </div>
+    );
+  },
+};
+
+type PlaygroundArgs = {
+  selected: boolean;
+  label: string;
+  description: string;
+  metadata: string;
+  showLeft: boolean;
+  leftType: 'checkbox' | 'expand' | 'both';
+  showRight: boolean;
+  rightType: 'actions' | 'badge' | 'both';
+};
+
+export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
+  name: 'Interactive Playground',
+  args: {
+    selected: false,
+    label: 'Playground Item',
+    description: 'This is a description',
+    metadata: 'Metadata text',
+    showLeft: true,
+    leftType: 'both',
+    showRight: true,
+    rightType: 'both',
+  },
+  argTypes: {
+    selected: {
+      control: 'boolean',
+      description: 'Controls the selected state',
+    },
+    label: {
+      control: 'text',
+      description: 'Main label text',
+    },
+    description: {
+      control: 'text',
+      description: 'Description text',
+    },
+    metadata: {
+      control: 'text',
+      description: 'Metadata text',
+    },
+    showLeft: {
+      control: 'boolean',
+      description: 'Show left section',
+    },
+    leftType: {
+      control: 'select',
+      options: ['checkbox', 'expand', 'both'],
+      description: 'Type of left section content',
+    },
+    showRight: {
+      control: 'boolean',
+      description: 'Show right section',
+    },
+    rightType: {
+      control: 'select',
+      options: ['actions', 'badge', 'both'],
+      description: 'Type of right section content',
+    },
+  },
+  render: args => {
+    const [selected, setSelected] = useState(args.selected);
+    const [checked, setChecked] = useState<CheckboxChecked>(false);
+
+    useEffect(() => {
+      setSelected(args.selected);
+    }, [args.selected]);
+
+    return (
+      <div className='w-96'>
+        <ListItem selected={selected} onClick={() => setSelected(!selected)} className='cursor-pointer'>
+          {args.showLeft && (
+            <ListItem.Left>
+              {(args.leftType === 'checkbox' || args.leftType === 'both') && (
+                <Checkbox checked={checked} onCheckedChange={setChecked} aria-label='Select item' />
+              )}
+              {(args.leftType === 'expand' || args.leftType === 'both') && (
+                <IconButton icon={ChevronDown} variant='text' aria-label='Expand' className='w-5 h-5' />
+              )}
+            </ListItem.Left>
+          )}
+          <ListItem.Content label={args.label} description={args.description} metadata={args.metadata} />
+          {args.showRight && (
+            <ListItem.Right>
+              {(args.rightType === 'badge' || args.rightType === 'both') && (
+                <span className='text-xs text-subtle'>BADGE</span>
+              )}
+              {(args.rightType === 'actions' || args.rightType === 'both') && (
+                <>
+                  <IconButton icon={Pen} variant='text' size='sm' aria-label='Edit' />
+                  <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
+                </>
+              )}
+            </ListItem.Right>
+          )}
+        </ListItem>
       </div>
     );
   },

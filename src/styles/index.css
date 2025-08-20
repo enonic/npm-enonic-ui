@@ -15,6 +15,7 @@
   --color-subtle: var(--color-subtle);
   --color-alt: var(--color-alt);
   --color-rev: var(--color-rev);
+  --color-alt-rev: var(--color-alt-rev);
 
   /* Surface Colors */
   --color-surface-neutral: var(--color-surface-neutral);

@@ -145,36 +145,6 @@ export const DisabledState: Story = {
   ),
 };
 
-export const InteractivePlayground: Story = {
-  name: 'Interactive Playground',
-  args: {
-    label: 'Playground Checkbox',
-    checked: false,
-    align: 'left',
-    error: false,
-    disabled: false,
-    readOnly: false,
-    required: false,
-  },
-  render: args => {
-    const [checked, setChecked] = useState<boolean | 'indeterminate'>(args.checked ?? false);
-
-    useEffect(() => {
-      setChecked(args.checked ?? false);
-    }, [args.checked]);
-
-    return (
-      <Checkbox
-        {...args}
-        checked={checked}
-        onCheckedChange={(newChecked: boolean | 'indeterminate') => {
-          setChecked(newChecked);
-        }}
-      />
-    );
-  },
-};
-
 export const UncontrolledExample: Story = {
   name: 'Uncontrolled Example',
   render: () => (
@@ -216,6 +186,79 @@ export const SummaryCheckbox: Story = {
           </div>
         </div>
       </div>
+    );
+  },
+};
+
+export const OnSelectedBackground: Story = {
+  name: 'On Selected Background',
+  render: () => {
+    const uncheckedBox = useCheckboxState(false);
+    const checkedBox = useCheckboxState(true);
+    const indeterminateBox = useCheckboxState('indeterminate');
+
+    return (
+      <div className='p-4 space-y-4'>
+        <h3 className='text-sm font-medium mb-3'>Checkboxes on selected background</h3>
+
+        <div className='group bg-surface-primary-selected text-alt p-4 rounded'>
+          <h4 className='text-sm font-medium mb-3'>Default State</h4>
+          <div className='flex items-center gap-3'>
+            <Checkbox label='Unchecked' checked={uncheckedBox.checked} onCheckedChange={uncheckedBox.handleChange} />
+            <Checkbox label='Checked' checked={checkedBox.checked} onCheckedChange={checkedBox.handleChange} />
+            <Checkbox
+              label='Indeterminate'
+              checked={indeterminateBox.checked}
+              onCheckedChange={indeterminateBox.handleChange}
+            />
+          </div>
+        </div>
+
+        <div className='group bg-surface-primary-selected text-alt p-4 rounded'>
+          <h4 className='text-sm font-medium mb-3'>Error State</h4>
+          {renderCheckboxGroup({ error: true, errorMessage: 'Error message' })}
+        </div>
+
+        <div className='group bg-surface-primary-selected text-alt p-4 rounded'>
+          <h4 className='text-sm font-medium mb-3'>ReadOnly State</h4>
+          {renderCheckboxGroup({ readOnly: true })}
+        </div>
+
+        <div className='group bg-surface-primary-selected text-alt p-4 rounded'>
+          <h4 className='text-sm font-medium mb-3'>Disabled State</h4>
+          {renderCheckboxGroup({ disabled: true })}
+        </div>
+      </div>
+    );
+  },
+};
+
+export const InteractivePlayground: Story = {
+  name: 'Interactive Playground',
+  args: {
+    label: 'Playground Checkbox',
+    checked: false,
+    align: 'left',
+    error: false,
+    disabled: false,
+    readOnly: false,
+    required: false,
+  },
+  render: args => {
+    const [checked, setChecked] = useState<boolean | 'indeterminate'>(args.checked ?? false);
+
+    useEffect(() => {
+      setChecked(args.checked ?? false);
+    }, [args.checked]);
+
+    return (
+      <Checkbox
+        {...args}
+        checked={checked}
+        onCheckedChange={(newChecked: boolean | 'indeterminate') => {
+          setChecked(newChecked);
+        }}
+      />
     );
   },
 };

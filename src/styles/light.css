@@ -5,6 +5,7 @@
     --color-subtle: var(--color-grey-800);
     --color-alt: var(--color-white);
     --color-rev: var(--color-white);
+    --color-alt-rev: var(--color-black);
 
     /* Surface Colors */
     --color-surface-neutral: var(--color-white);

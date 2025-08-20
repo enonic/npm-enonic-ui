@@ -26,6 +26,11 @@ const checkboxBoxVariants = cva(
           'border-main',
           'peer-checked:bg-main peer-checked:border-main',
           'peer-indeterminate:bg-main peer-indeterminate:border-main',
+          'group-[.bg-surface-primary-selected]:border-alt',
+          'group-[.bg-surface-primary-selected]:peer-checked:bg-alt',
+          'group-[.bg-surface-primary-selected]:peer-checked:border-alt',
+          'group-[.bg-surface-primary-selected]:peer-indeterminate:bg-alt',
+          'group-[.bg-surface-primary-selected]:peer-indeterminate:border-alt',
         ],
         error: [
           'border-error',
@@ -152,13 +157,25 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
           <span className={cn(checkboxBoxVariants({ state, editable }))} aria-hidden='true'>
             {isIndeterminate ? (
-              <Minus size={10} className='text-rev' strokeWidth={4} />
+              <Minus
+                size={10}
+                className={cn('text-rev', !error && 'group-[.bg-surface-primary-selected]:text-alt-rev')}
+                strokeWidth={4}
+              />
             ) : isChecked ? (
-              <Check size={10} className='text-rev' strokeWidth={4} />
+              <Check
+                size={10}
+                className={cn('text-rev', !error && 'group-[.bg-surface-primary-selected]:text-alt-rev')}
+                strokeWidth={4}
+              />
             ) : null}
           </span>
 
-          {label && <span className={cn('text-main', disabled && 'opacity-30')}>{label}</span>}
+          {label && (
+            <span className={cn('text-main group-[.bg-surface-primary-selected]:text-alt', disabled && 'opacity-30')}>
+              {label}
+            </span>
+          )}
         </label>
         {state === 'error' && errorMessage && (
           <div className={cn('flex items-center gap-2 text-error mt-1', disabled && 'opacity-30')}>
