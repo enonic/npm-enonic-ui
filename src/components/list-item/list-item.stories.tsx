@@ -1,6 +1,21 @@
 import { Checkbox, type CheckboxChecked, IconButton } from '@/components';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { ChevronDown, MoreVertical, Pen, X } from 'lucide-react';
+import {
+  ChevronDown,
+  File,
+  FileText,
+  Folder,
+  HelpCircle,
+  Home,
+  Image,
+  MoreVertical,
+  Package,
+  Pen,
+  Settings,
+  Users,
+  Video,
+  X,
+} from 'lucide-react';
 import { useEffect, useState } from 'preact/hooks';
 
 import { ListItem } from './list-item';
@@ -22,29 +37,54 @@ export const ContentVariations: Story = {
       <ListItem>
         <ListItem.Content label='Simple item' />
       </ListItem>
+      <ListItem>
+        <ListItem.Content icon={<FileText className='w-6 h-6' />} label='File.txt' />
+      </ListItem>
       <ListItem selected>
         <ListItem.Content label='Selected simple item' />
       </ListItem>
 
       <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Label + Description</h3>
       <ListItem>
-        <ListItem.Content label='Document.pdf' description='Shared by John Doe' />
+        <ListItem.Content label='Spreadsheet.xlsx' description='Financial Q4 report' />
+      </ListItem>
+      <ListItem>
+        <ListItem.Content
+          icon={<FileText className='w-6 h-6' />}
+          label='Document.pdf'
+          description='Shared by John Doe'
+        />
       </ListItem>
       <ListItem selected>
-        <ListItem.Content label='Presentation.pptx' description='Last modified yesterday' />
+        <ListItem.Content
+          icon={<File className='w-6 h-6' />}
+          label='Presentation.pptx'
+          description='Last modified yesterday'
+        />
       </ListItem>
 
       <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Label + Metadata</h3>
       <ListItem>
-        <ListItem.Content label='Image.png' metadata='2.4 MB • PNG Image' />
+        <ListItem.Content label='Archive.zip' metadata='15.3 MB • ZIP Archive' />
+      </ListItem>
+      <ListItem>
+        <ListItem.Content icon={<Image className='w-6 h-6' />} label='Image.png' metadata='2.4 MB • PNG Image' />
       </ListItem>
       <ListItem selected>
-        <ListItem.Content label='Video.mp4' metadata='156 MB • MP4 Video' />
+        <ListItem.Content icon={<Video className='w-6 h-6' />} label='Video.mp4' metadata='156 MB • MP4 Video' />
       </ListItem>
 
       <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Full Content</h3>
       <ListItem>
         <ListItem.Content
+          label='Design System'
+          description='Component library documentation'
+          metadata='Updated yesterday • 3.4 MB'
+        />
+      </ListItem>
+      <ListItem>
+        <ListItem.Content
+          icon={<FileText className='w-6 h-6' />}
           label='Project Report'
           description='Quarterly performance analysis'
           metadata='Modified 2 hours ago • 1.2 MB'
@@ -52,6 +92,14 @@ export const ContentVariations: Story = {
       </ListItem>
       <ListItem selected>
         <ListItem.Content
+          label='User Research'
+          description='Interview transcripts and findings'
+          metadata='Created last week • 512 KB'
+        />
+      </ListItem>
+      <ListItem selected>
+        <ListItem.Content
+          icon={<FileText className='w-6 h-6' />}
           label='Meeting Notes'
           description='Team sync discussion points'
           metadata='Created today • 245 KB'
@@ -77,14 +125,24 @@ export const WithIcons: Story = {
             <Checkbox checked={checked1} onCheckedChange={setChecked1} aria-label='Select folder' />
             <IconButton icon={ChevronDown} variant='text' aria-label='Expand' className='w-5 h-5' />
           </ListItem.Left>
-          <ListItem.Content label='src' description='Source files' metadata='12 items' />
+          <ListItem.Content
+            icon={<Folder className='w-6 h-6' />}
+            label='src'
+            description='Source files'
+            metadata='12 items'
+          />
         </ListItem>
 
         <ListItem selected>
           <ListItem.Left>
             <Checkbox checked={checked2} onCheckedChange={setChecked2} aria-label='Select file' />
           </ListItem.Left>
-          <ListItem.Content label='index.tsx' description='Main entry point' metadata='Modified 2 hours ago' />
+          <ListItem.Content
+            icon={<FileText className='w-6 h-6' />}
+            label='index.tsx'
+            description='Main entry point'
+            metadata='Modified 2 hours ago'
+          />
           <ListItem.Right>
             <IconButton icon={Pen} variant='text' size='sm' aria-label='Edit' />
             <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
@@ -95,7 +153,12 @@ export const WithIcons: Story = {
           <ListItem.Left>
             <Checkbox checked={checked3} onCheckedChange={setChecked3} aria-label='Select file' />
           </ListItem.Left>
-          <ListItem.Content label='package.json' description='Dependencies and scripts' metadata='2.4 KB' />
+          <ListItem.Content
+            icon={<Package className='w-6 h-6' />}
+            label='package.json'
+            description='Dependencies and scripts'
+            metadata='2.4 KB'
+          />
           <ListItem.Right>
             <span className='text-xs text-subtle'>JSON</span>
             <IconButton icon={X} variant='text' size='sm' aria-label='Delete' />
@@ -112,11 +175,36 @@ export const Interactive: Story = {
     const [selectedIndex, setSelectedIndex] = useState<number | null>(1);
 
     const items = [
-      { label: 'Dashboard', description: 'Overview and analytics', metadata: 'Home page' },
-      { label: 'Projects', description: 'Manage your projects', metadata: '8 active projects' },
-      { label: 'Team', description: 'Collaborate with others', metadata: '12 members' },
-      { label: 'Settings', description: 'Configure preferences', metadata: 'Last updated today' },
-      { label: 'Help & Support', description: 'Get assistance', metadata: 'Documentation' },
+      {
+        icon: <Home className='w-6 h-6' />,
+        label: 'Dashboard',
+        description: 'Overview and analytics',
+        metadata: 'Home page',
+      },
+      {
+        icon: <Folder className='w-6 h-6' />,
+        label: 'Projects',
+        description: 'Manage your projects',
+        metadata: '8 active projects',
+      },
+      {
+        icon: <Users className='w-6 h-6' />,
+        label: 'Team',
+        description: 'Collaborate with others',
+        metadata: '12 members',
+      },
+      {
+        icon: <Settings className='w-6 h-6' />,
+        label: 'Settings',
+        description: 'Configure preferences',
+        metadata: 'Last updated today',
+      },
+      {
+        icon: <HelpCircle className='w-6 h-6' />,
+        label: 'Help & Support',
+        description: 'Get assistance',
+        metadata: 'Documentation',
+      },
     ];
 
     return (
@@ -142,6 +230,7 @@ type PlaygroundArgs = {
   label: string;
   description: string;
   metadata: string;
+  showIcon: boolean;
   showLeft: boolean;
   leftType: 'checkbox' | 'expand' | 'both';
   showRight: boolean;
@@ -155,6 +244,7 @@ export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
     label: 'Playground Item',
     description: 'This is a description',
     metadata: 'Metadata text',
+    showIcon: true,
     showLeft: true,
     leftType: 'both',
     showRight: true,
@@ -176,6 +266,10 @@ export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
     metadata: {
       control: 'text',
       description: 'Metadata text',
+    },
+    showIcon: {
+      control: 'boolean',
+      description: 'Show icon in content',
     },
     showLeft: {
       control: 'boolean',
@@ -217,7 +311,12 @@ export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
               )}
             </ListItem.Left>
           )}
-          <ListItem.Content label={args.label} description={args.description} metadata={args.metadata} />
+          <ListItem.Content
+            icon={args.showIcon ? <File className='w-6 h-6' /> : undefined}
+            label={args.label}
+            description={args.description}
+            metadata={args.metadata}
+          />
           {args.showRight && (
             <ListItem.Right>
               {(args.rightType === 'badge' || args.rightType === 'both') && (

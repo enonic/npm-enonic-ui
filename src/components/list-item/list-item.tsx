@@ -45,7 +45,8 @@ export const ListItemContent = ({
   ...props
 }: ListItemContentProps): React.ReactElement<ListItemContentProps> => {
   return (
-    <div className={cn('flex-1 min-w-0', className)} {...props}>
+    <div className={cn('flex-1 min-w-0', icon && 'grid grid-cols-[auto_1fr] gap-2 items-center', className)} {...props}>
+      {icon && <div className='w-6 h-6 flex items-center justify-center flex-shrink-0'>{icon}</div>}
       <div className='min-w-0'>
         {label && <h1 className='truncate font-semibold'>{label}</h1>}
         {description && (
