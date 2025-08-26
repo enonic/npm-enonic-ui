@@ -4,6 +4,7 @@ import { flatConfigs } from 'eslint-plugin-import';
 // @ts-expect-error - No types available for eslint-plugin-jsx-a11y
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
+import path from 'path';
 import { configs as tsConfigs } from 'typescript-eslint';
 
 export default [
@@ -17,7 +18,7 @@ export default [
     languageOptions: {
       parserOptions: {
         project: ['./tsconfig.app.json', './.storybook/tsconfig.json'],
-        tsconfigRootDir: '.',
+        tsconfigRootDir: path.resolve(__dirname),
         ecmaFeatures: {
           jsx: true,
         },
@@ -98,7 +99,7 @@ export default [
     languageOptions: {
       parserOptions: {
         project: './tsconfig.node.json',
-        tsconfigRootDir: '.',
+        tsconfigRootDir: path.resolve(__dirname),
       },
     },
   },
