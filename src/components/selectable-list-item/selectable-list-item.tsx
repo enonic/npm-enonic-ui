@@ -16,6 +16,7 @@ export const SelectableListItem = ({
   label,
   description,
   metadata,
+  icon,
   readOnly,
   checked,
   defaultChecked,
@@ -32,7 +33,7 @@ export const SelectableListItem = ({
           readOnly={readOnly}
         />
       </ListItem.Left>
-      <ListItem.Content label={label} description={description} metadata={metadata} />
+      <ListItem.Content label={label} description={description} metadata={metadata} icon={icon} />
       <ListItem.Right>{children}</ListItem.Right>
     </ListItem>
   );
