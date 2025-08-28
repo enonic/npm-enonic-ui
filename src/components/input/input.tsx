@@ -1,7 +1,8 @@
+import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
-import { forwardRef, useId } from 'react';
+import { forwardRef } from 'react';
 
 const inputContainerVariants = cva(
   [
@@ -91,7 +92,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     { className, label, description, error, startAddon, endAddon, id, ...props }: InputProps,
     ref: React.ForwardedRef<HTMLInputElement>,
   ) => {
-    const inputId = id ?? useId();
+    const inputId = usePrefixedId(unwrap(id));
 
     const disabled = unwrap(props.disabled) ?? false;
     const readOnly = unwrap(props.readOnly) ?? false;
