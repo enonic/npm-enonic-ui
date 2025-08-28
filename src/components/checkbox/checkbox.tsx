@@ -1,7 +1,8 @@
-import { cn } from '@/utils';
+import { usePrefixedId } from '@/providers/id-provider';
+import { cn, unwrap } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Check, Minus, OctagonAlert } from 'lucide-react';
-import { forwardRef, useId, useState } from 'react';
+import { forwardRef, useState } from 'react';
 
 const checkboxBoxVariants = cva(
   [
@@ -92,7 +93,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     },
     ref,
   ) => {
-    const inputId = id ?? useId();
+    const inputId = usePrefixedId(unwrap(id));
     const state: CheckboxState = error ? 'error' : 'default';
     const editable = !disabled && !readOnly;
 
