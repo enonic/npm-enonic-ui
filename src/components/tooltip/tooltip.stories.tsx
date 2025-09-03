@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Info } from 'lucide-react';
-import type { ComponentType } from 'preact';
 
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
@@ -12,13 +11,7 @@ const meta: Meta<typeof Tooltip> = {
   parameters: {
     layout: 'centered',
   },
-  decorators: [
-    (Story: ComponentType) => (
-      <div className='flex items-center justify-center min-h-[200px] p-8'>
-        <Story />
-      </div>
-    ),
-  ],
+  tags: ['autodocs'],
 };
 
 export default meta;

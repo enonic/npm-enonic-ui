@@ -1,4 +1,4 @@
-import { ListItem } from '@/components/list-item/list-item';
+import { ListItem, type ListItemContentProps } from '@/components/list-item/list-item';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   Archive,
@@ -38,24 +38,19 @@ const IconListItem = ({
   icon,
   label,
   description,
-}: {
-  icon: JSX.Element;
-  label: string;
-  description?: string;
-}): JSX.Element => (
+}: Pick<ListItemContentProps, 'label' | 'description' | 'icon'>): JSX.Element => (
   <ListItem>
     <ListItem.Left>{icon}</ListItem.Left>
     <ListItem.Content label={label} description={description} />
-    <ListItem.Right>{/* intentionally empty */}</ListItem.Right>
   </ListItem>
 );
 
-export const IconsGrid: Story = {
+export const AllIcons: Story = {
   render: () => (
-    <div className='mx-auto'>
-      <p className='mb-3 text-sm text-subtle'>Content icons</p>
+    <div>
+      <h3 className='mb-3 text-2xl font-bold'>Content Icons</h3>
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5'>
         <IconListItem icon={<FolderOpen />} label='Folder' description='Container for items' />
         <IconListItem icon={<FileChartPie />} label='Fragment' description='Reusable page part' />
         <IconListItem icon={<FileImage />} label='Image (legacy)' description='Content with image' />
