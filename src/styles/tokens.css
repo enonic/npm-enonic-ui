@@ -1,15 +1,12 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
-
-@custom-variant dark (&:where(.dark, .dark *));
-
-@import './base.css';
-@import './color.css';
+@import './colors.css';
 
 @import './light.css';
 @import './dark.css';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
+  /* COLORS */
   /* Main Colors */
   --color-main: var(--color-main);
   --color-subtle: var(--color-subtle);
@@ -30,7 +27,6 @@
   --color-bdr-subtle: var(--color-bdr-subtle);
   --color-bdr-soft: var(--color-bdr-soft);
   --color-bdr-strong: var(--color-bdr-strong);
-  --color-bdr-danger: var(--color-bdr-danger);
 
   /* Outline Ring */
   --color-ring: var(--color-ring);
@@ -44,9 +40,6 @@
   --color-btn-tertiary-hover: var(--color-btn-tertiary-hover);
   --color-btn-active: var(--color-btn-active);
 
-  /* Checkboxes */
-  --color-box-danger: var(--color-box-danger);
-
   /* Inputs */
   --color-input-disabled: var(--color-input-disabled);
 
@@ -55,5 +48,8 @@
   --color-tooltip-foreground: var(--color-tooltip-foreground);
 
   /* Documentation */
-  --color-doc-only: var(--color-doc-only);
+  --color-docs: var(--color-docs);
+
+  /* SIZINGS */
+  --sizing-11\.5: calc(var(--spacing) * 11.5);
 }

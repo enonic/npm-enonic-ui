@@ -27,8 +27,7 @@ yarn add @enonic/ui
 ### Import Components
 
 ```tsx
-import { Button, IconButton, Input } from '@enonic/ui';
-import '@enonic/ui/style.css';
+import { Button, Input } from '@enonic/ui';
 
 function App() {
   return (
@@ -42,19 +41,29 @@ function App() {
 }
 ```
 
-### Import Styles Only
+### Styles
 
-If you only need the CSS styles:
+#### Tailwind CSS
+
+If your project uses Tailwind CSS, you can import the styles directly from the library:
+
+```css
+/* Import Tailwind CSS */
+@import 'tailwindcss';
+/* Required by some components that use animations */
+@import 'tw-animate-css';
+
+/* Preset styles (includes tokens, base, and utilities) */
+@import '@enonic/ui/preset.css';
+```
+
+#### CSS Only
+
+If you only need the pre-built CSS styles:
 
 ```css
 @import '@enonic/ui/style.css';
 ```
-
-## Components
-
-- **Button** - Versatile button component with multiple variants and sizes
-- **IconButton** - Button component optimized for icon usage
-- **Input** - Form input component with built-in validation states
 
 ## Peer Dependencies
 
@@ -82,15 +91,6 @@ This library requires one of the following frameworks:
 
 - `lucide-react` (>=0.300.0) - For React projects
 - `lucide-preact` (>=0.300.0) - For Preact projects
-
-## Features
-
-- 🎨 Built with Tailwind CSS for easy customization
-- 📦 Tree-shakeable ES modules
-- 🔧 TypeScript support out of the box
-- ⚡ Optimized bundle size
-- 🎯 Framework agnostic (React/Preact)
-- ♿ Accessibility-first components
 
 ## Development
 

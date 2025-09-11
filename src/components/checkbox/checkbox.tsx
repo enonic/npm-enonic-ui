@@ -11,7 +11,7 @@ const checkboxBoxVariants = cva(
     'h-3.5 w-3.5',
     'border-[1.5px] rounded-xs',
     'bg-transparent',
-    'transition-highlight duration-100',
+    'transition-highlight',
   ],
   {
     variants: {
