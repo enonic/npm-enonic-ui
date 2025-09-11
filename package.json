@@ -26,10 +26,10 @@
   "module": "dist/enonic-ui.es.js",
   "types": "dist/types/index.d.ts",
   "files": [
-    "dist/types/",
     "dist/enonic-ui.es.js",
     "dist/enonic-ui.cjs",
-    "dist/style.css"
+    "dist/styles/",
+    "dist/types/"
   ],
   "exports": {
     ".": {
@@ -37,15 +37,20 @@
       "import": "./dist/enonic-ui.es.js",
       "require": "./dist/enonic-ui.cjs"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/styles/style.css",
+    "./preset.css": "./dist/styles/preset.css",
+    "./tokens.css": "./dist/styles/tokens.css",
+    "./base.css": "./dist/styles/base.css",
+    "./utilities.css": "./dist/styles/utilities.css"
   },
   "scripts": {
-    "build": "pnpm clean && pnpm build:lib",
-    "build:lib": "pnpm compile && vite build",
+    "build": "pnpm clean && pnpm build:ui",
+    "build:ui": "pnpm --color /^build:ui:.*$/",
+    "build:ui:lib": "vite build --config vite.config.ts",
+    "build:ui:css": "vite build --config vite.config.css.ts",
     "build:storybook": "storybook build",
     "build:all": "pnpm build && pnpm build:storybook",
     "dev": "storybook dev -p 6006",
-    "compile": "tsc -b",
     "clean": "rm -rf dist coverage reports storybook-static",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check",
     "typecheck": "tsc --noEmit",
@@ -168,15 +173,19 @@
   "size-limit": [
     {
       "path": "dist/enonic-ui.es.js",
-      "limit": "35 KB"
+      "limit": "30 KB"
     },
     {
       "path": "dist/enonic-ui.cjs",
-      "limit": "35 KB"
+      "limit": "30 KB"
     },
     {
-      "path": "dist/style.css",
-      "limit": "15 KB"
+      "path": "dist/styles/style.css",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/styles/preset.css",
+      "limit": "2 KB"
     }
   ]
 }

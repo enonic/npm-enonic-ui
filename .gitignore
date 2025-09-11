@@ -10,7 +10,6 @@ dist/
 build/
 
 # Development files
-.storybook/
 storybook-static/
 docs/
 *storybook.log

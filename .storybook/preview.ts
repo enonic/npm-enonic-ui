@@ -1,8 +1,8 @@
 import { withThemeByClassName } from '@storybook/addon-themes';
 import type { Preview } from '@storybook/preact-vite';
 
-import '../src/styles/index.css';
-import '../src/styles/story.css';
+import '../src/styles/style.css';
+import './story.css';
 
 const preview: Preview = {
   parameters: {

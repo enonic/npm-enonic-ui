@@ -1,0 +1,4 @@
+@utility transition-highlight {
+  transition-property: color, box-shadow;
+  transition-duration: 100ms;
+}

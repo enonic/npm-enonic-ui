@@ -17,7 +17,7 @@ export default [
   {
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.app.json', './.storybook/tsconfig.json'],
+        project: ['./tsconfig.app.json'],
         tsconfigRootDir: path.resolve(__dirname),
         ecmaFeatures: {
           jsx: true,
@@ -80,7 +80,7 @@ export default [
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: ['./tsconfig.app.json', './.storybook/tsconfig.json'],
+          project: ['./tsconfig.app.json'],
         },
       },
     },
@@ -95,7 +95,7 @@ export default [
     },
   },
   {
-    files: ['*.config.ts', '*.config.js'],
+    files: ['*.config.ts', '*.config.*.ts'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.node.json',

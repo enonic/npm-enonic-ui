@@ -9,9 +9,9 @@ src/
 *.config.js
 *.config.ts
 tsconfig*.json
-tailwind.config.ts
 eslint.config.ts
 vite.config.ts
+vite.config.css.ts
 
 # Development files
 .storybook/

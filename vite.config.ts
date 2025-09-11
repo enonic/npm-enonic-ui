@@ -33,6 +33,7 @@ export default defineConfig({
       fileName: format => (format === 'cjs' ? `enonic-ui.cjs` : `enonic-ui.${format}.js`),
       formats: ['es', 'cjs'],
     },
+    emptyOutDir: false,
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -65,7 +66,7 @@ export default defineConfig({
           // 'lucide-react': 'LucideReact',
           // 'lucide-preact': 'LucidePreact',
         },
-        assetFileNames: 'style[extname]',
+        assetFileNames: 'styles/style[extname]',
       },
     },
   },

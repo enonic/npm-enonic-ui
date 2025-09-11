@@ -41,6 +41,6 @@
     --color-tooltip-foreground: var(--color-white);
 
     /* Documentation */
-    --color-doc-only: var(--color-juke);
+    --color-docs: var(--color-juke);
   }
 }
