@@ -1,5 +1,6 @@
 import { Checkbox, type CheckboxProps } from '@/components/checkbox/checkbox';
 import { ListItem, type ListItemContentProps, type ListItemProps } from '@/components/list-item/list-item';
+import { cn } from '@/utils';
 import type { ReactNode } from 'react';
 
 export type SelectableListItemProps = {
@@ -24,7 +25,7 @@ export const SelectableListItem = ({
   ...props
 }: SelectableListItemProps): React.ReactElement => {
   return (
-    <ListItem className={className} selected={selected} {...props}>
+    <ListItem className={cn(!selected && 'hover:bg-surface-primary-hover', className)} selected={selected} {...props}>
       <ListItem.Left>
         <Checkbox
           checked={checked}

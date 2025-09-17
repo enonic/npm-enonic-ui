@@ -83,7 +83,7 @@ const ListItemRoot = ({
     <div
       className={cn(
         'group flex items-center px-2.5 py-1 gap-2.5',
-        selected ? 'bg-surface-primary-selected text-alt' : 'hover:bg-surface-primary-hover',
+        selected && 'bg-surface-primary-selected text-alt',
         className,
       )}
       {...props}
