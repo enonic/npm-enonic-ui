@@ -15,11 +15,16 @@ export type ListItemLeftProps = {
 
 export type ListItemContentProps = {
   className?: string;
+  children: ReactNode;
+} & React.HTMLAttributes<HTMLDivElement>;
+
+export type ListItemDefaultContentProps = {
+  className?: string;
   label?: string;
   description?: string;
   metadata?: string;
   icon?: ReactNode;
-} & React.HTMLAttributes<HTMLDivElement>;
+};
 
 export type ListItemRightProps = {
   children?: ReactNode;
@@ -38,26 +43,39 @@ export const ListItemLeft = ({
 
 export const ListItemContent = ({
   className,
-  label,
-  description,
-  metadata,
-  icon,
+  children,
   ...props
 }: ListItemContentProps): React.ReactElement<ListItemContentProps> => {
   return (
-    <div className={cn('flex-1 min-w-0', icon && 'grid grid-cols-[auto_1fr] gap-2 items-center', className)} {...props}>
-      {icon && <div className='w-6 h-6 flex items-center justify-center flex-shrink-0'>{icon}</div>}
-      <div className='min-w-0'>
-        {label && <h1 className='truncate font-semibold'>{label}</h1>}
-        {description && (
-          <p className='truncate text-sm group-[.bg-surface-primary-selected]:text-alt text-subtle'>{description}</p>
-        )}
-        {metadata && <p className='text-xs group-[.bg-surface-primary-selected]:text-alt text-subtle'>{metadata}</p>}
-      </div>
+    <div className={cn('flex-1 min-w-0', className)} {...props}>
+      {children}
     </div>
   );
 };
 ListItemContent.displayName = 'ListItem.Content';
+
+export const ListItemDefaultContent = ({
+  className,
+  label,
+  description,
+  metadata,
+  icon,
+}: ListItemDefaultContentProps): React.ReactElement<ListItemDefaultContentProps> => {
+  return (
+    <ListItemContent className={cn(icon && 'grid grid-cols-[auto_1fr] gap-2.5 items-center', className)}>
+      {icon && (
+        <div className='flex items-center justify-center flex-shrink-0 group-data-[tone=inverse]:text-alt'>{icon}</div>
+      )}
+      <div className='min-w-0 text-left'>
+        {label && <h1 className='truncate font-semibold group-data-[tone=inverse]:text-alt'>{label}</h1>}
+        {description && (
+          <p className='truncate text-sm text-subtle group-data-[tone=inverse]:text-alt'>{description}</p>
+        )}
+        {metadata && <p className='text-xs text-subtle group-data-[tone=inverse]:text-alt'>{metadata}</p>}
+      </div>
+    </ListItemContent>
+  );
+};
 
 export const ListItemRight = ({
   children,
@@ -77,7 +95,8 @@ const ListItemRoot = ({
   ...props
 }: ListItemProps): React.ReactElement<ListItemProps> => {
   const left = findComponentByType(children, ListItemLeft);
-  const content = findComponentByType(children, ListItemContent);
+  const content =
+    findComponentByType(children, ListItemContent) ?? findComponentByType(children, ListItemDefaultContent);
   const right = findComponentByType(children, ListItemRight);
   return (
     <div
@@ -86,6 +105,8 @@ const ListItemRoot = ({
         selected && 'bg-surface-primary-selected text-alt',
         className,
       )}
+      data-tone={selected && 'inverse'}
+      role='listitem'
       {...props}
     >
       {left}
@@ -99,5 +120,6 @@ ListItemRoot.displayName = 'ListItem';
 export const ListItem = Object.assign(ListItemRoot, {
   Left: ListItemLeft,
   Content: ListItemContent,
+  DefaultContent: ListItemDefaultContent,
   Right: ListItemRight,
 });

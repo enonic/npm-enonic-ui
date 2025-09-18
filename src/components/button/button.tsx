@@ -42,7 +42,7 @@ export type ButtonSize = NonNullable<ButtonVariantsProps['size']>;
 
 export type ButtonProps = {
   startIcon?: LucideIcon;
-  label: string;
+  label?: string;
   endIcon?: LucideIcon;
 } & ButtonVariantsProps &
   React.ButtonHTMLAttributes;

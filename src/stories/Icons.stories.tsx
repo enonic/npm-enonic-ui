@@ -1,4 +1,4 @@
-import { ListItem, type ListItemContentProps } from '@/components/list-item/list-item';
+import { ListItem, type ListItemDefaultContentProps } from '@/components/list-item/list-item';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   Archive,
@@ -38,10 +38,10 @@ const IconListItem = ({
   icon,
   label,
   description,
-}: Pick<ListItemContentProps, 'label' | 'description' | 'icon'>): JSX.Element => (
+}: Pick<ListItemDefaultContentProps, 'label' | 'description' | 'icon'>): JSX.Element => (
   <ListItem>
     <ListItem.Left>{icon}</ListItem.Left>
-    <ListItem.Content label={label} description={description} />
+    <ListItem.DefaultContent label={label} description={description} />
   </ListItem>
 );
 
@@ -50,7 +50,7 @@ export const AllIcons: Story = {
     <div>
       <h3 className='mb-3 text-2xl font-bold'>Content Icons</h3>
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
         <IconListItem icon={<FolderOpen />} label='Folder' description='Container for items' />
         <IconListItem icon={<FileChartPie />} label='Fragment' description='Reusable page part' />
         <IconListItem icon={<FileImage />} label='Image (legacy)' description='Content with image' />
