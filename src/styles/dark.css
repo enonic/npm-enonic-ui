@@ -2,6 +2,7 @@
   .dark {
     /* Main Colors */
     --color-main: var(--color-white);
+    --color-main-hover: var(--color-grey-200);
     --color-subtle: var(--color-grey-400);
     --color-alt: var(--color-white);
     --color-rev: var(--color-black);
@@ -36,6 +37,9 @@
 
     /* Inputs */
     --color-input-disabled: var(--color-grey-800);
+
+    /*Links*/
+    --color-link-visited: var(--color-purple-subtle);
 
     /* Tooltips */
     --color-tooltip: var(--color-grey-600);
