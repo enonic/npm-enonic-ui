@@ -1,5 +1,7 @@
 import { Checkbox, type CheckboxChecked, IconButton } from '@/components';
+import { cn } from '@/utils';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { Bone, Dog, Heart, TriangleAlert } from 'lucide-preact';
 import {
   ChevronDown,
   File,
@@ -35,28 +37,28 @@ export const ContentVariations: Story = {
     <div className='w-80 space-y-2'>
       <h3 className='text-sm font-semibold text-subtle mb-2'>Label Only</h3>
       <ListItem>
-        <ListItem.Content label='Simple item' />
+        <ListItem.DefaultContent label='Simple item' />
       </ListItem>
       <ListItem>
-        <ListItem.Content icon={<FileText className='w-6 h-6' />} label='File.txt' />
+        <ListItem.DefaultContent icon={<FileText className='w-6 h-6' />} label='File.txt' />
       </ListItem>
       <ListItem selected>
-        <ListItem.Content label='Selected simple item' />
+        <ListItem.DefaultContent label='Selected simple item' />
       </ListItem>
 
       <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Label + Description</h3>
       <ListItem>
-        <ListItem.Content label='Spreadsheet.xlsx' description='Financial Q4 report' />
+        <ListItem.DefaultContent label='Spreadsheet.xlsx' description='Financial Q4 report' />
       </ListItem>
       <ListItem>
-        <ListItem.Content
+        <ListItem.DefaultContent
           icon={<FileText className='w-6 h-6' />}
           label='Document.pdf'
           description='Shared by John Doe'
         />
       </ListItem>
       <ListItem selected>
-        <ListItem.Content
+        <ListItem.DefaultContent
           icon={<File className='w-6 h-6' />}
           label='Presentation.pptx'
           description='Last modified yesterday'
@@ -65,25 +67,25 @@ export const ContentVariations: Story = {
 
       <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Label + Metadata</h3>
       <ListItem>
-        <ListItem.Content label='Archive.zip' metadata='15.3 MB • ZIP Archive' />
+        <ListItem.DefaultContent label='Archive.zip' metadata='15.3 MB • ZIP Archive' />
       </ListItem>
       <ListItem>
-        <ListItem.Content icon={<Image className='w-6 h-6' />} label='Image.png' metadata='2.4 MB • PNG Image' />
+        <ListItem.DefaultContent icon={<Image className='w-6 h-6' />} label='Image.png' metadata='2.4 MB • PNG Image' />
       </ListItem>
       <ListItem selected>
-        <ListItem.Content icon={<Video className='w-6 h-6' />} label='Video.mp4' metadata='156 MB • MP4 Video' />
+        <ListItem.DefaultContent icon={<Video className='w-6 h-6' />} label='Video.mp4' metadata='156 MB • MP4 Video' />
       </ListItem>
 
       <h3 className='text-sm font-semibold text-subtle mb-2 mt-4'>Full Content</h3>
       <ListItem>
-        <ListItem.Content
+        <ListItem.DefaultContent
           label='Design System'
           description='Component library documentation'
           metadata='Updated yesterday • 3.4 MB'
         />
       </ListItem>
       <ListItem>
-        <ListItem.Content
+        <ListItem.DefaultContent
           icon={<FileText className='w-6 h-6' />}
           label='Project Report'
           description='Quarterly performance analysis'
@@ -91,14 +93,14 @@ export const ContentVariations: Story = {
         />
       </ListItem>
       <ListItem selected>
-        <ListItem.Content
+        <ListItem.DefaultContent
           label='User Research'
           description='Interview transcripts and findings'
           metadata='Created last week • 512 KB'
         />
       </ListItem>
       <ListItem selected>
-        <ListItem.Content
+        <ListItem.DefaultContent
           icon={<FileText className='w-6 h-6' />}
           label='Meeting Notes'
           description='Team sync discussion points'
@@ -125,7 +127,7 @@ export const WithIcons: Story = {
             <Checkbox checked={checked1} onCheckedChange={setChecked1} aria-label='Select folder' />
             <IconButton icon={ChevronDown} variant='text' aria-label='Expand' className='w-5 h-5' />
           </ListItem.Left>
-          <ListItem.Content
+          <ListItem.DefaultContent
             icon={<Folder className='w-6 h-6' />}
             label='src'
             description='Source files'
@@ -137,7 +139,7 @@ export const WithIcons: Story = {
           <ListItem.Left>
             <Checkbox checked={checked2} onCheckedChange={setChecked2} aria-label='Select file' />
           </ListItem.Left>
-          <ListItem.Content
+          <ListItem.DefaultContent
             icon={<FileText className='w-6 h-6' />}
             label='index.tsx'
             description='Main entry point'
@@ -153,7 +155,7 @@ export const WithIcons: Story = {
           <ListItem.Left>
             <Checkbox checked={checked3} onCheckedChange={setChecked3} aria-label='Select file' />
           </ListItem.Left>
-          <ListItem.Content
+          <ListItem.DefaultContent
             icon={<Package className='w-6 h-6' />}
             label='package.json'
             description='Dependencies and scripts'
@@ -167,6 +169,58 @@ export const WithIcons: Story = {
       </div>
     );
   },
+};
+
+export const CustomContent: Story = {
+  name: 'Custom Content',
+  render: () => (
+    <div className='w-80 space-y-2'>
+      <h3 className='text-sm font-semibold text-subtle mb-2'>Custom Styled Content</h3>
+
+      <ListItem className='outline-1 outline-purple-200 rounded-xl p-1.5'>
+        <ListItem.Content className='bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-2'>
+          <div className='flex items-center gap-3'>
+            <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center'>
+              <Dog className='w-10 h-10 text-white' stroke-width={1} />
+            </div>
+            <div>
+              <h3 className='font-bold text-blue-900'>Argus</h3>
+              <p className='text-sm text-blue-700'>Good boy</p>
+            </div>
+            <div className='flex gap-2 ml-auto'>
+              <Bone className='w-5 h-5 text-slate-400' />
+              <Heart className='w-5 h-5 text-red-400' fill='currentColor' />
+            </div>
+          </div>
+        </ListItem.Content>
+      </ListItem>
+    </div>
+  ),
+};
+
+export const ClickableContent: Story = {
+  name: 'Wrapped Default Content',
+  render: () => (
+    <ListItem>
+      <ListItem.Left>
+        <div className='w-2 h-2 bg-red-500 rounded-full animate-pulse' />
+      </ListItem.Left>
+      <ListItem.Content>
+        <button
+          className={cn([
+            'hover:bg-surface-primary-hover active:bg-surface-primary-selected active:[&_*]:text-rev',
+            'rounded-sm -m-1 p-1 cursor-pointer',
+          ])}
+        >
+          <ListItem.DefaultContent
+            icon={<TriangleAlert className='w-8 h-8 text-red-600' strokeWidth={1.5} />}
+            label='Critical Update'
+            description='Immediate attention required'
+          />
+        </button>
+      </ListItem.Content>
+    </ListItem>
+  ),
 };
 
 export const Interactive: Story = {
@@ -217,7 +271,7 @@ export const Interactive: Story = {
             onClick={() => setSelectedIndex(index)}
             className='cursor-pointer'
           >
-            <ListItem.Content {...item} />
+            <ListItem.DefaultContent {...item} />
           </ListItem>
         ))}
       </div>
@@ -311,7 +365,7 @@ export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
               )}
             </ListItem.Left>
           )}
-          <ListItem.Content
+          <ListItem.DefaultContent
             icon={args.showIcon ? <File className='w-6 h-6' /> : undefined}
             label={args.label}
             description={args.description}

@@ -27,11 +27,11 @@ const checkboxBoxVariants = cva(
           'border-main',
           'peer-checked:bg-main peer-checked:border-main',
           'peer-indeterminate:bg-main peer-indeterminate:border-main',
-          'group-[.bg-surface-primary-selected]:border-alt',
-          'group-[.bg-surface-primary-selected]:peer-checked:bg-alt',
-          'group-[.bg-surface-primary-selected]:peer-checked:border-alt',
-          'group-[.bg-surface-primary-selected]:peer-indeterminate:bg-alt',
-          'group-[.bg-surface-primary-selected]:peer-indeterminate:border-alt',
+          'group-data-[tone=inverse]:border-alt',
+          'group-data-[tone=inverse]:peer-checked:bg-alt',
+          'group-data-[tone=inverse]:peer-checked:border-alt',
+          'group-data-[tone=inverse]:peer-indeterminate:bg-alt',
+          'group-data-[tone=inverse]:peer-indeterminate:border-alt',
         ],
         error: [
           'border-error',
@@ -160,20 +160,20 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             {isIndeterminate ? (
               <Minus
                 size={10}
-                className={cn('text-rev', !error && 'group-[.bg-surface-primary-selected]:text-alt-rev')}
+                className={cn('text-rev', !error && 'group-data-[tone=inverse]:text-alt-rev')}
                 strokeWidth={4}
               />
             ) : isChecked ? (
               <Check
                 size={10}
-                className={cn('text-rev', !error && 'group-[.bg-surface-primary-selected]:text-alt-rev')}
+                className={cn('text-rev', !error && 'group-data-[tone=inverse]:text-alt-rev')}
                 strokeWidth={4}
               />
             ) : null}
           </span>
 
           {label && (
-            <span className={cn('text-main group-[.bg-surface-primary-selected]:text-alt', disabled && 'opacity-30')}>
+            <span className={cn('text-main group-data-[tone=inverse]:text-alt', disabled && 'opacity-30')}>
               {label}
             </span>
           )}

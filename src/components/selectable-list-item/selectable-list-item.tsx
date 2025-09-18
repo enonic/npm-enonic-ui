@@ -1,12 +1,12 @@
 import { Checkbox, type CheckboxProps } from '@/components/checkbox/checkbox';
-import { ListItem, type ListItemContentProps, type ListItemProps } from '@/components/list-item/list-item';
+import { ListItem, type ListItemDefaultContentProps, type ListItemProps } from '@/components/list-item/list-item';
 import { cn } from '@/utils';
 import type { ReactNode } from 'react';
 
 export type SelectableListItemProps = {
   children?: ReactNode;
   readOnly?: boolean;
-} & Pick<ListItemContentProps, 'label' | 'description' | 'metadata' | 'icon'> &
+} & Pick<ListItemDefaultContentProps, 'label' | 'description' | 'metadata' | 'icon'> &
   Pick<CheckboxProps, 'checked' | 'defaultChecked' | 'onCheckedChange'> &
   Omit<ListItemProps, 'children'>;
 
@@ -25,7 +25,13 @@ export const SelectableListItem = ({
   ...props
 }: SelectableListItemProps): React.ReactElement => {
   return (
-    <ListItem className={cn(!selected && 'hover:bg-surface-primary-hover', className)} selected={selected} {...props}>
+    <ListItem
+      className={cn(!selected && 'hover:bg-surface-primary-hover', className)}
+      selected={selected}
+      role='row'
+      aria-selected={selected}
+      {...props}
+    >
       <ListItem.Left>
         <Checkbox
           checked={checked}
@@ -34,7 +40,7 @@ export const SelectableListItem = ({
           readOnly={readOnly}
         />
       </ListItem.Left>
-      <ListItem.Content label={label} description={description} metadata={metadata} icon={icon} />
+      <ListItem.DefaultContent label={label} description={description} metadata={metadata} icon={icon} />
       <ListItem.Right>{children}</ListItem.Right>
     </ListItem>
   );
