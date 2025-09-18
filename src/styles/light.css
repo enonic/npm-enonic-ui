@@ -2,6 +2,7 @@
   :root {
     /* Main Colors */
     --color-main: var(--color-black);
+    --color-main-hover: var(--color-grey-800);
     --color-subtle: var(--color-grey-800);
     --color-alt: var(--color-white);
     --color-rev: var(--color-white);
@@ -35,6 +36,9 @@
 
     /* Inputs */
     --color-input-disabled: var(--color-grey-100);
+
+    /*Links*/
+    --color-link-visited: var(--color-purple);
 
     /* Tooltips */
     --color-tooltip: var(--color-black);

@@ -9,6 +9,7 @@
   /* COLORS */
   /* Main Colors */
   --color-main: var(--color-main);
+  --color-main-hover: var(--color-main-hover);
   --color-subtle: var(--color-subtle);
   --color-alt: var(--color-alt);
   --color-rev: var(--color-rev);
@@ -42,6 +43,9 @@
 
   /* Inputs */
   --color-input-disabled: var(--color-input-disabled);
+
+  /*Links*/
+  --color-link-visited: var(--color-link-visited);
 
   /* Tooltips */
   --color-tooltip: var(--color-tooltip);
