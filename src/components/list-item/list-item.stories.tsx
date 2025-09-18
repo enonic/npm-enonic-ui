@@ -374,7 +374,7 @@ export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
           {args.showRight && (
             <ListItem.Right>
               {(args.rightType === 'badge' || args.rightType === 'both') && (
-                <span className='text-xs text-subtle'>BADGE</span>
+                <span className={cn('text-xs text-subtle', selected && 'text-rev')}>BADGE</span>
               )}
               {(args.rightType === 'actions' || args.rightType === 'both') && (
                 <>
