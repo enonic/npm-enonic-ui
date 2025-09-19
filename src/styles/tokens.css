@@ -21,8 +21,8 @@
   --color-surface-primary-selected: var(--color-surface-primary-selected);
 
   /* Feedback Colors*/
-  --color-error: var(--color-error);
-  --color-success: var(--color-success);
+  --color-fbk-error: var(--color-fbk-error);
+  --color-fbk-success: var(--color-fbk-success);
 
   /* Borders */
   --color-bdr-subtle: var(--color-bdr-subtle);

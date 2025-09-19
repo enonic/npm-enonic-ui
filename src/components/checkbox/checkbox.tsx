@@ -34,11 +34,11 @@ const checkboxBoxVariants = cva(
           'group-data-[tone=inverse]:peer-indeterminate:border-alt',
         ],
         error: [
-          'border-error',
-          'peer-checked:bg-error peer-checked:border-error',
-          'peer-indeterminate:bg-error peer-indeterminate:border-error',
-          'peer-focus-visible:border-error peer-focus-visible:ring-error/50',
-          'peer-hover:border-error peer-hover:ring-error/50',
+          'border-fbk-error',
+          'peer-checked:bg-fbk-error peer-checked:border-fbk-error',
+          'peer-indeterminate:bg-fbk-error peer-indeterminate:border-fbk-error',
+          'peer-focus-visible:border-fbk-error peer-focus-visible:ring-fbk-error/50',
+          'peer-hover:border-fbk-error peer-hover:ring-fbk-error/50',
         ],
       },
     },
@@ -179,7 +179,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           )}
         </label>
         {state === 'error' && errorMessage && (
-          <div className={cn('flex items-center gap-2 text-error mt-1', disabled && 'opacity-30')}>
+          <div className={cn('flex items-center gap-2 text-fbk-error mt-1', disabled && 'opacity-30')}>
             <OctagonAlert size={14} strokeWidth={2.5} />
             {errorMessage}
           </div>

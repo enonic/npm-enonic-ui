@@ -15,7 +15,7 @@ const inputContainerVariants = cva(
     variants: {
       state: {
         default: 'border-bdr-subtle focus-within:border-bdr-strong',
-        error: 'border-error focus-within:border-error focus-within:ring-error/50',
+        error: 'border-fbk-error focus-within:border-fbk-error focus-within:ring-fbk-error/50',
       },
       disabled: {
         true: 'pointer-events-none',
@@ -63,7 +63,7 @@ const descriptionVariants = cva(['text-sm text-subtle'], {
   },
 });
 
-const errorVariants = cva(['flex items-center gap-1 text-error mt-1']);
+const errorVariants = cva(['flex items-center gap-1 text-fbk-error mt-1']);
 
 const addonVariants = cva([
   'flex items-center justify-center shrink-0',
