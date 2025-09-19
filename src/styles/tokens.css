@@ -22,6 +22,7 @@
 
   /* Feedback Colors*/
   --color-error: var(--color-error);
+  --color-success: var(--color-success);
 
   /* Borders */
   --color-bdr-subtle: var(--color-bdr-subtle);
