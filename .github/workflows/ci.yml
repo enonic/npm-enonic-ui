@@ -1,13 +1,14 @@
-name: Build
+name: CI
 
 on:
   push:
-    branches: [master, main]
+    branches: [master]
   pull_request:
-    branches: [master, main]
+    branches: [master]
 
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
