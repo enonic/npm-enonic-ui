@@ -1,11 +1,13 @@
 ---
-description:
+description: Testing standards and best practices
 globs: *.test.ts,*.test.tsx,*.spec.ts,*.spec.tsx
 alwaysApply: false
 ---
+
 # Testing Standards
 
 ## Test Structure
+
 ```typescript
 // ✅ Arrange-Act-Assert pattern
 describe('userService', () => {
@@ -18,7 +20,7 @@ describe('userService', () => {
         firstName: 'John',
         lastName: 'Doe',
       };
-      const mockUser = {id: 'user_123', ...userData};
+      const mockUser = { id: 'user_123', ...userData };
       jest.spyOn(userRepository, 'create').mockResolvedValue(mockUser);
 
       // Act
@@ -51,6 +53,7 @@ describe('userService', () => {
 ```
 
 ## React Component Testing
+
 ```typescript
 // ✅ Test user interactions, not implementation
 import {render, screen, fireEvent, waitFor} from '@testing-library/react';
@@ -81,6 +84,7 @@ describe('LoginForm', () => {
 ```
 
 ## Mock Patterns
+
 ```typescript
 // ✅ Mock external dependencies
 jest.mock('../services/EmailService', () => ({
