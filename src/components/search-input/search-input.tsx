@@ -1,5 +1,6 @@
 import { IconButton } from '@/components';
-import { cn } from '@/utils';
+import { usePrefixedId } from '@/providers';
+import { cn, unwrap } from '@/utils';
 import { useComposedRefs } from '@/utils/ref';
 import { Search, X } from 'lucide-react';
 import { useState } from 'preact/hooks';
@@ -10,8 +11,8 @@ export type SearchInputProps = {
   value?: string;
   defaultValue?: string;
   placeholder?: string;
-  onChange?: (value: string) => void;
   clearLabel?: string;
+  onChange?: (value: string) => void;
   disabled?: boolean;
   readOnly?: boolean;
 } & Omit<React.InputHTMLAttributes, 'className' | 'value' | 'defaultValue' | 'onChange' | 'disabled' | 'readOnly'>;
@@ -20,17 +21,20 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
   (
     {
       className,
+      id,
       value,
       defaultValue = '',
       placeholder = 'Search',
       clearLabel = 'Clear',
+      onChange,
       disabled,
       readOnly,
-      onChange,
       ...props
     },
     ref,
   ) => {
+    const inputId = usePrefixedId(unwrap(id));
+
     const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
     const isControlled = value !== undefined;
     const inputValue = isControlled ? value : uncontrolledValue;
@@ -78,6 +82,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         />
         <input
           ref={useComposedRefs(ref, inputRef)}
+          id={inputId}
           className={cn(
             'w-full text-base pr-1 px-12 border-0',
             'text-main bg-surface-neutral',
