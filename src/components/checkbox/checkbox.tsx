@@ -176,8 +176,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           )}
         </label>
         {state === 'error' && errorMessage && (
-          <div className={cn('flex items-center gap-2 mt-1 text-error', disabled && 'opacity-30')}>
-            <OctagonAlert size={16} strokeWidth={2.5} />
+          <div className={cn('flex items-center gap-2 mt-1 text-error leading-5', disabled && 'opacity-30')}>
+            <OctagonAlert size={14} strokeWidth={2.5} />
             {errorMessage}
           </div>
         )}
