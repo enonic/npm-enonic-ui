@@ -1,4 +1,10 @@
+@import './tokens.css';
+
 @utility transition-highlight {
   transition-property: color, box-shadow;
   transition-duration: 100ms;
+}
+
+@utility focus-ring {
+  @apply outline-none ring-3 ring-ring/50 ring-offset-0;
 }

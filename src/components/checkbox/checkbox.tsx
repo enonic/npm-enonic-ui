@@ -16,10 +16,7 @@ const checkboxBoxVariants = cva(
   {
     variants: {
       editable: {
-        true: [
-          'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring/75 peer-focus-visible:ring-offset-0',
-          'peer-hover:outline-none peer-hover:ring-3 peer-hover:ring-ring/50 peer-hover:ring-offset-0',
-        ],
+        true: 'peer-focus-visible:focus-ring peer-hover:focus-ring',
         false: 'opacity-30',
       },
       state: {
@@ -79,7 +76,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       className,
       name,
       label,
-      defaultChecked,
+      defaultChecked = false,
       checked,
       align = 'left',
       error,
@@ -97,7 +94,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const state: CheckboxState = error ? 'error' : 'default';
     const editable = !disabled && !readOnly;
 
-    const [uncontrolledChecked, setUncontrolledChecked] = useState<boolean | 'indeterminate'>(defaultChecked ?? false);
+    const [uncontrolledChecked, setUncontrolledChecked] = useState<boolean | 'indeterminate'>(defaultChecked);
     const isControlled = checked !== undefined;
     const checkedState = isControlled ? checked : uncontrolledChecked;
     const isIndeterminate = checkedState === 'indeterminate';
