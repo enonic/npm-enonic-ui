@@ -1,33 +1,50 @@
 import { IconButton } from '@/components';
 import { cn } from '@/utils';
+import { useComposedRefs } from '@/utils/ref';
 import { Search, X } from 'lucide-react';
 import { useState } from 'preact/hooks';
 import { forwardRef, useRef } from 'react';
 
 export type SearchInputProps = {
-  value?: string;
-  onChange?: (value: string) => void;
-  disabled?: boolean;
-  placeholder?: string;
   className?: string;
-  closeLabel?: string;
-};
+  value?: string;
+  defaultValue?: string;
+  placeholder?: string;
+  onChange?: (value: string) => void;
+  clearLabel?: string;
+  disabled?: boolean;
+  readOnly?: boolean;
+} & Omit<React.InputHTMLAttributes, 'className' | 'value' | 'defaultValue' | 'onChange' | 'disabled' | 'readOnly'>;
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ className, placeholder = 'Search', ...props }) => {
-    const [internalValue, setInternalValue] = useState('');
-
-    const isControlled = props.value !== undefined;
-    const value = isControlled ? props.value : internalValue;
+  (
+    {
+      className,
+      value,
+      defaultValue = '',
+      placeholder = 'Search',
+      clearLabel = 'Clear',
+      disabled,
+      readOnly,
+      onChange,
+      ...props
+    },
+    ref,
+  ) => {
+    const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
+    const isControlled = value !== undefined;
+    const inputValue = isControlled ? value : uncontrolledValue;
+    const isValueSet = inputValue.length > 0;
+    const canClear = isValueSet && !disabled && !readOnly;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-      const newValue = (e.target as HTMLInputElement).value;
+      const newValue = e.currentTarget.value;
 
       if (!isControlled) {
-        setInternalValue(newValue);
+        setUncontrolledValue(newValue);
       }
 
-      props.onChange?.(newValue);
+      onChange?.(newValue);
     };
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -36,68 +53,57 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       const newValue = '';
 
       if (!isControlled) {
-        setInternalValue(newValue);
+        setUncontrolledValue(newValue);
       }
 
-      props.onChange?.(newValue);
+      onChange?.(newValue);
 
       inputRef.current?.focus();
     };
-
-    const disabled = !!props.disabled;
-    const isValueSet = internalValue.length > 0 || (props.value && props.value.length > 0);
 
     return (
       <div
         className={cn(
           'relative flex rounded-sm overflow-hidden',
-          'h-10 border focus-within:border-bdr-solid',
-          'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
-          'transition-highlight',
+          'h-12 border border-bdr-subtle focus-within:border-bdr-strong',
+          'focus-within:focus-ring transition-highlight',
           disabled && 'pointer-events-none opacity-30',
           className,
         )}
       >
-        <div
-          className={cn(
-            'flex items-center justify-center shrink-0',
-            'min-h-10 h-9 w-9',
-            'px-1 text-sm text-subtle rounded-none focus:bg-btn-secondary focus-visible:ring-0',
-            disabled && 'bg-surface-primary',
-          )}
-        >
-          {<Search size={16} />}
-        </div>
-
+        <Search
+          className='absolute left-4.5 top-1/2 -translate-y-1/2 mt-0.25 text-subtle pointer-events-none'
+          size={20}
+          strokeWidth={1.5}
+        />
         <input
-          value={value}
-          ref={inputRef}
-          onChange={handleChange}
-          disabled={disabled}
-          placeholder={placeholder}
-          aria-label='Search'
+          ref={useComposedRefs(ref, inputRef)}
           className={cn(
-            'w-full text-base px-1 h-10 border-0',
+            'w-full text-base pr-1 px-12 border-0',
             'text-main bg-surface-neutral',
             'placeholder:text-subtle',
             'focus:outline-none',
             'disabled:pointer-events-none',
             'read-only:bg-surface-primary',
-            !isValueSet && 'pr-11',
           )}
+          value={inputValue}
+          onChange={handleChange}
+          readOnly={readOnly}
+          disabled={disabled}
+          placeholder={placeholder}
+          aria-label={'Search'}
+          aria-disabled={disabled}
+          {...props}
         />
 
-        {isValueSet && (
+        {canClear && (
           <IconButton
-            disabled={disabled}
-            className={cn(
-              'rounded-none focus:bg-btn-secondary focus-visible:ring-0',
-              'min-h-10 h-10 w-10',
-              disabled && 'bg-surface-primary',
-            )}
-            onClick={handleClear}
+            className='absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 text-subtle'
+            size='lg'
             icon={X}
-            title={props.closeLabel}
+            title={clearLabel}
+            onClick={handleClear}
+            disabled={disabled}
           />
         )}
       </div>

@@ -44,6 +44,7 @@ export type ButtonProps = {
   startIcon?: LucideIcon;
   label?: string;
   endIcon?: LucideIcon;
+  iconSize?: number;
 } & ButtonVariantsProps &
   React.ButtonHTMLAttributes;
 
@@ -60,12 +61,12 @@ const getIconSize = (size: NonNullable<ButtonSize>): number => {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant = 'text', size = 'md', startIcon, label, endIcon, title, children, ...props },
+    { className, variant = 'text', size = 'md', iconSize, startIcon, label, endIcon, title, children, ...props },
     ref: React.ForwardedRef<HTMLButtonElement>,
   ) => {
     const StartIcon = startIcon;
     const EndIcon = endIcon;
-    const iconSize = getIconSize(size ?? 'md');
+    const iconSizeValue = iconSize ?? getIconSize(size ?? 'md');
 
     return (
       <button
@@ -77,10 +78,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         aria-disabled={props.disabled}
         {...props}
       >
-        {StartIcon && <StartIcon size={iconSize} />}
+        {StartIcon && <StartIcon size={iconSizeValue} strokeWidth={1.5} />}
         {children}
         {label}
-        {EndIcon && <EndIcon size={iconSize} />}
+        {EndIcon && <EndIcon size={iconSizeValue} strokeWidth={1.5} />}
       </button>
     );
   },
