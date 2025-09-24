@@ -14,7 +14,7 @@ const inputContainerVariants = cva(
     variants: {
       state: {
         default: 'border-bdr-subtle focus-within:border-bdr-strong',
-        error: 'border-fbk-error focus-within:border-fbk-error focus-within:ring-fbk-error/50',
+        error: 'border-error focus-within:border-error focus-within:ring-error/50',
       },
       disabled: {
         true: 'pointer-events-none',
@@ -99,8 +99,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error && (
-          <div className='flex items-center gap-1 text-fbk-error mt-1'>
-            <OctagonAlert size={16} />
+          <div className='flex items-center gap-2 text-error mt-2'>
+            <OctagonAlert size={16} className='text-error' />
             {error}
           </div>
         )}

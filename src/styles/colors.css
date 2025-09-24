@@ -16,25 +16,25 @@
     --color-white: #ffffff;
 
     /* Feedback */
-    --color-info: #0270a0;
-    --color-info-subtle: #208ebe;
-    --color-info-surface: #d7f3ff;
+    --color-fbk-info: #0270a0;
+    --color-fbk-info-subtle: #208ebe;
+    --color-fbk-info-surface: #d7f3ff;
 
-    --color-warn: #cb9126;
-    --color-warn-subtle: #e9af44;
-    --color-warn-surface: #f7e5c4;
+    --color-fbk-warn: #cb9126;
+    --color-fbk-warn-subtle: #e9af44;
+    --color-fbk-warn-surface: #f7e5c4;
 
-    --color-success: #499349;
-    --color-success-subtle: #67b167;
-    --color-success-surface: #cee2ce;
+    --color-fbk-success: #499349;
+    --color-fbk-success-subtle: #67b167;
+    --color-fbk-success-surface: #cee2ce;
 
-    --color-danger: #d33030;
-    --color-danger-subtle: #f56262;
-    --color-danger-surface: #f6d7d7;
+    --color-fbk-danger: #d33030;
+    --color-fbk-danger-subtle: #f56262;
+    --color-fbk-danger-surface: #f6d7d7;
 
     /* Misc */
+    --color-purple: #800080;
     --color-purple-subtle: #e46ee4;
     --color-juke: #9747ff;
-    --color-purple: #800080;
   }
 }
