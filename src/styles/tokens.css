@@ -15,15 +15,20 @@
   --color-rev: var(--color-rev);
   --color-alt-rev: var(--color-alt-rev);
 
+  --color-info: var(--color-fbk-info);
+  --color-warn: var(--color-fbk-warn);
+  --color-success: var(--color-fbk-success);
+  --color-error: var(--color-fbk-danger);
+
   /* Surface Colors */
   --color-surface-neutral: var(--color-surface-neutral);
   --color-surface-primary: var(--color-surface-primary);
   --color-surface-primary-hover: var(--color-surface-primary-hover);
   --color-surface-primary-selected: var(--color-surface-primary-selected);
-
-  /* Feedback Colors*/
-  --color-fbk-error: var(--color-fbk-error);
-  --color-fbk-success: var(--color-fbk-success);
+  --color-surface-info: var(--color-fbk-info-surface);
+  --color-surface-warn: var(--color-fbk-warn-surface);
+  --color-surface-success: var(--color-fbk-success-surface);
+  --color-surface-error: var(--color-fbk-danger-surface);
 
   /* Borders */
   --color-bdr-subtle: var(--color-bdr-subtle);

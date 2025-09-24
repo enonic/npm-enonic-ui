@@ -51,7 +51,7 @@ export const LongContent: Story = {
 
 export const CustomStyling: Story = {
   render: () => (
-    <Tooltip value='Important warning message!' className='bg-fbk-error text-alt'>
+    <Tooltip value='Important warning message!' className='bg-error text-alt'>
       <Button label='Custom styled tooltip' variant='solid' />
     </Tooltip>
   ),
