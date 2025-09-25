@@ -16,7 +16,10 @@ const checkboxBoxVariants = cva(
   {
     variants: {
       editable: {
-        true: 'peer-focus-visible:focus-ring peer-hover:focus-ring',
+        true: [
+          'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-offset-0',
+          'peer-hover:outline-none peer-hover:ring-3 peer-hover:ring-ring/50 peer-hover:ring-offset-0',
+        ],
         false: 'opacity-30',
       },
       state: {

@@ -70,7 +70,8 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         className={cn(
           'relative flex rounded-sm overflow-hidden',
           'h-12 border border-bdr-subtle focus-within:border-bdr-strong',
-          'focus-within:focus-ring transition-highlight',
+          'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
+          'transition-highlight',
           disabled && 'pointer-events-none opacity-30',
           className,
         )}
