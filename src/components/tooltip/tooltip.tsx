@@ -1,6 +1,6 @@
 import { cn } from '@/utils';
 import { Root } from '@radix-ui/react-slot';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { createPortal, useCallback, useEffect, useRef, useState } from 'react';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
@@ -139,7 +139,7 @@ function TooltipTrigger({
   onMouseLeave,
   onFocus,
   onBlur,
-}: TooltipTriggerProps): React.ReactElement<TooltipTriggerProps> {
+}: TooltipTriggerProps): ReactElement<TooltipTriggerProps> {
   const Trigger = asChild ? Root : 'div';
 
   return (
@@ -165,7 +165,7 @@ function TooltipContent({
   className,
   position,
   tooltipRef,
-}: TooltipContentProps): React.ReactElement<TooltipContentProps> {
+}: TooltipContentProps): ReactElement<TooltipContentProps> {
   return (
     <div
       ref={tooltipRef}
@@ -212,7 +212,7 @@ export function Tooltip({
   side = 'bottom',
   asChild = true,
   delay = 0,
-}: TooltipProps): React.ReactElement<TooltipProps> {
+}: TooltipProps): ReactElement<TooltipProps> {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);

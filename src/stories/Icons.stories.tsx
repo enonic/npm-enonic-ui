@@ -25,7 +25,7 @@ import {
   SquareCode,
   SquarePlay,
 } from 'lucide-react';
-import type { JSX } from 'react';
+import type { ReactElement } from 'react';
 
 export default {
   title: 'Design/Icons',
@@ -38,7 +38,7 @@ const IconListItem = ({
   icon,
   label,
   description,
-}: Pick<ListItemDefaultContentProps, 'label' | 'description' | 'icon'>): JSX.Element => (
+}: Pick<ListItemDefaultContentProps, 'label' | 'description' | 'icon'>): ReactElement => (
   <ListItem>
     <ListItem.Left>{icon}</ListItem.Left>
     <ListItem.DefaultContent label={label} description={description} />

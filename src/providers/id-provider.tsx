@@ -1,5 +1,5 @@
+import type { ReactElement, ReactNode } from 'react';
 import { createContext, useContext, useId } from 'react';
-import type { ReactNode } from 'react';
 
 type IdContextValue = {
   prefix?: string;
@@ -12,7 +12,7 @@ export type IdProviderProps = {
   prefix?: string;
 };
 
-export const IdProvider = ({ children, prefix }: IdProviderProps): React.ReactElement => {
+export const IdProvider = ({ children, prefix }: IdProviderProps): ReactElement => {
   return <IdContext.Provider value={{ prefix }}>{children}</IdContext.Provider>;
 };
 

@@ -1,6 +1,6 @@
 import { cn } from '@/utils';
 import { findComponentByType } from '@/utils/find';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 export type ListItemProps = {
   className?: string;
@@ -31,11 +31,7 @@ export type ListItemRightProps = {
   className?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const ListItemLeft = ({
-  children,
-  className,
-  ...props
-}: ListItemLeftProps): React.ReactElement<ListItemLeftProps> => (
+export const ListItemLeft = ({ children, className, ...props }: ListItemLeftProps): ReactElement<ListItemLeftProps> => (
   <div className={cn('flex items-center gap-2.5 flex-shrink-0', className)} {...props}>
     {children}
   </div>
@@ -45,7 +41,7 @@ export const ListItemContent = ({
   className,
   children,
   ...props
-}: ListItemContentProps): React.ReactElement<ListItemContentProps> => {
+}: ListItemContentProps): ReactElement<ListItemContentProps> => {
   return (
     <div className={cn('flex-1 min-w-0', className)} {...props}>
       {children}
@@ -60,7 +56,7 @@ export const ListItemDefaultContent = ({
   description,
   metadata,
   icon,
-}: ListItemDefaultContentProps): React.ReactElement<ListItemDefaultContentProps> => {
+}: ListItemDefaultContentProps): ReactElement<ListItemDefaultContentProps> => {
   return (
     <ListItemContent className={cn(icon && 'grid grid-cols-[auto_1fr] gap-2.5 items-center', className)}>
       {icon && (
@@ -81,19 +77,14 @@ export const ListItemRight = ({
   children,
   className,
   ...props
-}: ListItemRightProps): React.ReactElement<ListItemRightProps> => (
+}: ListItemRightProps): ReactElement<ListItemRightProps> => (
   <div className={cn('flex items-center gap-5 flex-shrink-0', className)} {...props}>
     {children}
   </div>
 );
 ListItemRight.displayName = 'ListItem.Right';
 
-const ListItemRoot = ({
-  children,
-  className,
-  selected,
-  ...props
-}: ListItemProps): React.ReactElement<ListItemProps> => {
+const ListItemRoot = ({ children, className, selected, ...props }: ListItemProps): ReactElement<ListItemProps> => {
   const left = findComponentByType(children, ListItemLeft);
   const content =
     findComponentByType(children, ListItemContent) ?? findComponentByType(children, ListItemDefaultContent);
