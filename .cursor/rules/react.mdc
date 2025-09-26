@@ -20,7 +20,7 @@ export type MyComponentProps = {
   active?: boolean;
   // ✅ Put `className?` and `children?` last in the Props definition
   className?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 };
 
 export function MyComponent({

@@ -2,7 +2,7 @@ import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
-import { forwardRef } from 'react';
+import { forwardRef, type ReactElement, type ReactNode } from 'react';
 
 const inputContainerVariants = cva(
   [
@@ -40,11 +40,11 @@ export type InputProps = {
 } & React.InputHTMLAttributes;
 
 type AddonProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   error: boolean;
 };
 
-const Addon = ({ children, error }: AddonProps): React.ReactElement => (
+const Addon = ({ children, error }: AddonProps): ReactElement => (
   <div
     className={cn(
       'flex items-center justify-center shrink-0 min-w-12 px-4',

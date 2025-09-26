@@ -11,6 +11,8 @@
 - **Architecture**: Collection of UI components and their styles
 - **Usage**: Installable components; or Styles only; or both
 
+> **Note**: This project uses Preact with React compatibility layer. Some type incompatibilities with React-ecosystem libraries (e.g., Radix UI Slot refs) are expected. See `.cursor/rules/preact.mdc` for compatibility notes and solutions.
+
 ### AI Assistant Role
 
 - Code review and optimization suggestions
