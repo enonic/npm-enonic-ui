@@ -5,6 +5,12 @@
 *.swo
 *~
 
+# AI Assistant
+.cursor/commands/
+.claude/
+.codex/
+
+
 # Build files
 dist/
 build/

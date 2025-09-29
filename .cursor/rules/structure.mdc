@@ -1,0 +1,69 @@
+---
+description: Component structure and export conventions
+globs: src/**/*.ts,src/**/*.tsx
+alwaysApply: false
+---
+
+# Component Structure Standards
+
+## Component Folder Structure
+
+When creating a new component, follow this folder structure:
+
+```
+component/
+├── component.stories.tsx
+├── component.tsx
+└── index.ts
+```
+
+**Examples:**
+
+```
+user-card/
+├── user-card.stories.tsx
+├── user-card.tsx
+└── index.ts
+```
+
+## Export Standards
+
+### Component's `index.ts`
+
+Must re-export component and props type in a single statement:
+
+```typescript
+// ❌ Avoid: importing then re-exporting
+import { MyComponent } from './my-component';
+
+// ✅ Correct: single export statement with type
+export { MyComponent, type MyComponentProps } from './my-component';
+
+// ✅ Another example
+export { Button, type ButtonProps } from './button';
+
+// ❌ Avoid: separate export statements
+export { MyComponent } from './my-component';
+export type { MyComponentProps } from './my-component';
+
+// ❌ Avoid: missing type export
+export { MyComponent } from './my-component';
+
+export { MyComponent };
+```
+
+### `src/components/index.ts`
+
+Must contain re-export of all component folders:
+
+```typescript
+// ✅ Correct: re-export all components
+export * from './button';
+export * from './modal';
+export * from './user-card';
+
+// ❌ Avoid: missing newly added components
+export * from './button';
+export * from './user-card';
+// modal is missing!
+```

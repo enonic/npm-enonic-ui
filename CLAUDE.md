@@ -1,6 +1,6 @@
-# CLAUDE.md - AI Assistant Usage Guide
+# AI Assistant Usage Guide
 
-> **Purpose**: This file documents how Claude AI assistant is used in this project, including workflows, preferences, and integration patterns. This helps maintain consistency across development sessions and serves as a reference for team members.
+> **Purpose**: This file documents how AI assistant is used in this project, including workflows, preferences, and integration patterns. This helps maintain consistency across development sessions and serves as a reference for team members.
 
 ## 📋 Quick Reference
 
@@ -33,9 +33,38 @@
 
 ### Usage Instructions
 
-1. **Context Loading**: Claude automatically reads `.cursor/docs/` for project context
+1. **Context Loading**: Agent automatically reads `.cursor/docs/` for project context
 2. **Rule Enforcement**: Coding standards from `.cursor/rules/` are applied during code reviews
 3. **Prompt Templates**: Use `.cursor/prompts/` for consistent interaction patterns
+
+## 📖 External Documentation (Context7 MCP)
+
+Use the Context7 MCP server to fetch the latest, authoritative docs for external libraries whenever it is available.
+
+### How to use
+
+- Resolve the library ID first (exact name where possible), then request focused topics.
+- Prefer narrow topics (e.g., "hooks", "dark mode", "library mode") over whole manuals.
+- Keep token budgets conservative; summarize and cite instead of pasting long excerpts.
+- If the server is unavailable, fall back to local docs or trusted sources.
+
+### Typical libraries for this repo
+
+- Preact: core APIs, hooks, context, refs
+- Tailwind CSS v4: config/preset, plugins, theming, `data-theme` dark mode
+- Vite: library mode, CSS bundling, tsconfig paths
+- Storybook: Preact framework, CSF, MDX, static builds
+
+### Retrieval guidance
+
+- Choose the most authoritative match if multiple libraries resolve.
+- Request specific topics; avoid multi-topic queries.
+- Align results and recommendations with our stack and constraints.
+
+### Output expectations
+
+- Quote minimally; include the source and provide actionable guidance.
+- Do not dump large doc blocks; provide links or identifiers when helpful.
 
 ## 🎯 Development Workflows
 
