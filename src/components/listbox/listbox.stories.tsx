@@ -2,6 +2,7 @@ import { type ListboxProps, ListItem } from '@/components';
 import { Listbox, type ListboxOption } from '@/components/listbox/listbox';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Folder, HelpCircle, Home, Settings, Users } from 'lucide-react';
+import { useState } from 'preact/hooks';
 
 type Story = StoryObj<typeof Listbox>;
 
@@ -12,7 +13,7 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta<typeof Listbox>;
 
-const createListStory = (name: string, label: string, props: ListboxProps): Story => {
+const createUncontrolledListStory = (name: string, label: string, props: ListboxProps): Story => {
   return {
     name: name,
     render: () => (
@@ -53,7 +54,16 @@ const makeSimpleListOfItems = (): ListboxOption[] => {
   ];
 };
 
-export const Default: Story = createListStory('Default', 'Simple List, non-selectable', {
+export const SimpleListMultiple: Story = createUncontrolledListStory(
+  'Multi Select Simple List',
+  'Simple List Multi-select',
+  {
+    options: makeSimpleListOfItems(),
+    selectionMode: 'multiple',
+  },
+);
+
+export const Default: Story = createUncontrolledListStory('Default', 'Simple List', {
   options: makeSimpleListOfItems(),
 });
 
@@ -122,13 +132,58 @@ const makeListItemsList = (): ListboxOption[] => {
   ];
 };
 
-export const ListItems: Story = createListStory('List Items', 'List Items, single selection', {
+export const ListItems: Story = createUncontrolledListStory('List Items', 'List Items, single selection', {
   options: makeListItemsList(),
   className: 'border rounded-sm',
 });
 
-export const Disabled: Story = createListStory('Disabled List', 'Disabled List', {
+export const MultiSelect: Story = createUncontrolledListStory('Multiselection', 'List Items, multi selection', {
+  options: makeListItemsList(),
+  selectionMode: 'multiple',
+  className: 'border rounded-sm',
+});
+
+export const Disabled: Story = createUncontrolledListStory('Disabled List', 'Disabled List', {
   options: makeListItemsList(),
   disabled: true,
   className: 'border rounded-sm',
 });
+
+export const ControlledListSingleSelectWithPreselection: Story = {
+  name: 'Single Select Pre',
+  render: () => {
+    const [selection, setSelection] = useState<string[]>(['id3']);
+
+    return (
+      <div className='w-80 space-y-2'>
+        <h3 className='text-sm font-semibold text-subtle mb-2'>Multiselection, Controlled, Interactable</h3>
+        <Listbox
+          className='border rounded-sm'
+          options={makeListItemsList()}
+          selection={selection}
+          onSelectionChange={setSelection}
+        />
+      </div>
+    );
+  },
+};
+
+export const ControlledListMultiSelectWithPreselection: Story = {
+  name: 'Multi Select Pre',
+  render: () => {
+    const [selection, setSelection] = useState<string[]>(['id2', 'id4']);
+
+    return (
+      <div className='w-80 space-y-2'>
+        <h3 className='text-sm font-semibold text-subtle mb-2'>Multiselection, Controlled, Interactable</h3>
+        <Listbox
+          className='border rounded-sm'
+          options={makeListItemsList()}
+          selectionMode={'multiple'}
+          selection={selection}
+          onSelectionChange={setSelection}
+        />
+      </div>
+    );
+  },
+};
