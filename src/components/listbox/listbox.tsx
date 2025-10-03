@@ -5,7 +5,7 @@ import { type ReactNode } from 'react';
 
 export type ListboxOption = {
   value: string;
-  element: ReactNode;
+  element: ReactNode | ((selected: boolean) => ReactNode);
 };
 
 export type ListboxProps = {
@@ -69,15 +69,17 @@ export const Listbox = ({
     >
       {options.map(option => {
         const isOptionSelected = isSelected(option.value);
+        const element: ReactNode =
+          typeof option.element === 'function'
+            ? (option.element as (selected: boolean) => ReactNode)(isOptionSelected)
+            : option.element;
         return (
           <li
             key={option.value}
             className={cn(
               'flex items-center w-full px-4.5 py-1 gap-x-2.5',
               !disabled && 'cursor-pointer',
-              isOptionSelected
-                ? 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover'
-                : 'hover:bg-surface-primary-hover',
+              isOptionSelected ? 'bg-surface-primary-selected text-alt' : 'hover:bg-surface-primary-hover',
             )}
             onClick={() => handleClick(option.value)}
             onKeyDown={(e): void => {
@@ -91,10 +93,12 @@ export const Listbox = ({
             role='option'
             aria-selected={isOptionSelected}
           >
-            <div className={cn('flex-1')}>{option.element}</div>
+            <div className={cn('flex-1')}>{element}</div>
 
             {selectionMode === 'multiple' && (
-              <Checkbox checked={isOptionSelected} onCheckedChange={() => handleClick(option.value)} />
+              <div className='group' data-tone={isOptionSelected ? 'inverse' : undefined}>
+                <Checkbox checked={isOptionSelected} onCheckedChange={() => handleClick(option.value)} />
+              </div>
             )}
           </li>
         );
