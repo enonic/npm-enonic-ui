@@ -71,8 +71,8 @@ const makeListItemsList = (): ListboxOption[] => {
   return [
     {
       value: 'id1',
-      element: (
-        <ListItem className={'p-0'}>
+      element: (selected: boolean) => (
+        <ListItem className={'p-0'} selected={selected}>
           <ListItem.DefaultContent
             icon={<Home className='w-6 h-6' />}
             label='Dashboard'
@@ -83,8 +83,8 @@ const makeListItemsList = (): ListboxOption[] => {
     },
     {
       value: 'id2',
-      element: (
-        <ListItem className={'p-0'}>
+      element: (selected: boolean) => (
+        <ListItem className={'p-0'} selected={selected}>
           <ListItem.DefaultContent
             icon={<Folder className='w-6 h-6' />}
             label='Projects'
@@ -95,8 +95,8 @@ const makeListItemsList = (): ListboxOption[] => {
     },
     {
       value: 'id3',
-      element: (
-        <ListItem className={'p-0'}>
+      element: (selected: boolean) => (
+        <ListItem className={'p-0'} selected={selected}>
           <ListItem.DefaultContent
             icon={<Users className='w-6 h-6' />}
             label='Team'
@@ -107,8 +107,8 @@ const makeListItemsList = (): ListboxOption[] => {
     },
     {
       value: 'id4',
-      element: (
-        <ListItem className={'p-0'}>
+      element: (selected: boolean) => (
+        <ListItem className={'p-0'} selected={selected}>
           <ListItem.DefaultContent
             icon={<Settings className='w-6 h-6' />}
             label='Settings'
@@ -119,8 +119,8 @@ const makeListItemsList = (): ListboxOption[] => {
     },
     {
       value: 'id5',
-      element: (
-        <ListItem className={'p-0'}>
+      element: (selected: boolean) => (
+        <ListItem className={'p-0'} selected={selected}>
           <ListItem.DefaultContent
             icon={<HelpCircle className='w-6 h-6' />}
             label='Help & Support'
