@@ -1,8 +1,10 @@
 import { Button } from '@/components/button/button';
+import { IconButton } from '@/components/icon-button/icon-button';
 import { Input } from '@/components/input/input';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
+import { X } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -295,6 +297,45 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 DialogContent.displayName = 'Dialog.Content';
 
 //
+// * DialogClose
+//
+
+export type DialogCloseProps = {
+  asChild?: boolean;
+} & ComponentPropsWithoutRef<'button'>;
+
+const DialogClose = forwardRef<HTMLButtonElement, DialogCloseProps>(
+  ({ children, asChild, onClick, ...props }, ref): ReactElement => {
+    const { setOpen } = useDialog();
+
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>): void => {
+        onClick?.(e);
+        if (!e.defaultPrevented) {
+          setOpen(false);
+        }
+      },
+      [onClick, setOpen],
+    );
+
+    const Comp = asChild ? Slot : 'button';
+
+    return (
+      <Comp
+        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
+        ref={ref}
+        type={asChild ? undefined : 'button'}
+        onClick={handleClick}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  },
+);
+DialogClose.displayName = 'Dialog.Close';
+
+//
 // * DialogTitle
 //
 
@@ -438,6 +479,18 @@ const DialogHeader = forwardRef<HTMLDivElement, DialogHeaderProps>(
           )}
           {children}
         </div>
+        <DialogClose asChild>
+          <IconButton
+            aria-label='Close'
+            icon={X}
+            size='lg'
+            iconSize={36}
+            iconStrokeWidth={1}
+            shape='round'
+            variant='filled'
+            className={cn('absolute top-0 right-0')}
+          />
+        </DialogClose>
       </div>
     );
   },
@@ -451,6 +504,7 @@ export const Dialog = Object.assign(DialogRoot, {
   Portal: DialogPortal,
   Overlay: DialogOverlay,
   Content: DialogContent,
+  Close: DialogClose,
   Title: DialogTitle,
   Description: DialogDescription,
   Header: DialogHeader,
