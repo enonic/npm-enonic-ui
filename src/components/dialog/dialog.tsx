@@ -1,6 +1,10 @@
+import { Button } from '@/components/button/button';
+import { Input } from '@/components/input/input';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
+import { Slot } from '@radix-ui/react-slot';
 import {
+  type ComponentPropsWithoutRef,
   forwardRef,
   type ReactElement,
   type ReactNode,
@@ -290,10 +294,164 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 );
 DialogContent.displayName = 'Dialog.Content';
 
+//
+// * DialogTitle
+//
+
+export type DialogTitleProps = {
+  asChild?: boolean;
+} & ComponentPropsWithoutRef<'h2'>;
+
+const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
+  ({ children, className, asChild, ...props }, ref): ReactElement => {
+    const Comp = asChild ? Slot : 'h2';
+
+    return (
+      <Comp
+        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
+        ref={ref}
+        className={cn('text-2xl leading-11.5 font-semibold', className)}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  },
+);
+DialogTitle.displayName = 'Dialog.Title';
+
+//
+// * DialogDescription
+//
+
+export type DialogDescriptionProps = {
+  asChild?: boolean;
+} & ComponentPropsWithoutRef<'p'>;
+
+const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProps>(
+  ({ children, className, asChild, ...props }, ref): ReactElement => {
+    const Comp = asChild ? Slot : 'p';
+
+    return (
+      <Comp
+        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
+        ref={ref}
+        className={cn('text-sm text-subtle', className)}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  },
+);
+DialogDescription.displayName = 'Dialog.Description';
+
+//
+// * DialogHeader
+//
+
+export type DialogHeaderProps = {
+  title: string;
+  message?: string;
+  onMessageChange?: (value: string) => void;
+  className?: string;
+  children?: ReactNode;
+};
+
+const DialogHeader = forwardRef<HTMLDivElement, DialogHeaderProps>(
+  ({ title, message = '', onMessageChange, className, children }, ref): ReactElement => {
+    const [editing, setEditing] = useState(false);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const pendingCharRef = useRef<string | null>(null);
+
+    const isPrintable = useCallback(
+      (e: KeyboardEvent): boolean => e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey,
+      [],
+    );
+
+    useEffect(() => {
+      if (editing) return;
+      const handler = (e: KeyboardEvent): void => {
+        if (!isPrintable(e)) return;
+        pendingCharRef.current = e.key;
+        e.preventDefault();
+        setEditing(true);
+      };
+      window.addEventListener('keydown', handler);
+      return () => window.removeEventListener('keydown', handler);
+    }, [editing, isPrintable]);
+
+    useEffect(() => {
+      if (!editing) return;
+      requestAnimationFrame(() => {
+        const el = inputRef.current;
+        if (!el) return;
+        el.focus();
+        el.setSelectionRange(el.value.length, el.value.length);
+        if (pendingCharRef.current) {
+          onMessageChange?.(message + pendingCharRef.current);
+          pendingCharRef.current = null;
+        }
+      });
+    }, [editing, message, onMessageChange]);
+
+    const handleInputChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>): void => {
+        onMessageChange?.(e.currentTarget.value);
+      },
+      [onMessageChange],
+    );
+
+    const handleBlur = useCallback(() => {
+      setEditing(false);
+    }, []);
+
+    const handleButtonClick = useCallback(() => {
+      setEditing(true);
+    }, []);
+
+    return (
+      <div ref={ref} className={cn('relative flex items-start gap-2.5 self-stretch', className)}>
+        <div className='flex flex-col items-start gap-2.5 flex-1 min-w-0'>
+          <DialogTitle>{title}</DialogTitle>
+          {editing ? (
+            <Input
+              ref={inputRef}
+              placeholder='Add a message'
+              value={message}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              className={cn(
+                '[&_div.relative]:!border-0',
+                '[&_div.relative:focus-within]:!ring-0',
+                '[&_div.relative:focus-within]:!ring-offset-0',
+              )}
+            />
+          ) : (
+            <Button
+              variant='text'
+              className='self-start p-0 hover:bg-transparent hover:underline'
+              onClick={handleButtonClick}
+            >
+              {message.trim() ? message : 'Start typing or click here to add a message'}
+            </Button>
+          )}
+          {children}
+        </div>
+      </div>
+    );
+  },
+);
+
+DialogHeader.displayName = 'Dialog.Header';
+
 export const Dialog = Object.assign(DialogRoot, {
   Root: DialogRoot,
   Trigger: DialogTrigger,
   Portal: DialogPortal,
   Overlay: DialogOverlay,
   Content: DialogContent,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Header: DialogHeader,
 });
