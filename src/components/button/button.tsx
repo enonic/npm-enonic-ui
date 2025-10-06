@@ -39,13 +39,17 @@ const buttonVariants = cva(
 export type ButtonVariantsProps = VariantProps<typeof buttonVariants>;
 export type ButtonVariant = NonNullable<ButtonVariantsProps['variant']>;
 export type ButtonSize = NonNullable<ButtonVariantsProps['size']>;
+export type ButtonIconProps = {
+  iconSize?: number;
+  iconStrokeWidth?: number;
+};
 
 export type ButtonProps = {
   startIcon?: LucideIcon;
-  label?: string;
   endIcon?: LucideIcon;
-  iconSize?: number;
+  label?: string;
 } & ButtonVariantsProps &
+  ButtonIconProps &
   React.ButtonHTMLAttributes;
 
 const getIconSize = (size: NonNullable<ButtonSize>): number => {
@@ -61,7 +65,19 @@ const getIconSize = (size: NonNullable<ButtonSize>): number => {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant = 'text', size = 'md', iconSize, startIcon, label, endIcon, title, children, ...props },
+    {
+      className,
+      variant = 'text',
+      size = 'md',
+      iconSize,
+      iconStrokeWidth = 1.5,
+      startIcon,
+      label,
+      endIcon,
+      title,
+      children,
+      ...props
+    },
     ref: React.ForwardedRef<HTMLButtonElement>,
   ) => {
     const StartIcon = startIcon;
@@ -78,10 +94,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         aria-disabled={props.disabled}
         {...props}
       >
-        {StartIcon && <StartIcon size={iconSizeValue} strokeWidth={1.5} />}
+        {StartIcon && <StartIcon size={iconSizeValue} strokeWidth={iconStrokeWidth} />}
         {children}
         {label}
-        {EndIcon && <EndIcon size={iconSizeValue} strokeWidth={1.5} />}
+        {EndIcon && <EndIcon size={iconSizeValue} strokeWidth={iconStrokeWidth} />}
       </button>
     );
   },
