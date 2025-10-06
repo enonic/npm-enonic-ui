@@ -1,10 +1,17 @@
-import { type ListboxProps, ListItem } from '@/components';
-import { Listbox, type ListboxOption } from '@/components/listbox/listbox';
+import { Checkbox } from '@/components';
+import { Listbox } from '@/components/listbox/listbox';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { Folder, HelpCircle, Home, Settings, Users } from 'lucide-react';
 import { useState } from 'preact/hooks';
 
 type Story = StoryObj<typeof Listbox>;
+
+type StoryData = {
+  id: string;
+  label: string;
+};
+
+const getValue = (item: unknown): string => (item as StoryData).id;
+const renderItem = (item: unknown): React.ReactNode => <div className='flex-1'>{(item as StoryData).label}</div>;
 
 export default {
   title: 'Components/Listbox',
@@ -13,177 +20,170 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta<typeof Listbox>;
 
-const createUncontrolledListStory = (name: string, label: string, props: ListboxProps): Story => {
-  return {
-    name: name,
-    render: () => (
-      <div className='w-80 space-y-2'>
-        <h3 className='text-sm font-semibold text-subtle mb-2'>{label}</h3>
-        <Listbox {...props} />
-      </div>
-    ),
-  };
-};
-
-const makeSimpleListOfItems = (): ListboxOption[] => {
-  return [
-    {
-      value: 'A',
-      element: (
-        <div>
-          <span>Text 1</span>
-        </div>
-      ),
-    },
-    {
-      value: 'B',
-      element: (
-        <div>
-          <span>Text 2</span>
-        </div>
-      ),
-    },
-    {
-      value: 'C',
-      element: (
-        <div>
-          <span>Text 3</span>
-        </div>
-      ),
-    },
-  ];
-};
-
-export const SimpleListMultiple: Story = createUncontrolledListStory(
-  'Multi Select Simple List',
-  'Simple List Multi-select',
-  {
-    options: makeSimpleListOfItems(),
-    selectionMode: 'multiple',
-  },
-);
-
-export const Default: Story = createUncontrolledListStory('Default', 'Simple List', {
-  options: makeSimpleListOfItems(),
-});
-
-const makeListItemsList = (): ListboxOption[] => {
-  return [
-    {
-      value: 'id1',
-      element: (selected: boolean) => (
-        <ListItem className={'p-0'} selected={selected}>
-          <ListItem.DefaultContent
-            icon={<Home className='w-6 h-6' />}
-            label='Dashboard'
-            description='Overview and analytics'
-          />
-        </ListItem>
-      ),
-    },
-    {
-      value: 'id2',
-      element: (selected: boolean) => (
-        <ListItem className={'p-0'} selected={selected}>
-          <ListItem.DefaultContent
-            icon={<Folder className='w-6 h-6' />}
-            label='Projects'
-            description='Manage your projects'
-          />
-        </ListItem>
-      ),
-    },
-    {
-      value: 'id3',
-      element: (selected: boolean) => (
-        <ListItem className={'p-0'} selected={selected}>
-          <ListItem.DefaultContent
-            icon={<Users className='w-6 h-6' />}
-            label='Team'
-            description='Collaborate with others'
-          />
-        </ListItem>
-      ),
-    },
-    {
-      value: 'id4',
-      element: (selected: boolean) => (
-        <ListItem className={'p-0'} selected={selected}>
-          <ListItem.DefaultContent
-            icon={<Settings className='w-6 h-6' />}
-            label='Settings'
-            description='Configure preferences'
-          />
-        </ListItem>
-      ),
-    },
-    {
-      value: 'id5',
-      element: (selected: boolean) => (
-        <ListItem className={'p-0'} selected={selected}>
-          <ListItem.DefaultContent
-            icon={<HelpCircle className='w-6 h-6' />}
-            label='Help & Support'
-            description='Get assistance'
-          />
-        </ListItem>
-      ),
-    },
-  ];
-};
-
-export const ListItems: Story = createUncontrolledListStory('List Items', 'List Items, single selection', {
-  options: makeListItemsList(),
-  className: 'border rounded-sm',
-});
-
-export const MultiSelect: Story = createUncontrolledListStory('Multiselection', 'List Items, multi selection', {
-  options: makeListItemsList(),
-  selectionMode: 'multiple',
-  className: 'border rounded-sm',
-});
-
-export const Disabled: Story = createUncontrolledListStory('Disabled List', 'Disabled List', {
-  options: makeListItemsList(),
-  disabled: true,
-  className: 'border rounded-sm',
-});
-
-export const ControlledListSingleSelectWithPreselection: Story = {
-  name: 'Single Select Pre',
+export const Default: Story = {
+  name: 'Single Selection',
   render: () => {
-    const [selection, setSelection] = useState<string[]>(['id3']);
+    const [selection, setSelection] = useState<Set<string>>(new Set());
 
     return (
-      <div className='w-80 space-y-2'>
-        <h3 className='text-sm font-semibold text-subtle mb-2'>Multiselection, Controlled, Interactable</h3>
-        <Listbox
-          className='border rounded-sm'
-          options={makeListItemsList()}
-          selection={selection}
-          onSelectionChange={setSelection}
-        />
-      </div>
+      <Listbox
+        selectionMode='single'
+        selection={selection}
+        setSelection={setSelection}
+        items={[
+          { id: 'a', label: 'Single 1' },
+          { id: 'b', label: 'Single 2' },
+          { id: 'c', label: 'Single 3' },
+        ]}
+        getValue={getValue}
+        renderItem={renderItem}
+      />
     );
   },
 };
 
-export const ControlledListMultiSelectWithPreselection: Story = {
-  name: 'Multi Select Pre',
+export const Multiple: Story = {
+  name: 'Multiple Selection',
   render: () => {
-    const [selection, setSelection] = useState<string[]>(['id2', 'id4']);
+    const [selection, setSelection] = useState<Set<string>>(new Set());
 
     return (
-      <div className='w-80 space-y-2'>
-        <h3 className='text-sm font-semibold text-subtle mb-2'>Multiselection, Controlled, Interactable</h3>
-        <Listbox
-          className='border rounded-sm'
-          options={makeListItemsList()}
-          selectionMode={'multiple'}
-          selection={selection}
-          onSelectionChange={setSelection}
-        />
-      </div>
+      <Listbox
+        selectionMode='multiple'
+        selection={selection}
+        setSelection={setSelection}
+        items={[
+          { id: 'a', label: 'Multiple 1' },
+          { id: 'b', label: 'Multiple 2' },
+          { id: 'c', label: 'Multiple 3' },
+        ]}
+        getValue={getValue}
+        renderItem={renderItem}
+      />
+    );
+  },
+};
+
+export const Multiple_Uncontrolled: Story = {
+  name: 'Uncontrolled',
+  render: () => {
+    return (
+      <Listbox
+        selectionMode='multiple'
+        items={[
+          { id: 'a', label: 'Multiple 1' },
+          { id: 'b', label: 'Multiple 2' },
+          { id: 'c', label: 'Multiple 3' },
+        ]}
+        getValue={getValue}
+        renderItem={renderItem}
+      />
+    );
+  },
+};
+
+export const Multiple_Preselected: Story = {
+  name: 'Multiple With Preselected',
+  render: () => {
+    const [selection, setSelection] = useState<Set<string>>(new Set(['a', 'c']));
+
+    return (
+      <Listbox
+        selectionMode='multiple'
+        selection={selection}
+        setSelection={setSelection}
+        items={[
+          { id: 'a', label: 'Item 1' },
+          { id: 'b', label: 'Item 2' },
+          { id: 'c', label: 'Item 3' },
+        ]}
+        getValue={getValue}
+        renderItem={renderItem}
+      />
+    );
+  },
+};
+
+export const Long_List_With_Scroll: Story = {
+  name: 'Long List With Scroll',
+  render: () => {
+    const [selection, setSelection] = useState<Set<string>>(new Set());
+
+    return (
+      <Listbox
+        selectionMode='multiple'
+        selection={selection}
+        setSelection={setSelection}
+        items={Array.from({ length: 50 }, (_, i) => ({
+          id: `item${i + 1}`,
+          label: `Multiple ${i + 1}`,
+        }))}
+        getValue={getValue}
+        renderItem={renderItem}
+      />
+    );
+  },
+};
+
+export const Multiple_With_Checkboxes: Story = {
+  name: 'Multiple With Checkboxes',
+  render: () => {
+    const [selection, setSelection] = useState<Set<string>>(new Set());
+
+    return (
+      <Listbox
+        selectionMode='multiple'
+        selection={selection}
+        setSelection={setSelection}
+        items={[
+          { id: 'a', label: 'Item 1' },
+          { id: 'b', label: 'Item 2' },
+          { id: 'c', label: 'Item 3' },
+        ]}
+        getValue={getValue}
+        renderItem={item => {
+          const isSelected = selection.has(getValue(item));
+          const onCheckedChange = (): void => {
+            if (isSelected) {
+              selection.delete(getValue(item));
+            } else {
+              selection.add(getValue(item));
+            }
+
+            setSelection(new Set(selection));
+          };
+
+          return (
+            <>
+              {renderItem(item)}
+              <Checkbox checked={isSelected} tabIndex={-1} onCheckedChange={onCheckedChange} />
+            </>
+          );
+        }}
+      />
+    );
+  },
+};
+
+export const Disabled: Story = {
+  name: 'Disabled',
+  render: () => {
+    const [selection, setSelection] = useState<Set<string>>(new Set());
+
+    return (
+      <Listbox
+        selectionMode='multiple'
+        disabled={true}
+        selection={selection}
+        setSelection={setSelection}
+        items={[
+          { id: 'a', label: 'Item 1' },
+          { id: 'b', label: 'Item 2' },
+          { id: 'c', label: 'Item 3' },
+        ]}
+        getValue={getValue}
+        renderItem={renderItem}
+      />
     );
   },
 };
