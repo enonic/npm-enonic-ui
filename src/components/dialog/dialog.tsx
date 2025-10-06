@@ -1,5 +1,6 @@
-import { type DialogContextValue, DialogProvider } from '@/providers/dialog-provider';
-import { type ReactElement, type ReactNode, useCallback, useMemo, useState } from 'react';
+import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
+import { type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 //
 // * Dialog
@@ -36,6 +37,33 @@ const DialogRoot = ({
 };
 DialogRoot.displayName = 'Dialog.Root';
 
+//
+// * DialogPortal
+//
+
+export type DialogPortalProps = {
+  children?: ReactNode;
+  container?: HTMLElement | null;
+  forceMount?: boolean;
+};
+
+const DialogPortal = ({ children, container, forceMount }: DialogPortalProps): ReactElement | null => {
+  const { open } = useDialog();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || (!forceMount && !open)) {
+    return null;
+  }
+
+  return createPortal(children, container ?? document.body);
+};
+DialogPortal.displayName = 'Dialog.Portal';
+
 export const Dialog = Object.assign(DialogRoot, {
   Root: DialogRoot,
+  Portal: DialogPortal,
 });
