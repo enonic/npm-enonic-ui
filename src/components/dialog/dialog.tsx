@@ -1,6 +1,9 @@
 import { Button } from '@/components/button/button';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { Input } from '@/components/input/input';
+//
+// * Separator (imported)
+//
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
@@ -42,7 +45,9 @@ const DialogRoot = ({
 
   const setOpen = useCallback(
     (next: boolean): void => {
-      if (!isControlled) setUncontrolledOpen(next);
+      if (!isControlled) {
+        setUncontrolledOpen(next);
+      }
       onOpenChange?.(next);
     },
     [isControlled, onOpenChange],
@@ -186,7 +191,9 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 
     // Body scroll lock
     useEffect(() => {
-      if (!open) return;
+      if (!open) {
+        return;
+      }
 
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
@@ -210,7 +217,9 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     );
 
     useEffect(() => {
-      if (!open) return;
+      if (!open) {
+        return;
+      }
       document.addEventListener('keydown', handleEscapeKey);
       return () => document.removeEventListener('keydown', handleEscapeKey);
     }, [open, handleEscapeKey]);
@@ -231,14 +240,18 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     );
 
     useEffect(() => {
-      if (!open) return;
+      if (!open) {
+        return;
+      }
       document.addEventListener('pointerdown', handlePointerDownOutside);
       return () => document.removeEventListener('pointerdown', handlePointerDownOutside);
     }, [open, handlePointerDownOutside]);
 
     // Focus management
     useEffect(() => {
-      if (!open) return;
+      if (!open) {
+        return;
+      }
 
       const previouslyFocused = document.activeElement as HTMLElement | null;
 
@@ -411,9 +424,13 @@ const DialogHeader = forwardRef<HTMLDivElement, DialogHeaderProps>(
     );
 
     useEffect(() => {
-      if (editing) return;
+      if (editing) {
+        return;
+      }
       const handler = (e: KeyboardEvent): void => {
-        if (!isPrintable(e)) return;
+        if (!isPrintable(e)) {
+          return;
+        }
         pendingCharRef.current = e.key;
         e.preventDefault();
         setEditing(true);
@@ -423,10 +440,14 @@ const DialogHeader = forwardRef<HTMLDivElement, DialogHeaderProps>(
     }, [editing, isPrintable]);
 
     useEffect(() => {
-      if (!editing) return;
+      if (!editing) {
+        return;
+      }
       requestAnimationFrame(() => {
         const el = inputRef.current;
-        if (!el) return;
+        if (!el) {
+          return;
+        }
         el.focus();
         el.setSelectionRange(el.value.length, el.value.length);
         if (pendingCharRef.current) {

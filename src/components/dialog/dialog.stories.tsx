@@ -2,6 +2,7 @@ import { Button } from '@/components/button';
 import { Checkbox, type CheckboxChecked } from '@/components/checkbox';
 import { Input } from '@/components/input';
 import { SelectableListItem } from '@/components/selectable-list-item';
+import { Separator } from '@/components/separator';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Calendar, Database, FileIcon, ImageIcon, Save, SplinePointer, Trash2, TriangleAlert } from 'lucide-react';
 import { useState } from 'preact/hooks';
@@ -131,10 +132,7 @@ export const ArchiveDialog: Story = {
                 <p className='text-success'>Online</p>
               </SelectableListItem>
 
-              <div className='flex gap-2'>
-                <p className='text-ring min-w-fit'>OTHER ITEMS THAT WILL BE ARCHIVED</p>
-                <span className='w-full border-b-ring border-b-1'></span>
-              </div>
+              <Separator label='Other items that will be archived' />
 
               <div className='space-y-1'>
                 <SelectableListItem label='Image.jpg' icon={<ImageIcon />} defaultChecked>
@@ -188,7 +186,6 @@ export const FormDialog: Story = {
             <Dialog.Content className='w-120 space-y-4'>
               <Dialog.Title>User Information</Dialog.Title>
               <Dialog.Description>Please fill in your details below.</Dialog.Description>
-
               <div className='space-y-3'>
                 <Input
                   label='Name'
@@ -242,7 +239,7 @@ export const DestructiveDialog: Story = {
               <Dialog.Description>
                 Are you sure you want to delete this item? This action cannot be undone.
               </Dialog.Description>
-
+              <Separator />
               <div className='bg-error/10 border border-error/20 rounded-md p-3'>
                 <p className='text-sm text-error font-medium flex items-center gap-2'>
                   <TriangleAlert className='w-6 h-6 inline-block' />
@@ -286,7 +283,7 @@ export const NestedContent: Story = {
             <Dialog.Content className='w-160 space-y-4'>
               <Dialog.Title>Settings</Dialog.Title>
               <Dialog.Description>Manage your application preferences.</Dialog.Description>
-
+              <Separator />
               <div className='flex gap-2 border-b border-bdr-subtle'>
                 <button
                   onClick={() => setSelectedTab('general')}

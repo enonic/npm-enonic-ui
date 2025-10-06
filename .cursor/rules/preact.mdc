@@ -11,6 +11,7 @@ alwaysApply: false
 ```typescript
 // ✅ Preact uses the same patterns as React
 // ✅ Import from 'react' (aliased to preact/compat in config)
+// ✅ ALWAYS import types and hooks from 'react', NOT from 'preact'
 import { forwardRef, useState, useEffect, type ReactElement, type ReactNode } from 'react';
 
 export type MyComponentProps = {
@@ -32,6 +33,40 @@ export const MyComponent = ({ title, active, className, children }: MyComponentP
 };
 MyComponent.displayName = 'MyComponent';
 ```
+
+## Import Guidelines
+
+**IMPORTANT:** Always import from `react`, not `preact`:
+
+```typescript
+// ✅ Correct - Component code and stories
+import { forwardRef, useState, type ReactElement, type ReactNode } from 'react';
+
+// ❌ Wrong - Do NOT import from 'preact'
+import { forwardRef, useState, type ReactElement } from 'preact';
+import type { ComponentChildren } from 'preact';
+```
+
+**Children types:**
+
+```typescript
+// ✅ Use ReactNode for children (from 'react')
+type Props = {
+  children?: ReactNode;
+};
+
+// ❌ Do NOT use ComponentChildren (from 'preact')
+type Props = {
+  children?: ComponentChildren;
+};
+```
+
+This applies to:
+- Component implementation files (`.tsx`)
+- Storybook story files (`.stories.tsx`)
+- Test files (`.test.tsx`)
+
+The `react` imports are aliased to `preact/compat` in the build configuration, ensuring compatibility while maintaining consistent import patterns across the codebase.
 
 ## forwardRef with ComponentPropsWithoutRef
 
