@@ -1,5 +1,6 @@
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
-import { type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { cn } from '@/utils';
+import { forwardRef, type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 //
@@ -38,6 +39,32 @@ const DialogRoot = ({
 DialogRoot.displayName = 'Dialog.Root';
 
 //
+// * DialogTrigger
+//
+
+export type DialogTriggerProps = {
+  children: ReactNode;
+} & React.ButtonHTMLAttributes;
+
+const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
+  ({ children, onClick, ...props }, ref): ReactElement => {
+    const { setOpen } = useDialog();
+
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+      onClick?.(e);
+      setOpen(true);
+    };
+
+    return (
+      <button ref={ref} type='button' onClick={handleClick} {...props}>
+        {children}
+      </button>
+    );
+  },
+);
+DialogTrigger.displayName = 'Dialog.Trigger';
+
+//
 // * DialogPortal
 //
 
@@ -63,7 +90,43 @@ const DialogPortal = ({ children, container, forceMount }: DialogPortalProps): R
 };
 DialogPortal.displayName = 'Dialog.Portal';
 
+//
+// * DialogOverlay
+//
+
+export type DialogOverlayProps = {
+  className?: string;
+  forceMount?: boolean;
+} & React.HTMLAttributes<HTMLDivElement>;
+
+const DialogOverlay = forwardRef<HTMLDivElement, DialogOverlayProps>(
+  ({ className, forceMount, ...props }, ref): ReactElement | null => {
+    const { open } = useDialog();
+
+    if (!forceMount && !open) {
+      return null;
+    }
+
+    return (
+      <div
+        ref={ref}
+        data-state={open ? 'open' : 'closed'}
+        className={cn(
+          'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
+DialogOverlay.displayName = 'Dialog.Overlay';
+
 export const Dialog = Object.assign(DialogRoot, {
   Root: DialogRoot,
+  Trigger: DialogTrigger,
   Portal: DialogPortal,
+  Overlay: DialogOverlay,
 });
