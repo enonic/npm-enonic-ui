@@ -46,6 +46,9 @@
     --color-tooltip: var(--color-grey-600);
     --color-tooltip-foreground: var(--color-white);
 
+    /* Overlay */
+    --color-overlay: oklch(0 0 0 / 0.6);
+
     /* Documentation */
     --color-docs: var(--color-juke);
   }

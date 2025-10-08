@@ -57,6 +57,9 @@
   --color-tooltip: var(--color-tooltip);
   --color-tooltip-foreground: var(--color-tooltip-foreground);
 
+  /* Overlay */
+  --color-overlay: var(--color-overlay);
+
   /* Documentation */
   --color-docs: var(--color-docs);
 
