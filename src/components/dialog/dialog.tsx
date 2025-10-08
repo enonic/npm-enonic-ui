@@ -63,7 +63,7 @@ DialogRoot.displayName = 'Dialog.Root';
 
 export type DialogTriggerProps = {
   children: ReactNode;
-} & React.ButtonHTMLAttributes;
+} & React.ComponentProps<'button'>;
 
 const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
   ({ children, onClick, ...props }, ref): ReactElement => {
@@ -156,7 +156,7 @@ export type DialogContentProps = {
   onInteractOutside?: (event: Event) => void;
   onOpenAutoFocus?: (event: Event) => void;
   onCloseAutoFocus?: (event: Event) => void;
-} & Omit<React.HTMLAttributes<HTMLDivElement>, 'onPointerDownOutside'>;
+} & React.HTMLAttributes<HTMLDivElement>;
 
 const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
   (
@@ -288,7 +288,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
             tabIndex={-1}
             className={cn(
               'relative rounded-lg shadow-xl bg-surface-neutral p-10 border border-bdr-subtle',
-              'max-w-lg w-full max-h-[90vh] overflow-auto',
+              'max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col',
               'outline-none',
               'data-[state=open]:animate-in data-[state=closed]:animate-out',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -396,6 +396,27 @@ const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProp
   },
 );
 DialogDescription.displayName = 'Dialog.Description';
+
+//
+// * DialogBody
+//
+
+export type DialogBodyProps = {
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'div'>;
+
+const DialogBody = forwardRef<HTMLDivElement, DialogBodyProps>(
+  ({ className, children, ...props }, ref): ReactElement => {
+    return (
+      <div ref={ref} className={cn('min-h-0 flex-1 overflow-y-auto', className)} {...props}>
+        {children}
+      </div>
+    );
+  },
+);
+
+DialogBody.displayName = 'Dialog.Body';
 
 //
 // * DialogHeader
@@ -525,5 +546,6 @@ export const Dialog = Object.assign(DialogRoot, {
   Close: DialogClose,
   Title: DialogTitle,
   Description: DialogDescription,
+  Body: DialogBody,
   Header: DialogHeader,
 });

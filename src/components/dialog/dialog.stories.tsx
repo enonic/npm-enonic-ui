@@ -4,7 +4,30 @@ import { Input } from '@/components/input';
 import { SelectableListItem } from '@/components/selectable-list-item';
 import { Separator } from '@/components/separator';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { Calendar, Database, FileIcon, ImageIcon, Save, SplinePointer, Trash2, TriangleAlert } from 'lucide-react';
+import {
+  Archive,
+  Calendar,
+  Database,
+  FileCog,
+  FileImage,
+  FileMusic,
+  FileQuestionMark,
+  FileSpreadsheet,
+  FileTerminal,
+  FileText,
+  FileType,
+  Film,
+  Globe,
+  ImageIcon,
+  Presentation,
+  Save,
+  Shapes,
+  SplinePointer,
+  SquareArrowOutUpRight,
+  SquareCode,
+  Trash2,
+  TriangleAlert,
+} from 'lucide-react';
 import { useState } from 'preact/hooks';
 
 import { Dialog } from './dialog';
@@ -32,14 +55,16 @@ export const BasicControlled: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-120 space-y-4'>
-              <Dialog.Title>Simple Dialog</Dialog.Title>
-              <Dialog.Description>
-                This is a basic controlled dialog example. Click outside or press Escape to close.
-              </Dialog.Description>
-              <div className='flex justify-end gap-2'>
+              <header>
+                <Dialog.Title>Simple Dialog</Dialog.Title>
+                <Dialog.Description>
+                  This is a basic controlled dialog example. Click outside or press Escape to close.
+                </Dialog.Description>
+              </header>
+              <footer className='flex justify-end gap-2'>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
                 <Button variant='solid' onClick={() => setOpen(false)} label='Confirm' />
-              </div>
+              </footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -62,15 +87,17 @@ export const WithTrigger: Story = {
         <Dialog.Portal>
           <Dialog.Overlay />
           <Dialog.Content className='w-120 space-y-4'>
-            <Dialog.Title>Triggered Dialog</Dialog.Title>
-            <Dialog.Description>This dialog uses Dialog.Trigger component to open automatically.</Dialog.Description>
+            <header>
+              <Dialog.Title>Triggered Dialog</Dialog.Title>
+              <Dialog.Description>This dialog uses Dialog.Trigger component to open automatically.</Dialog.Description>
+            </header>
 
-            <div className='flex justify-end gap-2'>
+            <footer className='flex justify-end gap-2'>
               <Dialog.Close asChild>
                 <Button variant='outline' label='Close' />
               </Dialog.Close>
               <Button variant='solid' onClick={() => setOpen(false)} label='Done' />
-            </div>
+            </footer>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog>
@@ -94,16 +121,16 @@ export const WithCustomHeader: Story = {
             <Dialog.Content className='w-120 space-y-4'>
               <Dialog.Header title='Dialog with Message' message={message} onMessageChange={setMessage} />
 
-              <div>
+              <Dialog.Body>
                 <p className='text-subtle'>
                   The header allows editing a message. Start typing or click the message area to edit.
                 </p>
-              </div>
+              </Dialog.Body>
 
-              <div className='flex justify-end gap-2'>
+              <footer className='flex justify-end gap-2'>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
                 <Button variant='solid' onClick={() => setOpen(false)} label='Save' />
-              </div>
+              </footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -125,28 +152,76 @@ export const ArchiveDialog: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-220 space-y-4'>
-              <Dialog.Header title='Archive Items' message={message} onMessageChange={setMessage} />
-
-              <SelectableListItem label='Accounts.SQL' icon={<Database />} defaultChecked>
-                <p className='text-success'>Online</p>
-              </SelectableListItem>
-
-              <Separator label='Other items that will be archived' />
-
-              <div className='space-y-1'>
+            <Dialog.Content className='h-150 space-y-4'>
+              <Dialog.Header title='Archive Items' message={message} onMessageChange={setMessage}>
+                <SelectableListItem
+                  className='place-self-stretch'
+                  label='Accounts.SQL'
+                  icon={<Database />}
+                  defaultChecked
+                >
+                  <p className='text-success'>Online</p>
+                </SelectableListItem>
+                <Separator label='Other items that will be archived' />
+              </Dialog.Header>
+              <Dialog.Body className='space-y-1'>
                 <SelectableListItem label='Image.jpg' icon={<ImageIcon />} defaultChecked>
                   <p className='text-success'>Online</p>
                 </SelectableListItem>
-                <SelectableListItem label='Vector.svg' icon={<SplinePointer />} defaultChecked>
-                  <p className='text-success'>Online</p>
+                <SelectableListItem label='Vector.svg' icon={<SplinePointer />} selected>
+                  <p>Moved</p>
                 </SelectableListItem>
-                <SelectableListItem label='File.doc' icon={<FileIcon />} selected>
+                <SelectableListItem label='Report.docx' icon={<FileText />} selected defaultChecked>
                   <p>Modified</p>
                 </SelectableListItem>
-              </div>
+                <SelectableListItem label='Backup.zip' icon={<Archive />}>
+                  <p>Unpublished</p>
+                </SelectableListItem>
+                <SelectableListItem label='Screenshot.png' icon={<FileImage />} defaultChecked>
+                  <p>New</p>
+                </SelectableListItem>
+                <SelectableListItem label='Design.ai' icon={<Shapes />} selected>
+                  <p>Modified</p>
+                </SelectableListItem>
+                <SelectableListItem label='Data.csv' icon={<Database />} defaultChecked>
+                  <p className='text-success'>Online</p>
+                </SelectableListItem>
+                <SelectableListItem label='Video.mp4' icon={<Film />} selected>
+                  <p>Moved</p>
+                </SelectableListItem>
+                <SelectableListItem label='Music.mp3' icon={<FileMusic />}>
+                  <p>New</p>
+                </SelectableListItem>
+                <SelectableListItem label='Spreadsheet.xlsx' icon={<FileSpreadsheet />} selected defaultChecked>
+                  <p>Modified</p>
+                </SelectableListItem>
+                <SelectableListItem label='Code.js' icon={<SquareCode />}>
+                  <p>Unpublished</p>
+                </SelectableListItem>
+                <SelectableListItem label='Presentation.pptx' icon={<Presentation />} selected>
+                  <p>Modified</p>
+                </SelectableListItem>
+                <SelectableListItem label='SiteRoot' icon={<Globe />}>
+                  <p>Unpublished</p>
+                </SelectableListItem>
+                <SelectableListItem label='Template.tpl' icon={<FileCog />} selected>
+                  <p>Modified</p>
+                </SelectableListItem>
+                <SelectableListItem label='Shortcut.url' icon={<SquareArrowOutUpRight />} defaultChecked>
+                  <p>Moved</p>
+                </SelectableListItem>
+                <SelectableListItem label='Unknown.bin' icon={<FileQuestionMark />}>
+                  <p>New</p>
+                </SelectableListItem>
+                <SelectableListItem label='Exec.exe' icon={<FileTerminal />} selected>
+                  <p>Modified</p>
+                </SelectableListItem>
+                <SelectableListItem label='Default.txt' icon={<FileType />} defaultChecked>
+                  <p className='text-success'>Online</p>
+                </SelectableListItem>
+              </Dialog.Body>
 
-              <div className='flex justify-end gap-2'>
+              <footer className='flex justify-end gap-2'>
                 <Button
                   variant='outline'
                   startIcon={Calendar}
@@ -154,7 +229,7 @@ export const ArchiveDialog: Story = {
                   label='Schedule Archive'
                 />
                 <Button variant='solid' onClick={() => setOpen(false)} label='Archive (3)' />
-              </div>
+              </footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -184,9 +259,11 @@ export const FormDialog: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-120 space-y-4'>
-              <Dialog.Title>User Information</Dialog.Title>
-              <Dialog.Description>Please fill in your details below.</Dialog.Description>
-              <div className='space-y-3'>
+              <header>
+                <Dialog.Title>User Information</Dialog.Title>
+                <Dialog.Description>Please fill in your details below.</Dialog.Description>
+              </header>
+              <Dialog.Body className='space-y-3'>
                 <Input
                   label='Name'
                   value={name}
@@ -201,14 +278,14 @@ export const FormDialog: Story = {
                   placeholder='john@example.com'
                 />
                 <Checkbox label='Subscribe to newsletter' checked={subscribe} onCheckedChange={setSubscribe} />
-              </div>
+              </Dialog.Body>
 
-              <div className='flex justify-end gap-2'>
+              <footer className='flex justify-end gap-2'>
                 <Dialog.Close asChild>
                   <Button variant='outline' label='Cancel' />
                 </Dialog.Close>
                 <Button variant='solid' onClick={handleSubmit} label='Submit' startIcon={Save} />
-              </div>
+              </footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -235,19 +312,21 @@ export const DestructiveDialog: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-120 space-y-4'>
-              <Dialog.Title>Confirm Deletion</Dialog.Title>
-              <Dialog.Description>
-                Are you sure you want to delete this item? This action cannot be undone.
-              </Dialog.Description>
-              <Separator />
-              <div className='bg-error/10 border border-error/20 rounded-md p-3'>
-                <p className='text-sm text-error font-medium flex items-center gap-2'>
-                  <TriangleAlert className='w-6 h-6 inline-block' />
-                  <span>Warning: This is a permanent action</span>
-                </p>
-              </div>
-
-              <div className='flex justify-end gap-2'>
+              <header>
+                <Dialog.Title>Confirm Deletion</Dialog.Title>
+                <Dialog.Description>
+                  Are you sure you want to delete this item? This action cannot be undone.
+                </Dialog.Description>
+              </header>
+              <Dialog.Body>
+                <div className='bg-error/10 border border-error/20 rounded-md p-3'>
+                  <p className='text-sm text-error font-medium flex items-center gap-2'>
+                    <TriangleAlert className='w-6 h-6 inline-block' />
+                    <span>Warning: This is a permanent action</span>
+                  </p>
+                </div>
+              </Dialog.Body>
+              <footer className='flex justify-end gap-2'>
                 <Dialog.Close asChild>
                   <Button variant='outline' label='Cancel' />
                 </Dialog.Close>
@@ -258,7 +337,7 @@ export const DestructiveDialog: Story = {
                   label='Delete'
                   startIcon={Trash2}
                 />
-              </div>
+              </footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -281,50 +360,55 @@ export const NestedContent: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-160 space-y-4'>
-              <Dialog.Title>Settings</Dialog.Title>
-              <Dialog.Description>Manage your application preferences.</Dialog.Description>
-              <Separator />
-              <div className='flex gap-2 border-b border-bdr-subtle'>
-                <button
-                  onClick={() => setSelectedTab('general')}
-                  className={`px-4 py-2 border-b-2 transition-colors ${
-                    selectedTab === 'general' ? 'border-main text-main font-medium' : 'border-transparent text-subtle'
-                  }`}
-                >
-                  General
-                </button>
-                <button
-                  onClick={() => setSelectedTab('advanced')}
-                  className={`px-4 py-2 border-b-2 transition-colors ${
-                    selectedTab === 'advanced' ? 'border-main text-main font-medium' : 'border-transparent text-subtle'
-                  }`}
-                >
-                  Advanced
-                </button>
-              </div>
-
-              {selectedTab === 'general' && (
-                <div className='space-y-3'>
-                  <Input label='Username' placeholder='Enter username' />
-                  <Input label='Display Name' placeholder='Enter display name' />
-                  <Checkbox label='Enable notifications' defaultChecked />
+              <header>
+                <Dialog.Title>Settings</Dialog.Title>
+                <Dialog.Description>Manage your application preferences.</Dialog.Description>
+              </header>
+              <Dialog.Body>
+                <div className='flex gap-2 border-b border-bdr-subtle'>
+                  <button
+                    onClick={() => setSelectedTab('general')}
+                    className={`px-4 py-2 border-b-2 transition-colors ${
+                      selectedTab === 'general' ? 'border-main text-main font-medium' : 'border-transparent text-subtle'
+                    }`}
+                  >
+                    General
+                  </button>
+                  <button
+                    onClick={() => setSelectedTab('advanced')}
+                    className={`px-4 py-2 border-b-2 transition-colors ${
+                      selectedTab === 'advanced'
+                        ? 'border-main text-main font-medium'
+                        : 'border-transparent text-subtle'
+                    }`}
+                  >
+                    Advanced
+                  </button>
                 </div>
-              )}
 
-              {selectedTab === 'advanced' && (
-                <div className='space-y-3'>
-                  <Checkbox label='Enable experimental features' />
-                  <Checkbox label='Developer mode' />
-                  <Checkbox label='Debug logging' />
-                </div>
-              )}
+                {selectedTab === 'general' && (
+                  <div className='space-y-3'>
+                    <Input label='Username' placeholder='Enter username' />
+                    <Input label='Display Name' placeholder='Enter display name' />
+                    <Checkbox label='Enable notifications' defaultChecked />
+                  </div>
+                )}
 
-              <div className='flex justify-end gap-2'>
+                {selectedTab === 'advanced' && (
+                  <div className='space-y-3'>
+                    <Checkbox label='Enable experimental features' />
+                    <Checkbox label='Developer mode' />
+                    <Checkbox label='Debug logging' />
+                  </div>
+                )}
+              </Dialog.Body>
+
+              <footer className='flex justify-end gap-2'>
                 <Dialog.Close asChild>
                   <Button variant='outline' label='Cancel' />
                 </Dialog.Close>
                 <Button variant='solid' onClick={() => setOpen(false)} label='Save Changes' />
-              </div>
+              </footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -372,9 +456,11 @@ export const OverlayEffect: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-100 space-y-4'>
-              <Dialog.Title>Overlay Demonstration</Dialog.Title>
-              <Dialog.Description>Background content is dimmed and blurred by the overlay.</Dialog.Description>
-              <div className='space-y-2'>
+              <header>
+                <Dialog.Title>Overlay Demonstration</Dialog.Title>
+                <Dialog.Description>Background content is dimmed and blurred by the overlay.</Dialog.Description>
+              </header>
+              <Dialog.Body className='space-y-2'>
                 <p className='text-sm'>The overlay provides:</p>
                 <ul className='text-sm text-subtle list-disc list-inside space-y-1'>
                   <li>Visual separation</li>
@@ -382,10 +468,10 @@ export const OverlayEffect: Story = {
                   <li>Dimming effect</li>
                   <li>Click-outside-to-close</li>
                 </ul>
-              </div>
-              <div className='flex justify-end gap-2'>
+              </Dialog.Body>
+              <footer className='flex justify-end gap-2'>
                 <Button variant='solid' onClick={() => setOpen(false)} label='Close' />
-              </div>
+              </footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
