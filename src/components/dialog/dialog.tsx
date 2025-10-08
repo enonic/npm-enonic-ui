@@ -1,12 +1,10 @@
 import { Button } from '@/components/button/button';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { Input } from '@/components/input/input';
-//
-// * Separator (imported)
-//
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
+import { FocusTrap } from 'focus-trap-react';
 import { X } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -247,63 +245,62 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       return () => document.removeEventListener('pointerdown', handlePointerDownOutside);
     }, [open, handlePointerDownOutside]);
 
-    // Focus management
-    useEffect(() => {
-      if (!open) {
-        return;
-      }
-
-      const previouslyFocused = document.activeElement as HTMLElement | null;
-
-      // Focus on open
-      requestAnimationFrame(() => {
-        const event = new Event('openautofocus');
-        onOpenAutoFocus?.(event);
-        if (!event.defaultPrevented && contentRef.current) {
-          contentRef.current.focus();
-        }
-      });
-
-      return () => {
-        // Restore focus on close
-        requestAnimationFrame(() => {
-          const event = new Event('closeautofocus');
-          onCloseAutoFocus?.(event);
-          if (!event.defaultPrevented && previouslyFocused) {
-            previouslyFocused.focus();
-          }
-        });
-      };
-    }, [open, onOpenAutoFocus, onCloseAutoFocus]);
-
     if (!forceMount && !open) {
       return null;
     }
 
     return (
-      <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
-        <div
-          ref={contentRef}
-          role='dialog'
-          aria-modal='true'
-          aria-labelledby={titleId}
-          aria-describedby={descriptionId}
-          data-state={open ? 'open' : 'closed'}
-          tabIndex={-1}
-          className={cn(
-            'relative rounded-lg shadow-xl bg-surface-neutral p-10 border border-bdr-subtle',
-            'max-w-lg w-full max-h-[90vh] overflow-auto',
-            'outline-none',
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-            className,
-          )}
-          {...props}
-        >
-          {children}
+      <FocusTrap
+        active={open}
+        focusTrapOptions={{
+          initialFocus: false,
+          fallbackFocus: () => contentRef.current ?? document.body,
+          escapeDeactivates: false,
+          clickOutsideDeactivates: false,
+          returnFocusOnDeactivate: true,
+          allowOutsideClick: true,
+          preventScroll: false,
+          onActivate: () => {
+            requestAnimationFrame(() => {
+              const event = new Event('openautofocus');
+              onOpenAutoFocus?.(event);
+              if (!event.defaultPrevented && contentRef.current) {
+                contentRef.current.focus();
+              }
+            });
+          },
+          onDeactivate: () => {
+            requestAnimationFrame(() => {
+              const event = new Event('closeautofocus');
+              onCloseAutoFocus?.(event);
+            });
+          },
+        }}
+      >
+        <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
+          <div
+            ref={contentRef}
+            role='dialog'
+            aria-modal='true'
+            aria-labelledby={titleId}
+            aria-describedby={descriptionId}
+            data-state={open ? 'open' : 'closed'}
+            tabIndex={-1}
+            className={cn(
+              'relative rounded-lg shadow-xl bg-surface-neutral p-10 border border-bdr-subtle',
+              'max-w-lg w-full max-h-[90vh] overflow-auto',
+              'outline-none',
+              'data-[state=open]:animate-in data-[state=closed]:animate-out',
+              'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+              'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+              className,
+            )}
+            {...props}
+          >
+            {children}
+          </div>
         </div>
-      </div>
+      </FocusTrap>
     );
   },
 );
