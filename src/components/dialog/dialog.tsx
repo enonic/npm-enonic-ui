@@ -276,6 +276,59 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       };
     }, [open, onOpenAutoFocus, onCloseAutoFocus]);
 
+    // Focus trap (keep focus inside content while open)
+    useEffect(() => {
+      if (!open) {
+        return;
+      }
+      const root = contentRef.current;
+      if (!root) return;
+
+      const getFocusables = (): HTMLElement[] =>
+        Array.from(
+          root.querySelectorAll<HTMLElement>(
+            'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter(el => el.offsetParent !== null);
+
+      const onKeydown = (e: KeyboardEvent): void => {
+        if (e.key !== 'Tab') return;
+        const nodes = getFocusables();
+        if (nodes.length === 0) {
+          e.preventDefault();
+          root.focus();
+          return;
+        }
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+        if (e.shiftKey) {
+          if (active === first || !root.contains(active)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (active === last || !root.contains(active)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      };
+
+      const onFocusIn = (e: FocusEvent): void => {
+        if (!root.contains(e.target as Node)) {
+          root.focus();
+        }
+      };
+
+      document.addEventListener('keydown', onKeydown);
+      document.addEventListener('focusin', onFocusIn);
+      return () => {
+        document.removeEventListener('keydown', onKeydown);
+        document.removeEventListener('focusin', onFocusIn);
+      };
+    }, [open]);
+
     if (!forceMount && !open) {
       return null;
     }
