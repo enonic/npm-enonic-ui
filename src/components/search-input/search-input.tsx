@@ -72,7 +72,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           'h-12 border border-bdr-subtle focus-within:border-bdr-strong',
           'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
           'transition-highlight',
-          disabled && 'pointer-events-none opacity-30',
+          disabled && 'pointer-events-none select-none opacity-30',
           className,
         )}
       >
@@ -89,7 +89,6 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             'text-main bg-surface-neutral',
             'placeholder:text-subtle',
             'focus:outline-none',
-            'disabled:pointer-events-none',
             'read-only:bg-surface-primary',
           )}
           value={inputValue}

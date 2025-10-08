@@ -25,7 +25,7 @@
   --color-surface-primary: var(--color-surface-primary);
   --color-surface-primary-hover: var(--color-surface-primary-hover);
   --color-surface-primary-selected: var(--color-surface-primary-selected);
-  --color-surface-primary-selected-hover: var(--color-surface-primary-selected);
+  --color-surface-primary-selected-hover: var(--color-surface-primary-selected-hover);
   --color-surface-info: var(--color-fbk-info-surface);
   --color-surface-warn: var(--color-fbk-warn-surface);
   --color-surface-success: var(--color-fbk-success-surface);

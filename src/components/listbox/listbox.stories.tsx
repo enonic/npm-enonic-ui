@@ -1,188 +1,263 @@
 import { Checkbox } from '@/components';
-import { Listbox } from '@/components/listbox/listbox';
+import { Listbox, type ListboxProps } from '@/components/listbox/listbox';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 
-type Story = StoryObj<typeof Listbox>;
+type Story = StoryObj<ListboxProps<Data>>;
 
-type StoryData = {
+type Data = {
   id: string;
-  label: string;
+  name: string;
 };
 
-const getValue = (item: unknown): string => (item as StoryData).id;
-const renderItem = (item: unknown): React.ReactNode => <div className='flex-1'>{(item as StoryData).label}</div>;
+// Sample data for stories
+const frameworks: Data[] = [
+  { id: 'react', name: 'React' },
+  { id: 'vue', name: 'Vue' },
+  { id: 'angular', name: 'Angular' },
+  { id: 'svelte', name: 'Svelte' },
+  { id: 'preact', name: 'Preact' },
+];
+
+const cities: Data[] = [
+  { id: 'nyc', name: 'New York' },
+  { id: 'london', name: 'London' },
+  { id: 'tokyo', name: 'Tokyo' },
+  { id: 'paris', name: 'Paris' },
+  { id: 'barcelona', name: 'Barcelona' },
+];
+
+const countries: Data[] = Array.from({ length: 50 }, (_, i) => ({
+  id: `country-${i + 1}`,
+  name: `Country ${i + 1}`,
+}));
 
 export default {
   title: 'Components/Listbox',
   component: Listbox,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
-} satisfies Meta<typeof Listbox>;
+  argTypes: {
+    selectionMode: {
+      control: 'select',
+      options: ['single', 'multiple'],
+      description: 'Selection mode',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the listbox',
+    },
+    label: {
+      control: 'text',
+      description: 'Accessible label for the listbox',
+    },
+  },
+} satisfies Meta<ListboxProps<Data>>;
 
-export const Default: Story = {
+export const SingleSelection: Story = {
   name: 'Single Selection',
   render: () => {
-    const [selection, setSelection] = useState<Set<string>>(new Set());
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
     return (
-      <Listbox
-        selectionMode='single'
-        selection={selection}
-        setSelection={setSelection}
-        items={[
-          { id: 'a', label: 'Single 1' },
-          { id: 'b', label: 'Single 2' },
-          { id: 'c', label: 'Single 3' },
-        ]}
-        getValue={getValue}
-        renderItem={renderItem}
-      />
+      <div className='p-4'>
+        <h3 className='text-sm font-medium mb-3'>Select a framework</h3>
+        <Listbox
+          selectionMode='single'
+          selection={selection}
+          setSelection={setSelection}
+          items={frameworks}
+          getValue={item => item.id}
+          renderItem={item => <div className='flex-1'>{item.name}</div>}
+        />
+        <p className='text-sm text-main/70 mt-3'>
+          Selected: {selection.size > 0 ? frameworks.find(f => selection.has(f.id))?.name : 'None'}
+        </p>
+      </div>
     );
   },
 };
 
-export const Multiple: Story = {
+export const MultipleSelection: Story = {
   name: 'Multiple Selection',
   render: () => {
-    const [selection, setSelection] = useState<Set<string>>(new Set());
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
     return (
-      <Listbox
-        selectionMode='multiple'
-        selection={selection}
-        setSelection={setSelection}
-        items={[
-          { id: 'a', label: 'Multiple 1' },
-          { id: 'b', label: 'Multiple 2' },
-          { id: 'c', label: 'Multiple 3' },
-        ]}
-        getValue={getValue}
-        renderItem={renderItem}
-      />
+      <div className='p-4'>
+        <h3 className='text-sm font-medium mb-3'>Select cities to visit</h3>
+        <Listbox
+          selectionMode='multiple'
+          selection={selection}
+          setSelection={setSelection}
+          items={cities}
+          getValue={item => item.id}
+          renderItem={item => <div className='flex-1'>{item.name}</div>}
+        />
+        <p className='text-sm text-main/70 mt-3'>
+          Selected {selection.size} {selection.size === 1 ? 'city' : 'cities'}
+        </p>
+      </div>
     );
   },
 };
 
-export const Multiple_Uncontrolled: Story = {
-  name: 'Uncontrolled',
+export const WithCheckboxes: Story = {
+  name: 'Multiple Selection with Checkboxes',
   render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set(['preact']));
+
     return (
-      <Listbox
-        selectionMode='multiple'
-        items={[
-          { id: 'a', label: 'Multiple 1' },
-          { id: 'b', label: 'Multiple 2' },
-          { id: 'c', label: 'Multiple 3' },
-        ]}
-        getValue={getValue}
-        renderItem={renderItem}
-      />
+      <div className='p-4'>
+        <h3 className='text-sm font-medium mb-3'>Choose your frameworks</h3>
+        <Listbox
+          selectionMode='multiple'
+          selection={selection}
+          setSelection={setSelection}
+          items={frameworks}
+          getValue={item => item.id}
+          renderItem={item => {
+            const isSelected = selection.has(item.id);
+            return (
+              <>
+                <div className='flex-1'>{item.name}</div>
+                <Checkbox
+                  checked={isSelected}
+                  tabIndex={-1}
+                  onCheckedChange={() => {
+                    const newSelection = new Set(selection);
+                    if (isSelected) {
+                      newSelection.delete(item.id);
+                    } else {
+                      newSelection.add(item.id);
+                    }
+                    setSelection(newSelection);
+                  }}
+                />
+              </>
+            );
+          }}
+        />
+      </div>
     );
   },
 };
 
-export const Multiple_Preselected: Story = {
-  name: 'Multiple With Preselected',
+export const Preselected: Story = {
+  name: 'With Pre-selected Items',
   render: () => {
-    const [selection, setSelection] = useState<Set<string>>(new Set(['a', 'c']));
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set(['react', 'vue', 'svelte']));
 
     return (
-      <Listbox
-        selectionMode='multiple'
-        selection={selection}
-        setSelection={setSelection}
-        items={[
-          { id: 'a', label: 'Item 1' },
-          { id: 'b', label: 'Item 2' },
-          { id: 'c', label: 'Item 3' },
-        ]}
-        getValue={getValue}
-        renderItem={renderItem}
-      />
+      <div className='p-4'>
+        <h3 className='text-sm font-medium mb-3'>Your favorite frameworks</h3>
+        <Listbox
+          selectionMode='multiple'
+          selection={selection}
+          setSelection={setSelection}
+          items={frameworks}
+          getValue={item => item.id}
+          renderItem={item => <div className='flex-1'>{item.name}</div>}
+        />
+      </div>
     );
   },
 };
 
-export const Long_List_With_Scroll: Story = {
-  name: 'Long List With Scroll',
+export const LongList: Story = {
+  name: 'Long List with Scroll',
   render: () => {
-    const [selection, setSelection] = useState<Set<string>>(new Set());
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
     return (
-      <Listbox
-        selectionMode='multiple'
-        selection={selection}
-        setSelection={setSelection}
-        items={Array.from({ length: 50 }, (_, i) => ({
-          id: `item${i + 1}`,
-          label: `Multiple ${i + 1}`,
-        }))}
-        getValue={getValue}
-        renderItem={renderItem}
-      />
+      <div className='p-4'>
+        <h3 className='text-sm font-medium mb-3'>Select a country (use ↑↓ arrows, Home/End keys to navigate)</h3>
+        <Listbox
+          className='max-h-40'
+          selectionMode='single'
+          selection={selection}
+          setSelection={setSelection}
+          items={countries}
+          getValue={item => item.id}
+          renderItem={item => <div className='flex-1'>{item.name}</div>}
+        />
+        <p className='text-sm text-main/70 mt-3'>
+          Selected: {selection.size > 0 ? countries.find(c => selection.has(c.id))?.name : 'None'}
+        </p>
+      </div>
     );
   },
 };
 
-export const Multiple_With_Checkboxes: Story = {
-  name: 'Multiple With Checkboxes',
+export const Uncontrolled: Story = {
+  name: 'Uncontrolled Mode',
   render: () => {
-    const [selection, setSelection] = useState<Set<string>>(new Set());
-
     return (
-      <Listbox
-        selectionMode='multiple'
-        selection={selection}
-        setSelection={setSelection}
-        items={[
-          { id: 'a', label: 'Item 1' },
-          { id: 'b', label: 'Item 2' },
-          { id: 'c', label: 'Item 3' },
-        ]}
-        getValue={getValue}
-        renderItem={item => {
-          const isSelected = selection.has(getValue(item));
-          const onCheckedChange = (): void => {
-            if (isSelected) {
-              selection.delete(getValue(item));
-            } else {
-              selection.add(getValue(item));
-            }
-
-            setSelection(new Set(selection));
-          };
-
-          return (
-            <>
-              {renderItem(item)}
-              <Checkbox checked={isSelected} tabIndex={-1} onCheckedChange={onCheckedChange} />
-            </>
-          );
-        }}
-      />
+      <div className='p-4'>
+        <h3 className='text-sm font-medium mb-3'>Uncontrolled listbox with default selection</h3>
+        <Listbox
+          selectionMode='multiple'
+          defaultSelection={new Set(['react', 'preact'])}
+          items={frameworks}
+          getValue={item => item.id}
+          renderItem={item => <div className='flex-1'>{item.name}</div>}
+        />
+        <p className='text-sm text-main/70 mt-3'>Component manages its own state</p>
+      </div>
     );
   },
 };
 
 export const Disabled: Story = {
-  name: 'Disabled',
+  name: 'Disabled State',
   render: () => {
-    const [selection, setSelection] = useState<Set<string>>(new Set());
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set(['react', 'vue']));
+
+    return (
+      <div className='p-4'>
+        <h3 className='text-sm font-medium mb-3'>Disabled listbox</h3>
+        <Listbox
+          selectionMode='multiple'
+          disabled
+          selection={selection}
+          setSelection={setSelection}
+          items={frameworks}
+          getValue={item => item.id}
+          renderItem={item => <div className='flex-1'>{item.name}</div>}
+        />
+      </div>
+    );
+  },
+};
+
+export const InteractivePlayground: Story = {
+  name: 'Interactive Playground',
+  args: {
+    selectionMode: 'single',
+    disabled: false,
+    label: 'Interactive Listbox',
+  },
+  render: args => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+
+    // Reset selection when selectionMode changes
+    useEffect(() => {
+      if (args.selectionMode === 'single' && selection.size > 1) {
+        const firstItem = Array.from(selection)[0];
+        setSelection(new Set(firstItem ? [firstItem] : []));
+      }
+    }, [args.selectionMode]);
 
     return (
       <Listbox
-        selectionMode='multiple'
-        disabled={true}
+        selectionMode={args.selectionMode}
+        disabled={args.disabled}
+        label={args.label}
         selection={selection}
         setSelection={setSelection}
-        items={[
-          { id: 'a', label: 'Item 1' },
-          { id: 'b', label: 'Item 2' },
-          { id: 'c', label: 'Item 3' },
-        ]}
-        getValue={getValue}
-        renderItem={renderItem}
+        items={frameworks}
+        getValue={item => item.id}
+        renderItem={item => <div className='flex-1'>{item.name}</div>}
       />
     );
   },
