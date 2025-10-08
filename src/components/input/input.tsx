@@ -18,7 +18,7 @@ const inputContainerVariants = cva(
         error: 'border-error focus-within:border-error focus-within:ring-error/50',
       },
       disabled: {
-        true: 'pointer-events-none',
+        true: 'select-none',
       },
     },
     defaultVariants: {
@@ -95,7 +95,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               'flex-1 w-full px-4.5 text-base',
               'text-main bg-surface-neutral placeholder:text-subtle',
               'border-0 focus:outline-none',
-              'disabled:pointer-events-none read-only:bg-surface-primary',
+              'disabled:select-none read-only:bg-surface-primary',
               startAddon && 'rounded-l-none',
               endAddon && 'rounded-r-none',
             )}

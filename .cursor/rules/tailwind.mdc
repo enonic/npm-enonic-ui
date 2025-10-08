@@ -230,7 +230,7 @@ export function Component({ className, ...props }: ComponentProps) {
         // Base styles first
         'relative flex items-center gap-2',
         // Conditional styles
-        props.disabled && 'opacity-50 pointer-events-none',
+        props.disabled && 'pointer-events-none select-none opacity-30',
         // User overrides last
         className,
       )}

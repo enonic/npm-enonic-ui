@@ -170,7 +170,7 @@ function TooltipContent({
     <div
       ref={tooltipRef}
       role='tooltip'
-      className={cn('fixed z-50 pointer-events-none', !position.transformOrigin && 'opacity-0')}
+      className={cn('fixed z-50 pointer-events-none select-none', !position.transformOrigin && 'opacity-0')}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
