@@ -332,3 +332,64 @@ export const NestedContent: Story = {
     );
   },
 };
+
+export const OverlayEffect: Story = {
+  name: 'Overlay Effect',
+  render: () => {
+    const [open, setOpen] = useState(false);
+
+    return (
+      <div className='min-h-screen-80 p-8 space-y-6'>
+        <div className='space-y-4'>
+          <h1 className='text-3xl font-bold'>Background Content</h1>
+          <p className='text-lg'>Demonstrates the Dialog overlay with backdrop blur and dimming effect.</p>
+          <p className='text-subtle'>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
+          </p>
+        </div>
+
+        <div className='flex gap-3'>
+          <Button variant='solid' onClick={() => setOpen(true)} label='Open Dialog' />
+          <Button variant='outline' label='Secondary Action' disabled />
+        </div>
+
+        <div className='bg-surface-info border border-info rounded-md p-4'>
+          <p className='text-sm text-info font-medium'>
+            <span className='font-bold'>Info:</span> Informational message in the background.
+          </p>
+        </div>
+
+        <div className='bg-surface-warn border border-warn rounded-md p-4'>
+          <p className='text-sm text-warn font-medium flex items-center gap-2'>
+            <TriangleAlert className='w-5 h-5' />
+            <span>
+              <span className='font-bold'>Warning:</span> Important background information.
+            </span>
+          </p>
+        </div>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-100 space-y-4'>
+              <Dialog.Title>Overlay Demonstration</Dialog.Title>
+              <Dialog.Description>Background content is dimmed and blurred by the overlay.</Dialog.Description>
+              <div className='space-y-2'>
+                <p className='text-sm'>The overlay provides:</p>
+                <ul className='text-sm text-subtle list-disc list-inside space-y-1'>
+                  <li>Visual separation</li>
+                  <li>Backdrop blur</li>
+                  <li>Dimming effect</li>
+                  <li>Click-outside-to-close</li>
+                </ul>
+              </div>
+              <div className='flex justify-end gap-2'>
+                <Button variant='solid' onClick={() => setOpen(false)} label='Close' />
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
