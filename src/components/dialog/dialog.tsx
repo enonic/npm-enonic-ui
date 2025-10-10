@@ -1,6 +1,7 @@
 import { Button } from '@/components/button/button';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { Input } from '@/components/input/input';
+import { useScrollLock } from '@/hooks/use-scroll-lock';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
@@ -187,21 +188,8 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       }
     }, [ref]);
 
-    // Body scroll lock
-    useEffect(() => {
-      if (!open) {
-        return;
-      }
+    useScrollLock(open);
 
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }, [open]);
-
-    // Escape key handling
     const handleEscapeKey = useCallback(
       (e: KeyboardEvent): void => {
         if (e.key === 'Escape') {
@@ -222,7 +210,6 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       return () => document.removeEventListener('keydown', handleEscapeKey);
     }, [open, handleEscapeKey]);
 
-    // Click outside handling
     const handlePointerDownOutside = useCallback(
       (e: PointerEvent): void => {
         const target = e.target as Node;
@@ -287,9 +274,9 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
             data-state={open ? 'open' : 'closed'}
             tabIndex={-1}
             className={cn(
-              'relative rounded-lg shadow-xl bg-surface-neutral p-10 border border-bdr-subtle',
-              'max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col',
-              'outline-none',
+              'relative rounded-lg shadow-xl bg-surface-neutral',
+              'flex flex-col max-w-lg w-full max-h-[90vh] gap-10 p-10',
+              'border border-bdr-subtle outline-none overflow-hidden',
               'data-[state=open]:animate-in data-[state=closed]:animate-out',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
               'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -537,6 +524,27 @@ const DialogHeader = forwardRef<HTMLDivElement, DialogHeaderProps>(
 
 DialogHeader.displayName = 'Dialog.Header';
 
+//
+// * DialogFooter
+//
+
+export type DialogFooterProps = {
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'footer'>;
+
+const DialogFooter = forwardRef<HTMLElement, DialogFooterProps>(
+  ({ className, children, ...props }, ref): ReactElement => {
+    return (
+      <footer ref={ref} className={cn('flex justify-end gap-2.5', className)} {...props}>
+        {children}
+      </footer>
+    );
+  },
+);
+
+DialogFooter.displayName = 'Dialog.Footer';
+
 export const Dialog = Object.assign(DialogRoot, {
   Root: DialogRoot,
   Trigger: DialogTrigger,
@@ -548,4 +556,5 @@ export const Dialog = Object.assign(DialogRoot, {
   Description: DialogDescription,
   Body: DialogBody,
   Header: DialogHeader,
+  Footer: DialogFooter,
 });
