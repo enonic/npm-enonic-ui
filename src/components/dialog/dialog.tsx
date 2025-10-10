@@ -1,6 +1,4 @@
-import { Button } from '@/components/button/button';
 import { IconButton } from '@/components/icon-button/icon-button';
-import { Input } from '@/components/input/input';
 import { useScrollLock } from '@/hooks/use-scroll-lock';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
@@ -294,6 +292,26 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 DialogContent.displayName = 'Dialog.Content';
 
 //
+// * DialogHeader
+//
+
+export type DialogHeaderProps = {
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'header'>;
+
+const DialogHeader = forwardRef<HTMLElement, DialogHeaderProps>(
+  ({ className, children, ...props }, ref): ReactElement => {
+    return (
+      <header ref={ref} className={cn('relative grid gap-2.5 self-stretch items-center', className)} {...props}>
+        {children}
+      </header>
+    );
+  },
+);
+DialogHeader.displayName = 'Dialog.Header';
+
+//
 // * DialogClose
 //
 
@@ -348,7 +366,7 @@ const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
-        className={cn('text-2xl leading-11.5 font-semibold', className)}
+        className={cn('text-2xl font-semibold', className)}
         {...props}
       >
         {children}
@@ -374,7 +392,7 @@ const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProp
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
-        className={cn('text-sm text-subtle', className)}
+        className={cn('', className)}
         {...props}
       >
         {children}
@@ -406,125 +424,6 @@ const DialogBody = forwardRef<HTMLDivElement, DialogBodyProps>(
 DialogBody.displayName = 'Dialog.Body';
 
 //
-// * DialogHeader
-//
-
-export type DialogHeaderProps = {
-  title: string;
-  message?: string;
-  onMessageChange?: (value: string) => void;
-  className?: string;
-  children?: ReactNode;
-};
-
-const DialogHeader = forwardRef<HTMLDivElement, DialogHeaderProps>(
-  ({ title, message = '', onMessageChange, className, children }, ref): ReactElement => {
-    const [editing, setEditing] = useState(false);
-    const inputRef = useRef<HTMLInputElement | null>(null);
-    const pendingCharRef = useRef<string | null>(null);
-
-    const isPrintable = useCallback(
-      (e: KeyboardEvent): boolean => e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey,
-      [],
-    );
-
-    useEffect(() => {
-      if (editing) {
-        return;
-      }
-      const handler = (e: KeyboardEvent): void => {
-        if (!isPrintable(e)) {
-          return;
-        }
-        pendingCharRef.current = e.key;
-        e.preventDefault();
-        setEditing(true);
-      };
-      window.addEventListener('keydown', handler);
-      return () => window.removeEventListener('keydown', handler);
-    }, [editing, isPrintable]);
-
-    useEffect(() => {
-      if (!editing) {
-        return;
-      }
-      requestAnimationFrame(() => {
-        const el = inputRef.current;
-        if (!el) {
-          return;
-        }
-        el.focus();
-        el.setSelectionRange(el.value.length, el.value.length);
-        if (pendingCharRef.current) {
-          onMessageChange?.(message + pendingCharRef.current);
-          pendingCharRef.current = null;
-        }
-      });
-    }, [editing, message, onMessageChange]);
-
-    const handleInputChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>): void => {
-        onMessageChange?.(e.currentTarget.value);
-      },
-      [onMessageChange],
-    );
-
-    const handleBlur = useCallback(() => {
-      setEditing(false);
-    }, []);
-
-    const handleButtonClick = useCallback(() => {
-      setEditing(true);
-    }, []);
-
-    return (
-      <div ref={ref} className={cn('relative flex items-start gap-2.5 self-stretch', className)}>
-        <div className='flex flex-col items-start gap-2.5 flex-1 min-w-0'>
-          <DialogTitle>{title}</DialogTitle>
-          {editing ? (
-            <Input
-              ref={inputRef}
-              placeholder='Add a message'
-              value={message}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              className={cn(
-                '[&_div.relative]:!border-0',
-                '[&_div.relative:focus-within]:!ring-0',
-                '[&_div.relative:focus-within]:!ring-offset-0',
-              )}
-            />
-          ) : (
-            <Button
-              variant='text'
-              className='self-start p-0 hover:bg-transparent hover:underline'
-              onClick={handleButtonClick}
-            >
-              {message.trim() ? message : 'Start typing or click here to add a message'}
-            </Button>
-          )}
-          {children}
-        </div>
-        <DialogClose asChild>
-          <IconButton
-            aria-label='Close'
-            icon={X}
-            size='lg'
-            iconSize={36}
-            iconStrokeWidth={1}
-            shape='round'
-            variant='filled'
-            className={cn('absolute top-0 right-0')}
-          />
-        </DialogClose>
-      </div>
-    );
-  },
-);
-
-DialogHeader.displayName = 'Dialog.Header';
-
-//
 // * DialogFooter
 //
 
@@ -542,8 +441,56 @@ const DialogFooter = forwardRef<HTMLElement, DialogFooterProps>(
     );
   },
 );
-
 DialogFooter.displayName = 'Dialog.Footer';
+
+//
+// * DialogDefaultClose
+//
+
+type DialogDefaultCloseProps = Partial<ComponentPropsWithoutRef<typeof IconButton>>;
+
+const DialogDefaultClose = forwardRef<HTMLButtonElement, DialogDefaultCloseProps>((props, ref): ReactElement => {
+  return (
+    <DialogClose asChild ref={ref} {...props}>
+      <IconButton
+        aria-label='Close'
+        data-area='close'
+        icon={X}
+        size='lg'
+        iconSize={36}
+        iconStrokeWidth={1}
+        shape='round'
+        variant='filled'
+      />
+    </DialogClose>
+  );
+});
+DialogDefaultClose.displayName = 'Dialog.DefaultClose';
+
+//
+// * DialogDefaultHeader
+//
+
+export type DialogDefaultHeaderProps = {
+  title: string;
+  description?: string;
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<typeof DialogHeader>;
+
+const DialogDefaultHeader = forwardRef<HTMLElement, DialogDefaultHeaderProps>(
+  ({ title, description, className, children, ...props }, ref): ReactElement => {
+    return (
+      <DialogHeader ref={ref} className={cn('grid-cols-[minmax(0,1fr)_auto]', className)} {...props}>
+        <DialogTitle className='col-start-1 row-start-1 min-w-0'>{title}</DialogTitle>
+        <DialogDefaultClose className='col-start-2 row-start-1 row-span-2 self-start justify-self-end' />
+        {description && <DialogDescription className='row-start-2'>{description}</DialogDescription>}
+        {children}
+      </DialogHeader>
+    );
+  },
+);
+DialogDefaultHeader.displayName = 'Dialog.DefaultHeader';
 
 export const Dialog = Object.assign(DialogRoot, {
   Root: DialogRoot,
@@ -551,10 +498,12 @@ export const Dialog = Object.assign(DialogRoot, {
   Portal: DialogPortal,
   Overlay: DialogOverlay,
   Content: DialogContent,
+  Header: DialogHeader,
   Close: DialogClose,
   Title: DialogTitle,
   Description: DialogDescription,
   Body: DialogBody,
-  Header: DialogHeader,
   Footer: DialogFooter,
+  DefaultClose: DialogDefaultClose,
+  DefaultHeader: DialogDefaultHeader,
 });
