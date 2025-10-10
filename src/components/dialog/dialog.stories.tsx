@@ -6,6 +6,7 @@ import { Separator } from '@/components/separator';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   Archive,
+  ArrowLeft,
   Calendar,
   Database,
   FileCog,
@@ -47,6 +48,9 @@ export const BasicControlled: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
 
+    const title = 'Simple Dialog';
+    const description = 'This is a basic controlled dialog example. Click outside or press Escape to close.';
+
     return (
       <div className='space-y-4'>
         <Button variant='solid' onClick={() => setOpen(true)} label='Open Dialog' />
@@ -55,12 +59,7 @@ export const BasicControlled: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-120'>
-              <header>
-                <Dialog.Title>Simple Dialog</Dialog.Title>
-                <Dialog.Description>
-                  This is a basic controlled dialog example. Click outside or press Escape to close.
-                </Dialog.Description>
-              </header>
+              <Dialog.DefaultHeader title={title} description={description} />
               <Dialog.Footer>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
                 <Button variant='solid' onClick={() => setOpen(false)} label='Confirm' />
@@ -78,6 +77,9 @@ export const WithTrigger: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
 
+    const title = 'Triggered Dialog';
+    const description = 'This dialog uses Dialog.Trigger component to open automatically.';
+
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <Dialog.Trigger>
@@ -87,11 +89,7 @@ export const WithTrigger: Story = {
         <Dialog.Portal>
           <Dialog.Overlay />
           <Dialog.Content className='w-120'>
-            <header>
-              <Dialog.Title>Triggered Dialog</Dialog.Title>
-              <Dialog.Description>This dialog uses Dialog.Trigger component to open automatically.</Dialog.Description>
-            </header>
-
+            <Dialog.DefaultHeader title={title} description={description} />
             <Dialog.Footer>
               <Dialog.Close asChild>
                 <Button variant='outline' label='Close' />
@@ -109,27 +107,45 @@ export const WithCustomHeader: Story = {
   name: 'With Custom Header',
   render: () => {
     const [open, setOpen] = useState(false);
-    const [message, setMessage] = useState('');
+
+    const handleBack = (): void => {
+      console.log('Back button clicked');
+    };
 
     return (
       <div className='space-y-4'>
-        <Button variant='outline' onClick={() => setOpen(true)} label='Open Dialog with Header' />
+        <Button variant='outline' onClick={() => setOpen(true)} label='Open Dialog with Custom Header' />
 
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-120'>
-              <Dialog.Header title='Dialog with Message' message={message} onMessageChange={setMessage} />
-
+              <Dialog.Header>
+                <div className='flex items-center justify-between gap-2.5'>
+                  <Dialog.Title className='flex items-center gap-2'>
+                    <Button
+                      variant='text'
+                      startIcon={ArrowLeft}
+                      onClick={handleBack}
+                      label='Back'
+                      className='p-0 h-auto'
+                    />
+                  </Dialog.Title>
+                  <Dialog.DefaultClose />
+                </div>
+                <Dialog.Description asChild>
+                  <h2 className='text-lg font-semibold'>Custom Layout Example</h2>
+                </Dialog.Description>
+              </Dialog.Header>
               <Dialog.Body>
                 <p className='text-subtle'>
-                  The header allows editing a message. Start typing or click the message area to edit.
+                  This demonstrates a fully custom header layout with a Back button in the title area and an h2 element
+                  in the description slot.
                 </p>
               </Dialog.Body>
-
               <Dialog.Footer>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
-                <Button variant='solid' onClick={() => setOpen(false)} label='Save' />
+                <Button variant='solid' onClick={() => setOpen(false)} label='Continue' />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -143,7 +159,6 @@ export const ArchiveDialog: Story = {
   name: 'Archive Items',
   render: () => {
     const [open, setOpen] = useState(false);
-    const [message, setMessage] = useState('Start typing or click here to add an archive message');
 
     return (
       <div className='space-y-4'>
@@ -153,7 +168,7 @@ export const ArchiveDialog: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='h-150'>
-              <Dialog.Header title='Archive Items' message={message} onMessageChange={setMessage}>
+              <Dialog.DefaultHeader title='Archive Items' description={'You are about to archive 16 items'}>
                 <SelectableListItem
                   className='place-self-stretch'
                   label='Accounts.SQL'
@@ -162,8 +177,8 @@ export const ArchiveDialog: Story = {
                 >
                   <p className='text-success'>Online</p>
                 </SelectableListItem>
-                <Separator label='Other items that will be archived' />
-              </Dialog.Header>
+              </Dialog.DefaultHeader>
+              <Separator label='Other items that will be archived' />
               <Dialog.Body className='space-y-1'>
                 <SelectableListItem label='Image.jpg' icon={<ImageIcon />} defaultChecked>
                   <p className='text-success'>Online</p>
@@ -251,6 +266,9 @@ export const FormDialog: Story = {
       setOpen(false);
     };
 
+    const title = 'User Information';
+    const description = 'Please fill in your details below.';
+
     return (
       <div className='space-y-4'>
         <Button variant='solid' onClick={() => setOpen(true)} label='Open Form' />
@@ -259,10 +277,7 @@ export const FormDialog: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-120'>
-              <header>
-                <Dialog.Title>User Information</Dialog.Title>
-                <Dialog.Description>Please fill in your details below.</Dialog.Description>
-              </header>
+              <Dialog.DefaultHeader title={title} description={description} />
               <Dialog.Body className='space-y-3'>
                 <Input
                   label='Name'
@@ -304,6 +319,9 @@ export const DestructiveDialog: Story = {
       setOpen(false);
     };
 
+    const title = 'Confirm Deletion';
+    const description = 'Are you sure you want to delete this item? This action cannot be undone.';
+
     return (
       <div className='space-y-4'>
         <Button variant='solid' onClick={() => setOpen(true)} label='Delete Item' startIcon={Trash2} />
@@ -312,12 +330,7 @@ export const DestructiveDialog: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-120'>
-              <header>
-                <Dialog.Title>Confirm Deletion</Dialog.Title>
-                <Dialog.Description>
-                  Are you sure you want to delete this item? This action cannot be undone.
-                </Dialog.Description>
-              </header>
+              <Dialog.DefaultHeader title={title} description={description} />
               <Dialog.Body>
                 <div className='bg-error/10 border border-error/20 rounded-md p-3'>
                   <p className='text-sm text-error font-medium flex items-center gap-2'>
@@ -352,6 +365,9 @@ export const NestedContent: Story = {
     const [open, setOpen] = useState(false);
     const [selectedTab, setSelectedTab] = useState('general');
 
+    const title = 'Settings';
+    const description = 'Manage your application preferences.';
+
     return (
       <div className='space-y-4'>
         <Button variant='solid' onClick={() => setOpen(true)} label='Open Settings' />
@@ -360,10 +376,7 @@ export const NestedContent: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-160'>
-              <header>
-                <Dialog.Title>Settings</Dialog.Title>
-                <Dialog.Description>Manage your application preferences.</Dialog.Description>
-              </header>
+              <Dialog.DefaultHeader title={title} description={description} />
               <Dialog.Body>
                 <div className='flex gap-2 border-b border-bdr-subtle'>
                   <button
@@ -422,6 +435,9 @@ export const OverlayEffect: Story = {
   render: () => {
     const [open, setOpen] = useState(false);
 
+    const title = 'Overlay Demonstration';
+    const description = 'Background content is dimmed and blurred by the overlay.';
+
     return (
       <div className='min-h-screen-80 p-8 space-y-6'>
         <div className='space-y-4'>
@@ -456,10 +472,7 @@ export const OverlayEffect: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-100'>
-              <header>
-                <Dialog.Title>Overlay Demonstration</Dialog.Title>
-                <Dialog.Description>Background content is dimmed and blurred by the overlay.</Dialog.Description>
-              </header>
+              <Dialog.DefaultHeader title={title} description={description} />
               <Dialog.Body className='space-y-2'>
                 <p className='text-sm'>The overlay provides:</p>
                 <ul className='text-sm text-subtle list-disc list-inside space-y-1'>
