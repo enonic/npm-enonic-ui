@@ -28,7 +28,7 @@ import {
   Trash2,
   TriangleAlert,
 } from 'lucide-react';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 import { Dialog } from './dialog';
 
@@ -54,17 +54,17 @@ export const BasicControlled: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-120 space-y-4'>
+            <Dialog.Content className='w-120'>
               <header>
                 <Dialog.Title>Simple Dialog</Dialog.Title>
                 <Dialog.Description>
                   This is a basic controlled dialog example. Click outside or press Escape to close.
                 </Dialog.Description>
               </header>
-              <footer className='flex justify-end gap-2'>
+              <Dialog.Footer>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
                 <Button variant='solid' onClick={() => setOpen(false)} label='Confirm' />
-              </footer>
+              </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -86,18 +86,18 @@ export const WithTrigger: Story = {
 
         <Dialog.Portal>
           <Dialog.Overlay />
-          <Dialog.Content className='w-120 space-y-4'>
+          <Dialog.Content className='w-120'>
             <header>
               <Dialog.Title>Triggered Dialog</Dialog.Title>
               <Dialog.Description>This dialog uses Dialog.Trigger component to open automatically.</Dialog.Description>
             </header>
 
-            <footer className='flex justify-end gap-2'>
+            <Dialog.Footer>
               <Dialog.Close asChild>
                 <Button variant='outline' label='Close' />
               </Dialog.Close>
               <Button variant='solid' onClick={() => setOpen(false)} label='Done' />
-            </footer>
+            </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog>
@@ -118,7 +118,7 @@ export const WithCustomHeader: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-120 space-y-4'>
+            <Dialog.Content className='w-120'>
               <Dialog.Header title='Dialog with Message' message={message} onMessageChange={setMessage} />
 
               <Dialog.Body>
@@ -127,10 +127,10 @@ export const WithCustomHeader: Story = {
                 </p>
               </Dialog.Body>
 
-              <footer className='flex justify-end gap-2'>
+              <Dialog.Footer>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
                 <Button variant='solid' onClick={() => setOpen(false)} label='Save' />
-              </footer>
+              </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -152,7 +152,7 @@ export const ArchiveDialog: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='h-150 space-y-4'>
+            <Dialog.Content className='h-150'>
               <Dialog.Header title='Archive Items' message={message} onMessageChange={setMessage}>
                 <SelectableListItem
                   className='place-self-stretch'
@@ -221,7 +221,7 @@ export const ArchiveDialog: Story = {
                 </SelectableListItem>
               </Dialog.Body>
 
-              <footer className='flex justify-end gap-2'>
+              <Dialog.Footer>
                 <Button
                   variant='outline'
                   startIcon={Calendar}
@@ -229,7 +229,7 @@ export const ArchiveDialog: Story = {
                   label='Schedule Archive'
                 />
                 <Button variant='solid' onClick={() => setOpen(false)} label='Archive (3)' />
-              </footer>
+              </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -258,7 +258,7 @@ export const FormDialog: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-120 space-y-4'>
+            <Dialog.Content className='w-120'>
               <header>
                 <Dialog.Title>User Information</Dialog.Title>
                 <Dialog.Description>Please fill in your details below.</Dialog.Description>
@@ -280,12 +280,12 @@ export const FormDialog: Story = {
                 <Checkbox label='Subscribe to newsletter' checked={subscribe} onCheckedChange={setSubscribe} />
               </Dialog.Body>
 
-              <footer className='flex justify-end gap-2'>
+              <Dialog.Footer>
                 <Dialog.Close asChild>
                   <Button variant='outline' label='Cancel' />
                 </Dialog.Close>
                 <Button variant='solid' onClick={handleSubmit} label='Submit' startIcon={Save} />
-              </footer>
+              </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -311,7 +311,7 @@ export const DestructiveDialog: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-120 space-y-4'>
+            <Dialog.Content className='w-120'>
               <header>
                 <Dialog.Title>Confirm Deletion</Dialog.Title>
                 <Dialog.Description>
@@ -326,7 +326,7 @@ export const DestructiveDialog: Story = {
                   </p>
                 </div>
               </Dialog.Body>
-              <footer className='flex justify-end gap-2'>
+              <Dialog.Footer>
                 <Dialog.Close asChild>
                   <Button variant='outline' label='Cancel' />
                 </Dialog.Close>
@@ -337,7 +337,7 @@ export const DestructiveDialog: Story = {
                   label='Delete'
                   startIcon={Trash2}
                 />
-              </footer>
+              </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -359,7 +359,7 @@ export const NestedContent: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-160 space-y-4'>
+            <Dialog.Content className='w-160'>
               <header>
                 <Dialog.Title>Settings</Dialog.Title>
                 <Dialog.Description>Manage your application preferences.</Dialog.Description>
@@ -403,12 +403,12 @@ export const NestedContent: Story = {
                 )}
               </Dialog.Body>
 
-              <footer className='flex justify-end gap-2'>
+              <Dialog.Footer>
                 <Dialog.Close asChild>
                   <Button variant='outline' label='Cancel' />
                 </Dialog.Close>
                 <Button variant='solid' onClick={() => setOpen(false)} label='Save Changes' />
-              </footer>
+              </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
@@ -455,7 +455,7 @@ export const OverlayEffect: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-100 space-y-4'>
+            <Dialog.Content className='w-100'>
               <header>
                 <Dialog.Title>Overlay Demonstration</Dialog.Title>
                 <Dialog.Description>Background content is dimmed and blurred by the overlay.</Dialog.Description>
@@ -469,9 +469,9 @@ export const OverlayEffect: Story = {
                   <li>Click-outside-to-close</li>
                 </ul>
               </Dialog.Body>
-              <footer className='flex justify-end gap-2'>
+              <Dialog.Footer>
                 <Button variant='solid' onClick={() => setOpen(false)} label='Close' />
-              </footer>
+              </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
