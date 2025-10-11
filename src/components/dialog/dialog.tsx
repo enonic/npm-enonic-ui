@@ -62,7 +62,7 @@ DialogRoot.displayName = 'Dialog.Root';
 
 export type DialogTriggerProps = {
   children: ReactNode;
-} & React.ComponentProps<'button'>;
+} & ComponentPropsWithoutRef<'button'>;
 
 const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
   ({ children, onClick, ...props }, ref): ReactElement => {

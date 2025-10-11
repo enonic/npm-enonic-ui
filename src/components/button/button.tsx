@@ -6,11 +6,11 @@ import { forwardRef } from 'react';
 const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'text-main dark:text-main font-medium',
+    'text-main font-medium',
     'box-border rounded-sm transition-highlight',
     'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-0',
-    'disabled:select-none disabled:opacity-30',
-    'cursor-pointer',
+    'disabled:select-none disabled:pointer-events-none disabled:opacity-30',
+    'overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer',
   ],
   {
     variants: {
@@ -18,8 +18,7 @@ const buttonVariants = cva(
         text: 'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-rev dark:active:text-main',
         filled:
           'bg-btn-secondary hover:bg-btn-secondary-hover active:bg-btn-active active:text-rev dark:active:text-main',
-        solid:
-          'bg-btn-tertiary text-rev dark:text-main hover:bg-btn-tertiary-hover active:bg-btn-active dark:active:text-main',
+        solid: 'bg-btn-tertiary text-alt hover:bg-btn-tertiary-hover active:bg-btn-active dark:active:text-main',
         outline:
           'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-rev dark:active:text-main border border-bdr-strong',
       },

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { CornerUpRight } from 'lucide-preact';
-import { ChevronRight, Download, FileText, Info, Mail, Phone } from 'lucide-react';
+import { ChevronRight, CornerUpRight, Download, FileText, Info, Mail, Phone } from 'lucide-react';
 
 import { Link, type LinkProps } from './link';
 

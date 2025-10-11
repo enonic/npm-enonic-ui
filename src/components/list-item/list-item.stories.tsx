@@ -1,12 +1,14 @@
 import { Checkbox, type CheckboxChecked, IconButton } from '@/components';
 import { cn } from '@/utils';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { Bone, Dog, Heart, TriangleAlert } from 'lucide-preact';
 import {
+  Bone,
   ChevronDown,
+  Dog,
   File,
   FileText,
   Folder,
+  Heart,
   HelpCircle,
   Home,
   Image,
@@ -14,6 +16,7 @@ import {
   Package,
   Pen,
   Settings,
+  TriangleAlert,
   Users,
   Video,
   X,
