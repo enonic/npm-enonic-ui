@@ -130,7 +130,7 @@ const DialogOverlay = forwardRef<HTMLDivElement, DialogOverlayProps>(
         ref={ref}
         data-state={open ? 'open' : 'closed'}
         className={cn(
-          'fixed inset-0 z-40 bg-overlay backdrop-blur-xs',
+          'fixed inset-0 z-30 bg-overlay backdrop-blur-xs',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           className,
@@ -262,7 +262,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           },
         }}
       >
-        <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
+        <div className='fixed inset-0 z-40 flex items-center justify-center p-4'>
           <div
             ref={contentRef}
             role='dialog'
@@ -303,7 +303,7 @@ export type DialogHeaderProps = {
 const DialogHeader = forwardRef<HTMLElement, DialogHeaderProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <header ref={ref} className={cn('relative grid gap-2.5 self-stretch items-center', className)} {...props}>
+      <header ref={ref} className={cn('relative grid gap-2.5 self-stretch', className)} {...props}>
         {children}
       </header>
     );
@@ -474,17 +474,16 @@ DialogDefaultClose.displayName = 'Dialog.DefaultClose';
 export type DialogDefaultHeaderProps = {
   title: string;
   description?: string;
-  className?: string;
-  children?: ReactNode;
+  withClose?: boolean;
 } & ComponentPropsWithoutRef<typeof DialogHeader>;
 
 const DialogDefaultHeader = forwardRef<HTMLElement, DialogDefaultHeaderProps>(
-  ({ title, description, className, children, ...props }, ref): ReactElement => {
+  ({ title, description, withClose, className, children, ...props }, ref): ReactElement => {
     return (
-      <DialogHeader ref={ref} className={cn('grid-cols-[minmax(0,1fr)_auto]', className)} {...props}>
-        <DialogTitle className='col-start-1 row-start-1 min-w-0'>{title}</DialogTitle>
-        <DialogDefaultClose className='col-start-2 row-start-1 row-span-2 self-start justify-self-end' />
-        {description && <DialogDescription className='row-start-2'>{description}</DialogDescription>}
+      <DialogHeader ref={ref} className={cn(withClose && 'grid-cols-[minmax(0,1fr)_auto]', className)} {...props}>
+        <DialogTitle className={cn(withClose && 'col-start-1 row-start-1 min-w-0')}>{title}</DialogTitle>
+        {withClose && <DialogDefaultClose className='col-start-2 row-start-1 row-span-2 self-start justify-self-end' />}
+        {description && <DialogDescription className={cn(withClose && 'row-start-2')}>{description}</DialogDescription>}
         {children}
       </DialogHeader>
     );
