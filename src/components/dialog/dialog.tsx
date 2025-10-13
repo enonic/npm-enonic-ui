@@ -115,7 +115,7 @@ DialogPortal.displayName = 'Dialog.Portal';
 export type DialogOverlayProps = {
   className?: string;
   forceMount?: boolean;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & ComponentPropsWithoutRef<'div'>;
 
 const DialogOverlay = forwardRef<HTMLDivElement, DialogOverlayProps>(
   ({ className, forceMount, ...props }, ref): ReactElement | null => {
@@ -155,7 +155,7 @@ export type DialogContentProps = {
   onInteractOutside?: (event: Event) => void;
   onOpenAutoFocus?: (event: Event) => void;
   onCloseAutoFocus?: (event: Event) => void;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & ComponentPropsWithoutRef<'div'>;
 
 const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
   (

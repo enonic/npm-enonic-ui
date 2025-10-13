@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { type ReactElement, useEffect, useState } from 'react';
+import { type Dispatch, type ReactElement, type SetStateAction, useEffect, useState } from 'react';
 
 import { Checkbox, type CheckboxProps } from './checkbox';
 
@@ -42,7 +42,7 @@ const useCheckboxState = (
 ): {
   checked: boolean | 'indeterminate';
   handleChange: (newChecked: boolean | 'indeterminate') => void;
-  setChecked: React.Dispatch<React.SetStateAction<boolean | 'indeterminate'>>;
+  setChecked: Dispatch<SetStateAction<boolean | 'indeterminate'>>;
 } => {
   const [checked, setChecked] = useState<boolean | 'indeterminate'>(initialChecked);
 

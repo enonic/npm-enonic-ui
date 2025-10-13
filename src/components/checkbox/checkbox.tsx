@@ -2,7 +2,7 @@ import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Check, Minus, OctagonAlert } from 'lucide-react';
-import { forwardRef, useState } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
 
 const checkboxBoxVariants = cva(
   [
@@ -68,7 +68,7 @@ export type CheckboxProps = {
   value?: string;
   onCheckedChange?: (checked: CheckboxChecked) => void;
 } & Omit<
-  React.InputHTMLAttributes,
+  ComponentPropsWithoutRef<'input'>,
   'type' | 'readOnly' | 'disabled' | 'onChange' | 'checked' | 'defaultChecked' | 'required' | 'name' | 'value'
 >;
 

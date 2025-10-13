@@ -2,9 +2,12 @@ import { usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
 import { useComposedRefs } from '@/utils/ref';
 import {
+  type ComponentPropsWithoutRef,
+  type ForwardedRef,
   forwardRef,
   type ReactElement,
   type ReactNode,
+  type Ref,
   useCallback,
   useEffect,
   useMemo,
@@ -38,7 +41,7 @@ export type ListboxProps<Data = unknown> = {
    * (memoized or defined outside component) to prevent performance issues.
    */
   getValue: (data: Readonly<Data>) => string;
-} & React.HTMLAttributes<HTMLUListElement>;
+} & ComponentPropsWithoutRef<'ul'>;
 
 function ListboxImpl<D = unknown>(
   {
@@ -56,8 +59,8 @@ function ListboxImpl<D = unknown>(
     getValue,
     ...props
   }: ListboxProps<D>,
-  ref: React.ForwardedRef<HTMLUListElement>,
-): React.ReactElement {
+  ref: ForwardedRef<HTMLUListElement>,
+): ReactElement {
   const listboxId = usePrefixedId();
   const innerRef = useRef<HTMLUListElement>(null);
 
@@ -219,7 +222,7 @@ function ListboxImpl<D = unknown>(
 }
 
 export const Listbox = forwardRef(ListboxImpl) as { displayName: 'Listbox' } & (<Data = unknown>(
-  props: ListboxProps<Data> & { ref?: React.Ref<HTMLUListElement> },
+  props: ListboxProps<Data> & { ref?: Ref<HTMLUListElement> },
 ) => ReactElement);
 
 Listbox.displayName = 'Listbox';

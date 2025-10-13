@@ -4,7 +4,7 @@ import { cn, unwrap } from '@/utils';
 import { useComposedRefs } from '@/utils/ref';
 import { Search, X } from 'lucide-react';
 import { useState } from 'preact/hooks';
-import { forwardRef, useRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, useRef } from 'react';
 
 export type SearchInputProps = {
   className?: string;
@@ -15,7 +15,10 @@ export type SearchInputProps = {
   onChange?: (value: string) => void;
   disabled?: boolean;
   readOnly?: boolean;
-} & Omit<React.InputHTMLAttributes, 'className' | 'value' | 'defaultValue' | 'onChange' | 'disabled' | 'readOnly'>;
+} & Omit<
+  ComponentPropsWithoutRef<'div'>,
+  'className' | 'value' | 'defaultValue' | 'onChange' | 'disabled' | 'readOnly'
+>;
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
   (

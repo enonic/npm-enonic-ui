@@ -4,23 +4,53 @@ A modern UI component library built with Preact/React, TypeScript, and Tailwind 
 
 ## Installation
 
-#### NPM
+#### pnpm
+
+#### With React
 
 ```bash
-npm install @enonic/ui
+pnpm add @enonic/ui react react-dom @radix-ui/react-slot focus-trap-react
 ```
 
-#### PNPM
+#### With Preact
 
 ```bash
-pnpm add @enonic/ui
+pnpm add @enonic/ui preact @radix-ui/react-slot focus-trap-react
 ```
 
-#### Yarn
+<details>
+<summary><b>npm</b></summary>
+
+#### With React
 
 ```bash
-yarn add @enonic/ui
+npm install @enonic/ui react react-dom @radix-ui/react-slot focus-trap-react
 ```
+
+#### With Preact
+
+```bash
+npm install @enonic/ui preact @radix-ui/react-slot focus-trap-react
+```
+
+</details>
+
+<details>
+<summary><b>Yarn</b></summary>
+
+#### With React
+
+```bash
+yarn add @enonic/ui react react-dom @radix-ui/react-slot focus-trap-react
+```
+
+#### With Preact
+
+```bash
+yarn add @enonic/ui preact @radix-ui/react-slot focus-trap-react
+```
+
+</details>
 
 ## Usage
 
@@ -73,8 +103,10 @@ This library requires one of the following frameworks:
 
 ```json
 {
-  "react": ">=18.0.0 || >=19.0.0",
-  "react-dom": ">=18.0.0 || >=19.0.0"
+  "react": "^19.0.0",
+  "react-dom": "^19.0.0",
+  "@radix-ui/react-slot": "^1.2.0",
+  "focus-trap-react": "^11.0.0"
 }
 ```
 
@@ -83,14 +115,17 @@ This library requires one of the following frameworks:
 ```json
 {
   "preact": ">=10.0.0",
-  "@preact/compat": ">=17.0.0 || >=18.0.0"
+  "@radix-ui/react-slot": "^1.2.0",
+  "focus-trap-react": "^11.0.0"
 }
 ```
 
 ### Icon Libraries (Optional)
 
-- `lucide-react` (>=0.300.0) - For React projects
-- `lucide-preact` (>=0.300.0) - For Preact projects
+The library uses and expects one of the following icon libraries to be used to provide icons for the components:
+
+- `lucide-react` (>=0.500.0) - For React projects
+- `lucide-preact` (>=0.500.0) - For Preact projects
 
 ## Development
 

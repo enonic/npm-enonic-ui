@@ -1,22 +1,22 @@
 import { cn } from '@/utils';
 import { findComponentByType } from '@/utils/find';
-import type { ReactElement, ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 
 export type ListItemProps = {
   className?: string;
   selected?: boolean;
   children: ReactNode;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & ComponentPropsWithoutRef<'div'>;
 
 export type ListItemLeftProps = {
   children?: ReactNode;
   className?: string;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & ComponentPropsWithoutRef<'div'>;
 
 export type ListItemContentProps = {
   className?: string;
   children: ReactNode;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & ComponentPropsWithoutRef<'div'>;
 
 export type ListItemDefaultContentProps = {
   className?: string;
@@ -29,7 +29,7 @@ export type ListItemDefaultContentProps = {
 export type ListItemRightProps = {
   children?: ReactNode;
   className?: string;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & ComponentPropsWithoutRef<'div'>;
 
 export const ListItemLeft = ({ children, className, ...props }: ListItemLeftProps): ReactElement<ListItemLeftProps> => (
   <div className={cn('flex items-center gap-2.5 flex-shrink-0', className)} {...props}>

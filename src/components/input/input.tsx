@@ -2,7 +2,7 @@ import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
-import { forwardRef, type ReactElement, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactElement, type ReactNode } from 'react';
 
 const inputContainerVariants = cva(
   [
@@ -33,11 +33,11 @@ export type InputProps = {
   label?: string;
   description?: string;
   error?: string;
-  startAddon?: string | React.ReactElement;
-  endAddon?: string | React.ReactElement;
+  startAddon?: string | ReactElement;
+  endAddon?: string | ReactElement;
   disabled?: boolean;
   readOnly?: boolean;
-} & React.InputHTMLAttributes;
+} & ComponentPropsWithoutRef<'input'>;
 
 type AddonProps = {
   children: ReactNode;
@@ -61,7 +61,7 @@ const Addon = ({ children, error }: AddonProps): ReactElement => (
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     { className, label, description, error, startAddon, endAddon, id, disabled, readOnly, ...props }: InputProps,
-    ref: React.ForwardedRef<HTMLInputElement>,
+    ref: ForwardedRef<HTMLInputElement>,
   ) => {
     const inputId = usePrefixedId(unwrap(id));
     const state = error ? 'error' : 'default';
