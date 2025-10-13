@@ -1,11 +1,11 @@
 import { cn } from '@/utils';
-import type { ReactElement } from 'react';
+import type { ComponentPropsWithoutRef, ReactElement } from 'react';
 
 export type SeparatorProps = {
   className?: string;
   label?: string;
   decorative?: boolean;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & ComponentPropsWithoutRef<'div'>;
 
 export const Separator = ({ className, label, decorative = false, ...props }: SeparatorProps): ReactElement => {
   const ariaHidden = decorative ? 'true' : undefined;

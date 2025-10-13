@@ -1,7 +1,15 @@
 import { cn } from '@/utils';
 import { Root } from '@radix-ui/react-slot';
-import type { ReactElement, ReactNode } from 'react';
-import { createPortal, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  createPortal,
+  type ReactElement,
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 
@@ -34,8 +42,8 @@ const oppositeSide = {
 function useTooltipPosition(
   isOpen: boolean,
   side: TooltipSide,
-  triggerRef: React.RefObject<HTMLElement>,
-  tooltipRef: React.RefObject<HTMLElement>,
+  triggerRef: RefObject<HTMLElement>,
+  tooltipRef: RefObject<HTMLElement>,
 ): TooltipPosition {
   const [coords, setCoords] = useState<TooltipPosition>({
     top: 0,
@@ -116,13 +124,13 @@ type TooltipContentProps = {
   actualSide: TooltipSide;
   className?: string;
   position: TooltipPosition;
-  tooltipRef: React.RefObject<HTMLDivElement>;
+  tooltipRef: RefObject<HTMLDivElement>;
 };
 
 type TooltipTriggerProps = {
   children: ReactNode;
   asChild: boolean;
-  triggerRef: React.RefObject<HTMLDivElement>;
+  triggerRef: RefObject<HTMLDivElement>;
   isOpen: boolean;
   onMouseEnter: (e?: React.MouseEvent<HTMLElement>) => void;
   onMouseLeave: (e?: React.MouseEvent<HTMLElement>) => void;

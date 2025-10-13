@@ -49,8 +49,9 @@ export default defineConfig({
         'preact/compat',
         'react',
         'react-dom',
-        '@preact/compat',
-        //? Several lucide icons are bundled, so we don't need to import them
+        '@radix-ui/react-slot',
+        'focus-trap-react',
+        //? Possible external dependencies
         // 'lucide-react',
         // 'lucide-preact',
         // /^lucide-react\/.*/,

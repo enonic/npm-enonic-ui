@@ -1,6 +1,12 @@
-import type { JSX } from 'react';
+type Signalish<T> = T | SignalLike<T>;
 
-function isSignal(v: unknown): v is JSX.SignalLike<unknown> {
+type SignalLike<T> = {
+  value: T;
+  peek(): T;
+  subscribe(fn: (value: T) => void): () => void;
+};
+
+function isSignal(v: unknown): v is SignalLike<unknown> {
   return !!(
     v &&
     typeof v === 'object' &&
@@ -12,6 +18,6 @@ function isSignal(v: unknown): v is JSX.SignalLike<unknown> {
   );
 }
 
-export function unwrap<T>(v: JSX.Signalish<T>): T {
+export function unwrap<T>(v: Signalish<T>): T {
   return isSignal(v) ? v.value : v;
 }

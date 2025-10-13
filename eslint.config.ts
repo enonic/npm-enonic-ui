@@ -68,6 +68,17 @@ export default [
         },
       ],
       '@typescript-eslint/no-unnecessary-type-arguments': 'warn',
+      '@typescript-eslint/no-deprecated': [
+        'error',
+        {
+          allow: [
+            { from: 'package', name: 'ChangeEvent', package: 'react' },
+            { from: 'package', name: 'FocusEvent', package: 'react' },
+            { from: 'package', name: 'KeyboardEvent', package: 'react' },
+            { from: 'package', name: 'MouseEvent', package: 'react' },
+          ],
+        },
+      ],
     },
     settings: {
       react: {

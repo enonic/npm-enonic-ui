@@ -1,7 +1,7 @@
 import type { LucideIcon } from '@/types';
 import { cn } from '@/utils';
 import { ArrowRight, ExternalLink } from 'lucide-react';
-import { forwardRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 function isExternalHref(href: string): boolean {
   try {
@@ -34,7 +34,7 @@ export type LinkProps = {
   newTab?: boolean;
   leftIcon?: LucideIcon | boolean;
   rightIcon?: LucideIcon | boolean;
-} & React.AnchorHTMLAttributes;
+} & ComponentPropsWithoutRef<'a'>;
 
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
   ({ className, href, external = 'auto', newTab, leftIcon, rightIcon, children, rel, ...props }, ref) => {
