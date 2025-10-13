@@ -1,1 +1,1 @@
-export { Listbox, type ListboxProps } from './listbox';
+export { Listbox, type ListboxRootProps, type ListboxContentProps, type ListboxItemProps } from './listbox';
