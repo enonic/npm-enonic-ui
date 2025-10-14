@@ -1,13 +1,12 @@
-import { usePrefixedId } from '@/providers';
+import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
 import { useComposedRefs } from '@/utils/ref';
+import { cva } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
-  type ForwardedRef,
   forwardRef,
   type ReactElement,
   type ReactNode,
-  type Ref,
   useCallback,
   useEffect,
   useMemo,
@@ -15,214 +14,294 @@ import {
   useState,
 } from 'react';
 
-export type ListboxProps<Data = unknown> = {
-  className?: string;
-  label?: string;
-  selection?: ReadonlySet<string>;
-  defaultSelection?: ReadonlySet<string>;
-  setSelection?: (selection: ReadonlySet<string>) => void;
-  selectionMode?: 'single' | 'multiple';
+const EMPTY_SELECTION: readonly string[] = [];
+
+const listboxItemVariants = cva('flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer', {
+  variants: {
+    selected: {
+      true: 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover',
+      false: 'hover:bg-surface-primary-hover',
+    },
+    active: {
+      true: 'bg-surface-primary-hover',
+      false: '',
+    },
+  },
+  compoundVariants: [
+    {
+      selected: true,
+      active: true,
+      class: 'bg-surface-primary-selected-hover',
+    },
+  ],
+  defaultVariants: {
+    selected: false,
+    active: false,
+  },
+});
+
+export type ListboxRootProps = {
+  selection?: readonly string[];
+  defaultSelection?: readonly string[];
+  onSelectionChange?: (selection: readonly string[]) => void;
   active?: string;
   defaultActive?: string;
-  onActiveChange?: (active: string | undefined) => void;
+  setActive?: (active: string | undefined) => void;
+  selectionMode?: 'single' | 'multiple';
   disabled?: boolean;
-  items: readonly Data[];
-  /**
-   * Renders each list item. For optimal performance, wrap this callback in `useCallback`
-   * or define it outside the component to prevent unnecessary re-renders.
-   *
-   * @param data - The item data
-   * @param selected - Whether the item is selected
-   * @param active - Whether the item is currently active (keyboard focused)
-   */
-  renderItem: (data: Readonly<Data>, selected: boolean, active: boolean) => ReactNode;
-  /**
-   * Extracts a unique string value from each item. This function should be stable
-   * (memoized or defined outside component) to prevent performance issues.
-   */
-  getValue: (data: Readonly<Data>) => string;
-} & ComponentPropsWithoutRef<'ul'>;
+  children?: ReactNode;
+};
 
-function ListboxImpl<D = unknown>(
-  {
-    className,
-    selection: controlledSelection,
-    selectionMode = 'single',
-    disabled = false,
-    defaultSelection = new Set(),
-    setSelection,
-    active: controlledActive,
-    defaultActive,
-    onActiveChange,
-    items,
-    renderItem,
-    getValue,
-    ...props
-  }: ListboxProps<D>,
-  ref: ForwardedRef<HTMLUListElement>,
-): ReactElement {
+const ListboxRoot = ({
+  selection: controlledSelection,
+  defaultSelection = EMPTY_SELECTION,
+  onSelectionChange,
+  active: controlledActive,
+  defaultActive,
+  setActive,
+  selectionMode = 'single',
+  disabled,
+  children,
+}: ListboxRootProps): ReactElement => {
   const listboxId = usePrefixedId();
-  const innerRef = useRef<HTMLUListElement>(null);
 
-  const [uncontrolledSelection, setUncontrolledSelection] = useState(defaultSelection);
+  // Selection - store as Set internally for O(1) lookups
+  const [uncontrolledSelection, setUncontrolledSelection] = useState<Set<string>>(() => new Set(defaultSelection));
   const isSelectionControlled = controlledSelection !== undefined;
-  const selection = isSelectionControlled ? controlledSelection : uncontrolledSelection;
-
-  const [uncontrolledActive, setUncontrolledActive] = useState<string | undefined>(
-    defaultActive ?? (items[0] ? getValue(items[0]) : undefined),
+  const selectionSet = useMemo(
+    () => (isSelectionControlled ? new Set(controlledSelection) : uncontrolledSelection),
+    [isSelectionControlled, controlledSelection, uncontrolledSelection],
   );
+
+  // Active
+  const [uncontrolledActive, setUncontrolledActive] = useState<string | undefined>(defaultActive);
   const isActiveControlled = controlledActive !== undefined;
   const active = isActiveControlled ? controlledActive : uncontrolledActive;
 
-  const valueToIndexMap = useMemo(() => {
-    return new Map(items.map((item, idx) => [getValue(item), idx]));
-  }, [items, getValue]);
-
-  // Helper to update active state (supports both controlled and uncontrolled modes)
   const updateActive = useCallback(
-    (newActive: string | undefined): void => {
+    (id?: string) => {
       if (!isActiveControlled) {
-        setUncontrolledActive(newActive);
+        setUncontrolledActive(id);
       }
-      onActiveChange?.(newActive);
+      setActive?.(id);
     },
-    [isActiveControlled, onActiveChange],
+    [isActiveControlled, setActive],
   );
 
-  useEffect(() => {
-    if (!active || !items.some(item => getValue(item) === active)) {
-      updateActive(items[0] ? getValue(items[0]) : undefined);
-    }
-  }, [items, getValue, active, updateActive]);
+  // Items registry
+  const itemsRef = useRef<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (!active || !innerRef.current) return;
+  const registerItem = useCallback((value: string) => {
+    itemsRef.current.add(value);
+  }, []);
 
-    const el = innerRef.current.querySelector<HTMLLIElement>(`#${listboxId}-option-${active}`);
-    el?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-  }, [active, listboxId]);
+  const unregisterItem = useCallback((value: string) => {
+    itemsRef.current.delete(value);
+  }, []);
 
-  const handleToggleValue = (value: string): void => {
-    const isAlreadySelected = selection.has(value);
-    let newSelection: Set<string>;
+  const getItems = useCallback(() => Array.from(itemsRef.current), []);
 
-    if (selectionMode === 'single') {
-      newSelection = isAlreadySelected ? new Set() : new Set([value]);
-    } else {
-      newSelection = new Set(selection);
+  const toggleValue = useCallback(
+    (value: string) => {
+      const isSelected = selectionSet.has(value);
+      const newSet = new Set(selectionSet);
 
-      if (isAlreadySelected) {
-        newSelection.delete(value);
+      if (selectionMode === 'single') {
+        newSet.clear();
+        if (!isSelected) {
+          newSet.add(value);
+        }
       } else {
-        newSelection.add(value);
+        if (isSelected) {
+          newSet.delete(value);
+        } else {
+          newSet.add(value);
+        }
       }
-    }
 
-    if (!isSelectionControlled) {
-      setUncontrolledSelection(newSelection);
-    }
-
-    setSelection?.(newSelection);
-    updateActive(value);
-  };
-
-  const handleClickItem = ({ target }: React.MouseEvent<Element>): void => {
-    const li = target instanceof Element ? target.closest('li') : null;
-
-    const value = li?.getAttribute('data-value');
-    if (value) {
-      handleToggleValue(value);
-    }
-  };
-
-  const moveActive = (delta: number): void => {
-    const activeIndex = active ? (valueToIndexMap.get(active) ?? 0) : 0;
-    const newIndex = Math.max(0, Math.min(items.length - 1, activeIndex + delta));
-    updateActive(getValue(items[newIndex]));
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>): void => {
-    if (disabled) {
-      return;
-    }
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      moveActive(1);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      moveActive(-1);
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      const firstItem = items[0];
-      updateActive(firstItem && getValue(firstItem));
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      const lastItem = items.at(-1);
-      updateActive(lastItem && getValue(lastItem));
-    } else if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      if (active) {
-        handleToggleValue(active);
+      if (!isSelectionControlled) {
+        setUncontrolledSelection(newSet);
       }
+      onSelectionChange?.(Array.from(newSet));
+      updateActive(value);
+    },
+    [selectionSet, selectionMode, isSelectionControlled, onSelectionChange, updateActive],
+  );
+
+  const contextValue = useMemo<ListboxContextValue>(
+    () => ({
+      active,
+      selection: selectionSet,
+      selectionMode,
+      disabled,
+      setActive: updateActive,
+      toggleValue,
+      registerItem,
+      unregisterItem,
+      getItems,
+      listboxId,
+    }),
+    [
+      active,
+      selectionSet,
+      selectionMode,
+      disabled,
+      updateActive,
+      toggleValue,
+      registerItem,
+      unregisterItem,
+      getItems,
+      listboxId,
+    ],
+  );
+
+  return <ListboxProvider value={contextValue}>{children}</ListboxProvider>;
+};
+ListboxRoot.displayName = 'ListboxRoot';
+
+export type ListboxContentProps = {
+  className?: string;
+  label?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'div'>;
+
+const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
+  ({ className, label, children, ...props }, ref): ReactElement => {
+    const { active, disabled, getItems, setActive, toggleValue, listboxId } = useListbox();
+    const innerRef = useRef<HTMLDivElement>(null);
+
+    const moveActive = useCallback(
+      (delta: number) => {
+        const items = getItems();
+        if (!items.length) {
+          return;
+        }
+        const currentIndex = active ? items.indexOf(active) : -1;
+        const newIndex = Math.max(0, Math.min(items.length - 1, currentIndex + delta));
+        setActive(items[newIndex]);
+      },
+      [getItems, active, setActive],
+    );
+
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLElement>) => {
+        if (disabled) {
+          return;
+        }
+
+        const items = getItems();
+        if (!items.length) {
+          return;
+        }
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          moveActive(1);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          moveActive(-1);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          setActive(items[0]);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          setActive(items[items.length - 1]);
+        } else if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          if (active) {
+            toggleValue(active);
+          }
+        }
+      },
+      [disabled, getItems, active, moveActive, toggleValue, setActive],
+    );
+
+    useEffect(() => {
+      if (!active || !innerRef.current) {
+        return;
+      }
+      const el = innerRef.current.querySelector<HTMLDivElement>(`#${listboxId}-option-${active}`);
+      if (el) {
+        el.scrollIntoView({
+          block: 'nearest',
+          behavior: 'auto',
+        });
+      }
+    }, [active, listboxId]);
+
+    return (
+      <div
+        ref={useComposedRefs(ref, innerRef)}
+        id={listboxId}
+        className={cn(
+          'flex flex-col items-start grow shrink-0 basis-0',
+          'max-h-100 overflow-y-auto',
+          'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50',
+          disabled && 'pointer-events-none select-none opacity-30',
+          className,
+        )}
+        role='listbox'
+        aria-disabled={disabled}
+        aria-label={label}
+        aria-activedescendant={active ? `${listboxId}-option-${active}` : undefined}
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={handleKeyDown}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
+ListboxContent.displayName = 'ListboxContent';
+
+export type ListboxItemProps = {
+  value: string;
+  children: ReactNode;
+  className?: string;
+} & ComponentPropsWithoutRef<'div'>;
+
+const ListboxItem = ({ value, children, className, ...props }: ListboxItemProps): ReactElement => {
+  const ctx = useListbox();
+  const { disabled, toggleValue, registerItem, unregisterItem, listboxId } = ctx;
+  const isSelected = ctx.selection.has(value);
+  const isActive = ctx.active === value;
+
+  useEffect(() => {
+    registerItem(value);
+    return () => {
+      unregisterItem(value);
+    };
+  }, [value, registerItem, unregisterItem]);
+
+  const handleClick = useCallback(() => {
+    if (!disabled) {
+      toggleValue(value);
     }
-  };
+  }, [disabled, toggleValue, value]);
 
   return (
-    <ul
-      id={listboxId}
-      ref={useComposedRefs(ref, innerRef)}
-      tabIndex={disabled ? -1 : 0}
-      className={cn(
-        'flex flex-col items-start grow-1 shrink-0 basis-0',
-        'max-h-100 px-0 overflow-y-auto',
-        'focus-within:border-bdr-solid focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
-        'focus-within:[&>li[data-active=true]]:bg-surface-primary-hover',
-        'focus-within:[&>li[data-active=true][aria-selected=true]]:bg-surface-primary-selected-hover',
-        'transition-highlight',
-        disabled && 'pointer-events-none select-none opacity-30',
-        className,
-      )}
-      role='listbox'
-      aria-activedescendant={active ? `${listboxId}-option-${active}` : undefined}
-      aria-disabled={disabled}
-      aria-multiselectable={selectionMode === 'multiple'}
-      aria-label={props.label ?? undefined}
-      aria-orientation='vertical'
-      onKeyDown={handleKeyDown}
-      onClick={handleClickItem}
+    // ARIA listbox pattern: options are not individually focusable
+    // Parent listbox handles all keyboard interactions via aria-activedescendant
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
+    <div
+      id={`${listboxId}-option-${value}`}
+      className={cn(listboxItemVariants({ selected: isSelected, active: isActive }), className)}
+      role='option'
+      aria-selected={isSelected}
+      data-value={value}
+      data-active={isActive || undefined}
+      onClick={handleClick}
+      {...props}
     >
-      {items.map(item => {
-        const value = getValue(item);
-        const selected = selection.has(value);
-        const isActive = value === active;
-
-        return (
-          <li
-            id={`${listboxId}-option-${value}`}
-            key={value}
-            data-value={value}
-            data-active={isActive ? 'true' : 'false'}
-            tabIndex={-1}
-            className={cn(
-              'flex items-center w-full px-4.5 py-1 gap-x-2.5',
-              !disabled && 'cursor-pointer',
-              selected
-                ? 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover'
-                : 'hover:bg-surface-primary-hover',
-            )}
-            role='option'
-            aria-selected={selected}
-          >
-            {renderItem(item, selected, isActive)}
-          </li>
-        );
-      })}
-    </ul>
+      {children}
+    </div>
   );
-}
+};
+ListboxItem.displayName = 'ListboxItem';
 
-export const Listbox = forwardRef(ListboxImpl) as { displayName: 'Listbox' } & (<Data = unknown>(
-  props: ListboxProps<Data> & { ref?: Ref<HTMLUListElement> },
-) => ReactElement);
-
-Listbox.displayName = 'Listbox';
+export const Listbox = Object.assign(ListboxRoot, {
+  Root: ListboxRoot,
+  Content: ListboxContent,
+  Item: ListboxItem,
+});
