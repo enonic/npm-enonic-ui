@@ -1,10 +1,10 @@
 import { Checkbox, IconButton } from '@/components';
-import { Listbox } from '@/components/listbox/listbox';
+import { Listbox, type ListboxRootProps } from '@/components/listbox/listbox';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useState } from 'preact/hooks';
 
-type Story = StoryObj<typeof Listbox>;
+type Story = StoryObj<ListboxRootProps>;
 
 type Data = {
   id: string;
@@ -47,31 +47,34 @@ export default {
       control: 'boolean',
       description: 'Disables the listbox',
     },
-    label: {
-      control: 'text',
-      description: 'Accessible label for the listbox',
-    },
   },
-} satisfies Meta;
+} satisfies Meta<ListboxRootProps>;
 
 export const SingleSelection: Story = {
   name: 'Single Selection',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+  args: {
+    selectionMode: 'single',
+    disabled: false,
+  },
+  argTypes: {
+    selectionMode: { control: false },
+  },
+  render: ({ disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>([]);
     return (
-      <div className='p-4'>
+      <div className='min-w-45 p-4'>
         <h3 className='text-sm font-medium mb-3'>Select a framework</h3>
-        <Listbox selectionMode='single' selection={selection} setSelection={setSelection}>
-          <Listbox.Content>
-            {frameworks.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
+        <Listbox selectionMode='single' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
+          <Listbox.Content label='Select a framework'>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
               </Listbox.Item>
             ))}
           </Listbox.Content>
         </Listbox>
         <p className='text-sm text-main/70 mt-3'>
-          Selected: {selection.size > 0 ? frameworks.find(fr => selection.has(fr.id))?.name : 'None'}
+          Selected: {selection.length > 0 ? frameworks.find(({ id }) => selection.includes(id))?.name : 'None'}
         </p>
       </div>
     );
@@ -80,22 +83,29 @@ export const SingleSelection: Story = {
 
 export const MultipleSelection: Story = {
   name: 'Multiple Selection',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+  args: {
+    selectionMode: 'multiple',
+    disabled: false,
+  },
+  argTypes: {
+    selectionMode: { control: false },
+  },
+  render: ({ disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>([]);
     return (
-      <div className='p-4'>
+      <div className='min-w-45 p-4'>
         <h3 className='text-sm font-medium mb-3'>Select cities to visit</h3>
-        <Listbox selectionMode='multiple' selection={selection} setSelection={setSelection}>
-          <Listbox.Content>
-            {cities.map(c => (
-              <Listbox.Item key={c.id} value={c.id}>
-                <div className='flex-1'>{c.name}</div>
+        <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
+          <Listbox.Content label='Select cities to visit'>
+            {cities.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
               </Listbox.Item>
             ))}
           </Listbox.Content>
         </Listbox>
         <p className='text-sm text-main/70 mt-3'>
-          Selected {selection.size} {selection.size === 1 ? 'city' : 'cities'}
+          Selected {selection.length} {selection.length === 1 ? 'city' : 'cities'}
         </p>
       </div>
     );
@@ -103,29 +113,33 @@ export const MultipleSelection: Story = {
 };
 
 export const WithCheckboxes: Story = {
-  name: 'Multiple Selection with Checkboxes',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set(['preact']));
+  name: 'Selection with Checkboxes',
+  args: {
+    selectionMode: 'multiple',
+    disabled: false,
+  },
+  render: ({ selectionMode, disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>(['preact']);
     return (
-      <div className='p-4'>
+      <div className='min-w-52 p-4'>
         <h3 className='text-sm font-medium mb-3'>Choose your frameworks</h3>
-        <Listbox selectionMode='multiple' selection={selection} setSelection={setSelection}>
-          <Listbox.Content>
-            {frameworks.map(f => {
-              const isSelected = selection.has(f.id);
+        <Listbox
+          selectionMode={selectionMode}
+          disabled={disabled}
+          selection={selection}
+          onSelectionChange={setSelection}
+        >
+          <Listbox.Content label='Choose your frameworks'>
+            {frameworks.map(({ id, name }) => {
+              const isSelected = selection.includes(id);
               return (
-                <Listbox.Item key={f.id} value={f.id}>
-                  <div className='flex-1'>{f.name}</div>
+                <Listbox.Item key={id} value={id}>
+                  <div className='flex-1'>{name}</div>
                   <Checkbox
                     checked={isSelected}
                     tabIndex={-1}
                     onCheckedChange={() => {
-                      const newSelection = new Set(selection);
-                      if (isSelected) {
-                        newSelection.delete(f.id);
-                      } else {
-                        newSelection.add(f.id);
-                      }
+                      const newSelection = isSelected ? selection.filter(v => v !== id) : [...selection, id];
                       setSelection(newSelection);
                     }}
                   />
@@ -141,16 +155,56 @@ export const WithCheckboxes: Story = {
 
 export const Preselected: Story = {
   name: 'With Pre-selected Items',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set(['react', 'vue', 'svelte']));
+  args: {
+    selectionMode: 'multiple',
+    disabled: false,
+  },
+  argTypes: {
+    selectionMode: { control: false },
+  },
+  render: ({ disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>(['react', 'vue', 'svelte']);
+    return (
+      <div className='min-w-52 p-4'>
+        <h3 className='text-sm font-medium mb-3'>Your favorite frameworks</h3>
+        <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
+          <Listbox.Content label='Your favorite frameworks'>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
+              </Listbox.Item>
+            ))}
+          </Listbox.Content>
+        </Listbox>
+      </div>
+    );
+  },
+};
+
+export const Disabled: Story = {
+  name: 'Disabled State',
+  args: {
+    selectionMode: 'single',
+    disabled: true,
+  },
+  argTypes: {
+    selectionMode: { control: false },
+  },
+  render: ({ selectionMode, disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
     return (
       <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>Your favorite frameworks</h3>
-        <Listbox selectionMode='multiple' selection={selection} setSelection={setSelection}>
-          <Listbox.Content>
-            {frameworks.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
+        <h3 className='text-sm font-medium mb-3'>Disabled listbox</h3>
+        <Listbox
+          selectionMode={selectionMode}
+          disabled={disabled}
+          selection={selection}
+          onSelectionChange={setSelection}
+        >
+          <Listbox.Content label='Disabled listbox'>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
               </Listbox.Item>
             ))}
           </Listbox.Content>
@@ -162,84 +216,59 @@ export const Preselected: Story = {
 
 export const LongList: Story = {
   name: 'Long List with Scroll',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+  args: {
+    selectionMode: 'single',
+    disabled: false,
+  },
+  argTypes: {
+    selectionMode: { control: false },
+  },
+  render: ({ disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>([]);
     return (
-      <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>Select a country (use ↑↓ arrows, Home/End keys to navigate)</h3>
-        <Listbox selectionMode='single' selection={selection} setSelection={setSelection}>
-          <Listbox.Content className='max-h-40'>
-            {countries.map(c => (
-              <Listbox.Item key={c.id} value={c.id}>
-                <div className='flex-1'>{c.name}</div>
-              </Listbox.Item>
-            ))}
-          </Listbox.Content>
-        </Listbox>
+      <div className='flex flex-col gap-y-3 p-4'>
+        <div className='flex flex-col gap-y-3 items-center'>
+          <h3 className='text-sm font-medium'>Select a country</h3>
+          <Listbox selectionMode='single' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
+            <Listbox.Content className='max-h-40 flex-auto' label='Select a country'>
+              {countries.map(({ id, name }) => (
+                <Listbox.Item key={id} value={id}>
+                  <div className='flex-1 whitespace-nowrap'>{name}</div>
+                </Listbox.Item>
+              ))}
+            </Listbox.Content>
+          </Listbox>
+          <p className='text-sm text-main/70'>
+            Selected: {selection.length > 0 ? countries.find(({ id }) => selection.includes(id))?.name : 'None'}
+          </p>
+        </div>
         <p className='text-sm text-main/70 mt-3'>
-          Selected: {selection.size > 0 ? countries.find(ct => selection.has(ct.id))?.name : 'None'}
+          {'Use '}
+          <span className='inline-flex items-center gap-x-1 font-mono text-xs'>
+            <span className='px-1 border border-main/20 rounded-sm'>↑</span>
+            <span className='px-1 border border-main/20 rounded-sm'>↓</span>
+            <span className='px-1 border border-main/20 rounded-sm'>Home</span>
+            <span className='px-1 border border-main/20 rounded-sm'>End</span>
+          </span>
+          {' keys to navigate'}
         </p>
       </div>
     );
   },
 };
 
-export const NotFocusable: Story = {
-  name: 'Not Focusable',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-    return (
-      <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>Listbox is not focusable</h3>
-        <Listbox selectionMode='multiple' selection={selection} setSelection={setSelection}>
-          <Listbox.Content domFocusable={false}>
-            {frameworks.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
-              </Listbox.Item>
-            ))}
-          </Listbox.Content>
-        </Listbox>
-      </div>
-    );
-  },
-};
-
-export const Visual_Focus: Story = {
-  name: 'Visual Focus',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-    return (
-      <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>
-          DOM focusable: <b>false</b>
-        </h3>
-        <h3 className='text-sm font-medium mb-3'>
-          Visual focus: <b>true</b>
-        </h3>
-        <Listbox selectionMode='multiple' selection={selection} setSelection={setSelection}>
-          <Listbox.Content domFocusable={false} visualFocus={true}>
-            {frameworks.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
-              </Listbox.Item>
-            ))}
-          </Listbox.Content>
-        </Listbox>
-        <h3 className='text-sm mt-3 font-medium'>No navigation with keyboard because listbox is not focusable</h3>
-      </div>
-    );
-  },
-};
-
-export const Outer_Navigation: Story = {
+export const OuterNavigation: Story = {
   name: 'Navigate from Outside',
+  argTypes: {
+    selectionMode: { control: false },
+    disabled: { control: false },
+  },
   render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [selection, setSelection] = useState<readonly string[]>([]);
     const [active, setActive] = useState<string | undefined>(undefined);
 
     const navHandler = (delta: number): void => {
-      const activeIndex = active ? frameworks.findIndex(f => f.id === active) : -1;
+      const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
       let newIndex = activeIndex + delta;
       if (newIndex < 0) {
         newIndex = frameworks.length - 1;
@@ -251,74 +280,27 @@ export const Outer_Navigation: Story = {
     };
 
     return (
-      <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>
-          DOM focusable: <b>false</b>
-        </h3>
-        <h3 className='text-sm font-medium mb-3'>
-          Visual focus: <b>true</b>
-        </h3>
-
-        <IconButton icon={ArrowUp} onClick={() => navHandler(-1)} variant='text' shape='round' className='mr-1' />
-        <IconButton icon={ArrowDown} onClick={() => navHandler(1)} variant='text' shape='round' />
+      <div className='min-w-52 p-4'>
+        <IconButton icon={ArrowUp} onClick={() => navHandler(-1)} variant='outline' shape='round' className='mr-1' />
+        <IconButton icon={ArrowDown} onClick={() => navHandler(1)} variant='outline' shape='round' />
 
         <Listbox
           selectionMode='multiple'
           selection={selection}
-          setSelection={setSelection}
+          onSelectionChange={setSelection}
           active={active}
           setActive={setActive}
         >
-          <Listbox.Content className='mt-4' domFocusable={false} visualFocus={true}>
-            {frameworks.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
+          <Listbox.Content className='mt-4' tabIndex={-1}>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
               </Listbox.Item>
             ))}
           </Listbox.Content>
         </Listbox>
 
-        <h3 className='text-sm font-medium mt-3'>Navigate list using outer controls</h3>
-      </div>
-    );
-  },
-};
-
-export const Uncontrolled: Story = {
-  name: 'Uncontrolled Mode',
-  render: () => (
-    <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3'>Uncontrolled listbox with default selection</h3>
-      <Listbox selectionMode='multiple' defaultSelection={new Set(['react', 'preact'])}>
-        <Listbox.Content>
-          {frameworks.map(f => (
-            <Listbox.Item key={f.id} value={f.id}>
-              <div className='flex-1'>{f.name}</div>
-            </Listbox.Item>
-          ))}
-        </Listbox.Content>
-      </Listbox>
-      <p className='text-sm text-main/70 mt-3'>Component manages its own state</p>
-    </div>
-  ),
-};
-
-export const Disabled: Story = {
-  name: 'Disabled State',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set(['react', 'vue']));
-    return (
-      <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>Disabled listbox</h3>
-        <Listbox selectionMode='multiple' disabled selection={selection} setSelection={setSelection}>
-          <Listbox.Content>
-            {frameworks.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
-              </Listbox.Item>
-            ))}
-          </Listbox.Content>
-        </Listbox>
+        <h3 className='text-sm font-medium mt-3'>Navigate list using buttons</h3>
       </div>
     );
   },
@@ -326,8 +308,15 @@ export const Disabled: Story = {
 
 export const WithCustomGroups: Story = {
   name: 'With Custom Group Headers',
-  render: () => {
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set(['react', 'vue']));
+  args: {
+    selectionMode: 'multiple',
+    disabled: false,
+  },
+  argTypes: {
+    selectionMode: { control: false },
+  },
+  render: ({ disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
 
     const uiFrameworks = [
       { id: 'tailwind', name: 'Tailwind CSS' },
@@ -348,43 +337,61 @@ export const WithCustomGroups: Story = {
     ];
 
     return (
-      <div className='p-4'>
+      <div className='min-w-72 p-4'>
         <h3 className='text-sm font-medium mb-3'>Select frameworks (grouped)</h3>
-        <Listbox selectionMode='multiple' selection={selection} setSelection={setSelection}>
-          <Listbox.Content className='max-h-60 w-100'>
-            <div className='px-4 py-1 text-xs uppercase text-subtle font-semibold top-0 bg-surface-neutral'>
+        <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
+          <Listbox.Content className='max-h-60' label='Select frameworks (grouped)'>
+            <div className='pt-3 pb-1 px-1 text-xs uppercase text-subtle font-semibold top-0 bg-surface-neutral'>
               UI Frameworks
             </div>
-            {uiFrameworks.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
+            {uiFrameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
               </Listbox.Item>
             ))}
 
-            <div className='px-4 py-1 text-xs uppercase text-subtle font-semibold top-0 bg-surface-neutral'>
+            <div className='pt-3 pb-1 px-1 text-xs uppercase text-subtle font-semibold top-0 bg-surface-neutral'>
               JavaScript Frameworks
             </div>
-            {jsFrameworks.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
+            {jsFrameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
               </Listbox.Item>
             ))}
 
-            <div className='px-4 py-1 text-xs uppercase text-subtle font-semibold sticky top-0 bg-surface-neutral'>
-              🧪 Experimental
+            <div className='pt-3 pb-1 px-1 text-xs uppercase text-subtle font-semibold sticky top-0 bg-surface-neutral'>
+              Experimental
             </div>
-            {experimental.map(f => (
-              <Listbox.Item key={f.id} value={f.id}>
-                <div className='flex-1'>{f.name}</div>
+            {experimental.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
               </Listbox.Item>
             ))}
           </Listbox.Content>
         </Listbox>
 
         <p className='text-sm text-main/70 mt-3 max-w-100'>
-          Selected: {Array.from(selection).length > 0 ? Array.from(selection).join(', ') : 'None'}
+          Selected: {selection.length > 0 ? selection.join(', ') : 'None'}
         </p>
       </div>
     );
   },
+};
+
+export const Uncontrolled: Story = {
+  name: 'Interactive Playground',
+  render: ({ selectionMode, disabled }) => (
+    <div className='p-4'>
+      <h3 className='text-sm font-medium mb-3'>Uncontrolled listbox</h3>
+      <Listbox selectionMode={selectionMode} disabled={disabled} defaultSelection={['react']}>
+        <Listbox.Content>
+          {frameworks.map(({ id, name }) => (
+            <Listbox.Item key={id} value={id}>
+              <div className='flex-1'>{name}</div>
+            </Listbox.Item>
+          ))}
+        </Listbox.Content>
+      </Listbox>
+    </div>
+  ),
 };

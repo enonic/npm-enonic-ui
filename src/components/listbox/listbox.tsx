@@ -3,6 +3,7 @@ import { cn } from '@/utils';
 import { useComposedRefs } from '@/utils/ref';
 import { cva } from 'class-variance-authority';
 import {
+  type ComponentPropsWithoutRef,
   forwardRef,
   type ReactElement,
   type ReactNode,
@@ -12,6 +13,8 @@ import {
   useRef,
   useState,
 } from 'react';
+
+const EMPTY_SELECTION: readonly string[] = [];
 
 const listboxItemVariants = cva('flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer', {
   variants: {
@@ -38,10 +41,9 @@ const listboxItemVariants = cva('flex w-full items-center px-4.5 py-1 gap-x-2.5 
 });
 
 export type ListboxRootProps = {
-  className?: string;
-  selection?: ReadonlySet<string>;
-  defaultSelection?: ReadonlySet<string>;
-  setSelection?: (selection: ReadonlySet<string>) => void;
+  selection?: readonly string[];
+  defaultSelection?: readonly string[];
+  onSelectionChange?: (selection: readonly string[]) => void;
   active?: string;
   defaultActive?: string;
   setActive?: (active: string | undefined) => void;
@@ -52,21 +54,24 @@ export type ListboxRootProps = {
 
 const ListboxRoot = ({
   selection: controlledSelection,
-  defaultSelection = new Set(),
-  setSelection,
+  defaultSelection = EMPTY_SELECTION,
+  onSelectionChange,
   active: controlledActive,
   defaultActive,
   setActive,
   selectionMode = 'single',
-  disabled = false,
+  disabled,
   children,
 }: ListboxRootProps): ReactElement => {
   const listboxId = usePrefixedId();
 
-  // Selection
-  const [uncontrolledSelection, setUncontrolledSelection] = useState(defaultSelection);
+  // Selection - store as Set internally for O(1) lookups
+  const [uncontrolledSelection, setUncontrolledSelection] = useState<Set<string>>(() => new Set(defaultSelection));
   const isSelectionControlled = controlledSelection !== undefined;
-  const selection = isSelectionControlled ? controlledSelection : uncontrolledSelection;
+  const selectionSet = useMemo(
+    () => (isSelectionControlled ? new Set(controlledSelection) : uncontrolledSelection),
+    [isSelectionControlled, controlledSelection, uncontrolledSelection],
+  );
 
   // Active
   const [uncontrolledActive, setUncontrolledActive] = useState<string | undefined>(defaultActive);
@@ -98,31 +103,35 @@ const ListboxRoot = ({
 
   const toggleValue = useCallback(
     (value: string) => {
-      const isSelected = selection.has(value);
-      let newSelection = new Set(selection);
+      const isSelected = selectionSet.has(value);
+      const newSet = new Set(selectionSet);
+
       if (selectionMode === 'single') {
-        newSelection = isSelected ? new Set() : new Set([value]);
+        newSet.clear();
+        if (!isSelected) {
+          newSet.add(value);
+        }
       } else {
         if (isSelected) {
-          newSelection.delete(value);
+          newSet.delete(value);
         } else {
-          newSelection.add(value);
+          newSet.add(value);
         }
       }
 
       if (!isSelectionControlled) {
-        setUncontrolledSelection(newSelection);
+        setUncontrolledSelection(newSet);
       }
-      setSelection?.(newSelection);
+      onSelectionChange?.(Array.from(newSet));
       updateActive(value);
     },
-    [selection, selectionMode, isSelectionControlled, setSelection, updateActive],
+    [selectionSet, selectionMode, isSelectionControlled, onSelectionChange, updateActive],
   );
 
-  const value = useMemo<ListboxContextValue>(
+  const contextValue = useMemo<ListboxContextValue>(
     () => ({
       active,
-      selection,
+      selection: selectionSet,
       selectionMode,
       disabled,
       setActive: updateActive,
@@ -132,24 +141,32 @@ const ListboxRoot = ({
       getItems,
       listboxId,
     }),
-    [active, selection, selectionMode, disabled, updateActive, toggleValue, registerItem, getItems, listboxId],
+    [
+      active,
+      selectionSet,
+      selectionMode,
+      disabled,
+      updateActive,
+      toggleValue,
+      registerItem,
+      unregisterItem,
+      getItems,
+      listboxId,
+    ],
   );
 
-  return <ListboxProvider value={value}>{children}</ListboxProvider>;
+  return <ListboxProvider value={contextValue}>{children}</ListboxProvider>;
 };
-
 ListboxRoot.displayName = 'ListboxRoot';
 
 export type ListboxContentProps = {
   className?: string;
   label?: string;
-  visualFocus?: boolean;
-  domFocusable?: boolean;
   children?: ReactNode;
-} & React.HTMLAttributes<HTMLDivElement>;
+} & ComponentPropsWithoutRef<'div'>;
 
 const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
-  ({ className, label, visualFocus, domFocusable = true, children, ...props }, ref): ReactElement => {
+  ({ className, label, children, ...props }, ref): ReactElement => {
     const { active, disabled, getItems, setActive, toggleValue, listboxId } = useListbox();
     const innerRef = useRef<HTMLDivElement>(null);
 
@@ -171,6 +188,7 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
         if (disabled) {
           return;
         }
+
         const items = getItems();
         if (!items.length) {
           return;
@@ -213,21 +231,20 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
 
     return (
       <div
-        id={listboxId}
         ref={useComposedRefs(ref, innerRef)}
-        role='listbox'
-        tabIndex={domFocusable && !disabled ? 0 : -1}
-        aria-disabled={disabled}
-        aria-label={label}
-        aria-activedescendant={active ? `${listboxId}-option-${active}` : undefined}
+        id={listboxId}
         className={cn(
           'flex flex-col items-start grow shrink-0 basis-0',
           'max-h-100 overflow-y-auto',
           'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50',
-          visualFocus && 'outline-none ring-3 ring-ring/50',
-          disabled && 'pointer-events-none opacity-30',
+          disabled && 'pointer-events-none select-none opacity-30',
           className,
         )}
+        role='listbox'
+        aria-disabled={disabled}
+        aria-label={label}
+        aria-activedescendant={active ? `${listboxId}-option-${active}` : undefined}
+        tabIndex={disabled ? -1 : 0}
         onKeyDown={handleKeyDown}
         {...props}
       >
@@ -242,44 +259,46 @@ export type ListboxItemProps = {
   value: string;
   children: ReactNode;
   className?: string;
-};
+} & ComponentPropsWithoutRef<'div'>;
 
-const ListboxItem = ({ value, children, className }: ListboxItemProps): ReactElement => {
+const ListboxItem = ({ value, children, className, ...props }: ListboxItemProps): ReactElement => {
   const ctx = useListbox();
+  const { disabled, toggleValue, registerItem, unregisterItem, listboxId } = ctx;
   const isSelected = ctx.selection.has(value);
   const isActive = ctx.active === value;
 
   useEffect(() => {
-    ctx.registerItem(value);
+    registerItem(value);
     return () => {
-      ctx.unregisterItem(value);
+      unregisterItem(value);
     };
-  }, [value, ctx]);
+  }, [value, registerItem, unregisterItem]);
 
   const handleClick = useCallback(() => {
-    if (!ctx.disabled) {
-      ctx.toggleValue(value);
+    if (!disabled) {
+      toggleValue(value);
     }
-  }, [ctx, value]);
+  }, [disabled, toggleValue, value]);
 
   return (
-    /* eslint-disable jsx-a11y/click-events-have-key-events */
-    /* eslint-disable jsx-a11y/interactive-supports-focus */
+    // ARIA listbox pattern: options are not individually focusable
+    // Parent listbox handles all keyboard interactions via aria-activedescendant
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
     <div
-      id={`${ctx.listboxId}-option-${value}`}
-      data-value={value}
-      data-active={isActive || undefined}
+      id={`${listboxId}-option-${value}`}
+      className={cn(listboxItemVariants({ selected: isSelected, active: isActive }), className)}
       role='option'
       aria-selected={isSelected}
-      className={cn(listboxItemVariants({ selected: isSelected, active: isActive }), className)}
+      data-value={value}
+      data-active={isActive || undefined}
       onClick={handleClick}
+      {...props}
     >
       {children}
     </div>
-    /* eslint-enable jsx-a11y/click-events-have-key-events */
-    /* eslint-enable jsx-a11y/interactive-supports-focus */
   );
 };
+ListboxItem.displayName = 'ListboxItem';
 
 export const Listbox = Object.assign(ListboxRoot, {
   Root: ListboxRoot,
