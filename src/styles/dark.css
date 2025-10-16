@@ -19,6 +19,8 @@
     --color-surface-primary-hover: var(--color-grey-900);
     --color-surface-primary-selected: var(--color-grey-800);
     --color-surface-primary-selected-hover: var(--color-grey-900);
+    --color-surface-secondary: var(--color-grey-700);
+    --color-surface-tertiary: var(--color-grey-900);
 
     /* Borders */
     --color-bdr-subtle: var(--color-grey-500);
