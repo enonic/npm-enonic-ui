@@ -1,6 +1,5 @@
 import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
-import { cn } from '@/utils';
-import { useComposedRefs } from '@/utils/ref';
+import { cn, useComposedRefs } from '@/utils';
 import { cva } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
@@ -15,30 +14,6 @@ import {
 } from 'react';
 
 const EMPTY_SELECTION: readonly string[] = [];
-
-const listboxItemVariants = cva('flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer', {
-  variants: {
-    selected: {
-      true: 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover',
-      false: 'hover:bg-surface-primary-hover',
-    },
-    active: {
-      true: 'bg-surface-primary-hover',
-      false: '',
-    },
-  },
-  compoundVariants: [
-    {
-      selected: true,
-      active: true,
-      class: 'bg-surface-primary-selected-hover',
-    },
-  ],
-  defaultVariants: {
-    selected: false,
-    active: false,
-  },
-});
 
 export type ListboxRootProps = {
   selection?: readonly string[];
@@ -254,6 +229,34 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
   },
 );
 ListboxContent.displayName = 'ListboxContent';
+
+//
+// * Listbox Item
+//
+
+const listboxItemVariants = cva('flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer', {
+  variants: {
+    selected: {
+      true: 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover',
+      false: 'hover:bg-surface-primary-hover',
+    },
+    active: {
+      true: 'bg-surface-primary-hover',
+      false: '',
+    },
+  },
+  compoundVariants: [
+    {
+      selected: true,
+      active: true,
+      class: 'bg-surface-primary-selected-hover',
+    },
+  ],
+  defaultVariants: {
+    selected: false,
+    active: false,
+  },
+});
 
 export type ListboxItemProps = {
   value: string;

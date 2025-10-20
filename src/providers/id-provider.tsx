@@ -18,14 +18,14 @@ export const IdProvider = ({ children, prefix }: IdProviderProps): ReactElement 
 
 IdProvider.displayName = 'IdProvider';
 
-export const usePrefixedId = (providedId?: string): string => {
-  const baseId = useId();
+/**
+ * Prefix provided or generated id with a prefix from the context
+ * @param providedId - The id to prefix. Will use `useId()` if not provided.
+ * @param prefix - A custom prefix used in addition to the one from context.
+ * @returns The prefixed id
+ */
+export const usePrefixedId = (providedId?: string, prefix?: string): string => {
+  const baseId = providedId ?? useId();
   const context = useContext(IdContext);
-
-  if (providedId) {
-    return providedId;
-  }
-
-  const id = context?.prefix ? `${context.prefix}-${baseId}` : baseId;
-  return id;
+  return [context?.prefix, prefix, baseId].filter(Boolean).join('-');
 };

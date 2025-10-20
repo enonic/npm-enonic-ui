@@ -300,7 +300,7 @@ export const OuterNavigation: Story = {
           </Listbox.Content>
         </Listbox>
 
-        <h3 className='text-sm font-medium mt-3'>Navigate list using buttons</h3>
+        <h3 className='text-sm text-subtle mt-3'>Navigate list using buttons</h3>
       </div>
     );
   },

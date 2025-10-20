@@ -61,11 +61,12 @@ DialogRoot.displayName = 'Dialog.Root';
 //
 
 export type DialogTriggerProps = {
+  asChild?: boolean;
   children: ReactNode;
 } & ComponentPropsWithoutRef<'button'>;
 
 const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
-  ({ children, onClick, ...props }, ref): ReactElement => {
+  ({ asChild, children, onClick, ...props }, ref): ReactElement => {
     const { setOpen } = useDialog();
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
@@ -73,10 +74,18 @@ const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
       setOpen(true);
     };
 
+    const Comp = asChild ? Slot : 'button';
+
     return (
-      <button ref={ref} type='button' onClick={handleClick} {...props}>
+      <Comp
+        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
+        ref={ref}
+        type={asChild ? undefined : 'button'}
+        onClick={handleClick}
+        {...props}
+      >
         {children}
-      </button>
+      </Comp>
     );
   },
 );

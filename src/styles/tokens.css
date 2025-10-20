@@ -16,9 +16,13 @@
   --color-alt-rev: var(--color-alt-rev);
 
   --color-info: var(--color-fbk-info);
+  --color-info-rev: var(--color-fbk-info-rev);
   --color-warn: var(--color-fbk-warn);
+  --color-warn-rev: var(--color-fbk-warn-rev);
   --color-success: var(--color-fbk-success);
+  --color-success-rev: var(--color-fbk-success-rev);
   --color-error: var(--color-fbk-danger);
+  --color-error-rev: var(--color-fbk-danger-rev);
 
   /* Surface Colors */
   --color-surface-neutral: var(--color-surface-neutral);

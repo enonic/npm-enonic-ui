@@ -13,7 +13,7 @@ export function setRef<T>(ref: Ref<T> | undefined, value: T | null): void {
   }
 }
 
-export function useComposedRefs<T>(...refs: (Ref<T> | undefined)[]): ForwardedRef<T> {
+export function useComposedRefs<T>(...refs: (Ref<T> | undefined | null)[]): ForwardedRef<T> {
   return useCallback((node: T | null) => {
     refs.forEach(ref => setRef(ref, node));
   }, refs);
