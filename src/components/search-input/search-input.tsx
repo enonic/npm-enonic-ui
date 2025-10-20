@@ -1,13 +1,11 @@
 import { IconButton } from '@/components';
 import { usePrefixedId } from '@/providers';
-import { cn, unwrap } from '@/utils';
-import { useComposedRefs } from '@/utils/ref';
+import { cn, unwrap, useComposedRefs } from '@/utils';
 import { Search, X } from 'lucide-react';
 import { useState } from 'preact/hooks';
 import { type ComponentPropsWithoutRef, forwardRef, useRef } from 'react';
 
 export type SearchInputProps = {
-  className?: string;
   value?: string;
   defaultValue?: string;
   placeholder?: string;
@@ -15,6 +13,7 @@ export type SearchInputProps = {
   onChange?: (value: string) => void;
   disabled?: boolean;
   readOnly?: boolean;
+  className?: string;
 } & Omit<
   ComponentPropsWithoutRef<'div'>,
   'className' | 'value' | 'defaultValue' | 'onChange' | 'disabled' | 'readOnly'
@@ -23,7 +22,6 @@ export type SearchInputProps = {
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
   (
     {
-      className,
       id,
       value,
       defaultValue = '',
@@ -32,6 +30,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       onChange,
       disabled,
       readOnly,
+      className,
       ...props
     },
     ref,

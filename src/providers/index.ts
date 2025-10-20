@@ -2,3 +2,4 @@ export * from './avatar-provider';
 export * from './dialog-provider';
 export * from './id-provider';
 export * from './listbox-provider';
+export * from './menu-provider';

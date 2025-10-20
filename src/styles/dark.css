@@ -9,9 +9,13 @@
     --color-alt-rev: var(--color-black);
 
     --color-info: var(--color-fbk-info-subtle);
+    --color-info-rev: var(--color-fbk-info);
     --color-warn: var(--color-fbk-warn-subtle);
+    --color-warn-rev: var(--color-fbk-warn);
     --color-success: var(--color-fbk-success-subtle);
+    --color-success-rev: var(--color-fbk-success);
     --color-error: var(--color-fbk-danger-subtle);
+    --color-error-rev: var(--color-fbk-danger);
 
     /* Surface Colors */
     --color-surface-neutral: var(--color-grey-950);

@@ -7,6 +7,7 @@ export * from './input';
 export * from './link';
 export * from './list-item';
 export * from './listbox';
+export * from './menu';
 export * from './search-input';
 export * from './selectable-list-item';
 export * from './separator';
