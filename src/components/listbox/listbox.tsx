@@ -16,6 +16,7 @@ import {
 const EMPTY_SELECTION: readonly string[] = [];
 
 export type ListboxRootProps = {
+  baseId?: string;
   selection?: readonly string[];
   defaultSelection?: readonly string[];
   onSelectionChange?: (selection: readonly string[]) => void;
@@ -24,10 +25,13 @@ export type ListboxRootProps = {
   setActive?: (active: string | undefined) => void;
   selectionMode?: 'single' | 'multiple';
   disabled?: boolean;
+  focusable?: boolean;
   children?: ReactNode;
+  keyHandler?: (e: React.KeyboardEvent<HTMLElement>) => void;
 };
 
 const ListboxRoot = ({
+  baseId,
   selection: controlledSelection,
   defaultSelection = EMPTY_SELECTION,
   onSelectionChange,
@@ -35,10 +39,12 @@ const ListboxRoot = ({
   defaultActive,
   setActive,
   selectionMode = 'single',
+  focusable = true,
   disabled,
   children,
+  keyHandler,
 }: ListboxRootProps): ReactElement => {
-  const listboxId = usePrefixedId();
+  const listboxBaseId = baseId ?? usePrefixedId();
 
   // Selection - store as Set internally for O(1) lookups
   const [uncontrolledSelection, setUncontrolledSelection] = useState<Set<string>>(() => new Set(defaultSelection));
@@ -62,19 +68,6 @@ const ListboxRoot = ({
     },
     [isActiveControlled, setActive],
   );
-
-  // Items registry
-  const itemsRef = useRef<Set<string>>(new Set());
-
-  const registerItem = useCallback((value: string) => {
-    itemsRef.current.add(value);
-  }, []);
-
-  const unregisterItem = useCallback((value: string) => {
-    itemsRef.current.delete(value);
-  }, []);
-
-  const getItems = useCallback(() => Array.from(itemsRef.current), []);
 
   const toggleValue = useCallback(
     (value: string) => {
@@ -108,26 +101,14 @@ const ListboxRoot = ({
       active,
       selection: selectionSet,
       selectionMode,
+      focusable,
       disabled,
       setActive: updateActive,
       toggleValue,
-      registerItem,
-      unregisterItem,
-      getItems,
-      listboxId,
+      baseId: listboxBaseId,
+      keyHandler,
     }),
-    [
-      active,
-      selectionSet,
-      selectionMode,
-      disabled,
-      updateActive,
-      toggleValue,
-      registerItem,
-      unregisterItem,
-      getItems,
-      listboxId,
-    ],
+    [active, selectionSet, selectionMode, focusable, disabled, updateActive, toggleValue, listboxBaseId, keyHandler],
   );
 
   return <ListboxProvider value={contextValue}>{children}</ListboxProvider>;
@@ -142,72 +123,99 @@ export type ListboxContentProps = {
 
 const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
   ({ className, label, children, ...props }, ref): ReactElement => {
-    const { active, disabled, getItems, setActive, toggleValue, listboxId } = useListbox();
+    const {
+      active,
+      disabled,
+      setActive,
+      toggleValue,
+      baseId,
+      selectionMode,
+      keyHandler,
+      focusable = true,
+    } = useListbox();
     const innerRef = useRef<HTMLDivElement>(null);
+
+    const getItems = useCallback((): string[] => {
+      const container = innerRef.current;
+
+      if (!container) {
+        return [];
+      }
+
+      const optionNodes = container.querySelectorAll<HTMLElement>('[role="option"][data-value]');
+      return Array.from(optionNodes)
+        .map(node => node.dataset.value)
+        .filter(v => v !== undefined);
+    }, []);
 
     const moveActive = useCallback(
       (delta: number) => {
         const items = getItems();
+
         if (!items.length) {
           return;
         }
+
         const currentIndex = active ? items.indexOf(active) : -1;
         const newIndex = Math.max(0, Math.min(items.length - 1, currentIndex + delta));
         setActive(items[newIndex]);
       },
-      [getItems, active, setActive],
+      [active, setActive, getItems],
     );
 
-    const handleKeyDown = useCallback(
-      (e: React.KeyboardEvent<HTMLElement>) => {
-        if (disabled) {
-          return;
-        }
-
-        const items = getItems();
-        if (!items.length) {
-          return;
-        }
-
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          moveActive(1);
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          moveActive(-1);
-        } else if (e.key === 'Home') {
-          e.preventDefault();
-          setActive(items[0]);
-        } else if (e.key === 'End') {
-          e.preventDefault();
-          setActive(items[items.length - 1]);
-        } else if (e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault();
-          if (active) {
-            toggleValue(active);
+    const handleKeyDown =
+      keyHandler ??
+      useCallback(
+        (e: React.KeyboardEvent<HTMLElement>) => {
+          if (disabled) {
+            return;
           }
-        }
-      },
-      [disabled, getItems, active, moveActive, toggleValue, setActive],
-    );
+
+          const items = getItems();
+          if (!items.length) {
+            return;
+          }
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            moveActive(1);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            moveActive(-1);
+          } else if (e.key === 'Home') {
+            e.preventDefault();
+            setActive(items[0]);
+          } else if (e.key === 'End') {
+            e.preventDefault();
+            setActive(items[items.length - 1]);
+          } else if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+
+            if (active) {
+              toggleValue(active);
+            }
+          }
+        },
+        [disabled, getItems, active, moveActive, toggleValue, setActive],
+      );
 
     useEffect(() => {
       if (!active || !innerRef.current) {
         return;
       }
-      const el = innerRef.current.querySelector<HTMLDivElement>(`#${listboxId}-option-${active}`);
+      const el = innerRef.current.querySelector<HTMLDivElement>(`#${baseId}-listbox-option-${active}`);
       if (el) {
         el.scrollIntoView({
           block: 'nearest',
           behavior: 'auto',
         });
       }
-    }, [active, listboxId]);
+    }, [active, baseId]);
 
     return (
       <div
         ref={useComposedRefs(ref, innerRef)}
-        id={listboxId}
+        id={`${baseId}-listbox`}
         className={cn(
           'flex flex-col items-start grow shrink-0 basis-0',
           'max-h-100 overflow-y-auto',
@@ -218,8 +226,9 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
         role='listbox'
         aria-disabled={disabled}
         aria-label={label}
-        aria-activedescendant={active ? `${listboxId}-option-${active}` : undefined}
-        tabIndex={disabled ? -1 : 0}
+        aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
+        aria-activedescendant={active ? `${baseId}-listbox-option-${active}` : undefined}
+        tabIndex={focusable && !disabled ? 0 : -1}
         onKeyDown={handleKeyDown}
         {...props}
       >
@@ -266,16 +275,9 @@ export type ListboxItemProps = {
 
 const ListboxItem = ({ value, children, className, ...props }: ListboxItemProps): ReactElement => {
   const ctx = useListbox();
-  const { disabled, toggleValue, registerItem, unregisterItem, listboxId } = ctx;
+  const { disabled, toggleValue, baseId } = ctx;
   const isSelected = ctx.selection.has(value);
   const isActive = ctx.active === value;
-
-  useEffect(() => {
-    registerItem(value);
-    return () => {
-      unregisterItem(value);
-    };
-  }, [value, registerItem, unregisterItem]);
 
   const handleClick = useCallback(() => {
     if (!disabled) {
@@ -288,7 +290,7 @@ const ListboxItem = ({ value, children, className, ...props }: ListboxItemProps)
     // Parent listbox handles all keyboard interactions via aria-activedescendant
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
     <div
-      id={`${listboxId}-option-${value}`}
+      id={`${baseId}-listbox-option-${value}`}
       className={cn(listboxItemVariants({ selected: isSelected, active: isActive }), className)}
       role='option'
       aria-selected={isSelected}

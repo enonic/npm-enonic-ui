@@ -37,6 +37,14 @@ export default {
       control: 'boolean',
       description: 'Makes the input read-only',
     },
+    showSearchIcon: {
+      control: 'boolean',
+      description: 'Whether to show the search icon',
+    },
+    showClearButton: {
+      control: 'boolean',
+      description: 'Whether to show the clear button when there is a value',
+    },
   },
 } satisfies Meta<SearchInputProps>;
 
@@ -185,6 +193,23 @@ export const LiveSearch: Story = {
         </div>
       </div>
     );
+  },
+};
+
+export const NoSearchIcon: Story = {
+  name: 'No Search Icon',
+  args: {
+    placeholder: 'Search...',
+    showSearchIcon: false,
+  },
+};
+
+export const NoClearButton: Story = {
+  name: 'No Clear Button',
+  args: {
+    placeholder: 'Search...',
+    showClearButton: false,
+    defaultValue: 'Some text',
   },
 };
 
