@@ -13,6 +13,8 @@ export type SearchInputProps = {
   onChange?: (value: string) => void;
   disabled?: boolean;
   readOnly?: boolean;
+  showSearchIcon?: boolean;
+  showClearButton?: boolean;
   className?: string;
 } & Omit<
   ComponentPropsWithoutRef<'div'>,
@@ -30,6 +32,8 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       onChange,
       disabled,
       readOnly,
+      showSearchIcon = true,
+      showClearButton = true,
       className,
       ...props
     },
@@ -41,7 +45,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     const isControlled = value !== undefined;
     const inputValue = isControlled ? value : uncontrolledValue;
     const isValueSet = inputValue.length > 0;
-    const canClear = isValueSet && !disabled && !readOnly;
+    const canClear = showClearButton && isValueSet && !disabled && !readOnly;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
       const newValue = e.currentTarget.value;
@@ -70,7 +74,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     return (
       <div
         className={cn(
-          'relative flex rounded-sm overflow-hidden',
+          'relative flex items-center rounded-sm overflow-hidden',
           'h-12 border border-bdr-subtle focus-within:border-bdr-strong',
           'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
           'transition-highlight',
@@ -78,20 +82,24 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           className,
         )}
       >
-        <Search
-          className='absolute left-4.5 top-1/2 -translate-y-1/2 mt-0.25 text-subtle pointer-events-none'
-          size={20}
-          strokeWidth={1.5}
-        />
+        {showSearchIcon && (
+          <Search
+            className={'flex items-center justify-center shrink-0 w-10 text-subtle pointer-events-none'}
+            size={20}
+            strokeWidth={1.5}
+          />
+        )}
         <input
           ref={useComposedRefs(ref, inputRef)}
           id={inputId}
           className={cn(
-            'w-full text-base pr-1 px-12 border-0',
+            'w-full text-base border-0',
             'text-main bg-surface-neutral',
             'placeholder:text-subtle',
             'focus:outline-none',
             'read-only:bg-surface-primary',
+            !showSearchIcon && 'pl-4.5',
+            'pr-4',
           )}
           value={inputValue}
           onChange={handleChange}
@@ -105,7 +113,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
         {canClear && (
           <IconButton
-            className='absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 text-subtle'
+            className='flex items-center justify-center shrink-0 h-10 w-10 mr-1 text-subtle'
             size='lg'
             icon={X}
             title={clearLabel}

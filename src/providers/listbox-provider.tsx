@@ -1,16 +1,15 @@
 import { createContext, type ReactElement, type ReactNode, useContext } from 'react';
 
 export type ListboxContextValue = {
+  baseId: string;
   active?: string;
   selection: ReadonlySet<string>;
   selectionMode: 'single' | 'multiple';
   disabled?: boolean;
+  focusable?: boolean;
   setActive: (id?: string) => void;
   toggleValue: (value: string) => void;
-  registerItem: (value: string) => void;
-  unregisterItem: (value: string) => void;
-  getItems: () => string[];
-  listboxId: string;
+  keyHandler?: (e: React.KeyboardEvent<HTMLElement>) => void;
 };
 
 const ListboxContext = createContext<ListboxContextValue | null>(null);
