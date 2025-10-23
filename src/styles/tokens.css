@@ -15,14 +15,14 @@
   --color-rev: var(--color-rev);
   --color-alt-rev: var(--color-alt-rev);
 
-  --color-info: var(--color-fbk-info);
-  --color-info-rev: var(--color-fbk-info-rev);
-  --color-warn: var(--color-fbk-warn);
-  --color-warn-rev: var(--color-fbk-warn-rev);
-  --color-success: var(--color-fbk-success);
-  --color-success-rev: var(--color-fbk-success-rev);
-  --color-error: var(--color-fbk-danger);
-  --color-error-rev: var(--color-fbk-danger-rev);
+  --color-info: var(--color-info);
+  --color-info-rev: var(--color-info-rev);
+  --color-warn: var(--color-warn);
+  --color-warn-rev: var(--color-warn-rev);
+  --color-success: var(--color-success);
+  --color-success-rev: var(--color-success-rev);
+  --color-error: var(--color-error);
+  --color-error-rev: var(--color-error-rev);
 
   /* Surface Colors */
   --color-surface-neutral: var(--color-surface-neutral);
@@ -53,6 +53,9 @@
   --color-btn-tertiary: var(--color-btn-tertiary);
   --color-btn-tertiary-hover: var(--color-btn-tertiary-hover);
   --color-btn-active: var(--color-btn-active);
+  --color-btn-error: var(--color-fbk-danger);
+  --color-btn-error-hover: color-mix(in srgb, var(--color-fbk-danger), black 10%);
+  --color-btn-error-active: color-mix(in srgb, var(--color-fbk-danger), black 19%);
 
   /* Inputs */
   --color-input-disabled: var(--color-input-disabled);
