@@ -1,8 +1,8 @@
 import { IconButton } from '@/components';
+import { useControlledState } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { cn, unwrap, useComposedRefs } from '@/utils';
 import { Search, X } from 'lucide-react';
-import { useState } from 'preact/hooks';
 import { type ComponentPropsWithoutRef, forwardRef, useRef } from 'react';
 
 export type SearchInputProps = {
@@ -40,34 +40,19 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     ref,
   ) => {
     const inputId = usePrefixedId(unwrap(id));
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
-    const isControlled = value !== undefined;
-    const inputValue = isControlled ? value : uncontrolledValue;
+    const [inputValue, setInputValue] = useControlledState(value, defaultValue, onChange);
     const isValueSet = inputValue.length > 0;
     const canClear = showClearButton && isValueSet && !disabled && !readOnly;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
       const newValue = e.currentTarget.value;
-
-      if (!isControlled) {
-        setUncontrolledValue(newValue);
-      }
-
-      onChange?.(newValue);
+      setInputValue(newValue);
     };
 
-    const inputRef = useRef<HTMLInputElement>(null);
-
     const handleClear = (): void => {
-      const newValue = '';
-
-      if (!isControlled) {
-        setUncontrolledValue(newValue);
-      }
-
-      onChange?.(newValue);
-
+      setInputValue('');
       inputRef.current?.focus();
     };
 

@@ -1,5 +1,5 @@
 import { IconButton } from '@/components/icon-button/icon-button';
-import { useScrollLock } from '@/hooks/use-scroll-lock';
+import { useControlledState, useScrollLock } from '@/hooks';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
@@ -36,19 +36,7 @@ const DialogRoot = ({
   onOpenChange,
   children,
 }: DialogRootProps): ReactElement => {
-  const isControlled = controlledOpen !== undefined;
-  const [uncontrolledOpen, setUncontrolledOpen] = useState<boolean>(defaultOpen);
-  const open: boolean = isControlled ? controlledOpen : uncontrolledOpen;
-
-  const setOpen = useCallback(
-    (next: boolean): void => {
-      if (!isControlled) {
-        setUncontrolledOpen(next);
-      }
-      onOpenChange?.(next);
-    },
-    [isControlled, onOpenChange],
-  );
+  const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
 
   const value: DialogContextValue = useMemo(() => ({ open, setOpen }), [open, setOpen]);
 

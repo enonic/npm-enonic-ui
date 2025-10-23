@@ -1,3 +1,4 @@
+import { useControlledState } from '@/hooks';
 import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { cva } from 'class-variance-authority';
@@ -55,19 +56,7 @@ const ListboxRoot = ({
   );
 
   // Active
-  const [uncontrolledActive, setUncontrolledActive] = useState<string | undefined>(defaultActive);
-  const isActiveControlled = controlledActive !== undefined;
-  const active = isActiveControlled ? controlledActive : uncontrolledActive;
-
-  const updateActive = useCallback(
-    (id?: string) => {
-      if (!isActiveControlled) {
-        setUncontrolledActive(id);
-      }
-      setActive?.(id);
-    },
-    [isActiveControlled, setActive],
-  );
+  const [active, updateActive] = useControlledState(controlledActive, defaultActive, setActive);
 
   const toggleValue = useCallback(
     (value: string) => {

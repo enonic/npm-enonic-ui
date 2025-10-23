@@ -1,8 +1,9 @@
+import { useControlledState } from '@/hooks';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Check, Minus, OctagonAlert } from 'lucide-react';
-import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 const checkboxBoxVariants = cva(
   [
@@ -97,9 +98,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const state: CheckboxState = error ? 'error' : 'default';
     const editable = !disabled && !readOnly;
 
-    const [uncontrolledChecked, setUncontrolledChecked] = useState<boolean | 'indeterminate'>(defaultChecked);
-    const isControlled = checked !== undefined;
-    const checkedState = isControlled ? checked : uncontrolledChecked;
+    const [checkedState, setCheckedState] = useControlledState(checked, defaultChecked, onCheckedChange);
     const isIndeterminate = checkedState === 'indeterminate';
     const isChecked = checkedState === true;
 
@@ -114,11 +113,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         nextValue = e.currentTarget.checked;
       }
 
-      if (!isControlled) {
-        setUncontrolledChecked(nextValue);
-      }
-
-      onCheckedChange?.(nextValue);
+      setCheckedState(nextValue);
     };
 
     return (

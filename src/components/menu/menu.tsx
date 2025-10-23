@@ -1,3 +1,4 @@
+import { useControlledState } from '@/hooks';
 import { type MenuContextValue, MenuProvider, useMenu, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
@@ -32,20 +33,7 @@ const MenuRoot = ({
   onOpenChange,
   children,
 }: MenuRootProps): ReactElement => {
-  const isControlled = controlledOpen !== undefined;
-  const [uncontrolledOpen, setUncontrolledOpen] = useState<boolean>(defaultOpen);
-  const open = isControlled ? controlledOpen : uncontrolledOpen;
-
-  const setOpen = useCallback(
-    (next: boolean): void => {
-      if (!isControlled) {
-        setUncontrolledOpen(next);
-      }
-      onOpenChange?.(next);
-    },
-    [isControlled, onOpenChange],
-  );
-
+  const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const [active, setActive] = useState<string | undefined>(undefined);
   const itemsRef = useRef<Map<string, { disabled: boolean }>>(new Map());
   const triggerRef = useRef<HTMLButtonElement>(null);
