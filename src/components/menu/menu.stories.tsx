@@ -145,7 +145,7 @@ export const WithSections: Story = {
             <span>Copy Link</span>
           </Menu.Item>
           <Menu.Separator />
-          <Menu.Item className='text-error data-[active=true]:text-error-rev'>
+          <Menu.Item className='text-error data-[active=true]:not-dark:text-error-rev'>
             <Trash2 className='w-4 h-4' />
             <span>Delete</span>
           </Menu.Item>

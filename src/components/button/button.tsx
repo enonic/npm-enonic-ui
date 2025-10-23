@@ -15,12 +15,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        text: 'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-rev dark:active:text-main',
-        filled:
-          'bg-btn-secondary hover:bg-btn-secondary-hover active:bg-btn-active active:text-rev dark:active:text-main',
-        solid: 'bg-btn-tertiary text-alt hover:bg-btn-tertiary-hover active:bg-btn-active dark:active:text-main',
+        text: 'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-alt',
+        filled: 'bg-btn-secondary hover:bg-btn-secondary-hover active:bg-btn-active active:text-alt',
+        solid: 'bg-btn-tertiary text-alt hover:bg-btn-tertiary-hover active:bg-btn-active',
         outline:
-          'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-rev dark:active:text-main border border-bdr-strong',
+          'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-alt border border-bdr-strong',
       },
       size: {
         sm: 'h-9 px-3.5 gap-2 text-sm',

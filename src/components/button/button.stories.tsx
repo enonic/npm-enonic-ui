@@ -70,6 +70,28 @@ export const Outline: Story = {
   },
 };
 
+export const CustomStyles: Story = {
+  args: {
+    label: 'Custom Button',
+    size: 'md',
+    disabled: false,
+  },
+  parameters: {
+    controls: {
+      exclude: ['variant', 'startIcon', 'endIcon'],
+    },
+  },
+  render: ({ label, size, disabled }) => (
+    <Button
+      label={label}
+      variant='text'
+      size={size}
+      className='bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
+      disabled={disabled}
+    />
+  ),
+};
+
 export const AllVariantsComparison: Story = {
   name: 'All Variants Comparison',
   render: () => (
