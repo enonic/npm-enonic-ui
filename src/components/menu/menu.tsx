@@ -1,4 +1,4 @@
-import { useControlledState } from '@/hooks';
+import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type MenuContextValue, MenuProvider, useMenu, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
@@ -33,28 +33,13 @@ const MenuRoot = ({
   onOpenChange,
   children,
 }: MenuRootProps): ReactElement => {
-  const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
-  const [active, setActive] = useState<string | undefined>(undefined);
-  const itemsRef = useRef<Map<string, { disabled: boolean }>>(new Map());
   const triggerRef = useRef<HTMLButtonElement>(null);
   const triggerId = usePrefixedId(undefined, 'menu-trigger');
   const menuId = usePrefixedId(undefined, 'menu');
 
-  const registerItem = useCallback((id: string, disabled = false): void => {
-    itemsRef.current.set(id, { disabled });
-  }, []);
-
-  const unregisterItem = useCallback((id: string): void => {
-    itemsRef.current.delete(id);
-  }, []);
-
-  const getItems = useCallback((): string[] => {
-    return Array.from(itemsRef.current.keys());
-  }, []);
-
-  const isItemDisabled = useCallback((id: string): boolean => {
-    return itemsRef.current.get(id)?.disabled ?? false;
-  }, []);
+  const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
+  const [active, setActive] = useState<string | undefined>(undefined);
+  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
   const value: MenuContextValue = useMemo(
     () => ({
@@ -284,119 +269,50 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       }
     }, [open, getItems, isItemDisabled, setActive]);
 
-    const moveActive = useCallback(
-      (delta: number): void => {
-        const items = getItems();
-        if (!items.length) {
-          return;
+    // Keyboard navigation
+    const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
+      getItems,
+      isItemDisabled,
+      active,
+      setActive,
+      loop,
+      orientation: 'vertical',
+      onSelect: id => {
+        // Item will handle its own onSelect
+        const itemElement = document.getElementById(id);
+        if (itemElement) {
+          itemElement.click();
         }
-
-        const currentIndex = active ? items.indexOf(active) : -1;
-        let newIndex: number;
-        let attempts = 0;
-        const maxAttempts = items.length;
-
-        if (currentIndex === -1) {
-          // No active item, start from first or last depending on direction
-          newIndex = delta > 0 ? 0 : items.length - 1;
-        } else {
-          newIndex = currentIndex + delta;
-        }
-
-        // Find next non-disabled item
-        while (attempts < maxAttempts) {
-          // Handle looping and bounds
-          if (loop) {
-            if (newIndex < 0) {
-              newIndex = items.length - 1;
-            } else if (newIndex >= items.length) {
-              newIndex = 0;
-            }
-          } else {
-            // Clamp to bounds
-            if (newIndex < 0 || newIndex >= items.length) {
-              return; // Can't move further without looping
-            }
-          }
-
-          // Check if item is not disabled
-          if (!isItemDisabled(items[newIndex])) {
-            setActive(items[newIndex]);
-            return;
-          }
-
-          // Try next item in the same direction
-          newIndex += delta;
-          attempts++;
-        }
-
-        // All items are disabled, do nothing
       },
-      [getItems, active, setActive, loop, isItemDisabled],
-    );
+    });
 
+    // Wrap keyboard handler to handle Tab and Escape (with prop callback)
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
-        const items = getItems();
-        if (!items.length) {
+        if (e.key === 'Tab') {
+          // Close menu and return focus to trigger
+          setOpen(false);
           return;
         }
 
-        switch (e.key) {
-          case 'ArrowDown':
-            e.preventDefault();
-            moveActive(1);
-            break;
-          case 'ArrowUp':
-            e.preventDefault();
-            moveActive(-1);
-            break;
-          case 'Home':
-            e.preventDefault();
-            {
-              const firstEnabled = items.find(id => !isItemDisabled(id));
-              if (firstEnabled) {
-                setActive(firstEnabled);
-              }
-            }
-            break;
-          case 'End':
-            e.preventDefault();
-            {
-              const lastEnabled = [...items].reverse().find(id => !isItemDisabled(id));
-              if (lastEnabled) {
-                setActive(lastEnabled);
-              }
-            }
-            break;
-          case 'Enter':
-          case ' ':
-            e.preventDefault();
-            if (active && !isItemDisabled(active)) {
-              // Item will handle its own onSelect
-              const itemElement = document.getElementById(active);
-              if (itemElement) {
-                itemElement.click();
-              }
-            }
-            break;
-          case 'Escape':
-            e.preventDefault();
-            onEscapeKeyDown?.(e);
-            setOpen(false);
-            break;
-          case 'Tab':
-            // Close menu and return focus to trigger
-            setOpen(false);
-            break;
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          onEscapeKeyDown?.(e);
+          setOpen(false);
+          return;
         }
+
+        handleNavKeyDown(e);
       },
-      [getItems, active, moveActive, setActive, isItemDisabled, onEscapeKeyDown, setOpen],
+      [handleNavKeyDown, setOpen, onEscapeKeyDown],
     );
 
     const handlePointerDownOutside = useCallback(
       (e: PointerEvent): void => {
-        const target = e.target as Node;
+        const target = e.target;
+        if (!(target instanceof Node)) {
+          return;
+        }
         // Don't close if clicking the trigger (let trigger's own handler manage it)
         if (triggerRef?.current?.contains(target)) {
           return;
