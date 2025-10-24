@@ -1,4 +1,4 @@
-import { useControlledState } from '@/hooks';
+import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { cva } from 'class-variance-authority';
@@ -55,8 +55,9 @@ const ListboxRoot = ({
     [isSelectionControlled, controlledSelection, uncontrolledSelection],
   );
 
-  // Active
   const [active, updateActive] = useControlledState(controlledActive, defaultActive, setActive);
+
+  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
   const toggleValue = useCallback(
     (value: string) => {
@@ -96,8 +97,26 @@ const ListboxRoot = ({
       toggleValue,
       baseId: listboxBaseId,
       keyHandler,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
     }),
-    [active, selectionSet, selectionMode, focusable, disabled, updateActive, toggleValue, listboxBaseId, keyHandler],
+    [
+      active,
+      selectionSet,
+      selectionMode,
+      focusable,
+      disabled,
+      updateActive,
+      toggleValue,
+      listboxBaseId,
+      keyHandler,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
+    ],
   );
 
   return <ListboxProvider value={contextValue}>{children}</ListboxProvider>;
@@ -112,6 +131,8 @@ export type ListboxContentProps = {
 
 const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
   ({ className, label, children, ...props }, ref): ReactElement => {
+    const innerRef = useRef<HTMLDivElement>(null);
+
     const {
       active,
       disabled,
@@ -121,72 +142,24 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
       selectionMode,
       keyHandler,
       focusable = true,
+      getItems,
+      isItemDisabled,
     } = useListbox();
-    const innerRef = useRef<HTMLDivElement>(null);
 
-    const getItems = useCallback((): string[] => {
-      const container = innerRef.current;
-
-      if (!container) {
-        return [];
-      }
-
-      const optionNodes = container.querySelectorAll<HTMLElement>('[role="option"][data-value]');
-      return Array.from(optionNodes)
-        .map(node => node.dataset.value)
-        .filter(v => v !== undefined);
-    }, []);
-
-    const moveActive = useCallback(
-      (delta: number) => {
-        const items = getItems();
-
-        if (!items.length) {
-          return;
-        }
-
-        const currentIndex = active ? items.indexOf(active) : -1;
-        const newIndex = Math.max(0, Math.min(items.length - 1, currentIndex + delta));
-        setActive(items[newIndex]);
+    const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
+      getItems,
+      isItemDisabled,
+      active,
+      setActive,
+      loop: false,
+      orientation: 'vertical',
+      onSelect: id => {
+        toggleValue(id);
       },
-      [active, setActive, getItems],
-    );
+    });
 
-    const handleKeyDown =
-      keyHandler ??
-      useCallback(
-        (e: React.KeyboardEvent<HTMLElement>) => {
-          if (disabled) {
-            return;
-          }
-
-          const items = getItems();
-          if (!items.length) {
-            return;
-          }
-
-          if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            moveActive(1);
-          } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            moveActive(-1);
-          } else if (e.key === 'Home') {
-            e.preventDefault();
-            setActive(items[0]);
-          } else if (e.key === 'End') {
-            e.preventDefault();
-            setActive(items[items.length - 1]);
-          } else if (e.key === ' ' || e.key === 'Enter') {
-            e.preventDefault();
-
-            if (active) {
-              toggleValue(active);
-            }
-          }
-        },
-        [disabled, getItems, active, moveActive, toggleValue, setActive],
-      );
+    // Allow custom keyHandler to override (used by Combobox)
+    const handleKeyDown = keyHandler ?? handleNavKeyDown;
 
     useEffect(() => {
       if (!active || !innerRef.current) {
@@ -242,6 +215,10 @@ const listboxItemVariants = cva('flex w-full items-center px-4.5 py-1 gap-x-2.5 
       true: 'bg-surface-primary-hover',
       false: '',
     },
+    disabled: {
+      true: 'opacity-30 cursor-not-allowed pointer-events-none',
+      false: '',
+    },
   },
   compoundVariants: [
     {
@@ -253,26 +230,34 @@ const listboxItemVariants = cva('flex w-full items-center px-4.5 py-1 gap-x-2.5 
   defaultVariants: {
     selected: false,
     active: false,
+    disabled: false,
   },
 });
 
 export type ListboxItemProps = {
   value: string;
+  disabled?: boolean;
   children: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const ListboxItem = ({ value, children, className, ...props }: ListboxItemProps): ReactElement => {
+const ListboxItem = ({ value, disabled = false, children, className, ...props }: ListboxItemProps): ReactElement => {
   const ctx = useListbox();
-  const { disabled, toggleValue, baseId } = ctx;
+  const { disabled: listboxDisabled, toggleValue, baseId, registerItem, unregisterItem } = ctx;
   const isSelected = ctx.selection.has(value);
   const isActive = ctx.active === value;
+  const isDisabled = disabled || listboxDisabled;
+
+  useEffect(() => {
+    registerItem(value, isDisabled);
+    return () => unregisterItem(value);
+  }, [value, isDisabled, registerItem, unregisterItem]);
 
   const handleClick = useCallback(() => {
-    if (!disabled) {
+    if (!isDisabled) {
       toggleValue(value);
     }
-  }, [disabled, toggleValue, value]);
+  }, [isDisabled, toggleValue, value]);
 
   return (
     // ARIA listbox pattern: options are not individually focusable
@@ -280,9 +265,10 @@ const ListboxItem = ({ value, children, className, ...props }: ListboxItemProps)
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
     <div
       id={`${baseId}-listbox-option-${value}`}
-      className={cn(listboxItemVariants({ selected: isSelected, active: isActive }), className)}
+      className={cn(listboxItemVariants({ selected: isSelected, active: isActive, disabled: isDisabled }), className)}
       role='option'
       aria-selected={isSelected}
+      aria-disabled={isDisabled ?? undefined}
       data-value={value}
       data-active={isActive || undefined}
       onClick={handleClick}

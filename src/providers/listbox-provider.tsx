@@ -10,6 +10,10 @@ export type ListboxContextValue = {
   setActive: (id?: string) => void;
   toggleValue: (value: string) => void;
   keyHandler?: (e: React.KeyboardEvent<HTMLElement>) => void;
+  registerItem: (id: string, disabled?: boolean) => void;
+  unregisterItem: (id: string) => void;
+  getItems: () => string[];
+  isItemDisabled: (id: string) => boolean;
 };
 
 const ListboxContext = createContext<ListboxContextValue | null>(null);
