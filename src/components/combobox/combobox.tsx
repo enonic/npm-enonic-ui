@@ -1,38 +1,45 @@
 import { Listbox, SearchInput } from '@/components';
 import { IconButton } from '@/components/icon-button/icon-button';
+import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
 import { useComposedRefs } from '@/utils/ref';
 import { cva } from 'class-variance-authority';
 import { ChevronDown } from 'lucide-react';
-import { useEffect } from 'react';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
   type ReactElement,
   type ReactNode,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 
+const EMPTY_SELECTION: readonly string[] = [];
+
+//
 // * Root
+//
 
 export type ComboboxRootProps = {
   children?: ReactNode;
-
   open?: boolean;
+  defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   closeOnBlur?: boolean;
-
   value?: string;
+  defaultValue?: string;
   onChange?: (value: string | undefined) => void;
-
   selectionMode?: 'single' | 'multiple';
   selection?: readonly string[];
+  defaultSelection?: readonly string[];
   onSelectionChange?: (selection: readonly string[]) => void;
-
+  active?: string;
+  defaultActive?: string;
+  setActive?: (active: string | undefined) => void;
   disabled?: boolean;
   error?: boolean;
 };
@@ -40,161 +47,128 @@ export type ComboboxRootProps = {
 const ComboboxRoot = ({
   children,
   open: controlledOpen,
+  defaultOpen = false,
   onOpenChange,
   closeOnBlur = true,
   value,
+  defaultValue = '',
   onChange,
   disabled = false,
   error = false,
   selectionMode = 'single',
   selection: controlledSelection,
+  defaultSelection = EMPTY_SELECTION,
   onSelectionChange,
+  active: controlledActive,
+  defaultActive,
+  setActive,
 }: ComboboxRootProps): ReactElement => {
   const baseId = usePrefixedId();
 
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
-  const isOpenControlled = controlledOpen !== undefined;
-  const open = isOpenControlled ? controlledOpen : uncontrolledOpen;
-  const setOpen = useCallback(
-    (next: boolean) => {
-      if (!isOpenControlled) {
-        setUncontrolledOpen(next);
-      }
-      onOpenChange?.(next);
-    },
-    [isOpenControlled, onOpenChange],
+  // Controlled/uncontrolled state using shared hook
+  const [open, setOpenInternal] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
+  const [inputValue, setInputValueInternal] = useControlledState(value, defaultValue, onChange);
+
+  // Selection - store as Set internally for O(1) lookups
+  const [uncontrolledSelection, setUncontrolledSelection] = useState<Set<string>>(() => new Set(defaultSelection));
+  const isSelectionControlled = controlledSelection !== undefined;
+  const selectionSet = useMemo(
+    () => (isSelectionControlled ? new Set(controlledSelection) : uncontrolledSelection),
+    [isSelectionControlled, controlledSelection, uncontrolledSelection],
   );
 
-  const [uncontrolledSelection, setUncontrolledSelection] = useState<readonly string[]>([]);
-  const isSelectionControlled = controlledSelection !== undefined;
-  const selectedItems = isSelectionControlled ? controlledSelection : uncontrolledSelection;
   const onSelectionChangeInner = useCallback(
     (newSelection: readonly string[]) => {
+      const newSet = new Set(newSelection);
       if (!isSelectionControlled) {
-        setUncontrolledSelection(newSelection);
+        setUncontrolledSelection(newSet);
       }
 
       onSelectionChange?.(newSelection);
 
       if (selectionMode === 'single') {
-        setOpen(false);
+        setOpenInternal(false);
       }
     },
-    [isSelectionControlled, selectionMode, setOpen, onSelectionChange, selectedItems],
+    [isSelectionControlled, selectionMode, setOpenInternal, onSelectionChange],
   );
 
-  const [uncontrolledInput, setUncontrolledInput] = useState('');
-  const isInputControlled = value !== undefined;
-  const inputValue = isInputControlled ? value : uncontrolledInput;
+  const [activeInternal, setActiveInternal] = useControlledState(controlledActive, defaultActive, setActive);
+
+  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+
+  // Wrap setInputValue to also open the dropdown
   const setInputValue = useCallback(
     (next: string) => {
-      if (!isInputControlled) {
-        setUncontrolledInput(next);
-      }
-      onChange?.(next);
-      setOpen(true);
+      setInputValueInternal(next);
+      setOpenInternal(true);
     },
-    [isInputControlled, onChange, setOpen],
+    [setInputValueInternal, setOpenInternal],
   );
 
-  const toggleValueSelection = useCallback(
-    (value: string) => {
-      let newSelection: readonly string[] = [];
+  // Wrap setOpen for external use
+  const setOpen = useCallback(
+    (next: boolean) => {
+      setOpenInternal(next);
+    },
+    [setOpenInternal],
+  );
 
-      if (selectionMode === 'multiple') {
-        if (selectedItems.includes(value)) {
-          newSelection = selectedItems.filter(item => item !== value);
-        } else {
-          newSelection = [...selectedItems, value];
-        }
-      } else {
-        newSelection = [value];
-      }
+  // Keyboard navigation with custom handlers for Combobox-specific keys
+  const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
+    getItems,
+    isItemDisabled,
+    active: activeInternal,
+    setActive: setActiveInternal,
+    loop: false,
+    orientation: 'vertical',
+    onSelect: id => {
+      // On select, update selection
+      const newSelection =
+        selectionMode === 'multiple'
+          ? selectionSet.has(id)
+            ? Array.from(selectionSet).filter(item => item !== id)
+            : [...Array.from(selectionSet), id]
+          : [id];
       onSelectionChangeInner(newSelection);
     },
-    [selectionMode, selectedItems, onSelectionChangeInner],
-  );
+  });
 
-  const [active, setActive] = useState<string | undefined>(undefined);
-
-  const innerRef = useRef<HTMLDivElement>(null);
-
-  const getItems = useCallback((): string[] => {
-    const container = innerRef.current;
-
-    if (!container) {
-      return [];
-    }
-
-    const optionNodes = container.querySelectorAll<HTMLElement>('[role="option"][data-value]');
-    return Array.from(optionNodes)
-      .map(node => node.dataset.value)
-      .filter(v => v !== undefined);
-  }, []);
-
-  const moveActive = useCallback(
-    (delta: number) => {
-      const items = getItems();
-
-      if (!items.length) {
-        return;
-      }
-
-      const currentIndex = active ? items.indexOf(active) : -1;
-      const newIndex = Math.max(0, Math.min(items.length - 1, currentIndex + delta));
-      setActive(items[newIndex]);
-    },
-    [active, setActive, getItems],
-  );
-
+  // Wrap keyboard handler with Combobox-specific behavior
   const keyHandler = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
       if (disabled) {
         return;
       }
 
-      const items = getItems();
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setOpen(true);
-        moveActive(1);
-      } else if (e.key === 'ArrowUp') {
-        setOpen(true);
-        moveActive(-1);
-      } else if (e.key === 'Home') {
-        e.preventDefault();
-        setActive(items[0]);
-      } else if (e.key === 'End') {
-        e.preventDefault();
-        setActive(items[items.length - 1]);
-      } else if (e.key === 'Enter') {
-        if (open) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (!open) {
           e.preventDefault();
-
-          if (active) {
-            toggleValueSelection(active);
-          }
-
-          setOpen(false);
-          setActive(items[0]);
+          setOpenInternal(true);
         }
-      } else if (e.key === 'Escape') {
-        setOpen(false);
-        setActive(items[0]);
       }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setOpenInternal(false);
+        return;
+      }
+
+      // Delegate to navigation hook for other keys
+      handleNavKeyDown(e);
     },
-    [disabled, moveActive, setOpen, toggleValueSelection, open],
+    [disabled, open, setOpenInternal, handleNavKeyDown],
   );
 
+  // Auto-select first item when opening
   useEffect(() => {
-    if (open && active === undefined) {
+    if (open && activeInternal === undefined) {
       const items = getItems();
       if (items.length > 0) {
-        setActive(items[0]);
+        setActiveInternal(items[0]);
       }
     }
-  }, [open, active, getItems]);
+  }, [open, activeInternal, getItems, setActiveInternal]);
 
   const context = useMemo<ComboboxContextValue>(
     () => ({
@@ -203,38 +177,56 @@ const ComboboxRoot = ({
       inputValue,
       setInputValue,
       baseId,
-      active,
+      active: activeInternal,
       disabled,
       error,
       closeOnBlur,
       keyHandler,
-      selection: selectedItems,
+      selection: selectionSet,
     }),
-    [open, setOpen, closeOnBlur, keyHandler, inputValue, setInputValue, active, baseId, disabled, error, selectedItems],
+    [
+      open,
+      setOpen,
+      closeOnBlur,
+      keyHandler,
+      inputValue,
+      setInputValue,
+      activeInternal,
+      baseId,
+      disabled,
+      error,
+      selectionSet,
+    ],
   );
 
   return (
-    <div ref={innerRef}>
-      <ComboboxProvider value={context}>
-        <Listbox.Root
-          selectionMode={selectionMode}
-          selection={selectedItems}
-          onSelectionChange={onSelectionChangeInner}
-          disabled={disabled}
-          active={active}
-          focusable={false}
-          baseId={baseId}
-          setActive={setActive}
-          keyHandler={keyHandler}
-        >
-          {children}
-        </Listbox.Root>
-      </ComboboxProvider>
-    </div>
+    <ComboboxProvider value={context}>
+      <Listbox.Root
+        selectionMode={selectionMode}
+        selection={Array.from(selectionSet)}
+        onSelectionChange={onSelectionChangeInner}
+        disabled={disabled}
+        active={activeInternal}
+        focusable={false}
+        baseId={baseId}
+        setActive={setActiveInternal}
+        keyHandler={keyHandler}
+        registerItem={registerItem}
+        unregisterItem={unregisterItem}
+        getItems={getItems}
+        isItemDisabled={isItemDisabled}
+      >
+        {children}
+      </Listbox.Root>
+    </ComboboxProvider>
   );
 };
 
 ComboboxRoot.displayName = 'Combobox.Root';
+
+//
+// * Content
+//
 
 export type ComboboxContentProps = {
   className?: string;
@@ -243,8 +235,9 @@ export type ComboboxContentProps = {
 
 const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
   ({ className, children }, ref): ReactElement => {
-    const { setOpen, baseId, closeOnBlur } = useCombobox();
     const innerRef = useRef<HTMLDivElement>(null);
+
+    const { setOpen, baseId, closeOnBlur } = useCombobox();
 
     const handleFocusOut = closeOnBlur
       ? useCallback(
@@ -269,8 +262,11 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
     );
   },
 );
+ComboboxContent.displayName = 'Combobox.Content';
 
+//
 // * Control
+//
 
 const comboboxControlVariants = cva(
   [
@@ -329,7 +325,9 @@ const ComboboxControl = ({ children, className }: ComboboxControlProps): ReactEl
 
 ComboboxControl.displayName = 'Combobox.Control';
 
+//
 // * Input
+//
 
 export type ComboboxInputProps = {
   className?: string;
@@ -338,8 +336,9 @@ export type ComboboxInputProps = {
 
 const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
   ({ className, placeholder, ...props }, ref): ReactElement => {
-    const { inputValue, setInputValue, open, keyHandler, selection, baseId, active, disabled } = useCombobox();
     const innerRef = useRef<HTMLInputElement>(null);
+
+    const { inputValue, setInputValue, open, keyHandler, selection, baseId, active, disabled, error } = useCombobox();
 
     useEffect(() => {
       if (open && !disabled) {
@@ -358,6 +357,7 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
         placeholder={placeholder}
         disabled={disabled}
         aria-disabled={disabled}
+        aria-invalid={error ?? undefined}
         role='combobox'
         aria-autocomplete='list'
         aria-expanded={open}
@@ -372,7 +372,9 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
 );
 ComboboxInput.displayName = 'Combobox.Input';
 
+//
 // * Toggle
+//
 
 export type ComboboxToggleProps = {
   className?: string;
@@ -407,7 +409,9 @@ const ComboboxToggle = ({ className }: ComboboxToggleProps): ReactElement => {
 
 ComboboxToggle.displayName = 'Combobox.Toggle';
 
+//
 // * Popup
+//
 
 export type ComboboxPopupProps = {
   children?: ReactNode;

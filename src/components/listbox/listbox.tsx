@@ -1,4 +1,4 @@
-import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
+import { useControlledState, useItemRegistry, type UseItemRegistryReturn, useKeyboardNavigation } from '@/hooks';
 import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { cva } from 'class-variance-authority';
@@ -29,6 +29,11 @@ export type ListboxRootProps = {
   focusable?: boolean;
   children?: ReactNode;
   keyHandler?: (e: React.KeyboardEvent<HTMLElement>) => void;
+  // Optional external item registry (used by Combobox)
+  registerItem?: UseItemRegistryReturn['registerItem'];
+  unregisterItem?: UseItemRegistryReturn['unregisterItem'];
+  getItems?: UseItemRegistryReturn['getItems'];
+  isItemDisabled?: UseItemRegistryReturn['isItemDisabled'];
 };
 
 const ListboxRoot = ({
@@ -44,6 +49,10 @@ const ListboxRoot = ({
   disabled,
   children,
   keyHandler,
+  registerItem: externalRegisterItem,
+  unregisterItem: externalUnregisterItem,
+  getItems: externalGetItems,
+  isItemDisabled: externalIsItemDisabled,
 }: ListboxRootProps): ReactElement => {
   const listboxBaseId = baseId ?? usePrefixedId();
 
@@ -57,7 +66,12 @@ const ListboxRoot = ({
 
   const [active, updateActive] = useControlledState(controlledActive, defaultActive, setActive);
 
-  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+  // Use external registry if provided (for Combobox), otherwise create internal registry
+  const internalRegistry = useItemRegistry();
+  const registerItem = externalRegisterItem ?? internalRegistry.registerItem;
+  const unregisterItem = externalUnregisterItem ?? internalRegistry.unregisterItem;
+  const getItems = externalGetItems ?? internalRegistry.getItems;
+  const isItemDisabled = externalIsItemDisabled ?? internalRegistry.isItemDisabled;
 
   const toggleValue = useCallback(
     (value: string) => {

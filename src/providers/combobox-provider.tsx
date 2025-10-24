@@ -10,7 +10,7 @@ export type ComboboxContextValue = {
   inputValue: string;
   setInputValue: (value: string) => void;
 
-  selection: readonly string[];
+  selection: ReadonlySet<string>;
 
   active?: string;
   keyHandler: (e: React.KeyboardEvent<HTMLElement>) => void;
