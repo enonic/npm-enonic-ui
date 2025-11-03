@@ -45,13 +45,16 @@ export const Basic: Story = {
   name: 'Basic Usage',
   render: () => {
     return (
-      <div className='relative w-80 space-y-1'>
+      <div className='relative space-y-1'>
         <h3 className='text-md font-medium mb-3'>Basic Combobox</h3>
         <Combobox.Root>
           <Combobox.Content>
             <Combobox.Control>
-              <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
-              <Combobox.Toggle />
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
             </Combobox.Control>
 
             <Combobox.Popup>
@@ -79,13 +82,16 @@ export const Multi: Story = {
   name: 'Multiple Selection',
   render: () => {
     return (
-      <div className='relative w-80 space-y-1'>
+      <div className='relative  space-y-1'>
         <h3 className='text-md font-medium mb-3'>Basic Combobox</h3>
         <Combobox.Root selectionMode={'multiple'}>
           <Combobox.Content>
             <Combobox.Control>
-              <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
-              <Combobox.Toggle />
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
             </Combobox.Control>
 
             <Combobox.Popup>
@@ -120,12 +126,15 @@ export const CustomFiltering: Story = {
       : frameworks;
 
     return (
-      <div className='relative w-96 space-y-1'>
+      <div className='relative space-y-1'>
         <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
           <Combobox.Content>
             <Combobox.Control>
-              <Combobox.Input ref={createInputRefAndFocus()} placeholder='Type year (e.g., 2018)' />
-              <Combobox.Toggle />
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Type year (e.g., 2018)' />
+                <Combobox.Toggle />
+              </Combobox.Search>
             </Combobox.Control>
 
             <Combobox.Popup>
@@ -154,12 +163,15 @@ export const Disabled: Story = {
   name: 'Disabled State',
   render: () => {
     return (
-      <div className='relative w-80'>
+      <div className='relative '>
         <Combobox.Root disabled>
           <Combobox.Content>
             <Combobox.Control>
-              <Combobox.Input ref={createInputRefAndFocus()} placeholder='Select a framework' />
-              <Combobox.Toggle />
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
             </Combobox.Control>
             <Combobox.Popup>
               <Listbox.Content>
@@ -183,12 +195,15 @@ export const WithError: Story = {
     const [value, setValue] = useState<string | undefined>();
 
     return (
-      <div className='relative w-80 space-y-2'>
+      <div className='relative  space-y-2'>
         <Combobox.Root value={value} onChange={setValue} error>
           <Combobox.Content>
             <Combobox.Control>
-              <Combobox.Input ref={createInputRefAndFocus()} placeholder='Try to select' />
-              <Combobox.Toggle />
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
             </Combobox.Control>
             <Combobox.Popup>
               <Listbox.Content>
@@ -217,13 +232,16 @@ export const LongList: Story = {
     }));
 
     return (
-      <div className='relative w-80'>
+      <div className='relative '>
         <h3 className='text-md font-medium mb-3'>Long list, stays open on blur</h3>
         <Combobox.Root value={value} onChange={setValue} closeOnBlur={false}>
           <Combobox.Content>
             <Combobox.Control>
-              <Combobox.Input ref={createInputRefAndFocus()} placeholder='Select from long list' />
-              <Combobox.Toggle />
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Select from long list' />
+                <Combobox.Toggle />
+              </Combobox.Search>
             </Combobox.Control>
 
             <Combobox.Popup>
@@ -248,13 +266,16 @@ export const Preselected: Story = {
     const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
 
     return (
-      <div className='relative w-80 space-y-1'>
+      <div className='relative  space-y-1'>
         <h3 className='text-md font-medium mb-3'>Some items are preselected</h3>
         <Combobox.Root selection={selection} onSelectionChange={setSelection} selectionMode={'multiple'}>
           <Combobox.Content>
             <Combobox.Control>
-              <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
-              <Combobox.Toggle />
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
             </Combobox.Control>
 
             <Combobox.Popup>

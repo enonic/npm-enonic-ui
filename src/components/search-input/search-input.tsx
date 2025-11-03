@@ -3,112 +3,189 @@ import { useControlledState } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { cn, unwrap, useComposedRefs } from '@/utils';
 import { Search, X } from 'lucide-react';
-import { type ComponentPropsWithoutRef, forwardRef, useRef } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  createContext,
+  forwardRef,
+  type ReactElement,
+  type ReactNode,
+  useContext,
+  useMemo,
+  useRef,
+} from 'react';
 
-export type SearchInputProps = {
-  value?: string;
-  defaultValue?: string;
-  placeholder?: string;
-  clearLabel?: string;
-  onChange?: (value: string) => void;
+export type SearchInputContextValue = {
+  id: string;
+  value: string;
   disabled?: boolean;
   readOnly?: boolean;
-  showSearchIcon?: boolean;
-  showClearButton?: boolean;
-  className?: string;
-} & Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'value' | 'defaultValue' | 'onChange' | 'disabled' | 'readOnly'
->;
+  placeholder?: string;
+  clearLabel: string;
+  setValue: (v: string) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
+};
 
-export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  (
-    {
-      id,
-      value,
-      defaultValue = '',
-      placeholder = 'Search',
-      clearLabel = 'Clear',
-      onChange,
+const SearchInputContext = createContext<SearchInputContextValue | null>(null);
+export const useSearchInput = (): SearchInputContextValue => {
+  const ctx = useContext(SearchInputContext);
+  if (!ctx) {
+    throw new Error('SearchInput subcomponent must be used within <SearchInput.Root>');
+  }
+  return ctx;
+};
+
+export type SearchInputRootProps = {
+  id?: string;
+  value?: string;
+  defaultValue?: string;
+  onChange?: (v: string) => void;
+  placeholder?: string;
+  clearLabel?: string;
+  disabled?: boolean;
+  readOnly?: boolean;
+  children?: ReactNode;
+  className?: string;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'onChange' | 'children'>;
+
+const SearchInputRoot = ({
+  id,
+  value,
+  defaultValue = '',
+  onChange,
+  placeholder = 'Search',
+  clearLabel = 'Clear',
+  disabled,
+  readOnly,
+  children,
+  className,
+  ...props
+}: SearchInputRootProps): ReactElement => {
+  const inputId = usePrefixedId(unwrap(id));
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [inputValue, setInputValue] = useControlledState(value, defaultValue, onChange);
+
+  const context = useMemo<SearchInputContextValue>(
+    () => ({
+      id: inputId,
+      value: inputValue,
       disabled,
       readOnly,
-      showSearchIcon = true,
-      showClearButton = true,
-      className,
-      ...props
-    },
-    ref,
-  ) => {
-    const inputId = usePrefixedId(unwrap(id));
-    const inputRef = useRef<HTMLInputElement>(null);
+      placeholder,
+      clearLabel,
+      setValue: setInputValue,
+      inputRef,
+    }),
+    [inputId, inputValue, disabled, readOnly, placeholder, clearLabel, setInputValue],
+  );
 
-    const [inputValue, setInputValue] = useControlledState(value, defaultValue, onChange);
-    const isValueSet = inputValue.length > 0;
-    const canClear = showClearButton && isValueSet && !disabled && !readOnly;
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-      const newValue = e.currentTarget.value;
-      setInputValue(newValue);
-    };
-
-    const handleClear = (): void => {
-      setInputValue('');
-      inputRef.current?.focus();
-    };
-
-    return (
+  return (
+    <SearchInputContext.Provider value={context}>
       <div
         className={cn(
-          'relative flex items-center rounded-sm overflow-hidden',
-          'h-12 border border-bdr-subtle focus-within:border-bdr-strong',
+          'relative flex gap-2.5 items-center rounded-sm overflow-hidden',
+          'h-11.5 px-4.5 py-3',
+          'border border-bdr-subtle focus-within:border-bdr-strong',
           'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
           'transition-highlight',
           disabled && 'pointer-events-none select-none opacity-30',
           className,
         )}
+        {...props}
       >
-        {showSearchIcon && (
-          <Search
-            className={'flex items-center justify-center shrink-0 w-10 text-subtle pointer-events-none'}
-            size={20}
-            strokeWidth={1.5}
-          />
-        )}
-        <input
-          ref={useComposedRefs(ref, inputRef)}
-          id={inputId}
-          className={cn(
-            'w-full text-base border-0',
-            'text-main bg-surface-neutral',
-            'placeholder:text-subtle',
-            'focus:outline-none focus:ring-0',
-            'read-only:bg-surface-primary',
-            !showSearchIcon && 'pl-4.5',
-            'pr-4',
-          )}
-          value={inputValue}
-          onChange={handleChange}
-          readOnly={readOnly}
-          disabled={disabled}
-          placeholder={placeholder}
-          aria-label={'Search'}
-          aria-disabled={disabled}
-          {...props}
-        />
-
-        {canClear && (
-          <IconButton
-            className='flex items-center justify-center shrink-0 h-10 w-10 mr-1 text-subtle'
-            size='lg'
-            icon={X}
-            title={clearLabel}
-            onClick={handleClear}
-            disabled={disabled}
-          />
-        )}
+        {children}
       </div>
+    </SearchInputContext.Provider>
+  );
+};
+SearchInputRoot.displayName = 'SearchInputRoot';
+
+export type SearchInputIconProps = {
+  className?: string;
+};
+
+const SearchInputIcon = ({ className }: SearchInputIconProps): ReactElement => {
+  const { disabled } = useSearchInput();
+  return (
+    <Search
+      className={cn(
+        'flex items-center justify-center shrink-0 w-5.5 h-5.5 text-subtle',
+        disabled && 'opacity-30',
+        className,
+      )}
+      size={20}
+      strokeWidth={1.5}
+    />
+  );
+};
+SearchInputIcon.displayName = 'SearchInputIcon';
+
+export type SearchInputFieldProps = ComponentPropsWithoutRef<'input'>;
+
+const SearchInputField = forwardRef<HTMLInputElement, SearchInputFieldProps>(
+  ({ className, ...props }, ref): ReactElement => {
+    const { id, value, disabled, readOnly, placeholder, setValue, inputRef } = useSearchInput();
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+      setValue(e.currentTarget.value);
+    };
+
+    return (
+      <input
+        ref={useComposedRefs(ref, inputRef)}
+        id={id}
+        className={cn(
+          'h-5.5 w-full text-base border-0',
+          'text-main bg-surface-neutral',
+          'placeholder:text-subtle',
+          'focus:outline-none',
+          'read-only:bg-surface-primary',
+          'last:pr-5',
+          className,
+        )}
+        value={value}
+        onChange={handleChange}
+        readOnly={readOnly}
+        disabled={disabled}
+        placeholder={placeholder}
+        aria-label='Search'
+        aria-disabled={disabled}
+        {...props}
+      />
     );
   },
 );
+SearchInputField.displayName = 'SearchInputField';
 
-SearchInput.displayName = 'SearchInput';
+export type SearchInputClearProps = Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon' | 'onClick'>;
+
+const SearchInputClear = ({ className, ...props }: SearchInputClearProps): ReactElement | null => {
+  const { value, disabled, readOnly, clearLabel, setValue, inputRef } = useSearchInput();
+
+  if (!value || disabled || readOnly) {
+    return null;
+  }
+
+  const handleClear = (): void => {
+    setValue('');
+    inputRef.current?.focus();
+  };
+
+  return (
+    <IconButton
+      className={cn('flex items-center w-5.5 h-5.5 justify-center shrink-0 text-subtle', className)}
+      icon={X}
+      title={clearLabel}
+      onClick={handleClear}
+      disabled={disabled}
+      {...props}
+    />
+  );
+};
+SearchInputClear.displayName = 'SearchInputClear';
+
+export const SearchInput = Object.assign(SearchInputRoot, {
+  Root: SearchInputRoot,
+  Icon: SearchInputIcon,
+  Input: SearchInputField,
+  Clear: SearchInputClear,
+});

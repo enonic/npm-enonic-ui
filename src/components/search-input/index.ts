@@ -1,1 +1,7 @@
-export { SearchInput, type SearchInputProps } from './search-input';
+export {
+  SearchInput,
+  type SearchInputClearProps,
+  type SearchInputFieldProps,
+  type SearchInputIconProps,
+  type SearchInputRootProps,
+} from './search-input';

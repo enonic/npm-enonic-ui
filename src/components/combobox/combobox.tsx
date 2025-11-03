@@ -1,4 +1,4 @@
-import { Listbox, SearchInput } from '@/components';
+import { Listbox, SearchInput, type SearchInputIconProps } from '@/components';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
@@ -271,7 +271,6 @@ ComboboxContent.displayName = 'Combobox.Content';
 const comboboxControlVariants = cva(
   [
     'flex items-center',
-    'h-12 rounded-sm border bg-surface-neutral',
     'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
     'transition-highlight',
   ],
@@ -338,7 +337,7 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
   ({ className, placeholder, ...props }, ref): ReactElement => {
     const innerRef = useRef<HTMLInputElement>(null);
 
-    const { inputValue, setInputValue, open, keyHandler, selection, baseId, active, disabled, error } = useCombobox();
+    const { open, keyHandler, selection, baseId, active, disabled, error } = useCombobox();
 
     useEffect(() => {
       if (open && !disabled) {
@@ -347,12 +346,9 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
     }, [open, selection, disabled]);
 
     return (
-      <SearchInput
+      <SearchInput.Input
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-input`}
-        className={'border-none focus:outline-none focus-within:outline-none h-auto focus-within:ring-0 grow'}
-        value={inputValue}
-        onChange={setInputValue}
         onKeyDown={keyHandler}
         placeholder={placeholder}
         disabled={disabled}
@@ -364,13 +360,33 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
         aria-haspopup='listbox'
         aria-controls={`${baseId}-listbox`}
         aria-activedescendant={active ? `${baseId}-listbox-option-${active}` : undefined}
-        showClearButton={false}
         {...props}
       />
     );
   },
 );
 ComboboxInput.displayName = 'Combobox.Input';
+
+export type ComboboxSearchProps = {
+  children?: ReactNode;
+  className?: string;
+};
+
+const ComboboxSearch = ({ children, className }: ComboboxSearchProps): ReactElement => {
+  const { inputValue, setInputValue } = useCombobox();
+
+  return (
+    <SearchInput.Root value={inputValue} onChange={setInputValue} className={cn('pr-0', className)}>
+      {children}
+    </SearchInput.Root>
+  );
+};
+
+ComboboxControl.displayName = 'Combobox.Control';
+
+const ComboboxSearchIcon = (props: SearchInputIconProps): ReactElement => {
+  return <SearchInput.Icon {...props} />;
+};
 
 //
 // * Toggle
@@ -387,7 +403,7 @@ const ComboboxToggle = ({ className }: ComboboxToggleProps): ReactElement => {
     <IconButton
       type='button'
       variant='text'
-      size='md'
+      size='lg'
       icon={ChevronDown}
       aria-label='Toggle'
       onClick={() => {
@@ -399,7 +415,7 @@ const ComboboxToggle = ({ className }: ComboboxToggleProps): ReactElement => {
       disabled={disabled}
       tabIndex={-1}
       className={cn(
-        'h-10 w-10 text-subtle transition-transform hover:bg-surface-primary-hover mr-1',
+        'shrink-0 text-subtle transition-transform hover:bg-surface-primary-hover',
         open && 'rotate-180',
         className,
       )}
@@ -443,7 +459,9 @@ export const Combobox = Object.assign(ComboboxRoot, {
   Root: ComboboxRoot,
   Content: ComboboxContent,
   Control: ComboboxControl,
+  Search: ComboboxSearch,
   Input: ComboboxInput,
+  SearchIcon: ComboboxSearchIcon,
   Toggle: ComboboxToggle,
   Popup: ComboboxPopup,
 });
