@@ -1,110 +1,96 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { useEffect, useState } from 'react';
 
-import { SearchInput, type SearchInputProps } from './search-input';
+import { SearchInput } from './search-input';
 
-type Story = StoryObj<SearchInputProps>;
-
-export default {
+const meta: Meta<typeof SearchInput> = {
   title: 'Components/Search Input',
   component: SearchInput,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  argTypes: {
-    placeholder: {
-      control: 'text',
-      description: 'Input placeholder text',
-    },
-    value: {
-      control: 'text',
-      description: 'Controlled search value',
-    },
-    defaultValue: {
-      control: 'text',
-      description: 'Default value for uncontrolled usage',
-    },
-    clearLabel: {
-      control: 'text',
-      description: 'Aria label for clear button',
-    },
-    disabled: {
-      control: 'boolean',
-      description: 'Prevents interaction and applies disabled styling',
-    },
-    readOnly: {
-      control: 'boolean',
-      description: 'Makes the input read-only',
-    },
-    showSearchIcon: {
-      control: 'boolean',
-      description: 'Whether to show the search icon',
-    },
-    showClearButton: {
-      control: 'boolean',
-      description: 'Whether to show the clear button when there is a value',
-    },
-  },
-} satisfies Meta<SearchInputProps>;
+};
+
+export default meta;
+
+type Story = StoryObj<typeof SearchInput>;
 
 export const Default: Story = {
   name: 'Default',
-  args: {
-    placeholder: 'Search...',
-  },
+  render: () => (
+    <SearchInput className='w-2xs' placeholder='Search...'>
+      <SearchInput.Icon />
+      <SearchInput.Input />
+      <SearchInput.Clear />
+    </SearchInput>
+  ),
 };
 
 export const WithValue: Story = {
   name: 'With Value',
   render: () => {
     const [value, setValue] = useState('Example search');
-
-    return <SearchInput value={value} onChange={setValue} placeholder='Search...' />;
+    return (
+      <SearchInput className='w-2xs' value={value} onChange={setValue} placeholder='Search...'>
+        <SearchInput.Icon />
+        <SearchInput.Input />
+        <SearchInput.Clear />
+      </SearchInput>
+    );
   },
 };
 
 export const Disabled: Story = {
   name: 'Disabled',
-  args: {
-    disabled: true,
-    placeholder: 'Search is disabled',
-  },
+  render: () => (
+    <SearchInput disabled placeholder='Search is disabled'>
+      <SearchInput.Icon />
+      <SearchInput.Input />
+      <SearchInput.Clear />
+    </SearchInput>
+  ),
 };
 
 export const DisabledWithValue: Story = {
   name: 'Disabled With Value',
-  args: {
-    disabled: true,
-    defaultValue: 'Search query',
-    placeholder: 'Search...',
-  },
+  render: () => (
+    <SearchInput disabled defaultValue='Search query' placeholder='Search...'>
+      <SearchInput.Icon />
+      <SearchInput.Input />
+      <SearchInput.Clear />
+    </SearchInput>
+  ),
 };
 
 export const ReadOnly: Story = {
   name: 'Read Only',
-  args: {
-    readOnly: true,
-    defaultValue: 'Read only search',
-    placeholder: 'Search...',
-  },
-};
-
-export const CustomPlaceholder: Story = {
-  name: 'Custom Placeholder',
-  args: {
-    placeholder: 'Type to filter results...',
-  },
+  render: () => (
+    <SearchInput readOnly defaultValue='Read only search' placeholder='Search...'>
+      <SearchInput.Icon />
+      <SearchInput.Input />
+      <SearchInput.Clear />
+    </SearchInput>
+  ),
 };
 
 export const UncontrolledExample: Story = {
   name: 'Uncontrolled',
   render: () => (
-    <div className='p-4 space-y-4'>
+    <div className='w-xs space-y-4'>
       <h3 className='text-sm font-medium mb-3'>Uncontrolled search inputs</h3>
       <div className='space-y-2'>
-        <SearchInput placeholder='Default empty' />
-        <SearchInput placeholder='Search...' defaultValue='Pre-filled value' />
+        <SearchInput placeholder='Default empty'>
+          <SearchInput.Icon />
+          <SearchInput.Input />
+          <SearchInput.Clear />
+        </SearchInput>
+
+        <SearchInput placeholder='Search...' defaultValue='Pre-filled value'>
+          <SearchInput.Icon />
+          <SearchInput.Input />
+          <SearchInput.Clear />
+        </SearchInput>
       </div>
     </div>
   ),
@@ -114,37 +100,43 @@ export const ControlledExample: Story = {
   name: 'Controlled',
   render: () => {
     const [value, setValue] = useState('');
-    const [searchResults, setSearchResults] = useState<string[]>([]);
+    const [results, setResults] = useState<string[]>([]);
 
     const mockData = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew'];
 
-    const handleSearch = (searchValue: string): void => {
-      if (searchValue) {
-        const filtered = mockData.filter(item => item.toLowerCase().includes(searchValue.toLowerCase()));
-        setSearchResults(filtered);
+    const handleSearch = (v: string): void => {
+      setValue(v);
+      if (v) {
+        const filtered = mockData.filter(item => item.toLowerCase().includes(v.toLowerCase()));
+        setResults(filtered);
       } else {
-        setSearchResults([]);
+        setResults([]);
       }
-      setValue(searchValue);
     };
 
     return (
-      <div className='p-4 w-96'>
+      <div className='w-xs'>
         <h3 className='text-sm font-medium mb-3'>Controlled search with results</h3>
-        <SearchInput value={value} onChange={handleSearch} placeholder='Search fruits...' />
-        {searchResults.length > 0 && (
+
+        <SearchInput value={value} onChange={handleSearch} placeholder='Search fruits...'>
+          <SearchInput.Icon />
+          <SearchInput.Input />
+          <SearchInput.Clear />
+        </SearchInput>
+
+        {results.length > 0 && (
           <div className='mt-4 p-3 bg-surface-neutral rounded-sm border'>
             <h4 className='text-xs font-medium text-subtle mb-2'>Results:</h4>
             <ul className='space-y-1'>
-              {searchResults.map(result => (
-                <li key={result} className='text-sm'>
-                  {result}
+              {results.map(r => (
+                <li key={r} className='text-sm'>
+                  {r}
                 </li>
               ))}
             </ul>
           </div>
         )}
-        {value && searchResults.length === 0 && (
+        {value && results.length === 0 && (
           <div className='mt-4 p-3 bg-surface-neutral rounded-sm border'>
             <p className='text-sm text-subtle'>No results found</p>
           </div>
@@ -159,31 +151,37 @@ export const LiveSearch: Story = {
   render: () => {
     const [value, setValue] = useState('');
     const [isSearching, setIsSearching] = useState(false);
-    const [searchHistory, setSearchHistory] = useState<string[]>([]);
+    const [history, setHistory] = useState<string[]>([]);
 
     useEffect(() => {
-      if (value) {
-        setIsSearching(true);
-        const timer = setTimeout(() => {
-          setIsSearching(false);
-          setSearchHistory(prev => [...prev, `Searched for: "${value}"`].slice(-5));
-        }, 500);
-        return () => clearTimeout(timer);
+      if (!value) {
+        return;
       }
+      setIsSearching(true);
+      const t = setTimeout(() => {
+        setIsSearching(false);
+        setHistory(prev => [...prev, `Searched for: "${value}"`].slice(-5));
+      }, 500);
+      return () => clearTimeout(t);
     }, [value]);
 
     return (
-      <div className='p-4 w-96 relative'>
+      <div className='w-xs relative'>
         <h3 className='text-sm font-medium mb-3'>Live search with debounce</h3>
-        <SearchInput value={value} onChange={setValue} placeholder='Type to search...' />
+        <SearchInput value={value} onChange={setValue} placeholder='Type to search...'>
+          <SearchInput.Icon />
+          <SearchInput.Input />
+          <SearchInput.Clear />
+        </SearchInput>
+
         <div className='absolute bottom-0 translate-y-full'>
           {isSearching && <p className='mb-2 text-sm text-subtle'>Searching...</p>}
-          {searchHistory.length > 0 && (
+          {history.length > 0 && (
             <div>
               <h4 className='text-xs font-medium text-subtle mb-2'>Recent searches:</h4>
               <ul className='space-y-1'>
-                {searchHistory.map((item, index) => (
-                  <li key={index} className='text-sm text-subtle'>
+                {history.map((item, i) => (
+                  <li key={i} className='text-sm text-subtle break-all'>
                     {item}
                   </li>
                 ))}
@@ -196,50 +194,42 @@ export const LiveSearch: Story = {
   },
 };
 
-export const NoSearchIcon: Story = {
-  name: 'No Search Icon',
-  args: {
-    placeholder: 'Search...',
-    showSearchIcon: false,
-  },
+export const NoIcon: Story = {
+  name: 'No Icon',
+  render: () => (
+    <SearchInput className='w-2xs' placeholder='Search...'>
+      <SearchInput.Input />
+      <SearchInput.Clear />
+    </SearchInput>
+  ),
 };
 
-export const NoClearButton: Story = {
+export const NoClear: Story = {
   name: 'No Clear Button',
-  args: {
-    placeholder: 'Search...',
-    showClearButton: false,
-    defaultValue: 'Some text',
-  },
+  render: () => (
+    <SearchInput defaultValue='Some text' placeholder='Search...'>
+      <SearchInput.Icon />
+      <SearchInput.Input />
+    </SearchInput>
+  ),
 };
 
 export const InteractivePlayground: Story = {
   name: 'Interactive Playground',
-  args: {
-    placeholder: 'Search...',
-    disabled: false,
-    readOnly: false,
-    clearLabel: 'Clear search',
-  },
-  render: args => {
-    const [value, setValue] = useState(args.value ?? '');
-
-    useEffect(() => {
-      setValue(args.value ?? '');
-    }, [args.value]);
+  render: () => {
+    const [value, setValue] = useState('');
 
     return (
-      <div className='p-8'>
-        <SearchInput
-          {...args}
-          value={value}
-          onChange={(newValue: string) => {
-            setValue(newValue);
-          }}
-        />
+      <div className='w-xs'>
+        <SearchInput value={value} onChange={setValue} placeholder='Search...'>
+          <SearchInput.Icon />
+          <SearchInput.Input />
+          <SearchInput.Clear />
+        </SearchInput>
         <div className='mt-4 p-3 bg-surface-neutral rounded-sm'>
           <p className='text-sm'>
-            <span className='font-medium'>Current value:</span> {value ? `"${value}"` : '(empty)'}
+            <span className='font-medium'>Current value:</span>
+            <span className='break-all'>{value ? `"${value}"` : '(empty)'}</span>
           </p>
         </div>
       </div>
