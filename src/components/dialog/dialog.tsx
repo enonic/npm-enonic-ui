@@ -244,7 +244,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           preventScroll: false,
           onActivate: () => {
             requestAnimationFrame(() => {
-              const event = new Event('openautofocus');
+              const event = new Event('openautofocus', { bubbles: true, cancelable: true });
               onOpenAutoFocus?.(event);
               if (!event.defaultPrevented && contentRef.current) {
                 contentRef.current.focus();
@@ -253,7 +253,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           },
           onDeactivate: () => {
             requestAnimationFrame(() => {
-              const event = new Event('closeautofocus');
+              const event = new Event('closeautofocus', { bubbles: true, cancelable: true });
               onCloseAutoFocus?.(event);
             });
           },
@@ -272,6 +272,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
               'relative rounded-lg shadow-xl bg-surface-neutral',
               'flex flex-col max-w-lg w-full max-h-[90vh] gap-10 p-10',
               'border border-bdr-subtle outline-none overflow-hidden',
+              'focus:outline-none focus:ring-0',
               'data-[state=open]:animate-in data-[state=closed]:animate-out',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
               'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',

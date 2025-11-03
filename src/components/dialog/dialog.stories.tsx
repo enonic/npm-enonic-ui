@@ -3,7 +3,7 @@ import { Checkbox } from '@/components/checkbox';
 import { Input } from '@/components/input';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { BadgeInfo, ChevronLeft, ChevronRight, Loader2, Plus, TriangleAlert, User } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { Dialog } from './dialog';
 
@@ -635,6 +635,62 @@ export const MultiStepWizard: Story = {
                 ) : (
                   <Button variant='solid' onClick={handleFinish} label='Create Project' disabled={!canProceed()} />
                 )}
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
+export const AutoFocusInput: Story = {
+  name: 'Auto-Focus Input',
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('');
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleOpenAutoFocus = (event: Event): void => {
+      // Prevent default focus on dialog content
+      event.preventDefault();
+      // Focus the input instead
+      inputRef.current?.focus();
+    };
+
+    const handleSubmit = (): void => {
+      console.log('Submitted:', name);
+      setOpen(false);
+      setName('');
+    };
+
+    return (
+      <div className='space-y-4'>
+        <Button variant='solid' onClick={() => setOpen(true)} label='Quick Add Name' />
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120' onOpenAutoFocus={handleOpenAutoFocus}>
+              <Dialog.DefaultHeader title='Add New Contact' description='Enter the contact name to continue' />
+              <Dialog.Body className='space-y-3'>
+                <Input
+                  ref={inputRef}
+                  label='Full Name'
+                  value={name}
+                  onChange={e => setName(e.currentTarget.value)}
+                  placeholder='Enter name...'
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && name.trim()) {
+                      handleSubmit();
+                    }
+                  }}
+                />
+                <p className='text-xs text-subtle'>The input receives focus automatically when the dialog opens.</p>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
+                <Button variant='solid' onClick={handleSubmit} label='Add Contact' disabled={!name.trim()} />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>

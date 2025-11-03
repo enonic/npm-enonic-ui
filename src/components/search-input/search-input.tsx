@@ -81,7 +81,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             'w-full text-base border-0',
             'text-main bg-surface-neutral',
             'placeholder:text-subtle',
-            'focus:outline-none',
+            'focus:outline-none focus:ring-0',
             'read-only:bg-surface-primary',
             !showSearchIcon && 'pl-4.5',
             'pr-4',
