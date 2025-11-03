@@ -69,22 +69,23 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className={cn('w-full', disabled && 'opacity-30', className)}>
-        <div className='mb-2'>
-          {label && (
-            <label
-              htmlFor={inputId}
-              className={cn('block text-base font-semibold text-main', disabled && 'opacity-30')}
-            >
-              <div className='flex items-center gap-2'>
-                {readOnly && <LockKeyhole size={16} strokeWidth={2.5} />}
-                {label}
-              </div>
-            </label>
-          )}
+        {(!!label || !!description) && (
+          <div className='mb-2'>
+            {label && (
+              <label
+                htmlFor={inputId}
+                className={cn('block text-base font-semibold text-main', disabled && 'opacity-30')}
+              >
+                <div className='flex items-center gap-2'>
+                  {readOnly && <LockKeyhole size={16} strokeWidth={2.5} />}
+                  {label}
+                </div>
+              </label>
+            )}
 
-          {description && <div className={cn('text-sm text-subtle', disabled && 'opacity-30')}>{description}</div>}
-        </div>
-
+            {description && <div className={cn('text-sm text-subtle', disabled && 'opacity-30')}>{description}</div>}
+          </div>
+        )}
         <div className={cn(inputContainerVariants({ state, disabled }))}>
           {startAddon && <Addon error={hasError}>{startAddon}</Addon>}
 

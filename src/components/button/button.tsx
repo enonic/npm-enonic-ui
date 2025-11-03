@@ -6,7 +6,7 @@ import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef } from 're
 const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'text-main font-medium',
+    'text-main font-semibold',
     'box-border rounded-sm transition-highlight',
     'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-0',
     'disabled:select-none disabled:pointer-events-none disabled:opacity-30',
@@ -53,11 +53,11 @@ export type ButtonProps = {
 const getIconSize = (size: NonNullable<ButtonSize>): number => {
   switch (size) {
     case 'sm':
-      return 16;
+      return 14;
     case 'md':
-      return 18;
-    case 'lg':
       return 20;
+    case 'lg':
+      return 24;
   }
 };
 
