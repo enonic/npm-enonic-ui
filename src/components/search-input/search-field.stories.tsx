@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { useEffect, useState } from 'react';
 
-import { SearchInput } from './search-input';
+import { SearchField } from './search-field';
 
-const meta: Meta<typeof SearchInput> = {
+const meta: Meta<typeof SearchField> = {
   title: 'Components/Search Input',
-  component: SearchInput,
+  component: SearchField,
   parameters: {
     layout: 'centered',
   },
@@ -14,16 +14,16 @@ const meta: Meta<typeof SearchInput> = {
 
 export default meta;
 
-type Story = StoryObj<typeof SearchInput>;
+type Story = StoryObj<typeof SearchField>;
 
 export const Default: Story = {
   name: 'Default',
   render: () => (
-    <SearchInput className='w-2xs' placeholder='Search...'>
-      <SearchInput.Icon />
-      <SearchInput.Input />
-      <SearchInput.Clear />
-    </SearchInput>
+    <SearchField className='w-2xs' placeholder='Search...'>
+      <SearchField.Icon />
+      <SearchField.Input />
+      <SearchField.Clear />
+    </SearchField>
   ),
 };
 
@@ -32,11 +32,11 @@ export const WithValue: Story = {
   render: () => {
     const [value, setValue] = useState('Example search');
     return (
-      <SearchInput className='w-2xs' value={value} onChange={setValue} placeholder='Search...'>
-        <SearchInput.Icon />
-        <SearchInput.Input />
-        <SearchInput.Clear />
-      </SearchInput>
+      <SearchField className='w-2xs' value={value} onChange={setValue} placeholder='Search...'>
+        <SearchField.Icon />
+        <SearchField.Input />
+        <SearchField.Clear />
+      </SearchField>
     );
   },
 };
@@ -44,33 +44,33 @@ export const WithValue: Story = {
 export const Disabled: Story = {
   name: 'Disabled',
   render: () => (
-    <SearchInput disabled placeholder='Search is disabled'>
-      <SearchInput.Icon />
-      <SearchInput.Input />
-      <SearchInput.Clear />
-    </SearchInput>
+    <SearchField disabled placeholder='Search is disabled'>
+      <SearchField.Icon />
+      <SearchField.Input />
+      <SearchField.Clear />
+    </SearchField>
   ),
 };
 
 export const DisabledWithValue: Story = {
   name: 'Disabled With Value',
   render: () => (
-    <SearchInput disabled defaultValue='Search query' placeholder='Search...'>
-      <SearchInput.Icon />
-      <SearchInput.Input />
-      <SearchInput.Clear />
-    </SearchInput>
+    <SearchField disabled defaultValue='Search query' placeholder='Search...'>
+      <SearchField.Icon />
+      <SearchField.Input />
+      <SearchField.Clear />
+    </SearchField>
   ),
 };
 
 export const ReadOnly: Story = {
   name: 'Read Only',
   render: () => (
-    <SearchInput readOnly defaultValue='Read only search' placeholder='Search...'>
-      <SearchInput.Icon />
-      <SearchInput.Input />
-      <SearchInput.Clear />
-    </SearchInput>
+    <SearchField readOnly defaultValue='Read only search' placeholder='Search...'>
+      <SearchField.Icon />
+      <SearchField.Input />
+      <SearchField.Clear />
+    </SearchField>
   ),
 };
 
@@ -80,17 +80,17 @@ export const UncontrolledExample: Story = {
     <div className='w-xs space-y-4'>
       <h3 className='text-sm font-medium mb-3'>Uncontrolled search inputs</h3>
       <div className='space-y-2'>
-        <SearchInput placeholder='Default empty'>
-          <SearchInput.Icon />
-          <SearchInput.Input />
-          <SearchInput.Clear />
-        </SearchInput>
+        <SearchField placeholder='Default empty'>
+          <SearchField.Icon />
+          <SearchField.Input />
+          <SearchField.Clear />
+        </SearchField>
 
-        <SearchInput placeholder='Search...' defaultValue='Pre-filled value'>
-          <SearchInput.Icon />
-          <SearchInput.Input />
-          <SearchInput.Clear />
-        </SearchInput>
+        <SearchField placeholder='Search...' defaultValue='Pre-filled value'>
+          <SearchField.Icon />
+          <SearchField.Input />
+          <SearchField.Clear />
+        </SearchField>
       </div>
     </div>
   ),
@@ -118,11 +118,11 @@ export const ControlledExample: Story = {
       <div className='w-xs'>
         <h3 className='text-sm font-medium mb-3'>Controlled search with results</h3>
 
-        <SearchInput value={value} onChange={handleSearch} placeholder='Search fruits...'>
-          <SearchInput.Icon />
-          <SearchInput.Input />
-          <SearchInput.Clear />
-        </SearchInput>
+        <SearchField value={value} onChange={handleSearch} placeholder='Search fruits...'>
+          <SearchField.Icon />
+          <SearchField.Input />
+          <SearchField.Clear />
+        </SearchField>
 
         {results.length > 0 && (
           <div className='mt-4 p-3 bg-surface-neutral rounded-sm border'>
@@ -168,11 +168,11 @@ export const LiveSearch: Story = {
     return (
       <div className='w-xs relative'>
         <h3 className='text-sm font-medium mb-3'>Live search with debounce</h3>
-        <SearchInput value={value} onChange={setValue} placeholder='Type to search...'>
-          <SearchInput.Icon />
-          <SearchInput.Input />
-          <SearchInput.Clear />
-        </SearchInput>
+        <SearchField value={value} onChange={setValue} placeholder='Type to search...'>
+          <SearchField.Icon />
+          <SearchField.Input />
+          <SearchField.Clear />
+        </SearchField>
 
         <div className='absolute bottom-0 translate-y-full'>
           {isSearching && <p className='mb-2 text-sm text-subtle'>Searching...</p>}
@@ -197,20 +197,20 @@ export const LiveSearch: Story = {
 export const NoIcon: Story = {
   name: 'No Icon',
   render: () => (
-    <SearchInput className='w-2xs' placeholder='Search...'>
-      <SearchInput.Input />
-      <SearchInput.Clear />
-    </SearchInput>
+    <SearchField className='w-2xs' placeholder='Search...'>
+      <SearchField.Input />
+      <SearchField.Clear />
+    </SearchField>
   ),
 };
 
 export const NoClear: Story = {
   name: 'No Clear Button',
   render: () => (
-    <SearchInput defaultValue='Some text' placeholder='Search...'>
-      <SearchInput.Icon />
-      <SearchInput.Input />
-    </SearchInput>
+    <SearchField defaultValue='Some text' placeholder='Search...'>
+      <SearchField.Icon />
+      <SearchField.Input />
+    </SearchField>
   ),
 };
 
@@ -221,11 +221,11 @@ export const InteractivePlayground: Story = {
 
     return (
       <div className='w-xs'>
-        <SearchInput value={value} onChange={setValue} placeholder='Search...'>
-          <SearchInput.Icon />
-          <SearchInput.Input />
-          <SearchInput.Clear />
-        </SearchInput>
+        <SearchField value={value} onChange={setValue} placeholder='Search...'>
+          <SearchField.Icon />
+          <SearchField.Input />
+          <SearchField.Clear />
+        </SearchField>
         <div className='mt-4 p-3 bg-surface-neutral rounded-sm'>
           <p className='text-sm'>
             <span className='font-medium'>Current value:</span>

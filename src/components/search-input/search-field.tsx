@@ -47,7 +47,7 @@ export type SearchInputRootProps = {
   className?: string;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'onChange' | 'children'>;
 
-const SearchInputRoot = ({
+const SearchRoot = ({
   id,
   value,
   defaultValue = '',
@@ -98,13 +98,13 @@ const SearchInputRoot = ({
     </SearchInputContext.Provider>
   );
 };
-SearchInputRoot.displayName = 'SearchInputRoot';
+SearchRoot.displayName = 'SearchInputRoot';
 
-export type SearchInputIconProps = {
+export type SearchIconProps = {
   className?: string;
 };
 
-const SearchInputIcon = ({ className }: SearchInputIconProps): ReactElement => {
+const SearchIcon = ({ className }: SearchIconProps): ReactElement => {
   return (
     <Search
       className={cn('flex items-center justify-center shrink-0 size-5.5 text-subtle', className)}
@@ -112,47 +112,45 @@ const SearchInputIcon = ({ className }: SearchInputIconProps): ReactElement => {
     />
   );
 };
-SearchInputIcon.displayName = 'SearchInputIcon';
+SearchIcon.displayName = 'SearchInputIcon';
 
-export type SearchInputFieldProps = ComponentPropsWithoutRef<'input'>;
+export type SearchInputProps = ComponentPropsWithoutRef<'input'>;
 
-const SearchInputField = forwardRef<HTMLInputElement, SearchInputFieldProps>(
-  ({ className, ...props }, ref): ReactElement => {
-    const { id, value, disabled, readOnly, placeholder, setValue, inputRef } = useSearchInput();
+const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({ className, ...props }, ref): ReactElement => {
+  const { id, value, disabled, readOnly, placeholder, setValue, inputRef } = useSearchInput();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-      setValue(e.currentTarget.value);
-    };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setValue(e.currentTarget.value);
+  };
 
-    return (
-      <input
-        ref={useComposedRefs(ref, inputRef)}
-        id={id}
-        className={cn(
-          'h-5.5 w-full text-base border-0',
-          'text-main bg-surface-neutral',
-          'placeholder:text-subtle',
-          'focus:outline-none',
-          'enabled:read-only:bg-surface-primary',
-          className,
-        )}
-        value={value}
-        onChange={handleChange}
-        readOnly={readOnly}
-        disabled={disabled}
-        placeholder={placeholder}
-        aria-label='Search'
-        aria-disabled={disabled}
-        {...props}
-      />
-    );
-  },
-);
-SearchInputField.displayName = 'SearchInputField';
+  return (
+    <input
+      ref={useComposedRefs(ref, inputRef)}
+      id={id}
+      className={cn(
+        'h-5.5 w-full text-base border-0',
+        'text-main bg-surface-neutral',
+        'placeholder:text-subtle',
+        'focus:outline-none',
+        'enabled:read-only:bg-surface-primary',
+        className,
+      )}
+      value={value}
+      onChange={handleChange}
+      readOnly={readOnly}
+      disabled={disabled}
+      placeholder={placeholder}
+      aria-label='Search'
+      aria-disabled={disabled}
+      {...props}
+    />
+  );
+});
+SearchInput.displayName = 'SearchInputField';
 
-export type SearchInputClearProps = Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon' | 'onClick'>;
+export type SearchClearProps = Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon' | 'onClick'>;
 
-const SearchInputClear = ({ className, ...props }: SearchInputClearProps): ReactElement | null => {
+const SearchClear = ({ className, ...props }: SearchClearProps): ReactElement | null => {
   const { value, disabled, readOnly, clearLabel, setValue, inputRef } = useSearchInput();
 
   if (!value || disabled || readOnly) {
@@ -177,11 +175,11 @@ const SearchInputClear = ({ className, ...props }: SearchInputClearProps): React
     />
   );
 };
-SearchInputClear.displayName = 'SearchInputClear';
+SearchClear.displayName = 'SearchInputClear';
 
-export const SearchInput = Object.assign(SearchInputRoot, {
-  Root: SearchInputRoot,
-  Icon: SearchInputIcon,
-  Input: SearchInputField,
-  Clear: SearchInputClear,
+export const SearchField = Object.assign(SearchRoot, {
+  Root: SearchRoot,
+  Icon: SearchIcon,
+  Input: SearchInput,
+  Clear: SearchClear,
 });
