@@ -1,8 +1,9 @@
-import { Listbox, SearchField } from '@/components';
+import { Button, Listbox, SearchField, type SearchFieldIconProps } from '@/components';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
+import { arraysEquals } from '@/utils/array';
 import { useComposedRefs } from '@/utils/ref';
 import { cva } from 'class-variance-authority';
 import { ChevronDown } from 'lucide-react';
@@ -33,7 +34,7 @@ export type ComboboxRootProps = {
   value?: string;
   defaultValue?: string;
   onChange?: (value: string | undefined) => void;
-  selectionMode?: 'single' | 'multiple';
+  selectionMode?: 'single' | 'multiple' | 'staged';
   selection?: readonly string[];
   defaultSelection?: readonly string[];
   onSelectionChange?: (selection: readonly string[]) => void;
@@ -69,29 +70,40 @@ const ComboboxRoot = ({
   const [open, setOpenInternal] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const [inputValue, setInputValueInternal] = useControlledState(value, defaultValue, onChange);
 
-  // Selection - store as Set internally for O(1) lookups
+  const isMultipleSelection = selectionMode !== 'single';
+  const stagingEnabled = selectionMode === 'staged';
+
   const [uncontrolledSelection, setUncontrolledSelection] = useState<Set<string>>(() => new Set(defaultSelection));
   const isSelectionControlled = controlledSelection !== undefined;
-  const selectionSet = useMemo(
+  const appliedSelectionSet = useMemo(
     () => (isSelectionControlled ? new Set(controlledSelection) : uncontrolledSelection),
     [isSelectionControlled, controlledSelection, uncontrolledSelection],
   );
+  const appliedSelection = useMemo(() => Array.from(appliedSelectionSet), [appliedSelectionSet]);
 
-  const onSelectionChangeInner = useCallback(
-    (newSelection: readonly string[]) => {
-      const newSet = new Set(newSelection);
-      if (!isSelectionControlled) {
-        setUncontrolledSelection(newSet);
-      }
+  const [stagedSelection, setStagedSelection] = useState<readonly string[]>(appliedSelection);
 
-      onSelectionChange?.(newSelection);
+  useEffect(() => {
+    if (!stagingEnabled) {
+      setStagedSelection(appliedSelection);
+      return;
+    }
+    setStagedSelection(prev => (arraysEquals<string>(prev, appliedSelection) ? prev : appliedSelection));
+  }, [appliedSelection, stagingEnabled]);
 
-      if (selectionMode === 'single') {
-        setOpenInternal(false);
-      }
-    },
-    [isSelectionControlled, selectionMode, setOpenInternal, onSelectionChange],
+  const currentSelection = stagingEnabled ? stagedSelection : appliedSelection;
+  const currentSelectionSet = useMemo(() => new Set(currentSelection), [currentSelection]);
+  const hasPendingChanges = useMemo(
+    () => stagingEnabled && !arraysEquals<string>(stagedSelection, appliedSelection),
+    [stagingEnabled, stagedSelection, appliedSelection],
   );
+
+  const resetStagedSelection = useCallback(() => {
+    if (!stagingEnabled) {
+      return;
+    }
+    setStagedSelection(prev => (arraysEquals<string>(prev, appliedSelection) ? prev : appliedSelection));
+  }, [stagingEnabled, appliedSelection]);
 
   const [activeInternal, setActiveInternal] = useControlledState(controlledActive, defaultActive, setActive);
 
@@ -106,15 +118,54 @@ const ComboboxRoot = ({
     [setInputValueInternal, setOpenInternal],
   );
 
-  // Wrap setOpen for external use
   const setOpen = useCallback(
     (next: boolean) => {
       setOpenInternal(next);
+      if (!next) {
+        resetStagedSelection();
+      }
     },
-    [setOpenInternal],
+    [setOpenInternal, resetStagedSelection],
   );
 
-  // Keyboard navigation with custom handlers for Combobox-specific keys
+  const commitSelection = useCallback(
+    (newSelection: readonly string[]) => {
+      const newSet = new Set(newSelection);
+      if (!isSelectionControlled) {
+        setUncontrolledSelection(newSet);
+      }
+      onSelectionChange?.(newSelection);
+
+      if (selectionMode === 'single') {
+        setOpenInternal(false);
+      }
+    },
+    [isSelectionControlled, onSelectionChange, selectionMode, setOpenInternal],
+  );
+
+  const handleSelectionChange = useCallback(
+    (nextSelection: readonly string[]) => {
+      if (stagingEnabled) {
+        setStagedSelection(nextSelection);
+        return;
+      }
+
+      commitSelection(nextSelection);
+    },
+    [stagingEnabled, commitSelection],
+  );
+
+  const applyStagedSelection = useCallback(() => {
+    if (!stagingEnabled) {
+      return;
+    }
+    if (!arraysEquals<string>(stagedSelection, appliedSelection)) {
+      commitSelection(stagedSelection);
+    }
+
+    setOpenInternal(false);
+  }, [stagingEnabled, stagedSelection, appliedSelection, commitSelection, setOpenInternal]);
+
   const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
     getItems,
     isItemDisabled,
@@ -123,14 +174,12 @@ const ComboboxRoot = ({
     loop: false,
     orientation: 'vertical',
     onSelect: id => {
-      // On select, update selection
-      const newSelection =
-        selectionMode === 'multiple'
-          ? selectionSet.has(id)
-            ? Array.from(selectionSet).filter(item => item !== id)
-            : [...Array.from(selectionSet), id]
-          : [id];
-      onSelectionChangeInner(newSelection);
+      const nextSelection = isMultipleSelection
+        ? currentSelection.includes(id)
+          ? currentSelection.filter(item => item !== id)
+          : [...currentSelection, id]
+        : [id];
+      handleSelectionChange(nextSelection);
     },
   });
 
@@ -150,14 +199,14 @@ const ComboboxRoot = ({
 
       if (e.key === 'Escape') {
         e.preventDefault();
-        setOpenInternal(false);
+        setOpen(false);
         return;
       }
 
       // Delegate to navigation hook for other keys
       handleNavKeyDown(e);
     },
-    [disabled, open, setOpenInternal, handleNavKeyDown],
+    [disabled, open, setOpenInternal, setOpen, handleNavKeyDown],
   );
 
   // Auto-select first item when opening
@@ -182,7 +231,13 @@ const ComboboxRoot = ({
       error,
       closeOnBlur,
       keyHandler,
-      selection: selectionSet,
+      selection: currentSelectionSet,
+      appliedSelection,
+      stagedSelection,
+      stagingEnabled,
+      hasPendingChanges,
+      applyStagedSelection,
+      resetStagedSelection,
     }),
     [
       open,
@@ -195,16 +250,22 @@ const ComboboxRoot = ({
       baseId,
       disabled,
       error,
-      selectionSet,
+      currentSelectionSet,
+      appliedSelection,
+      stagedSelection,
+      stagingEnabled,
+      hasPendingChanges,
+      applyStagedSelection,
+      resetStagedSelection,
     ],
   );
 
   return (
     <ComboboxProvider value={context}>
       <Listbox.Root
-        selectionMode={selectionMode}
-        selection={Array.from(selectionSet)}
-        onSelectionChange={onSelectionChangeInner}
+        selectionMode={isMultipleSelection ? 'multiple' : 'single'}
+        selection={currentSelection}
+        onSelectionChange={handleSelectionChange}
         disabled={disabled}
         active={activeInternal}
         focusable={false}
@@ -270,7 +331,8 @@ ComboboxContent.displayName = 'Combobox.Content';
 
 const comboboxControlVariants = cva(
   [
-    'flex items-center',
+    'flex gap-2.5 items-center',
+    'h-12 rounded-sm border bg-surface-neutral',
     'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
     'transition-highlight',
   ],
@@ -337,13 +399,13 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
   ({ className, placeholder, ...props }, ref): ReactElement => {
     const innerRef = useRef<HTMLInputElement>(null);
 
-    const { open, keyHandler, selection, baseId, active, disabled, error } = useCombobox();
+    const { open, keyHandler, baseId, active, disabled, error } = useCombobox();
 
     useEffect(() => {
       if (open && !disabled) {
         innerRef.current?.focus();
       }
-    }, [open, selection, disabled]);
+    }, [open, disabled]);
 
     return (
       <SearchField.Input
@@ -376,13 +438,17 @@ const ComboboxSearch = ({ children, className }: ComboboxSearchProps): ReactElem
   const { inputValue, setInputValue } = useCombobox();
 
   return (
-    <SearchField.Root value={inputValue} onChange={setInputValue} className={cn('pr-0', className)}>
+    <SearchField.Root value={inputValue} onChange={setInputValue} className={cn('pr-0 w-full', className)}>
       {children}
     </SearchField.Root>
   );
 };
 
 ComboboxControl.displayName = 'Combobox.Control';
+
+const ComboboxSearchIcon = (props: SearchFieldIconProps): ReactElement => {
+  return <SearchField.Icon {...props} />;
+};
 
 //
 // * Toggle
@@ -421,6 +487,35 @@ const ComboboxToggle = ({ className }: ComboboxToggleProps): ReactElement => {
 
 ComboboxToggle.displayName = 'Combobox.Toggle';
 
+export type ComboboxApplyProps = {
+  className?: string;
+  applyLabel?: string;
+};
+
+const ComboboxApply = ({ className, applyLabel = 'Apply' }: ComboboxApplyProps): ReactElement => {
+  const { stagingEnabled, hasPendingChanges, applyStagedSelection } = useCombobox();
+
+  const applyHandler = useCallback(() => {
+    applyStagedSelection();
+  }, [applyStagedSelection]);
+
+  return (
+    <>
+      {stagingEnabled && hasPendingChanges && (
+        <Button
+          type='button'
+          label={applyLabel}
+          variant='outline'
+          className={cn('h-7 px-2.5 min-w-14 gap-2 text-xs', className)}
+          onClick={applyHandler}
+        />
+      )}
+    </>
+  );
+};
+
+ComboboxApply.displayName = 'Combobox.Apply';
+
 //
 // * Popup
 //
@@ -457,7 +552,8 @@ export const Combobox = Object.assign(ComboboxRoot, {
   Control: ComboboxControl,
   Search: ComboboxSearch,
   Input: ComboboxInput,
-  SearchIcon: SearchField.Icon,
+  SearchIcon: ComboboxSearchIcon,
   Toggle: ComboboxToggle,
+  Apply: ComboboxApply,
   Popup: ComboboxPopup,
 });

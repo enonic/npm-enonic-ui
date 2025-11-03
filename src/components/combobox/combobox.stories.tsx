@@ -287,3 +287,76 @@ export const Preselected: Story = {
     );
   },
 };
+
+export const Staged: Story = {
+  name: 'Confirm Selection Changes',
+  render: () => {
+    return (
+      <div className='relative w-80 space-y-1'>
+        <h3 className='text-md font-medium mb-3'>Need to confirm selection changes</h3>
+        <Combobox.Root selectionMode={'staged'} closeOnBlur={false}>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Apply />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              <Listbox.Content>
+                {frameworks.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+      </div>
+    );
+  },
+};
+
+export const Staged_Preselected: Story = {
+  name: 'Confirm / Preselected',
+  render: () => {
+    const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
+
+    return (
+      <div className='relative w-80 space-y-1'>
+        <h3 className='text-md font-medium mb-3'>Some items are preselected, changes require confirmation</h3>
+        <Combobox.Root
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode={'staged'}
+          closeOnBlur={false}
+        >
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Apply />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              <Listbox.Content>
+                {frameworks.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+      </div>
+    );
+  },
+};
