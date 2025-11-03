@@ -1,4 +1,4 @@
-import { Listbox, SearchField, type SearchIconProps } from '@/components';
+import { Listbox, SearchField } from '@/components';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
@@ -384,10 +384,6 @@ const ComboboxSearch = ({ children, className }: ComboboxSearchProps): ReactElem
 
 ComboboxControl.displayName = 'Combobox.Control';
 
-const ComboboxSearchIcon = (props: SearchIconProps): ReactElement => {
-  return <SearchField.Icon {...props} />;
-};
-
 //
 // * Toggle
 //
@@ -461,7 +457,7 @@ export const Combobox = Object.assign(ComboboxRoot, {
   Control: ComboboxControl,
   Search: ComboboxSearch,
   Input: ComboboxInput,
-  SearchIcon: ComboboxSearchIcon,
+  SearchIcon: SearchField.Icon,
   Toggle: ComboboxToggle,
   Popup: ComboboxPopup,
 });

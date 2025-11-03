@@ -1,7 +1,7 @@
 export {
   SearchField,
-  type SearchClearProps,
-  type SearchInputProps,
-  type SearchIconProps,
-  type SearchInputRootProps,
+  type SearchFieldClearProps,
+  type SearchFieldIconProps,
+  type SearchFieldInputProps,
+  type SearchFieldRootProps,
 } from './search-field';
