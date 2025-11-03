@@ -67,3 +67,48 @@ export * from './button';
 export * from './user-card';
 // modal is missing!
 ```
+
+## Context Provider Structure
+
+Extract context providers to `src/providers/` with pattern: context value type, context (default `undefined`), provider component, custom hook.
+
+```typescript
+// ✅ Correct: src/providers/menu-provider.tsx
+import { createContext, type ReactElement, type ReactNode, useContext } from 'react';
+
+export type MenuContextValue = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};
+
+const MenuContext = createContext<MenuContextValue | undefined>(undefined);
+
+export type MenuProviderProps = {
+  value: MenuContextValue;
+  children?: ReactNode;
+};
+
+export const MenuProvider = ({ value, children }: MenuProviderProps): ReactElement => {
+  return <MenuContext.Provider value={value}>{children}</MenuContext.Provider>;
+};
+
+export const useMenu = (): MenuContextValue => {
+  const context = useContext(MenuContext);
+  if (!context) {
+    throw new Error('useMenu must be used within a MenuProvider');
+  }
+  return context;
+};
+
+// ❌ Avoid: Context in component file, null default
+const MenuContext = createContext<MenuContextValue | null>(null);
+export const useMenu = () => { /* ... */ };
+```
+
+Add new providers to `src/providers/index.ts`:
+
+```typescript
+export * from './menu-provider';
+export * from './dialog-provider';
+// ... all providers
+```
