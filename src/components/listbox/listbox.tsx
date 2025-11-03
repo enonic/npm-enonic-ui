@@ -219,7 +219,7 @@ ListboxContent.displayName = 'ListboxContent';
 // * Listbox Item
 //
 
-const listboxItemVariants = cva('flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer', {
+const listboxItemVariants = cva('group flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer', {
   variants: {
     selected: {
       true: 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover',
@@ -285,6 +285,7 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
       aria-disabled={isDisabled ?? undefined}
       data-value={value}
       data-active={isActive || undefined}
+      data-tone={isSelected && 'inverse'}
       onClick={handleClick}
       {...props}
     >

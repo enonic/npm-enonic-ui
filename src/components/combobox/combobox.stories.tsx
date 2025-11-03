@@ -2,7 +2,7 @@ import { Combobox } from '@/components/combobox/combobox';
 import { Listbox } from '@/components/listbox/listbox';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { useEffect, useState } from 'preact/hooks';
-import { type RefObject, useRef } from 'react';
+import { type ReactElement, type RefObject, useRef } from 'react';
 
 type Story = StoryObj;
 
@@ -41,6 +41,15 @@ const createInputRefAndFocus = (): RefObject<HTMLInputElement> => {
   return inputRef;
 };
 
+const ListboxItemContent = ({ name, language }: Omit<Option, 'id'>): ReactElement => {
+  return (
+    <div className='flex flex-col justify-between w-full'>
+      <div className='text-sm font-medium group-data-[tone=inverse]:text-alt'>{name}</div>
+      <div className='text-xs text-subtle group-data-[tone=inverse]:text-alt'>{language}</div>
+    </div>
+  );
+};
+
 export const Basic: Story = {
   name: 'Basic Usage',
   render: () => {
@@ -59,14 +68,9 @@ export const Basic: Story = {
 
             <Combobox.Popup>
               <Listbox.Content>
-                {frameworks.map(f => (
-                  <Listbox.Item key={f.id} value={f.id}>
-                    <div className='flex w-full items-center justify-between'>
-                      <div>
-                        <div className='text-sm font-medium'>{f.name}</div>
-                        <div className='text-xs text-subtle'>{f.language}</div>
-                      </div>
-                    </div>
+                {frameworks.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
                   </Listbox.Item>
                 ))}
               </Listbox.Content>
@@ -96,14 +100,9 @@ export const Multi: Story = {
 
             <Combobox.Popup>
               <Listbox.Content>
-                {frameworks.map(f => (
-                  <Listbox.Item key={f.id} value={f.id}>
-                    <div className='flex w-full items-center justify-between'>
-                      <div>
-                        <div className='text-sm font-medium'>{f.name}</div>
-                        <div className='text-xs text-subtle'>{f.language}</div>
-                      </div>
-                    </div>
+                {frameworks.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
                   </Listbox.Item>
                 ))}
               </Listbox.Content>
@@ -139,14 +138,9 @@ export const CustomFiltering: Story = {
 
             <Combobox.Popup>
               <Listbox.Content>
-                {filtered.map(f => (
-                  <Listbox.Item key={f.id} value={f.id}>
-                    <div className='flex w-full items-center justify-between'>
-                      <div>
-                        <div className='text-sm font-medium'>{f.name}</div>
-                        <div className='text-xs text-subtle'>Released in {f.year}</div>
-                      </div>
-                    </div>
+                {filtered.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
                   </Listbox.Item>
                 ))}
               </Listbox.Content>
@@ -175,9 +169,9 @@ export const Disabled: Story = {
             </Combobox.Control>
             <Combobox.Popup>
               <Listbox.Content>
-                {frameworks.map(f => (
-                  <Listbox.Item key={f.id} value={f.id}>
-                    <div className='text-sm'>{f.name}</div>
+                {frameworks.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
                   </Listbox.Item>
                 ))}
               </Listbox.Content>
@@ -207,9 +201,9 @@ export const WithError: Story = {
             </Combobox.Control>
             <Combobox.Popup>
               <Listbox.Content>
-                {frameworks.map(f => (
-                  <Listbox.Item key={f.id} value={f.id}>
-                    <div className='text-sm'>{f.name}</div>
+                {frameworks.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
                   </Listbox.Item>
                 ))}
               </Listbox.Content>
@@ -234,7 +228,7 @@ export const LongList: Story = {
     return (
       <div className='relative '>
         <h3 className='text-md font-medium mb-3'>Long list, stays open on blur</h3>
-        <Combobox.Root value={value} onChange={setValue} closeOnBlur={false}>
+        <Combobox.Root value={value} onChange={setValue}>
           <Combobox.Content>
             <Combobox.Control>
               <Combobox.Search>
@@ -246,9 +240,9 @@ export const LongList: Story = {
 
             <Combobox.Popup>
               <Listbox.Content className='max-h-60'>
-                {longList.map(f => (
-                  <Listbox.Item key={f.id} value={f.id}>
-                    <div className='text-sm'>{f.name}</div>
+                {longList.map(({ id, name }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <div className='text-sm'>{name}</div>
                   </Listbox.Item>
                 ))}
               </Listbox.Content>
@@ -280,14 +274,9 @@ export const Preselected: Story = {
 
             <Combobox.Popup>
               <Listbox.Content>
-                {frameworks.map(f => (
-                  <Listbox.Item key={f.id} value={f.id}>
-                    <div className='flex w-full items-center justify-between'>
-                      <div>
-                        <div className='text-sm font-medium'>{f.name}</div>
-                        <div className='text-xs text-subtle'>{f.language}</div>
-                      </div>
-                    </div>
+                {frameworks.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
                   </Listbox.Item>
                 ))}
               </Listbox.Content>
