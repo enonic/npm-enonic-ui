@@ -125,7 +125,7 @@ export const WithIconAddons: Story = {
   render: () => (
     <div className='space-y-6 p-4 w-80'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Search Input</h3>
+        <h3 className='text-sm font-medium mb-3'>Search Field</h3>
         <Input label='Search' placeholder='Search users...' startAddon={<Search size={16} />} />
       </div>
       <div>

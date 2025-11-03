@@ -1,40 +1,15 @@
 import { IconButton } from '@/components';
 import { useControlledState } from '@/hooks';
-import { usePrefixedId } from '@/providers';
+import { type SearchFieldContextValue, SearchFieldProvider, usePrefixedId, useSearchField } from '@/providers';
 import { cn, unwrap, useComposedRefs } from '@/utils';
 import { Search, X } from 'lucide-react';
-import {
-  type ComponentPropsWithoutRef,
-  createContext,
-  forwardRef,
-  type ReactElement,
-  type ReactNode,
-  useContext,
-  useMemo,
-  useRef,
-} from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type ReactElement, type ReactNode, useMemo, useRef } from 'react';
 
-export type SearchInputContextValue = {
-  id: string;
-  value: string;
-  disabled?: boolean;
-  readOnly?: boolean;
-  placeholder?: string;
-  clearLabel: string;
-  setValue: (v: string) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
-};
+//
+// * SearchField
+//
 
-const SearchInputContext = createContext<SearchInputContextValue | null>(null);
-export const useSearchInput = (): SearchInputContextValue => {
-  const ctx = useContext(SearchInputContext);
-  if (!ctx) {
-    throw new Error('SearchInput subcomponent must be used within <SearchInput.Root>');
-  }
-  return ctx;
-};
-
-export type SearchInputRootProps = {
+export type SearchFieldRootProps = {
   id?: string;
   value?: string;
   defaultValue?: string;
@@ -47,7 +22,7 @@ export type SearchInputRootProps = {
   className?: string;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'onChange' | 'children'>;
 
-const SearchRoot = ({
+const SearchFieldRoot = ({
   id,
   value,
   defaultValue = '',
@@ -59,12 +34,12 @@ const SearchRoot = ({
   children,
   className,
   ...props
-}: SearchInputRootProps): ReactElement => {
+}: SearchFieldRootProps): ReactElement => {
   const inputId = usePrefixedId(unwrap(id));
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useControlledState(value, defaultValue, onChange);
 
-  const context = useMemo<SearchInputContextValue>(
+  const context = useMemo<SearchFieldContextValue>(
     () => ({
       id: inputId,
       value: inputValue,
@@ -79,7 +54,7 @@ const SearchRoot = ({
   );
 
   return (
-    <SearchInputContext.Provider value={context}>
+    <SearchFieldProvider value={context}>
       <div
         className={cn(
           'relative flex gap-2.5 items-center rounded-sm overflow-hidden',
@@ -95,16 +70,20 @@ const SearchRoot = ({
       >
         {children}
       </div>
-    </SearchInputContext.Provider>
+    </SearchFieldProvider>
   );
 };
-SearchRoot.displayName = 'SearchInputRoot';
+SearchFieldRoot.displayName = 'SearchFieldRoot';
 
-export type SearchIconProps = {
+//
+// * SearchFieldIcon
+//
+
+export type SearchFieldIconProps = {
   className?: string;
 };
 
-const SearchIcon = ({ className }: SearchIconProps): ReactElement => {
+const SearchFieldIcon = ({ className }: SearchFieldIconProps): ReactElement => {
   return (
     <Search
       className={cn('flex items-center justify-center shrink-0 size-5.5 text-subtle', className)}
@@ -112,46 +91,56 @@ const SearchIcon = ({ className }: SearchIconProps): ReactElement => {
     />
   );
 };
-SearchIcon.displayName = 'SearchInputIcon';
+SearchFieldIcon.displayName = 'SearchFieldIcon';
 
-export type SearchInputProps = ComponentPropsWithoutRef<'input'>;
+//
+// * SearchFieldInput
+//
 
-const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({ className, ...props }, ref): ReactElement => {
-  const { id, value, disabled, readOnly, placeholder, setValue, inputRef } = useSearchInput();
+export type SearchFieldInputProps = ComponentPropsWithoutRef<'input'>;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setValue(e.currentTarget.value);
-  };
+const SearchFieldInput = forwardRef<HTMLInputElement, SearchFieldInputProps>(
+  ({ className, ...props }, ref): ReactElement => {
+    const { id, value, disabled, readOnly, placeholder, setValue, inputRef } = useSearchField();
 
-  return (
-    <input
-      ref={useComposedRefs(ref, inputRef)}
-      id={id}
-      className={cn(
-        'h-5.5 w-full text-base border-0',
-        'text-main bg-surface-neutral',
-        'placeholder:text-subtle',
-        'focus:outline-none',
-        'enabled:read-only:bg-surface-primary',
-        className,
-      )}
-      value={value}
-      onChange={handleChange}
-      readOnly={readOnly}
-      disabled={disabled}
-      placeholder={placeholder}
-      aria-label='Search'
-      aria-disabled={disabled}
-      {...props}
-    />
-  );
-});
-SearchInput.displayName = 'SearchInputField';
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+      setValue(e.currentTarget.value);
+    };
 
-export type SearchClearProps = Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon' | 'onClick'>;
+    return (
+      <input
+        ref={useComposedRefs(ref, inputRef)}
+        id={id}
+        className={cn(
+          'h-5.5 w-full text-base border-0',
+          'text-main bg-surface-neutral',
+          'placeholder:text-subtle',
+          'focus:outline-none',
+          'enabled:read-only:bg-surface-primary',
+          className,
+        )}
+        value={value}
+        onChange={handleChange}
+        readOnly={readOnly}
+        disabled={disabled}
+        placeholder={placeholder}
+        aria-label='Search'
+        aria-disabled={disabled}
+        {...props}
+      />
+    );
+  },
+);
+SearchFieldInput.displayName = 'SearchFieldInput';
 
-const SearchClear = ({ className, ...props }: SearchClearProps): ReactElement | null => {
-  const { value, disabled, readOnly, clearLabel, setValue, inputRef } = useSearchInput();
+//
+// * SearchFieldClear
+//
+
+export type SearchFieldClearProps = Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon' | 'onClick'>;
+
+const SearchFieldClear = ({ className, ...props }: SearchFieldClearProps): ReactElement | null => {
+  const { value, disabled, readOnly, clearLabel, setValue, inputRef } = useSearchField();
 
   if (!value || disabled || readOnly) {
     return null;
@@ -175,11 +164,11 @@ const SearchClear = ({ className, ...props }: SearchClearProps): ReactElement | 
     />
   );
 };
-SearchClear.displayName = 'SearchInputClear';
+SearchFieldClear.displayName = 'SearchFieldClear';
 
-export const SearchField = Object.assign(SearchRoot, {
-  Root: SearchRoot,
-  Icon: SearchIcon,
-  Input: SearchInput,
-  Clear: SearchClear,
+export const SearchField = Object.assign(SearchFieldRoot, {
+  Root: SearchFieldRoot,
+  Icon: SearchFieldIcon,
+  Input: SearchFieldInput,
+  Clear: SearchFieldClear,
 });
