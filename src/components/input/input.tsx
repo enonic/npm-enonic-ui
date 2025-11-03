@@ -72,10 +72,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {(!!label || !!description) && (
           <div className='mb-2'>
             {label && (
-              <label
-                htmlFor={inputId}
-                className={cn('block text-base font-semibold text-main', disabled && 'opacity-30')}
-              >
+              <label htmlFor={inputId} className='block text-base font-semibold text-main'>
                 <div className='flex items-center gap-2'>
                   {readOnly && <LockKeyhole size={16} strokeWidth={2.5} />}
                   {label}
@@ -83,7 +80,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               </label>
             )}
 
-            {description && <div className={cn('text-sm text-subtle', disabled && 'opacity-30')}>{description}</div>}
+            {description && <div className='text-sm text-subtle'>{description}</div>}
           </div>
         )}
         <div className={cn(inputContainerVariants({ state, disabled }))}>
@@ -96,7 +93,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               'flex-1 w-full px-4.5 text-base',
               'text-main bg-surface-neutral placeholder:text-subtle',
               'border-0 focus:outline-none',
-              'disabled:select-none read-only:bg-surface-primary',
+              'disabled:select-none enabled:read-only:bg-surface-primary',
               startAddon && 'rounded-l-none',
               endAddon && 'rounded-r-none',
             )}

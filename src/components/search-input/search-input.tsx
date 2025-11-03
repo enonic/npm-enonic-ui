@@ -87,6 +87,7 @@ const SearchInputRoot = ({
           'border border-bdr-subtle focus-within:border-bdr-strong',
           'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
           'transition-highlight',
+          readOnly ? 'bg-surface-primary' : 'bg-surface-neutral',
           disabled && 'pointer-events-none select-none opacity-30',
           className,
         )}
@@ -104,15 +105,9 @@ export type SearchInputIconProps = {
 };
 
 const SearchInputIcon = ({ className }: SearchInputIconProps): ReactElement => {
-  const { disabled } = useSearchInput();
   return (
     <Search
-      className={cn(
-        'flex items-center justify-center shrink-0 w-5.5 h-5.5 text-subtle',
-        disabled && 'opacity-30',
-        className,
-      )}
-      size={20}
+      className={cn('flex items-center justify-center shrink-0 size-5.5 text-subtle', className)}
       strokeWidth={1.5}
     />
   );
@@ -138,8 +133,7 @@ const SearchInputField = forwardRef<HTMLInputElement, SearchInputFieldProps>(
           'text-main bg-surface-neutral',
           'placeholder:text-subtle',
           'focus:outline-none',
-          'read-only:bg-surface-primary',
-          'last:pr-5',
+          'enabled:read-only:bg-surface-primary',
           className,
         )}
         value={value}
@@ -172,11 +166,13 @@ const SearchInputClear = ({ className, ...props }: SearchInputClearProps): React
 
   return (
     <IconButton
-      className={cn('flex items-center w-5.5 h-5.5 justify-center shrink-0 text-subtle', className)}
+      className={cn('flex items-center justify-center shrink-0 size-7 -mx-1.5 text-subtle', className)}
       icon={X}
       title={clearLabel}
       onClick={handleClear}
       disabled={disabled}
+      iconSize={28}
+      iconStrokeWidth={1.25}
       {...props}
     />
   );

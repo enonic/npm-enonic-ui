@@ -19,7 +19,7 @@ type Story = StoryObj<typeof SearchInput>;
 export const Default: Story = {
   name: 'Default',
   render: () => (
-    <SearchInput placeholder='Search...'>
+    <SearchInput className='w-2xs' placeholder='Search...'>
       <SearchInput.Icon />
       <SearchInput.Input />
       <SearchInput.Clear />
@@ -32,7 +32,7 @@ export const WithValue: Story = {
   render: () => {
     const [value, setValue] = useState('Example search');
     return (
-      <SearchInput value={value} onChange={setValue} placeholder='Search...'>
+      <SearchInput className='w-2xs' value={value} onChange={setValue} placeholder='Search...'>
         <SearchInput.Icon />
         <SearchInput.Input />
         <SearchInput.Clear />
@@ -77,7 +77,7 @@ export const ReadOnly: Story = {
 export const UncontrolledExample: Story = {
   name: 'Uncontrolled',
   render: () => (
-    <div className='p-4 space-y-4'>
+    <div className='w-xs space-y-4'>
       <h3 className='text-sm font-medium mb-3'>Uncontrolled search inputs</h3>
       <div className='space-y-2'>
         <SearchInput placeholder='Default empty'>
@@ -115,7 +115,7 @@ export const ControlledExample: Story = {
     };
 
     return (
-      <div className='p-4 w-96'>
+      <div className='w-xs'>
         <h3 className='text-sm font-medium mb-3'>Controlled search with results</h3>
 
         <SearchInput value={value} onChange={handleSearch} placeholder='Search fruits...'>
@@ -166,7 +166,7 @@ export const LiveSearch: Story = {
     }, [value]);
 
     return (
-      <div className='p-4 w-96 relative'>
+      <div className='w-xs relative'>
         <h3 className='text-sm font-medium mb-3'>Live search with debounce</h3>
         <SearchInput value={value} onChange={setValue} placeholder='Type to search...'>
           <SearchInput.Icon />
@@ -181,7 +181,7 @@ export const LiveSearch: Story = {
               <h4 className='text-xs font-medium text-subtle mb-2'>Recent searches:</h4>
               <ul className='space-y-1'>
                 {history.map((item, i) => (
-                  <li key={i} className='text-sm text-subtle'>
+                  <li key={i} className='text-sm text-subtle break-all'>
                     {item}
                   </li>
                 ))}
@@ -197,7 +197,7 @@ export const LiveSearch: Story = {
 export const NoIcon: Story = {
   name: 'No Icon',
   render: () => (
-    <SearchInput placeholder='Search...'>
+    <SearchInput className='w-2xs' placeholder='Search...'>
       <SearchInput.Input />
       <SearchInput.Clear />
     </SearchInput>
@@ -220,7 +220,7 @@ export const InteractivePlayground: Story = {
     const [value, setValue] = useState('');
 
     return (
-      <div className='p-8'>
+      <div className='w-xs'>
         <SearchInput value={value} onChange={setValue} placeholder='Search...'>
           <SearchInput.Icon />
           <SearchInput.Input />
@@ -228,7 +228,8 @@ export const InteractivePlayground: Story = {
         </SearchInput>
         <div className='mt-4 p-3 bg-surface-neutral rounded-sm'>
           <p className='text-sm'>
-            <span className='font-medium'>Current value:</span> {value ? `"${value}"` : '(empty)'}
+            <span className='font-medium'>Current value:</span>
+            <span className='break-all'>{value ? `"${value}"` : '(empty)'}</span>
           </p>
         </div>
       </div>

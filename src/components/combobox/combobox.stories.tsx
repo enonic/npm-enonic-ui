@@ -82,7 +82,7 @@ export const Multi: Story = {
   name: 'Multiple Selection',
   render: () => {
     return (
-      <div className='relative  space-y-1'>
+      <div className='relative space-y-1'>
         <h3 className='text-md font-medium mb-3'>Basic Combobox</h3>
         <Combobox.Root selectionMode={'multiple'}>
           <Combobox.Content>
@@ -195,7 +195,7 @@ export const WithError: Story = {
     const [value, setValue] = useState<string | undefined>();
 
     return (
-      <div className='relative  space-y-2'>
+      <div className='relative space-y-2'>
         <Combobox.Root value={value} onChange={setValue} error>
           <Combobox.Content>
             <Combobox.Control>
@@ -266,7 +266,7 @@ export const Preselected: Story = {
     const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
 
     return (
-      <div className='relative  space-y-1'>
+      <div className='relative space-y-1'>
         <h3 className='text-md font-medium mb-3'>Some items are preselected</h3>
         <Combobox.Root selection={selection} onSelectionChange={setSelection} selectionMode={'multiple'}>
           <Combobox.Content>
