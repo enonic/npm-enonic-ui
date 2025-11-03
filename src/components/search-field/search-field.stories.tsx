@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { SearchField } from './search-field';
 
 const meta: Meta<typeof SearchField> = {
-  title: 'Components/Search Field',
+  title: 'Components/SearchField',
   component: SearchField,
   parameters: {
     layout: 'centered',
