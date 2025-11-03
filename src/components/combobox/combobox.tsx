@@ -1,4 +1,4 @@
-import { Listbox, SearchInput, type SearchInputIconProps } from '@/components';
+import { Listbox, SearchField, type SearchIconProps } from '@/components';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
@@ -346,7 +346,7 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
     }, [open, selection, disabled]);
 
     return (
-      <SearchInput.Input
+      <SearchField.Input
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-input`}
         onKeyDown={keyHandler}
@@ -376,16 +376,16 @@ const ComboboxSearch = ({ children, className }: ComboboxSearchProps): ReactElem
   const { inputValue, setInputValue } = useCombobox();
 
   return (
-    <SearchInput.Root value={inputValue} onChange={setInputValue} className={cn('pr-0', className)}>
+    <SearchField.Root value={inputValue} onChange={setInputValue} className={cn('pr-0', className)}>
       {children}
-    </SearchInput.Root>
+    </SearchField.Root>
   );
 };
 
 ComboboxControl.displayName = 'Combobox.Control';
 
-const ComboboxSearchIcon = (props: SearchInputIconProps): ReactElement => {
-  return <SearchInput.Icon {...props} />;
+const ComboboxSearchIcon = (props: SearchIconProps): ReactElement => {
+  return <SearchField.Icon {...props} />;
 };
 
 //
