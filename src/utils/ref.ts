@@ -1,12 +1,12 @@
 import { type ForwardedRef, type MutableRefObject, type Ref, useCallback } from 'react';
 
-export function setRef<T>(ref: Ref<T> | undefined, value: T | null): void {
+export function setRef<T>(ref: Ref<T> | undefined | null, value: T | null): void {
   if (!ref) return;
   if (typeof ref === 'function') {
     ref(value);
   } else {
     try {
-      (ref as MutableRefObject<T | null>).current = value;
+      (ref as MutableRefObject<T | undefined | null>).current = value;
     } catch {
       // ignore in case of readonly refs
     }

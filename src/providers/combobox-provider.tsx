@@ -19,7 +19,7 @@ export type ComboboxContextValue = {
   error?: boolean;
 };
 
-const ComboboxContext = createContext<ComboboxContextValue | null>(null);
+const ComboboxContext = createContext<ComboboxContextValue | undefined>(undefined);
 
 export type ComboboxProviderProps = {
   value: ComboboxContextValue;

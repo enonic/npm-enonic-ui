@@ -16,7 +16,7 @@ export type ListboxContextValue = {
   isItemDisabled: (id: string) => boolean;
 };
 
-const ListboxContext = createContext<ListboxContextValue | null>(null);
+const ListboxContext = createContext<ListboxContextValue | undefined>(undefined);
 
 export type ListboxProviderProps = {
   value: ListboxContextValue;

@@ -180,9 +180,9 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     const { open, setOpen, active, setActive, getItems, isItemDisabled, menuId, triggerRef } = useMenu();
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
-    const [position, setPosition] = useState<{ top: number; left: number } | { top: number; right: number } | null>(
-      null,
-    );
+    const [position, setPosition] = useState<
+      { top: number; left: number } | { top: number; right: number } | undefined
+    >(undefined);
 
     // Calculate position when menu opens
     useEffect(() => {

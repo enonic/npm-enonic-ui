@@ -7,7 +7,7 @@ export type AvatarContextValue = {
   onImageLoadingStatusChange: (status: AvatarImageLoadingStatus) => void;
 };
 
-const AvatarContext = createContext<AvatarContextValue | null>(null);
+const AvatarContext = createContext<AvatarContextValue | undefined>(undefined);
 
 export type AvatarProviderProps = {
   value: AvatarContextValue;

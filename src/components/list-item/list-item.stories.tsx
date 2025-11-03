@@ -229,7 +229,7 @@ export const ClickableContent: Story = {
 export const Interactive: Story = {
   name: 'Interactive Selection',
   render: () => {
-    const [selectedIndex, setSelectedIndex] = useState<number | null>(1);
+    const [selectedIndex, setSelectedIndex] = useState<number>(1);
 
     const items = [
       {
