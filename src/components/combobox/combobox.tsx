@@ -407,36 +407,34 @@ export type ComboboxInputProps = {
   placeholder?: string;
 } & ComponentPropsWithoutRef<'input'>;
 
-const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
-  ({ placeholder, ...props }, ref): ReactElement => {
-    const innerRef = useRef<HTMLInputElement>(null);
+const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, ref): ReactElement => {
+  const innerRef = useRef<HTMLInputElement>(null);
 
-    const { open, keyHandler, baseId, active, disabled, error } = useCombobox();
+  const { open, keyHandler, baseId, active, disabled, error } = useCombobox();
 
-    useEffect(() => {
-      if (open && !disabled) {
-        innerRef.current?.focus();
-      }
-    }, [open, disabled]);
+  useEffect(() => {
+    if (open && !disabled) {
+      innerRef.current?.focus();
+    }
+  }, [open, disabled]);
 
-    return (
-      <SearchField.Input
-        ref={useComposedRefs(ref, innerRef)}
-        id={`${baseId}-input`}
-        onKeyDown={keyHandler}
-        aria-disabled={disabled}
-        aria-invalid={error ?? undefined}
-        role='combobox'
-        aria-autocomplete='list'
-        aria-expanded={open}
-        aria-haspopup='listbox'
-        aria-controls={`${baseId}-listbox`}
-        aria-activedescendant={active ? `${baseId}-listbox-option-${active}` : undefined}
-        {...props}
-      />
-    );
-  },
-);
+  return (
+    <SearchField.Input
+      ref={useComposedRefs(ref, innerRef)}
+      id={`${baseId}-input`}
+      onKeyDown={keyHandler}
+      aria-disabled={disabled}
+      aria-invalid={error ?? undefined}
+      role='combobox'
+      aria-autocomplete='list'
+      aria-expanded={open}
+      aria-haspopup='listbox'
+      aria-controls={`${baseId}-listbox`}
+      aria-activedescendant={active ? `${baseId}-listbox-option-${active}` : undefined}
+      {...props}
+    />
+  );
+});
 ComboboxInput.displayName = 'Combobox.Input';
 
 //
@@ -467,6 +465,18 @@ const ComboboxSearch = ({ children, className, ...props }: ComboboxSearchProps):
   );
 };
 ComboboxSearch.displayName = 'Combobox.Search';
+
+//
+// * ComboboxSearchIcon
+//
+export type ComboboxSearchIconProps = {
+  className?: string;
+} & ComponentPropsWithoutRef<typeof SearchField.Icon>;
+
+const ComboboxSearchIcon = ({ className, ...props }: ComboboxSearchIconProps): ReactElement => {
+  return <SearchField.Icon className={className} {...props} />;
+};
+ComboboxSearchIcon.displayName = 'Combobox.SearchIcon';
 
 //
 // * Toggle
@@ -562,7 +572,7 @@ export const Combobox = Object.assign(ComboboxRoot, {
   Control: ComboboxControl,
   Search: ComboboxSearch,
   Input: ComboboxInput,
-  SearchIcon: SearchField.Icon,
+  SearchIcon: ComboboxSearchIcon,
   Toggle: ComboboxToggle,
   Apply: ComboboxApply,
   Popup: ComboboxPopup,

@@ -64,8 +64,8 @@ export const Basic: Story = {
       : frameworks;
 
     return (
-      <div className='relative space-y-1'>
-        <h3 className='text-md font-medium mb-3'>Basic Combobox</h3>
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Basic Combobox</h3>
         <Combobox.Root value={value} onChange={setValue}>
           <Combobox.Content>
             <Combobox.Control>
@@ -106,8 +106,8 @@ export const Multi: Story = {
       : frameworks;
 
     return (
-      <div className='relative space-y-1'>
-        <h3 className='text-md font-medium mb-3'>Multiple Selection</h3>
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Multiple Selection</h3>
         <Combobox.Root value={value} onChange={setValue} selectionMode={'multiple'}>
           <Combobox.Content>
             <Combobox.Control>
@@ -145,7 +145,8 @@ export const CustomFiltering: Story = {
       : frameworks;
 
     return (
-      <div className='relative space-y-1'>
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Custom Filtering</h3>
         <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
           <Combobox.Content>
             <Combobox.Control>
@@ -167,7 +168,11 @@ export const CustomFiltering: Story = {
             </Combobox.Popup>
           </Combobox.Content>
         </Combobox.Root>
-        <p className='text-sm text-main/70'>Selected: {selection}</p>
+        <div className='px-3 py-2 bg-surface-primary rounded-sm'>
+          <p className='text-sm text-main/70'>
+            <span className='font-semibold'>Selected:</span> {selection}
+          </p>
+        </div>
       </div>
     );
   },
@@ -177,13 +182,14 @@ export const Disabled: Story = {
   name: 'Disabled State',
   render: () => {
     return (
-      <div className='relative '>
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Disabled</h3>
         <Combobox.Root disabled>
           <Combobox.Content>
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Input placeholder='Search frameworks' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
@@ -217,7 +223,8 @@ export const WithError: Story = {
       : frameworks;
 
     return (
-      <div className='relative space-y-2'>
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Has errors</h3>
         <Combobox.Root value={value} onChange={setValue} error>
           <Combobox.Content>
             <Combobox.Control>
@@ -256,9 +263,9 @@ export const LongList: Story = {
     const filtered = value ? longList.filter(f => f.name.toLowerCase().includes(value.toLowerCase())) : longList;
 
     return (
-      <div className='relative '>
-        <h3 className='text-md font-medium mb-3'>Long list, stays open on blur</h3>
-        <Combobox.Root value={value} onChange={setValue}>
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Long list, stays open on blur</h3>
+        <Combobox.Root value={value} onChange={setValue} closeOnBlur={false}>
           <Combobox.Content>
             <Combobox.Control>
               <Combobox.Search>
@@ -299,8 +306,8 @@ export const Preselected: Story = {
       : frameworks;
 
     return (
-      <div className='relative space-y-1'>
-        <h3 className='text-md font-medium mb-3'>Some items are preselected</h3>
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Some items are preselected</h3>
         <Combobox.Root
           value={value}
           onChange={setValue}
@@ -347,8 +354,8 @@ export const Staged: Story = {
       : frameworks;
 
     return (
-      <div className='relative w-80 space-y-1'>
-        <h3 className='text-md font-medium mb-3'>Need to confirm selection changes</h3>
+      <div className='relative w-80 space-y-3'>
+        <h3 className='text-md font-medium'>Need to confirm selection changes</h3>
         <Combobox.Root value={value} onChange={setValue} selectionMode={'staged'} closeOnBlur={false}>
           <Combobox.Content>
             <Combobox.Control>
@@ -391,8 +398,11 @@ export const Staged_Preselected: Story = {
       : frameworks;
 
     return (
-      <div className='relative w-80 space-y-1'>
-        <h3 className='text-md font-medium mb-3'>Some items are preselected, changes require confirmation</h3>
+      <div className='relative w-80 space-y-3'>
+        <header>
+          <h3 className='text-md font-medium'>Confirm selection changes</h3>
+          <p className='text-sm text-subtle'>Some items are preselected, changes require confirmation</p>
+        </header>
         <Combobox.Root
           value={value}
           onChange={setValue}
@@ -487,8 +497,25 @@ export const Playground: Story = {
       : frameworks;
 
     return (
-      <div className='relative w-96 space-y-2'>
-        <h3 className='text-md font-medium mb-3'>Playground - Try Different Configurations</h3>
+      <div className='relative w-96 space-y-3'>
+        <header>
+          <h3 className='text-md font-medium'>Playground</h3>
+          <p className='text-sm text-subtle'>Try different configurations</p>
+        </header>
+
+        <div className='px-3 py-2 bg-surface-primary rounded-sm'>
+          <h6 className='text-sm font-medium mb-2'>Current State:</h6>
+          <p className='text-xs text-subtle'>
+            <span className='font-semibold'>Search Value:</span> {value ?? '(empty)'}
+          </p>
+          <p className='text-xs text-subtle'>
+            <span className='font-semibold'>Selected:</span> {selection.length > 0 ? selection.join(', ') : '(none)'}
+          </p>
+          <p className='text-xs text-subtle'>
+            <span className='font-semibold'>Mode:</span> {selectionMode}
+          </p>
+        </div>
+
         <Combobox.Root
           value={value}
           onChange={setValue}
@@ -527,13 +554,6 @@ export const Playground: Story = {
         </Combobox.Root>
 
         {error && <p className='text-sm text-error'>There was an error with your selection</p>}
-
-        <div className='mt-4 p-3 bg-surface-primary rounded-sm'>
-          <p className='text-sm font-medium mb-2'>Current State:</p>
-          <p className='text-xs text-subtle'>Search Value: {value ?? '(empty)'}</p>
-          <p className='text-xs text-subtle'>Selected: {selection.length > 0 ? selection.join(', ') : '(none)'}</p>
-          <p className='text-xs text-subtle'>Mode: {selectionMode}</p>
-        </div>
       </div>
     );
   },
