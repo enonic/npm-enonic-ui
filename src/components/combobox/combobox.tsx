@@ -1,8 +1,9 @@
-import { Listbox, SearchField } from '@/components';
+import { Button, Listbox, SearchField } from '@/components';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
+import { areArraysEquals } from '@/utils/array';
 import { useComposedRefs } from '@/utils/ref';
 import { cva } from 'class-variance-authority';
 import { ChevronDown } from 'lucide-react';
@@ -18,7 +19,14 @@ import {
   useState,
 } from 'react';
 
+// Shared empty array to maintain referential equality across renders
 const EMPTY_SELECTION: readonly string[] = [];
+
+// Helper to update array state only when values differ (prevents unnecessary re-renders)
+const updateArrayIfChanged =
+  <T extends string>(next: readonly T[]) =>
+  (prev: readonly T[]): readonly T[] =>
+    areArraysEquals(prev, next) ? prev : next;
 
 //
 // * Root
@@ -33,7 +41,7 @@ export type ComboboxRootProps = {
   value?: string;
   defaultValue?: string;
   onChange?: (value: string | undefined) => void;
-  selectionMode?: 'single' | 'multiple';
+  selectionMode?: 'single' | 'multiple' | 'staged';
   selection?: readonly string[];
   defaultSelection?: readonly string[];
   onSelectionChange?: (selection: readonly string[]) => void;
@@ -69,29 +77,41 @@ const ComboboxRoot = ({
   const [open, setOpenInternal] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const [inputValue, setInputValueInternal] = useControlledState(value, defaultValue, onChange);
 
-  // Selection - store as Set internally for O(1) lookups
+  const isMultipleSelection = selectionMode !== 'single';
+  const stagingEnabled = selectionMode === 'staged';
+
   const [uncontrolledSelection, setUncontrolledSelection] = useState<Set<string>>(() => new Set(defaultSelection));
   const isSelectionControlled = controlledSelection !== undefined;
-  const selectionSet = useMemo(
+  const appliedSelectionSet = useMemo(
     () => (isSelectionControlled ? new Set(controlledSelection) : uncontrolledSelection),
     [isSelectionControlled, controlledSelection, uncontrolledSelection],
   );
+  const appliedSelection = useMemo(() => Array.from(appliedSelectionSet), [appliedSelectionSet]);
 
-  const onSelectionChangeInner = useCallback(
-    (newSelection: readonly string[]) => {
-      const newSet = new Set(newSelection);
-      if (!isSelectionControlled) {
-        setUncontrolledSelection(newSet);
-      }
+  const [stagedSelection, setStagedSelection] = useState<readonly string[]>(appliedSelection);
 
-      onSelectionChange?.(newSelection);
+  useEffect(() => {
+    if (!stagingEnabled) {
+      setStagedSelection(appliedSelection);
+      return;
+    }
+    setStagedSelection(updateArrayIfChanged(appliedSelection));
+  }, [appliedSelection, stagingEnabled]);
 
-      if (selectionMode === 'single') {
-        setOpenInternal(false);
-      }
-    },
-    [isSelectionControlled, selectionMode, setOpenInternal, onSelectionChange],
+  const currentSelection = stagingEnabled ? stagedSelection : appliedSelection;
+  const currentSelectionSet = useMemo(() => new Set(currentSelection), [currentSelection]);
+  // Checks if staged selection differs from the applied selection
+  const hasStagedChanges = useMemo(
+    () => stagingEnabled && !areArraysEquals(stagedSelection, appliedSelection),
+    [stagingEnabled, stagedSelection, appliedSelection],
   );
+
+  const resetStagedSelection = useCallback(() => {
+    if (!stagingEnabled) {
+      return;
+    }
+    setStagedSelection(updateArrayIfChanged(appliedSelection));
+  }, [stagingEnabled, appliedSelection]);
 
   const [activeInternal, setActiveInternal] = useControlledState(controlledActive, defaultActive, setActive);
 
@@ -106,15 +126,54 @@ const ComboboxRoot = ({
     [setInputValueInternal, setOpenInternal],
   );
 
-  // Wrap setOpen for external use
   const setOpen = useCallback(
     (next: boolean) => {
       setOpenInternal(next);
+      if (!next) {
+        resetStagedSelection();
+      }
     },
-    [setOpenInternal],
+    [setOpenInternal, resetStagedSelection],
   );
 
-  // Keyboard navigation with custom handlers for Combobox-specific keys
+  const commitSelection = useCallback(
+    (newSelection: readonly string[]) => {
+      const newSet = new Set(newSelection);
+      if (!isSelectionControlled) {
+        setUncontrolledSelection(newSet);
+      }
+      onSelectionChange?.(newSelection);
+
+      if (selectionMode === 'single') {
+        setOpenInternal(false);
+      }
+    },
+    [isSelectionControlled, onSelectionChange, selectionMode, setOpenInternal],
+  );
+
+  const handleSelectionChange = useCallback(
+    (nextSelection: readonly string[]) => {
+      if (stagingEnabled) {
+        setStagedSelection(nextSelection);
+        return;
+      }
+
+      commitSelection(nextSelection);
+    },
+    [stagingEnabled, commitSelection],
+  );
+
+  const applyStagedSelection = useCallback(() => {
+    if (!stagingEnabled) {
+      return;
+    }
+    if (!areArraysEquals(stagedSelection, appliedSelection)) {
+      commitSelection(stagedSelection);
+    }
+
+    setOpenInternal(false);
+  }, [stagingEnabled, stagedSelection, appliedSelection, commitSelection, setOpenInternal]);
+
   const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
     getItems,
     isItemDisabled,
@@ -123,14 +182,17 @@ const ComboboxRoot = ({
     loop: false,
     orientation: 'vertical',
     onSelect: id => {
-      // On select, update selection
-      const newSelection =
-        selectionMode === 'multiple'
-          ? selectionSet.has(id)
-            ? Array.from(selectionSet).filter(item => item !== id)
-            : [...Array.from(selectionSet), id]
-          : [id];
-      onSelectionChangeInner(newSelection);
+      let nextSelection: readonly string[];
+
+      if (!isMultipleSelection) {
+        nextSelection = [id];
+      } else if (currentSelection.includes(id)) {
+        nextSelection = currentSelection.filter(item => item !== id);
+      } else {
+        nextSelection = [...currentSelection, id];
+      }
+
+      handleSelectionChange(nextSelection);
     },
   });
 
@@ -150,14 +212,14 @@ const ComboboxRoot = ({
 
       if (e.key === 'Escape') {
         e.preventDefault();
-        setOpenInternal(false);
+        setOpen(false);
         return;
       }
 
       // Delegate to navigation hook for other keys
       handleNavKeyDown(e);
     },
-    [disabled, open, setOpenInternal, handleNavKeyDown],
+    [disabled, open, setOpenInternal, setOpen, handleNavKeyDown],
   );
 
   // Auto-select first item when opening
@@ -182,7 +244,13 @@ const ComboboxRoot = ({
       error,
       closeOnBlur,
       keyHandler,
-      selection: selectionSet,
+      selection: currentSelectionSet,
+      appliedSelection,
+      stagedSelection,
+      stagingEnabled,
+      hasStagedChanges,
+      applyStagedSelection,
+      resetStagedSelection,
     }),
     [
       open,
@@ -195,16 +263,22 @@ const ComboboxRoot = ({
       baseId,
       disabled,
       error,
-      selectionSet,
+      currentSelectionSet,
+      appliedSelection,
+      stagedSelection,
+      stagingEnabled,
+      hasStagedChanges,
+      applyStagedSelection,
+      resetStagedSelection,
     ],
   );
 
   return (
     <ComboboxProvider value={context}>
       <Listbox.Root
-        selectionMode={selectionMode}
-        selection={Array.from(selectionSet)}
-        onSelectionChange={onSelectionChangeInner}
+        selectionMode={isMultipleSelection ? 'multiple' : 'single'}
+        selection={currentSelection}
+        onSelectionChange={handleSelectionChange}
         disabled={disabled}
         active={activeInternal}
         focusable={false}
@@ -221,7 +295,6 @@ const ComboboxRoot = ({
     </ComboboxProvider>
   );
 };
-
 ComboboxRoot.displayName = 'Combobox.Root';
 
 //
@@ -234,12 +307,12 @@ export type ComboboxContentProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
-  ({ className, children }, ref): ReactElement => {
+  ({ className, children, ...props }, ref): ReactElement => {
     const innerRef = useRef<HTMLDivElement>(null);
 
-    const { setOpen, baseId, closeOnBlur } = useCombobox();
+    const { setOpen, closeOnBlur } = useCombobox();
 
-    const handleFocusOut = closeOnBlur
+    const handleOnBlur = closeOnBlur
       ? useCallback(
           (e: React.FocusEvent<HTMLDivElement>): void => {
             const nextTarget = e.relatedTarget as HTMLElement | null;
@@ -250,13 +323,13 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
 
             setOpen(false);
           },
-          [baseId, setOpen],
+          [setOpen],
         )
-      : void 0;
+      : undefined;
 
     return (
-      // eslint-disable-next-line react/no-unknown-property
-      <div onFocusOut={handleFocusOut} ref={useComposedRefs(ref, innerRef)} className={className}>
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+      <div ref={useComposedRefs(ref, innerRef)} className={className} onBlur={handleOnBlur} {...props}>
         {children}
       </div>
     );
@@ -270,7 +343,8 @@ ComboboxContent.displayName = 'Combobox.Content';
 
 const comboboxControlVariants = cva(
   [
-    'flex items-center',
+    'flex gap-2.5 items-center',
+    'h-12 rounded-sm border bg-surface-neutral',
     'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
     'transition-highlight',
   ],
@@ -298,11 +372,11 @@ const comboboxControlVariants = cva(
 );
 
 export type ComboboxControlProps = {
-  children?: ReactNode;
   className?: string;
-};
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'div'>;
 
-const ComboboxControl = ({ children, className }: ComboboxControlProps): ReactElement => {
+const ComboboxControl = ({ className, children, ...props }: ComboboxControlProps): ReactElement => {
   const { open, disabled, error } = useCombobox();
 
   return (
@@ -316,12 +390,12 @@ const ComboboxControl = ({ children, className }: ComboboxControlProps): ReactEl
         className,
       )}
       data-open={open ? 'true' : undefined}
+      {...props}
     >
       {children}
     </div>
   );
 };
-
 ComboboxControl.displayName = 'Combobox.Control';
 
 //
@@ -331,27 +405,25 @@ ComboboxControl.displayName = 'Combobox.Control';
 export type ComboboxInputProps = {
   className?: string;
   placeholder?: string;
-};
+} & ComponentPropsWithoutRef<'input'>;
 
 const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
-  ({ className, placeholder, ...props }, ref): ReactElement => {
+  ({ placeholder, ...props }, ref): ReactElement => {
     const innerRef = useRef<HTMLInputElement>(null);
 
-    const { open, keyHandler, selection, baseId, active, disabled, error } = useCombobox();
+    const { open, keyHandler, baseId, active, disabled, error } = useCombobox();
 
     useEffect(() => {
       if (open && !disabled) {
         innerRef.current?.focus();
       }
-    }, [open, selection, disabled]);
+    }, [open, disabled]);
 
     return (
       <SearchField.Input
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-input`}
         onKeyDown={keyHandler}
-        placeholder={placeholder}
-        disabled={disabled}
         aria-disabled={disabled}
         aria-invalid={error ?? undefined}
         role='combobox'
@@ -367,22 +439,34 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>(
 );
 ComboboxInput.displayName = 'Combobox.Input';
 
-export type ComboboxSearchProps = {
-  children?: ReactNode;
-  className?: string;
-};
+//
+// * Search
+//
 
-const ComboboxSearch = ({ children, className }: ComboboxSearchProps): ReactElement => {
+export type ComboboxSearchProps = {
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<typeof SearchField.Root>;
+
+const ComboboxSearch = ({ children, className, ...props }: ComboboxSearchProps): ReactElement => {
   const { inputValue, setInputValue } = useCombobox();
 
   return (
-    <SearchField.Root value={inputValue} onChange={setInputValue} className={cn('pr-0', className)}>
+    <SearchField.Root
+      value={inputValue}
+      onChange={setInputValue}
+      className={cn(
+        'w-full pr-0',
+        'border-0 focus-within:border-0 focus-within:ring-0 focus-within:ring-offset-0',
+        className,
+      )}
+      {...props}
+    >
       {children}
     </SearchField.Root>
   );
 };
-
-ComboboxControl.displayName = 'Combobox.Control';
+ComboboxSearch.displayName = 'Combobox.Search';
 
 //
 // * Toggle
@@ -390,9 +474,9 @@ ComboboxControl.displayName = 'Combobox.Control';
 
 export type ComboboxToggleProps = {
   className?: string;
-};
+} & Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon'>;
 
-const ComboboxToggle = ({ className }: ComboboxToggleProps): ReactElement => {
+const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElement => {
   const { open, setOpen, disabled } = useCombobox();
 
   return (
@@ -403,10 +487,7 @@ const ComboboxToggle = ({ className }: ComboboxToggleProps): ReactElement => {
       icon={ChevronDown}
       aria-label='Toggle'
       onClick={() => {
-        if (disabled) {
-          return;
-        }
-        setOpen(!open);
+        if (!disabled) setOpen(!open);
       }}
       disabled={disabled}
       tabIndex={-1}
@@ -415,11 +496,35 @@ const ComboboxToggle = ({ className }: ComboboxToggleProps): ReactElement => {
         open && 'rotate-180',
         className,
       )}
+      {...props}
     />
   );
 };
-
 ComboboxToggle.displayName = 'Combobox.Toggle';
+
+export type ComboboxApplyProps = {
+  className?: string;
+} & ComponentPropsWithoutRef<typeof Button>;
+
+const ComboboxApply = ({ className, label = 'Apply', ...props }: ComboboxApplyProps): ReactElement | null => {
+  const { stagingEnabled, hasStagedChanges, applyStagedSelection } = useCombobox();
+
+  if (!stagingEnabled || !hasStagedChanges) {
+    return null;
+  }
+
+  return (
+    <Button
+      className={cn('h-7 px-2.5 min-w-14 gap-2 text-xs', className)}
+      type='button'
+      label={label}
+      variant='outline'
+      onClick={applyStagedSelection}
+      {...props}
+    />
+  );
+};
+ComboboxApply.displayName = 'Combobox.Apply';
 
 //
 // * Popup
@@ -428,9 +533,9 @@ ComboboxToggle.displayName = 'Combobox.Toggle';
 export type ComboboxPopupProps = {
   children?: ReactNode;
   className?: string;
-};
+} & ComponentPropsWithoutRef<'div'>;
 
-const ComboboxPopup = ({ children, className }: ComboboxPopupProps): ReactElement | null => {
+const ComboboxPopup = ({ children, className, ...props }: ComboboxPopupProps): ReactElement | null => {
   const { open } = useCombobox();
 
   if (!open) {
@@ -443,12 +548,12 @@ const ComboboxPopup = ({ children, className }: ComboboxPopupProps): ReactElemen
         'absolute left-0 right-0 z-50 mt-1 rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
         className,
       )}
+      {...props}
     >
       {children}
     </div>
   );
 };
-
 ComboboxPopup.displayName = 'Combobox.Popup';
 
 export const Combobox = Object.assign(ComboboxRoot, {
@@ -459,5 +564,6 @@ export const Combobox = Object.assign(ComboboxRoot, {
   Input: ComboboxInput,
   SearchIcon: SearchField.Icon,
   Toggle: ComboboxToggle,
+  Apply: ComboboxApply,
   Popup: ComboboxPopup,
 });

@@ -11,6 +11,12 @@ export type ComboboxContextValue = {
   setInputValue: (value: string) => void;
 
   selection: ReadonlySet<string>;
+  appliedSelection: readonly string[];
+  stagedSelection: readonly string[];
+  stagingEnabled: boolean;
+  hasStagedChanges: boolean;
+  applyStagedSelection: () => void;
+  resetStagedSelection: () => void;
 
   active?: string;
   keyHandler: (e: React.KeyboardEvent<HTMLElement>) => void;
