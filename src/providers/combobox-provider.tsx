@@ -14,7 +14,7 @@ export type ComboboxContextValue = {
   appliedSelection: readonly string[];
   stagedSelection: readonly string[];
   stagingEnabled: boolean;
-  hasPendingChanges: boolean;
+  hasStagedChanges: boolean;
   applyStagedSelection: () => void;
   resetStagedSelection: () => void;
 
