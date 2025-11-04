@@ -186,6 +186,17 @@ describe('Button Component', () => {
 1. **Lint & Test**: ESLint, TypeScript check, Jest tests
 2. **Build**: Vite & Storybook build
 
+## 🚀 Release Process
+
+If in Claude Code, use the `npm-release` skill (or other related skills if available) when the user requests a release.
+
+**Project-specific context:**
+
+- Package: `@enonic/ui`
+- Release script: `pnpm release:dry` (for validation)
+- CI/CD: GitHub Actions publishes to npm on `v*` tags
+- Verification: https://www.npmjs.com/package/@enonic/ui
+
 ## 🔍 Common Tasks & Examples
 
 ### Adding New Feature
