@@ -2,15 +2,25 @@ import { useCallback, useState } from 'react';
 
 /**
  * Manages state that can be either controlled or uncontrolled.
- * Follows the pattern for controlled/uncontrolled state management.
+ * Follows the React pattern for controlled/uncontrolled state management.
  *
- * @template T - The type of the state value
+ * @template T - The type of the state value (can include `null` for "no value" state)
  *
  * @param controlledValue - The controlled value from props (e.g., `value`, `open`, `checked`)
  * @param defaultValue - The default value for uncontrolled mode (e.g., `defaultValue`, `defaultOpen`)
  * @param onChange - Callback invoked when the value changes
  *
  * @returns A tuple containing the current value and a setter function
+ *
+ * **Controlled vs Uncontrolled Detection:**
+ * - `undefined` = uncontrolled mode (prop not provided)
+ * - Any other value (including `null`) = controlled mode
+ *
+ * **Supporting "No Value" in Controlled Mode:**
+ * Use `null` to represent "no value" in controlled mode:
+ * - `active={null}` → controlled with no active item
+ * - `active="item-1"` → controlled with active item
+ * - `active` not provided → uncontrolled mode
  *
  * @example
  * ```tsx
@@ -24,6 +34,14 @@ import { useCallback, useState } from 'react';
  * function Component({ open, onOpenChange }) {
  *   const [value, setValue] = useControlledState(open, false, onOpenChange);
  *   return <div>{value ? 'Open' : 'Closed'}</div>;
+ * }
+ *
+ * // Controlled with null support (for "no value" state)
+ * function Component({ active, onActiveChange }: { active?: string | null }) {
+ *   const [value, setValue] = useControlledState(active, undefined, onActiveChange);
+ *   // active={null} → controlled, value = null
+ *   // active="item" → controlled, value = "item"
+ *   // active not provided → uncontrolled, value from defaultActive
  * }
  * ```
  */

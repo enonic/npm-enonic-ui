@@ -15,8 +15,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        text: 'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-alt',
-        filled: 'bg-btn-secondary hover:bg-btn-secondary-hover active:bg-btn-active active:text-alt',
+        text: 'bg-btn-primary hover:bg-btn-primary-hover hover:text-main active:bg-btn-active active:text-alt',
+        filled: 'bg-btn-secondary hover:bg-btn-secondary-hover hover:text-main active:bg-btn-active active:text-alt',
         solid: 'bg-btn-tertiary text-alt hover:bg-btn-tertiary-hover active:bg-btn-active',
         outline:
           'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-alt border border-bdr-strong',

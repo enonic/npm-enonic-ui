@@ -2,12 +2,20 @@ import { createContext, type ReactElement, type ReactNode, useContext } from 're
 
 export type ListboxContextValue = {
   baseId: string;
+  /**
+   * Active item ID (`undefined` when no item is active).
+   * Note: Never `null` - the hook converts `null` to `undefined` internally.
+   */
   active?: string;
   selection: ReadonlySet<string>;
   selectionMode: 'single' | 'multiple';
   disabled?: boolean;
   focusable?: boolean;
-  setActive: (id?: string) => void;
+  /**
+   * Set active item.
+   * Accepts `null` for compatibility with controlled prop API, but converts it to `undefined` internally.
+   */
+  setActive: (id?: string | null) => void;
   toggleValue: (value: string) => void;
   keyHandler?: (e: React.KeyboardEvent<HTMLElement>) => void;
   registerItem: (id: string, disabled?: boolean) => void;

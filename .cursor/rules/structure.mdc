@@ -30,26 +30,25 @@ user-card/
 
 ### Component's `index.ts`
 
-Must re-export component and props type in a single statement:
+Should re-export components/functions on first line, types on second line:
 
 ```typescript
 // ❌ Avoid: importing then re-exporting
 import { MyComponent } from './my-component';
 
-// ✅ Correct: single export statement with type
-export { MyComponent, type MyComponentProps } from './my-component';
-
-// ✅ Another example
-export { Button, type ButtonProps } from './button';
-
-// ❌ Avoid: separate export statements
+// ✅ Endorsed: separate exports - components first, types second
 export { MyComponent } from './my-component';
 export type { MyComponentProps } from './my-component';
 
+// ✅ Another example
+export { Button } from './button';
+export type { ButtonProps } from './button';
+
+// ⚠️ Acceptable: combined export with type keyword (but separate is preferred)
+export { MyComponent, type MyComponentProps } from './my-component';
+
 // ❌ Avoid: missing type export
 export { MyComponent } from './my-component';
-
-export { MyComponent };
 ```
 
 ### `src/components/index.ts`

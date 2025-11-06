@@ -4,4 +4,5 @@ export * from './dialog-provider';
 export * from './id-provider';
 export * from './listbox-provider';
 export * from './menu-provider';
+export * from './menubar-provider';
 export * from './search-field-provider';
