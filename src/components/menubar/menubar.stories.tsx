@@ -1,6 +1,6 @@
 import { Button } from '@/components';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { File, Folder, Printer, Save, Settings } from 'lucide-react';
+import { ChevronDown, File, Folder, Printer, Save, Settings } from 'lucide-react';
 import { useState } from 'preact/hooks';
 
 import { Menubar } from './menubar';
@@ -18,7 +18,7 @@ export const Basic: Story = {
   name: 'Basic',
   render: () => (
     <Menubar.Root>
-      <Menubar.Content aria-label='Main navigation'>
+      <Menubar.Nav aria-label='Main navigation'>
         <Menubar.Button asChild>
           <Button variant='text'>File</Button>
         </Menubar.Button>
@@ -31,7 +31,7 @@ export const Basic: Story = {
         <Menubar.Button asChild>
           <Button variant='text'>Help</Button>
         </Menubar.Button>
-      </Menubar.Content>
+      </Menubar.Nav>
     </Menubar.Root>
   ),
 };
@@ -44,7 +44,7 @@ export const WithIcons: Story = {
         Menubar with icon buttons. Use ArrowLeft/ArrowRight to navigate, Enter/Space to activate.
       </div>
       <Menubar.Root>
-        <Menubar.Content
+        <Menubar.Nav
           aria-label='Application actions'
           className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
         >
@@ -68,7 +68,7 @@ export const WithIcons: Story = {
               Settings
             </Button>
           </Menubar.Button>
-        </Menubar.Content>
+        </Menubar.Nav>
       </Menubar.Root>
     </div>
   ),
@@ -82,7 +82,7 @@ export const WithSeparators: Story = {
         Separators provide visual grouping between menubar items. They don&apos;t participate in keyboard navigation.
       </div>
       <Menubar.Root>
-        <Menubar.Content
+        <Menubar.Nav
           aria-label='Actions with separators'
           className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
         >
@@ -113,7 +113,7 @@ export const WithSeparators: Story = {
               Settings
             </Button>
           </Menubar.Button>
-        </Menubar.Content>
+        </Menubar.Nav>
       </Menubar.Root>
     </div>
   ),
@@ -128,7 +128,7 @@ export const WithDisabledItems: Story = {
         ArrowLeft/Right, Home, and End keys.
       </div>
       <Menubar.Root>
-        <Menubar.Content
+        <Menubar.Nav
           aria-label='Actions'
           className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
         >
@@ -157,7 +157,7 @@ export const WithDisabledItems: Story = {
               Settings
             </Button>
           </Menubar.Button>
-        </Menubar.Content>
+        </Menubar.Nav>
       </Menubar.Root>
     </div>
   ),
@@ -174,7 +174,7 @@ export const FocusNavigation: Story = {
       <div className='flex flex-col gap-4'>
         <Button>Before Menubar</Button>
         <Menubar.Root>
-          <Menubar.Content
+          <Menubar.Nav
             aria-label='Navigation'
             className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
           >
@@ -190,7 +190,7 @@ export const FocusNavigation: Story = {
             <Menubar.Button asChild>
               <Button variant='text'>Help</Button>
             </Menubar.Button>
-          </Menubar.Content>
+          </Menubar.Nav>
         </Menubar.Root>
         <Button>After Menubar</Button>
       </div>
@@ -207,7 +207,7 @@ export const NoLoop: Story = {
         ArrowRight at the last item to see the difference.
       </div>
       <Menubar.Root>
-        <Menubar.Content
+        <Menubar.Nav
           aria-label='Navigation'
           loop={false}
           className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
@@ -227,7 +227,7 @@ export const NoLoop: Story = {
           <Menubar.Button asChild>
             <Button variant='text'>Last</Button>
           </Menubar.Button>
-        </Menubar.Content>
+        </Menubar.Nav>
       </Menubar.Root>
     </div>
   ),
@@ -255,7 +255,7 @@ export const Interactive: Story = {
         </div>
 
         <Menubar.Root onActiveChange={setActiveItem}>
-          <Menubar.Content
+          <Menubar.Nav
             aria-label='Actions'
             className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
           >
@@ -279,7 +279,7 @@ export const Interactive: Story = {
                 Settings
               </Button>
             </Menubar.Button>
-          </Menubar.Content>
+          </Menubar.Nav>
         </Menubar.Root>
       </div>
     );
@@ -295,7 +295,7 @@ export const Styled: Story = {
         variants.
       </div>
       <Menubar.Root>
-        <Menubar.Content
+        <Menubar.Nav
           aria-label='Custom styled navigation'
           className='bg-surface-primary border border-bdr-strong rounded-lg p-1.5 shadow-md'
         >
@@ -319,41 +319,194 @@ export const Styled: Story = {
               Help
             </Button>
           </Menubar.Button>
-        </Menubar.Content>
+        </Menubar.Nav>
       </Menubar.Root>
     </div>
   ),
 };
 
-export const Phase2Preview: Story = {
-  name: 'Phase 2 Preview (Not Implemented)',
+export const WithDropdownMenus: Story = {
+  name: 'With Dropdown Menus',
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
-        <strong>Phase 2 Preview:</strong> This shows how Menubar.Menu will integrate with Menu component. Currently, the
-        Menu wrapper is a stub and does not provide menubar integration.
-      </div>
-      <div className='bg-surface-warning/10 border border-bdr-warning rounded-sm p-3 text-sm text-warning'>
-        <strong>Note:</strong> Menu integration is not yet implemented. This is a visual preview only.
+        Complete menubar with dropdown menus. Click or press ArrowDown to open menus. Use ArrowLeft/Right to navigate
+        between menus. Press Escape to close.
       </div>
       <Menubar.Root>
-        <Menubar.Content
+        <Menubar.Nav
           aria-label='Application menu'
           className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
         >
-          <Menubar.Menu>{/* Future: Menu.Trigger, Menu.Content will go here */}</Menubar.Menu>
-          <Menubar.Button asChild>
-            <Button variant='text' startIcon={Save}>
-              Save
-            </Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button variant='text' startIcon={Printer}>
-              Print
-            </Button>
-          </Menubar.Button>
-        </Menubar.Content>
+          <Menubar.Menu>
+            <Menubar.Trigger asChild>
+              <Button variant='text' endIcon={ChevronDown}>
+                File
+              </Button>
+            </Menubar.Trigger>
+            <Menubar.Portal>
+              <Menubar.Content>
+                <Menubar.Item onSelect={() => console.log('New File')}>New File</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Open File')}>Open File</Menubar.Item>
+                <Menubar.Separator />
+                <Menubar.Item onSelect={() => console.log('Save')}>Save</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Save As')}>Save As...</Menubar.Item>
+                <Menubar.Separator />
+                <Menubar.Item onSelect={() => console.log('Exit')}>Exit</Menubar.Item>
+              </Menubar.Content>
+            </Menubar.Portal>
+          </Menubar.Menu>
+
+          <Menubar.Menu>
+            <Menubar.Trigger asChild>
+              <Button variant='text' endIcon={ChevronDown}>
+                Edit
+              </Button>
+            </Menubar.Trigger>
+            <Menubar.Portal>
+              <Menubar.Content>
+                <Menubar.Item onSelect={() => console.log('Undo')}>Undo</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Redo')}>Redo</Menubar.Item>
+                <Menubar.Separator />
+                <Menubar.Item onSelect={() => console.log('Cut')}>Cut</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Copy')}>Copy</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Paste')}>Paste</Menubar.Item>
+              </Menubar.Content>
+            </Menubar.Portal>
+          </Menubar.Menu>
+
+          <Menubar.Menu>
+            <Menubar.Trigger asChild>
+              <Button variant='text' endIcon={ChevronDown}>
+                View
+              </Button>
+            </Menubar.Trigger>
+            <Menubar.Portal>
+              <Menubar.Content>
+                <Menubar.Item onSelect={() => console.log('Zoom In')}>Zoom In</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Zoom Out')}>Zoom Out</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Reset Zoom')}>Reset Zoom</Menubar.Item>
+                <Menubar.Separator />
+                <Menubar.Item onSelect={() => console.log('Fullscreen')}>Fullscreen</Menubar.Item>
+              </Menubar.Content>
+            </Menubar.Portal>
+          </Menubar.Menu>
+        </Menubar.Nav>
       </Menubar.Root>
     </div>
   ),
+};
+
+export const MenusWithLabels: Story = {
+  name: 'Menus with Labels',
+  render: () => (
+    <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='max-w-120 text-sm text-subtle'>
+        Dropdown menus can include labels to organize items into sections.
+      </div>
+      <Menubar.Root>
+        <Menubar.Nav
+          aria-label='File menu'
+          className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+        >
+          <Menubar.Menu>
+            <Menubar.Trigger asChild>
+              <Button variant='text' startIcon={File} endIcon={ChevronDown}>
+                File
+              </Button>
+            </Menubar.Trigger>
+            <Menubar.Portal>
+              <Menubar.Content>
+                <Menubar.Label>Create</Menubar.Label>
+                <Menubar.Item onSelect={() => console.log('New File')}>New File</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('New Folder')}>New Folder</Menubar.Item>
+                <Menubar.Separator />
+                <Menubar.Label>Recent Files</Menubar.Label>
+                <Menubar.Item onSelect={() => console.log('Document.txt')}>Document.txt</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Report.pdf')}>Report.pdf</Menubar.Item>
+                <Menubar.Separator />
+                <Menubar.Label>Actions</Menubar.Label>
+                <Menubar.Item onSelect={() => console.log('Save All')}>Save All</Menubar.Item>
+                <Menubar.Item onSelect={() => console.log('Close All')}>Close All</Menubar.Item>
+              </Menubar.Content>
+            </Menubar.Portal>
+          </Menubar.Menu>
+        </Menubar.Nav>
+      </Menubar.Root>
+    </div>
+  ),
+};
+
+export const MixedMenubarButtonsAndMenus: Story = {
+  name: 'Mixed Buttons and Menus',
+  render: () => {
+    const [lastAction, setLastAction] = useState<string>('None');
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4 items-center'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Menubars can mix regular buttons and dropdown menus. Conditional hover: hovering a trigger while another menu
+          is open automatically switches to that menu.
+        </div>
+        <div className='text-sm'>
+          <span className='text-subtle'>Last action: </span>
+          <span className='font-semibold'>{lastAction}</span>
+        </div>
+        <Menubar.Root>
+          <Menubar.Nav
+            aria-label='Mixed menu'
+            className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+          >
+            <Menubar.Menu>
+              <Menubar.Trigger asChild>
+                <Button variant='text' startIcon={File} endIcon={ChevronDown}>
+                  File
+                </Button>
+              </Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content>
+                  <Menubar.Item onSelect={() => setLastAction('New File')}>New File</Menubar.Item>
+                  <Menubar.Item onSelect={() => setLastAction('Open File')}>Open File</Menubar.Item>
+                  <Menubar.Separator />
+                  <Menubar.Item onSelect={() => setLastAction('Exit')}>Exit</Menubar.Item>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+
+            <Menubar.Separator />
+
+            <Menubar.Button onSelect={() => setLastAction('Save (button)')} asChild>
+              <Button variant='text' startIcon={Save}>
+                Save
+              </Button>
+            </Menubar.Button>
+
+            <Menubar.Button onSelect={() => setLastAction('Print (button)')} asChild>
+              <Button variant='text' startIcon={Printer}>
+                Print
+              </Button>
+            </Menubar.Button>
+
+            <Menubar.Separator />
+
+            <Menubar.Menu>
+              <Menubar.Trigger asChild>
+                <Button variant='text' startIcon={Settings} endIcon={ChevronDown}>
+                  Settings
+                </Button>
+              </Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content>
+                  <Menubar.Item onSelect={() => setLastAction('Preferences')}>Preferences</Menubar.Item>
+                  <Menubar.Item onSelect={() => setLastAction('Keyboard Shortcuts')}>Keyboard Shortcuts</Menubar.Item>
+                  <Menubar.Separator />
+                  <Menubar.Item onSelect={() => setLastAction('About')}>About</Menubar.Item>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+          </Menubar.Nav>
+        </Menubar.Root>
+      </div>
+    );
+  },
 };
