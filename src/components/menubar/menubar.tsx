@@ -9,6 +9,7 @@ import {
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
+import { cva } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
   createContext,
@@ -149,10 +150,7 @@ export type MenubarNavProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
-  (
-    { 'aria-label': ariaLabel, loop = true, className, children, onKeyDown, onFocus, onBlur, ...props },
-    ref,
-  ): ReactElement => {
+  ({ 'aria-label': ariaLabel, loop = true, className, children, onKeyDown, onBlur, ...props }, ref): ReactElement => {
     const { active, setActive, getItems, isItemDisabled, menubarId, menubarRef, setOpenMenuId, openMenuId } =
       useMenubar();
     const composedRefs = useComposedRefs(ref, menubarRef);
@@ -178,7 +176,8 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
         onKeyDown?.(e);
 
         // ArrowDown opens menu if active item is a menu trigger
-        if (e.key === 'ArrowDown' && active) {
+        const isActionKey = e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ';
+        if (isActionKey && active) {
           const activeElement = document.getElementById(active);
           if (activeElement && activeElement.getAttribute('aria-haspopup') === 'menu') {
             e.preventDefault();
@@ -200,21 +199,6 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
         handleNavKeyDown(e);
       },
       [onKeyDown, handleNavKeyDown, active, setOpenMenuId],
-    );
-
-    const handleFocus = useCallback(
-      (e: React.FocusEvent<HTMLDivElement>): void => {
-        onFocus?.(e);
-        // Auto-activate first non-disabled item when menubar receives focus
-        if (!active) {
-          const items = getItems();
-          const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
-          if (firstSelectableItem) {
-            setActive(firstSelectableItem);
-          }
-        }
-      },
-      [onFocus, active, getItems, isItemDisabled, setActive],
     );
 
     const handleBlur = useCallback(
@@ -263,11 +247,9 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
         role='menubar'
         aria-label={ariaLabel}
         aria-orientation='horizontal'
-        aria-activedescendant={active}
-        tabIndex={0}
-        className={cn('flex items-center gap-1', 'focus-within:outline-3 focus-within:outline-offset-3', className)}
+        tabIndex={-1}
+        className={cn('flex items-center gap-1.5 p-1.5', className)}
         onKeyDown={handleKeyDown_}
-        onFocus={handleFocus}
         onBlur={handleBlur}
         {...props}
       >
@@ -327,13 +309,16 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
       onPointerMove,
       onPointerDown,
       onPointerLeave,
+      onFocus,
       ...props
     },
     ref,
   ): ReactElement => {
     const id = usePrefixedId(providedId, 'menubar-button');
-    const { active, setActive, registerItem, unregisterItem, openMenuId } = useMenubar();
+    const { active, setActive, registerItem, unregisterItem, openMenuId, getItems, isItemDisabled } = useMenubar();
     const isActive = active === id;
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const composedRefs = useComposedRefs(ref, buttonRef);
 
     useEffect(() => {
       registerItem(id, disabled);
@@ -374,12 +359,12 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
         // Phase 1: Hover activation disabled (openMenuId is always undefined)
         // Phase 2: Hover activates and opens menu only when another menu is already open
         // This implements the "conditional hover" pattern from W3C ARIA APG
-        if (!disabled && openMenuId) {
+        if (!disabled && openMenuId && active !== undefined) {
           setActive(id);
           // TODO Phase 2: If this button has a menu, open it and close the previous menu
         }
       },
-      [disabled, openMenuId, setActive, id, onPointerMove],
+      [disabled, openMenuId, setActive, active, id, onPointerMove],
     );
 
     const handlePointerLeave = useCallback(
@@ -387,37 +372,56 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
         onPointerLeave?.(e);
         // Only clear active state if no menu is open or this item's menu isn't open
         // Phase 2: Prevents clearing active state when user moves into the open menu
-        if (!openMenuId || openMenuId !== id) {
+        if ((!openMenuId || openMenuId !== id) && document.activeElement !== buttonRef.current) {
           setActive(undefined);
         }
       },
-      [openMenuId, id, setActive, onPointerLeave],
+      [openMenuId, id, active, setActive, onPointerLeave, buttonRef],
     );
+
+    const handleFocus = useCallback(
+      (e: React.FocusEvent<HTMLButtonElement>): void => {
+        onFocus?.(e);
+        if (disabled) return;
+        setActive(id);
+      },
+      [onFocus, disabled, setActive, id],
+    );
+
+    const items = getItems();
+    const firstItem = items.length > 0 ? items[0] : undefined;
+    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? id;
+    const isFocusable = !disabled && fallbackFocusableId === id;
+
+    useEffect(() => {
+      if (!disabled && isActive && document.activeElement !== buttonRef.current) {
+        buttonRef.current?.focus();
+      }
+    }, [isActive, disabled]);
 
     const Comp = asChild ? Slot : 'button';
 
     return (
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
-        ref={ref}
+        ref={composedRefs}
         id={id}
         type={asChild ? undefined : 'button'}
         role='menuitem'
-        tabIndex={-1}
+        tabIndex={disabled ? -1 : isFocusable ? 0 : -1}
         aria-disabled={disabled}
-        data-active={isActive || undefined}
         data-disabled={disabled || undefined}
         data-tone={isActive ? 'inverse' : undefined}
         className={cn(
-          'group px-3 py-2 rounded-sm text-sm cursor-pointer outline-none',
-          isActive && 'bg-surface-primary-selected text-alt',
-          disabled && 'opacity-30 cursor-not-allowed pointer-events-none',
+          'group px-4.5 py-2.5 rounded-sm text-sm cursor-pointer outline-none',
+          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-bdr-strong focus-visible:ring-offset-3',
           className,
         )}
         onClick={handleClick}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        onFocus={handleFocus}
         {...props}
       >
         {children}
@@ -629,11 +633,22 @@ export type MenubarTriggerProps = {
 
 const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
   (
-    { asChild, className, children, onClick, onKeyDown, onPointerMove, onPointerDown, onPointerLeave, ...props },
+    {
+      asChild,
+      className,
+      children,
+      onClick,
+      onKeyDown,
+      onPointerMove,
+      onPointerDown,
+      onPointerLeave,
+      onFocus,
+      ...props
+    },
     ref,
   ): ReactElement => {
     const { menuId, contentId, open, setOpen, triggerRef, menubarContext } = useMenubarMenu();
-    const { active, setActive, openMenuId, isItemDisabled } = menubarContext;
+    const { active, setActive, openMenuId, isItemDisabled, getItems } = menubarContext;
     const composedRefs = useComposedRefs(ref, triggerRef);
     const isActive = active === menuId;
     const disabled = isItemDisabled(menuId);
@@ -684,6 +699,9 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         onPointerMove?.(e);
         if (disabled) return;
 
+        // If nothing is active, don't set active state
+        if (active === undefined) return;
+
         // Always update active state on hover
         setActive(menuId);
 
@@ -692,19 +710,39 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
           setOpen(true);
         }
       },
-      [disabled, openMenuId, menuId, setActive, setOpen, onPointerMove],
+      [disabled, openMenuId, menuId, active, setActive, setOpen, onPointerMove],
     );
 
     const handlePointerLeave = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
         // Only clear active state if this menu isn't open
-        if (!open) {
+        if (!open && document.activeElement !== triggerRef?.current) {
           setActive(undefined);
         }
       },
-      [open, setActive, onPointerLeave],
+      [open, setActive, onPointerLeave, triggerRef],
     );
+
+    const handleFocus = useCallback(
+      (e: React.FocusEvent<HTMLButtonElement>): void => {
+        onFocus?.(e);
+        if (disabled) return;
+        setActive(menuId);
+      },
+      [onFocus, disabled, setActive, menuId],
+    );
+
+    const items = getItems();
+    const firstItem = items.length > 0 ? items[0] : undefined;
+    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? menuId;
+    const isFocusable = !disabled && fallbackFocusableId === menuId;
+
+    useEffect(() => {
+      if (!disabled && isActive && triggerRef && document.activeElement !== triggerRef.current) {
+        triggerRef.current?.focus();
+      }
+    }, [isActive, disabled, triggerRef]);
 
     const Comp = asChild ? Slot : 'button';
 
@@ -715,18 +753,19 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         id={menuId}
         type={asChild ? undefined : 'button'}
         role='menuitem'
-        tabIndex={-1}
+        tabIndex={disabled ? -1 : isFocusable ? 0 : -1}
         aria-haspopup='menu'
         aria-expanded={open}
         aria-controls={open ? contentId : undefined}
         aria-disabled={disabled}
-        data-active={isActive || undefined}
+        data-active={open}
         data-disabled={disabled || undefined}
         data-state={open ? 'open' : 'closed'}
         data-tone={isActive ? 'inverse' : undefined}
         className={cn(
-          'group px-3 py-2 rounded-sm text-sm cursor-pointer outline-none',
-          isActive && 'bg-surface-primary-selected text-alt',
+          'group px-4.5 py-2.5 rounded-sm text-sm cursor-pointer outline-none',
+          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-bdr-strong focus-visible:ring-offset-3',
+          open && 'bg-btn-active text-alt',
           disabled && 'opacity-30 cursor-not-allowed pointer-events-none',
           className,
         )}
@@ -735,6 +774,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        onFocus={handleFocus}
         {...props}
       >
         {children}
@@ -835,7 +875,7 @@ export type MenubarContentProps = {
   /** Keep content mounted in DOM even when menu is closed */
   forceMount?: boolean;
   /** Callback when Escape key is pressed */
-  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onEscapeKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   /** Callback when pointer clicks outside the menu */
   onPointerDownOutside?: (event: PointerEvent) => void;
   /** Callback when any outside interaction occurs */
@@ -861,7 +901,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
     ref,
   ): ReactElement | null => {
     const { menuId, contentId, open, setOpen, triggerRef, menubarContext } = useMenubarMenu();
-    const { getItems: getMenubarItems, setActive: setMenubarActive, menubarRef } = menubarContext;
+    const { getItems: getMenubarItems, setActive: setMenubarActive } = menubarContext;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
 
@@ -896,16 +936,13 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
 
-        // Escape closes menu and returns focus to menubar
+        // Escape closes menu and returns focus to the trigger
         if (e.key === 'Escape') {
           e.preventDefault();
           e.stopPropagation();
           setOpen(false);
-          onEscapeKeyDown?.(e as unknown as KeyboardEvent);
-          // Focus returns to menubar container
-          if (menubarRef?.current) {
-            menubarRef.current.focus();
-          }
+          onEscapeKeyDown?.(e);
+          triggerRef?.current?.focus();
           return;
         }
 
@@ -924,28 +961,32 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
 
           if (currentIndex === -1) return;
 
-          const nextIndex =
-            e.key === 'ArrowRight'
-              ? (currentIndex + 1) % menubarItems.length
-              : (currentIndex - 1 + menubarItems.length) % menubarItems.length;
+          const direction = e.key === 'ArrowRight' ? 1 : -1;
+          let nextIndex = (currentIndex + direction + menubarItems.length) % menubarItems.length;
+          let attempts = 0;
+
+          while (attempts < menubarItems.length && menubarContext.isItemDisabled(menubarItems[nextIndex])) {
+            nextIndex = (nextIndex + direction + menubarItems.length) % menubarItems.length;
+            attempts += 1;
+          }
 
           const nextMenuId = menubarItems[nextIndex];
+          if (!nextMenuId || menubarContext.isItemDisabled(nextMenuId)) {
+            return;
+          }
 
           // Activate next menubar item
           setMenubarActive(nextMenuId);
 
           // Check if next item is a menu trigger
           const nextElement = document.getElementById(nextMenuId);
+          nextElement?.focus();
           if (nextElement && nextElement.getAttribute('aria-haspopup') === 'menu') {
             // Open next menu (this will close the current menu via MenubarMenu sync effect)
             menubarContext.setOpenMenuId(nextMenuId);
           } else {
             // Next item is a button, close current menu
             setOpen(false);
-            // Focus menubar so keyboard navigation continues
-            if (menubarRef?.current) {
-              menubarRef.current.focus();
-            }
           }
 
           return;
@@ -961,25 +1002,19 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
         menuId,
         getMenubarItems,
         setMenubarActive,
-        menubarRef,
         menubarContext,
         handleNavKeyDown,
+        triggerRef,
       ],
     );
 
-    // Auto-focus menu content and first item when menu opens
+    // Auto-focus first item when menu opens
     // Wait for position to be calculated so element is visible before focusing
     useEffect(() => {
       if (open && position !== null) {
-        // Use requestAnimationFrame to ensure DOM has updated with visibility
-        requestAnimationFrame(() => {
-          if (contentRef.current) {
-            contentRef.current.focus();
-          }
-        });
-
         const items = getItems();
-        const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
+        const firstItem = items.length > 0 ? items[0] : undefined;
+        const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId)) ?? firstItem;
         if (firstSelectableItem) {
           setActive(firstSelectableItem);
         }
@@ -1097,7 +1132,6 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
           id={contentId}
           role='menu'
           aria-orientation='vertical'
-          aria-activedescendant={active}
           aria-labelledby={menuId}
           tabIndex={-1}
           data-state={open ? 'open' : 'closed'}
@@ -1111,8 +1145,12 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
             visibility: isPositioned ? 'visible' : 'hidden',
           }}
           className={cn(
-            'min-w-48 bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-lg',
-            'focus:outline-none',
+            'flex flex-col items-start w-fit py-2.5 mt-2.5 overflow-hidden',
+            'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg',
+            // Animations
+            'data-[state=open]:animate-in data-[state=closed]:animate-out',
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
             className,
           )}
           onKeyDown={handleKeyDown_}
@@ -1129,6 +1167,38 @@ MenubarContent.displayName = 'Menubar.Content';
 //
 // * MenubarItem
 //
+
+const menubarItemVariants = cva(
+  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none',
+  {
+    variants: {
+      active: {
+        true: 'bg-surface-primary-selected text-alt',
+        false: '',
+      },
+      disabled: {
+        true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
+        false: '',
+      },
+    },
+    compoundVariants: [
+      {
+        active: true,
+        disabled: false,
+        class: 'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-bdr-strong',
+      },
+      {
+        active: false,
+        disabled: false,
+        class: 'hover:bg-surface-primary-hover',
+      },
+    ],
+    defaultVariants: {
+      active: false,
+      disabled: false,
+    },
+  },
+);
 
 /**
  * An interactive item within a menubar dropdown menu.
@@ -1178,14 +1248,17 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
       onClick,
       onPointerMove,
       onPointerLeave,
+      onFocus,
       ...props
     },
     ref,
   ): ReactElement => {
     const id = usePrefixedId(providedId, 'menubar-item');
-    const { registerItem, unregisterItem, active, setActive } = useMenubarContent();
-    const { setOpen, menubarContext } = useMenubarMenu();
+    const { registerItem, unregisterItem, active, setActive, getItems, isItemDisabled } = useMenubarContent();
+    const { setOpen, triggerRef } = useMenubarMenu();
     const isActive = active === id;
+    const itemRef = useRef<HTMLDivElement>(null);
+    const composedRefs = useComposedRefs(ref, itemRef);
 
     useEffect(() => {
       registerItem(id, disabled);
@@ -1203,12 +1276,10 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
         // Close menu after selection
         setOpen(false);
 
-        // Return focus to menubar so user can continue navigating
-        if (menubarContext.menubarRef?.current) {
-          menubarContext.menubarRef.current.focus();
-        }
+        // Return focus to trigger so user can continue navigating
+        triggerRef?.current?.focus();
       },
-      [disabled, onClick, onSelect, setOpen, menubarContext],
+      [disabled, onClick, onSelect, setOpen, triggerRef],
     );
 
     const handlePointerMove = useCallback(
@@ -1224,33 +1295,51 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
     const handlePointerLeave = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
-        setActive(undefined);
+        if (document.activeElement !== itemRef.current) {
+          setActive(undefined);
+        }
       },
-      [setActive, onPointerLeave],
+      [setActive, onPointerLeave, itemRef],
     );
+
+    const handleFocus = useCallback(
+      (e: React.FocusEvent<HTMLDivElement>): void => {
+        onFocus?.(e);
+        if (disabled) return;
+        setActive(id);
+      },
+      [onFocus, disabled, setActive, id],
+    );
+
+    const items = getItems();
+    const firstItem = items.length > 0 ? items[0] : undefined;
+    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? id;
+    const isFocusable = !disabled && fallbackFocusableId === id;
+
+    useEffect(() => {
+      if (!disabled && isActive && document.activeElement !== itemRef.current) {
+        itemRef.current?.focus();
+      }
+    }, [isActive, disabled]);
 
     const Comp = asChild ? Slot : 'div';
 
     return (
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
-        ref={ref}
+        ref={composedRefs}
         id={id}
         role='menuitem'
-        tabIndex={-1}
+        tabIndex={disabled ? -1 : isFocusable ? 0 : -1}
         aria-disabled={disabled}
         data-active={isActive || undefined}
         data-disabled={disabled || undefined}
         data-tone={isActive ? 'inverse' : undefined}
-        className={cn(
-          'group px-3 py-2 rounded-sm text-sm cursor-pointer outline-none',
-          isActive && 'bg-surface-primary-selected text-alt',
-          disabled && 'opacity-30 cursor-not-allowed pointer-events-none',
-          className,
-        )}
+        className={cn(menubarItemVariants({ active: isActive, disabled }), className)}
         onClick={handleClick}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        onFocus={handleFocus}
         {...props}
       >
         {children}

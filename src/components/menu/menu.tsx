@@ -106,10 +106,11 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
         type={asChild ? undefined : 'button'}
         aria-haspopup='menu'
         aria-expanded={open}
+        data-active={open}
         aria-controls={open ? menuId : undefined}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        className={className}
+        className={cn(open && 'bg-btn-active text-alt', className)}
         {...props}
       >
         {children}
@@ -390,7 +391,7 @@ MenuContent.displayName = 'Menu.Content';
 const menuItemVariants = cva('flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none', {
   variants: {
     active: {
-      true: 'bg-surface-primary-selected',
+      true: 'bg-surface-primary-selected text-alt',
       false: '',
     },
     disabled: {
@@ -402,7 +403,8 @@ const menuItemVariants = cva('flex w-full items-center px-4.5 py-2.5 gap-x-1.25 
     {
       active: true,
       disabled: false,
-      class: 'text-alt outline-none ring-3 ring-inset ring-bdr-strong',
+      class:
+        'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-bdr-strong hover:bg-surface-primary-selected hover:text-alt',
     },
   ],
   defaultVariants: {
@@ -420,65 +422,115 @@ export type MenuItemProps = {
   children: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
-const MenuItem = ({
-  id: providedId,
-  asChild = false,
-  disabled = false,
-  onSelect,
-  className,
-  children,
-  ...props
-}: MenuItemProps): ReactElement => {
-  const id = usePrefixedId(providedId, providedId ? undefined : 'menu-item');
-  const { active, setActive, setOpen, registerItem, unregisterItem } = useMenu();
-  const isActive = active === id;
-  const isDisabled = disabled;
+const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
+  (
+    {
+      id: providedId,
+      asChild = false,
+      disabled = false,
+      onSelect,
+      className,
+      children,
+      onClick,
+      onPointerMove,
+      onPointerLeave,
+      onFocus,
+      ...props
+    },
+    ref,
+  ): ReactElement => {
+    const id = usePrefixedId(providedId, providedId ? undefined : 'menu-item');
+    const { active, setActive, setOpen, registerItem, unregisterItem, getItems, isItemDisabled } = useMenu();
+    const isActive = active === id;
+    const isDisabled = disabled;
+    const itemRef = useRef<HTMLDivElement>(null);
+    const composedRefs = useComposedRefs(ref, itemRef);
 
-  useEffect(() => {
-    registerItem(id, disabled);
-    return () => unregisterItem(id);
-  }, [id, disabled, registerItem, unregisterItem]);
+    useEffect(() => {
+      registerItem(id, disabled);
+      return () => unregisterItem(id);
+    }, [id, disabled, registerItem, unregisterItem]);
 
-  const handleClick = useCallback((): void => {
-    if (isDisabled) {
-      return;
-    }
-    const event = new Event('select', { bubbles: true, cancelable: true });
-    onSelect?.(event);
-    if (!event.defaultPrevented) {
-      setOpen(false);
-    }
-  }, [isDisabled, onSelect, setOpen]);
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLDivElement>): void => {
+        onClick?.(e);
+        if (isDisabled) {
+          return;
+        }
+        const event = new Event('select', { bubbles: true, cancelable: true });
+        onSelect?.(event);
+        if (!event.defaultPrevented) {
+          setOpen(false);
+        }
+      },
+      [isDisabled, onSelect, setOpen, onClick],
+    );
 
-  const handlePointerMove = useCallback(() => {
-    if (!isActive) {
-      setActive(id);
-    }
-  }, [isActive, setActive, id]);
+    const handlePointerMove = useCallback(
+      (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerMove']>>[0]): void => {
+        onPointerMove?.(e);
+        if (!isActive && !isDisabled) {
+          setActive(id);
+        }
+      },
+      [isActive, setActive, id, isDisabled, onPointerMove],
+    );
 
-  const handlePointerLeave = useCallback(() => {
-    setActive(undefined);
-  }, [setActive]);
+    const handlePointerLeave = useCallback(
+      (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerLeave']>>[0]): void => {
+        onPointerLeave?.(e);
+        if (document.activeElement !== itemRef.current) {
+          setActive(undefined);
+        }
+      },
+      [setActive, onPointerLeave, itemRef],
+    );
 
-  const Comp = asChild ? Slot : 'div';
+    const handleFocus = useCallback(
+      (e: React.FocusEvent<HTMLDivElement>): void => {
+        onFocus?.(e);
+        if (isDisabled) return;
+        setActive(id);
+      },
+      [onFocus, isDisabled, setActive, id],
+    );
 
-  return (
-    <Comp
-      id={id}
-      role='menuitem'
-      aria-disabled={isDisabled}
-      data-active={isActive || undefined}
-      data-disabled={isDisabled || undefined}
-      className={cn(menuItemVariants({ active: isActive, disabled: isDisabled }), className)}
-      onClick={handleClick}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
-      {...props}
-    >
-      {children}
-    </Comp>
-  );
-};
+    const items = getItems();
+    const firstItem = items.length > 0 ? items[0] : undefined;
+    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? id;
+    const isFocusable = !isDisabled && fallbackFocusableId === id;
+
+    useEffect(() => {
+      if (!isDisabled && isActive && document.activeElement !== itemRef.current) {
+        itemRef.current?.focus();
+      }
+    }, [isActive, isDisabled]);
+
+    const Comp = asChild ? Slot : 'div';
+
+    return (
+      <Comp
+        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
+        ref={composedRefs}
+        id={id}
+        role='menuitem'
+        tabIndex={isDisabled ? -1 : isFocusable ? 0 : -1}
+        aria-disabled={isDisabled}
+        data-active={isActive || undefined}
+        data-disabled={isDisabled || undefined}
+        data-tone={isActive ? 'inverse' : undefined}
+        className={cn(menuItemVariants({ active: isActive, disabled: isDisabled }), className)}
+        onClick={handleClick}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        onFocus={handleFocus}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  },
+);
 MenuItem.displayName = 'Menu.Item';
 
 //

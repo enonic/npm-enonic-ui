@@ -20,16 +20,24 @@ export const Basic: Story = {
     <Menubar.Root>
       <Menubar.Nav aria-label='Main navigation'>
         <Menubar.Button asChild>
-          <Button variant='text'>File</Button>
+          <Button className='bg-transparent' variant='text'>
+            File
+          </Button>
         </Menubar.Button>
         <Menubar.Button asChild>
-          <Button variant='text'>Edit</Button>
+          <Button className='bg-transparent' variant='text'>
+            Edit
+          </Button>
         </Menubar.Button>
         <Menubar.Button asChild>
-          <Button variant='text'>View</Button>
+          <Button className='bg-transparent' variant='text'>
+            View
+          </Button>
         </Menubar.Button>
         <Menubar.Button asChild>
-          <Button variant='text'>Help</Button>
+          <Button className='bg-transparent' variant='text'>
+            Help
+          </Button>
         </Menubar.Button>
       </Menubar.Nav>
     </Menubar.Root>
@@ -46,25 +54,25 @@ export const WithIcons: Story = {
       <Menubar.Root>
         <Menubar.Nav
           aria-label='Application actions'
-          className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+          className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
         >
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={File}>
+            <Button className='bg-transparent' variant='text' startIcon={File}>
               New
             </Button>
           </Menubar.Button>
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Save}>
+            <Button className='bg-transparent' variant='text' startIcon={Save}>
               Save
             </Button>
           </Menubar.Button>
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Printer}>
+            <Button className='bg-transparent' variant='text' startIcon={Printer}>
               Print
             </Button>
           </Menubar.Button>
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Settings}>
+            <Button className='bg-transparent' variant='text' startIcon={Settings}>
               Settings
             </Button>
           </Menubar.Button>
@@ -84,32 +92,32 @@ export const WithSeparators: Story = {
       <Menubar.Root>
         <Menubar.Nav
           aria-label='Actions with separators'
-          className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+          className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
         >
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={File}>
+            <Button className='bg-transparent' variant='text' startIcon={File}>
               New
             </Button>
           </Menubar.Button>
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Folder}>
+            <Button className='bg-transparent' variant='text' startIcon={Folder}>
               Open
             </Button>
           </Menubar.Button>
           <Menubar.Separator />
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Save}>
+            <Button className='bg-transparent' variant='text' startIcon={Save}>
               Save
             </Button>
           </Menubar.Button>
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Printer}>
+            <Button className='bg-transparent' variant='text' startIcon={Printer}>
               Print
             </Button>
           </Menubar.Button>
           <Menubar.Separator />
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Settings}>
+            <Button className='bg-transparent' variant='text' startIcon={Settings}>
               Settings
             </Button>
           </Menubar.Button>
@@ -128,32 +136,29 @@ export const WithDisabledItems: Story = {
         ArrowLeft/Right, Home, and End keys.
       </div>
       <Menubar.Root>
-        <Menubar.Nav
-          aria-label='Actions'
-          className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
-        >
+        <Menubar.Nav aria-label='Actions' className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'>
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={File}>
+            <Button className='bg-transparent' variant='text' startIcon={File}>
               New
             </Button>
           </Menubar.Button>
           <Menubar.Button disabled asChild>
-            <Button variant='text' startIcon={Folder} disabled>
+            <Button className='bg-transparent' variant='text' startIcon={Folder} disabled>
               Open
             </Button>
           </Menubar.Button>
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Save}>
+            <Button className='bg-transparent' variant='text' startIcon={Save}>
               Save
             </Button>
           </Menubar.Button>
           <Menubar.Button disabled asChild>
-            <Button variant='text' startIcon={Printer} disabled>
+            <Button className='bg-transparent' variant='text' startIcon={Printer} disabled>
               Print
             </Button>
           </Menubar.Button>
           <Menubar.Button asChild>
-            <Button variant='text' startIcon={Settings}>
+            <Button className='bg-transparent' variant='text' startIcon={Settings}>
               Settings
             </Button>
           </Menubar.Button>
@@ -176,19 +181,27 @@ export const FocusNavigation: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='Navigation'
-            className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
           >
             <Menubar.Button asChild>
-              <Button variant='text'>File</Button>
+              <Button className='bg-transparent' variant='text'>
+                File
+              </Button>
             </Menubar.Button>
             <Menubar.Button asChild>
-              <Button variant='text'>Edit</Button>
+              <Button className='bg-transparent' variant='text'>
+                Edit
+              </Button>
             </Menubar.Button>
             <Menubar.Button asChild>
-              <Button variant='text'>View</Button>
+              <Button className='bg-transparent' variant='text'>
+                View
+              </Button>
             </Menubar.Button>
             <Menubar.Button asChild>
-              <Button variant='text'>Help</Button>
+              <Button className='bg-transparent' variant='text'>
+                Help
+              </Button>
             </Menubar.Button>
           </Menubar.Nav>
         </Menubar.Root>
@@ -210,7 +223,7 @@ export const NoLoop: Story = {
         <Menubar.Nav
           aria-label='Navigation'
           loop={false}
-          className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+          className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
         >
           <Menubar.Button asChild>
             <Button variant='text'>First</Button>
@@ -257,25 +270,25 @@ export const Interactive: Story = {
         <Menubar.Root onActiveChange={setActiveItem}>
           <Menubar.Nav
             aria-label='Actions'
-            className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
           >
             <Menubar.Button onSelect={() => handleSelect('New File')} asChild>
-              <Button variant='text' startIcon={File}>
+              <Button className='bg-transparent' variant='text' startIcon={File}>
                 New
               </Button>
             </Menubar.Button>
             <Menubar.Button onSelect={() => handleSelect('Save File')} asChild>
-              <Button variant='text' startIcon={Save}>
+              <Button className='bg-transparent' variant='text' startIcon={Save}>
                 Save
               </Button>
             </Menubar.Button>
             <Menubar.Button disabled onSelect={() => handleSelect('Print (should not trigger)')} asChild>
-              <Button variant='text' startIcon={Printer} disabled>
+              <Button className='bg-transparent' variant='text' startIcon={Printer} disabled>
                 Print
               </Button>
             </Menubar.Button>
             <Menubar.Button onSelect={() => handleSelect('Settings')} asChild>
-              <Button variant='text' startIcon={Settings}>
+              <Button className='bg-transparent' variant='text' startIcon={Settings}>
                 Settings
               </Button>
             </Menubar.Button>
@@ -297,7 +310,7 @@ export const Styled: Story = {
       <Menubar.Root>
         <Menubar.Nav
           aria-label='Custom styled navigation'
-          className='bg-surface-primary border border-bdr-strong rounded-lg p-1.5 shadow-md'
+          className='bg-surface-primary border border-bdr-strong rounded-xl shadow-md'
         >
           <Menubar.Button asChild>
             <Button variant='solid' size='sm'>
@@ -336,7 +349,7 @@ export const WithDropdownMenus: Story = {
       <Menubar.Root>
         <Menubar.Nav
           aria-label='Application menu'
-          className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+          className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
         >
           <Menubar.Menu>
             <Menubar.Trigger asChild>
@@ -407,7 +420,7 @@ export const MenusWithLabels: Story = {
       <Menubar.Root>
         <Menubar.Nav
           aria-label='File menu'
-          className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+          className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
         >
           <Menubar.Menu>
             <Menubar.Trigger asChild>
@@ -455,7 +468,7 @@ export const MixedMenubarButtonsAndMenus: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='Mixed menu'
-            className='bg-surface-neutral border border-bdr-subtle rounded-md p-1 shadow-sm'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
           >
             <Menubar.Menu>
               <Menubar.Trigger asChild>
