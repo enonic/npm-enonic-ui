@@ -1,4 +1,9 @@
-import { useControlledState, useItemRegistry, type UseItemRegistryReturn, useKeyboardNavigation } from '@/hooks';
+import {
+  useControlledStateWithNull,
+  useItemRegistry,
+  type UseItemRegistryReturn,
+  useKeyboardNavigation,
+} from '@/hooks';
 import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { cva } from 'class-variance-authority';
@@ -21,9 +26,12 @@ export type ListboxRootProps = {
   selection?: readonly string[];
   defaultSelection?: readonly string[];
   onSelectionChange?: (selection: readonly string[]) => void;
-  active?: string;
+  /** Controlled active item ID (use `null` for no active item, omit for uncontrolled) */
+  active?: string | null;
+  /** Default active item ID (uncontrolled mode) */
   defaultActive?: string;
-  setActive?: (active: string | undefined) => void;
+  /** Callback when active item changes */
+  setActive?: (active: string | null | undefined) => void;
   selectionMode?: 'single' | 'multiple';
   disabled?: boolean;
   focusable?: boolean;
@@ -64,7 +72,7 @@ const ListboxRoot = ({
     [isSelectionControlled, controlledSelection, uncontrolledSelection],
   );
 
-  const [active, updateActive] = useControlledState(controlledActive, defaultActive, setActive);
+  const [active, updateActive] = useControlledStateWithNull(controlledActive, defaultActive, setActive);
 
   // Use external registry if provided (for Combobox), otherwise create internal registry
   const internalRegistry = useItemRegistry();
@@ -285,7 +293,7 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
       aria-disabled={isDisabled ?? undefined}
       data-value={value}
       data-active={isActive || undefined}
-      data-tone={isSelected && 'inverse'}
+      data-tone={isSelected ? 'inverse' : undefined}
       onClick={handleClick}
       {...props}
     >

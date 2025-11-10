@@ -265,7 +265,7 @@ export const OuterNavigation: Story = {
   },
   render: () => {
     const [selection, setSelection] = useState<readonly string[]>([]);
-    const [active, setActive] = useState<string | undefined>(undefined);
+    const [active, setActive] = useState<string | null | undefined>(undefined);
 
     const navHandler = (delta: number): void => {
       const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
@@ -337,7 +337,7 @@ export const WithCustomGroups: Story = {
     ];
 
     return (
-      <div className='min-w-72 p-4'>
+      <div className='w-72 p-4'>
         <h3 className='text-sm font-medium mb-3'>Select frameworks (grouped)</h3>
         <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
           <Listbox.Content className='max-h-60' label='Select frameworks (grouped)'>
@@ -370,9 +370,7 @@ export const WithCustomGroups: Story = {
           </Listbox.Content>
         </Listbox>
 
-        <p className='text-sm text-main/70 mt-3 max-w-100'>
-          Selected: {selection.length > 0 ? selection.join(', ') : 'None'}
-        </p>
+        <p className='text-sm text-main/70 mt-3'>Selected: {selection.length > 0 ? selection.join(', ') : 'None'}</p>
       </div>
     );
   },

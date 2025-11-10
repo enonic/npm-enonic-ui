@@ -96,7 +96,7 @@ const ListItemRoot = ({ children, className, selected, ...props }: ListItemProps
         selected && 'bg-surface-primary-selected text-alt',
         className,
       )}
-      data-tone={selected && 'inverse'}
+      data-tone={selected ? 'inverse' : undefined}
       role='listitem'
       {...props}
     >

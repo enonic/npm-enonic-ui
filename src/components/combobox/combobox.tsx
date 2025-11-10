@@ -1,6 +1,6 @@
 import { Button, Listbox, SearchField } from '@/components';
 import { IconButton } from '@/components/icon-button/icon-button';
-import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
+import { useControlledState, useControlledStateWithNull, useItemRegistry, useKeyboardNavigation } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
@@ -45,9 +45,12 @@ export type ComboboxRootProps = {
   selection?: readonly string[];
   defaultSelection?: readonly string[];
   onSelectionChange?: (selection: readonly string[]) => void;
-  active?: string;
+  /** Controlled active item ID (use `null` for no active item, omit for uncontrolled) */
+  active?: string | null;
+  /** Default active item ID (uncontrolled mode) */
   defaultActive?: string;
-  setActive?: (active: string | undefined) => void;
+  /** Callback when active item changes */
+  setActive?: (active: string | null) => void;
   disabled?: boolean;
   error?: boolean;
 };
@@ -113,7 +116,7 @@ const ComboboxRoot = ({
     setStagedSelection(updateArrayIfChanged(appliedSelection));
   }, [stagingEnabled, appliedSelection]);
 
-  const [activeInternal, setActiveInternal] = useControlledState(controlledActive, defaultActive, setActive);
+  const [activeInternal, setActiveInternal] = useControlledStateWithNull(controlledActive, defaultActive, setActive);
 
   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 

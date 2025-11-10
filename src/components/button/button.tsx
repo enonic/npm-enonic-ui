@@ -8,18 +8,18 @@ const buttonVariants = cva(
     'inline-flex items-center justify-center',
     'text-main font-semibold',
     'box-border rounded-sm transition-highlight',
-    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-0',
+    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-bdr-strong focus-visible:ring-offset-3 focus-visible:ring-offset-surface-neutral',
+    'active:bg-btn-active active:text-alt data-[active=true]:bg-btn-active data-[active=true]:text-alt',
     'disabled:select-none disabled:pointer-events-none disabled:opacity-30',
     'overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer',
   ],
   {
     variants: {
       variant: {
-        text: 'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-alt',
-        filled: 'bg-btn-secondary hover:bg-btn-secondary-hover active:bg-btn-active active:text-alt',
-        solid: 'bg-btn-tertiary text-alt hover:bg-btn-tertiary-hover active:bg-btn-active',
-        outline:
-          'bg-btn-primary hover:bg-btn-primary-hover active:bg-btn-active active:text-alt border border-bdr-strong',
+        text: 'bg-btn-primary hover:bg-btn-primary-hover hover:text-main',
+        filled: 'bg-btn-secondary hover:bg-btn-secondary-hover hover:text-main',
+        solid: 'bg-btn-tertiary text-alt hover:bg-btn-tertiary-hover',
+        outline: 'bg-btn-primary hover:bg-btn-primary-hover border border-bdr-strong',
       },
       size: {
         sm: 'h-9 px-3.5 gap-2 text-sm',
