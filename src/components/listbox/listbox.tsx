@@ -203,7 +203,8 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
         className={cn(
           'flex flex-col items-start grow shrink-0 basis-0',
           'max-h-100 overflow-y-auto',
-          'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50',
+          'focus-within:outline-none focus-within:ring-3 focus-within:ring-bdr-strong focus-within:ring-offset-3 focus-within:ring-offset-surface-neutral',
+          'transition-highlight',
           disabled && 'pointer-events-none select-none opacity-30',
           className,
         )}

@@ -17,10 +17,7 @@ const checkboxBoxVariants = cva(
   {
     variants: {
       editable: {
-        true: [
-          'peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-offset-0',
-          'peer-hover:outline-none peer-hover:ring-3 peer-hover:ring-ring/50 peer-hover:ring-offset-0',
-        ],
+        true: [],
         false: 'opacity-30',
       },
       state: {
@@ -38,8 +35,6 @@ const checkboxBoxVariants = cva(
           'border-error',
           'peer-checked:bg-error peer-checked:border-error',
           'peer-indeterminate:bg-error peer-indeterminate:border-error',
-          'peer-focus-visible:border-error peer-focus-visible:ring-error/50',
-          'peer-hover:border-error peer-hover:ring-error/50',
         ],
       },
     },
@@ -117,13 +112,16 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     };
 
     return (
-      <div>
+      <div className='flex flex-col gap-1 w-fit'>
         <label
           htmlFor={inputId}
           className={cn(
-            'relative flex items-center select-none gap-2',
+            'relative flex items-center select-none gap-2 my-0.75 rounded-xs leading-4',
             align === 'right' && 'flex-row-reverse justify-end',
             editable ? 'cursor-pointer' : 'cursor-default',
+            editable &&
+              'focus-within:outline-none focus-within:ring-3 focus-within:ring-bdr-strong focus-within:ring-offset-3 focus-within:ring-offset-surface-neutral',
+            error && editable && 'focus-within:ring-error',
             className,
           )}
         >
@@ -174,7 +172,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           )}
         </label>
         {state === 'error' && errorMessage && (
-          <div className={cn('flex items-center gap-2 mt-1 text-error leading-5', disabled && 'opacity-30')}>
+          <div className={cn('flex items-center gap-2 text-error leading-5', disabled && 'opacity-30')}>
             <OctagonAlert size={14} strokeWidth={2.5} />
             {errorMessage}
           </div>

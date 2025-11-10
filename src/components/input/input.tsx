@@ -8,14 +8,14 @@ const inputContainerVariants = cva(
   [
     'relative flex rounded-sm overflow-hidden',
     'h-12 border focus-within:border-bdr-solid',
-    'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
+    'focus-within:outline-none focus-within:ring-3 focus-within:ring-bdr-strong focus-within:ring-offset-3 focus-within:ring-offset-surface-neutral',
     'transition-highlight',
   ],
   {
     variants: {
       state: {
         default: 'border-bdr-subtle focus-within:border-bdr-strong',
-        error: 'border-error focus-within:border-error focus-within:ring-error/50',
+        error: 'border-error focus-within:border-error focus-within:ring-error',
       },
       disabled: {
         true: 'select-none',

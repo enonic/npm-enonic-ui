@@ -52,6 +52,8 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
           'inline-flex items-center align-baseline gap-1',
           'text-sm font-normal underline underline-offset-3 decoration-1',
           'visited:text-link-visited hover:text-main-hover',
+          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-bdr-strong focus-visible:bg-main focus-visible:text-rev',
+          'transition-highlight',
           className,
         )}
         target={target}
