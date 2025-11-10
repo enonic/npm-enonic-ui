@@ -345,13 +345,13 @@ const comboboxControlVariants = cva(
   [
     'flex gap-2.5 items-center',
     'h-12 rounded-sm border bg-surface-neutral',
-    'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring/50 focus-within:ring-offset-0',
+    'focus-within:outline-none focus-within:ring-3 focus-within:ring-bdr-strong focus-within:ring-offset-3 focus-within:ring-offset-surface-neutral',
     'transition-highlight',
   ],
   {
     variants: {
       error: {
-        true: 'border-error focus-within:border-error focus-within:ring-error/50',
+        true: 'border-error focus-within:border-error focus-within:ring-error',
         false: 'border-bdr-subtle focus-within:border-bdr-strong',
       },
       open: {
@@ -453,11 +453,7 @@ const ComboboxSearch = ({ children, className, ...props }: ComboboxSearchProps):
     <SearchField.Root
       value={inputValue}
       onChange={setInputValue}
-      className={cn(
-        'w-full pr-0',
-        'border-0 focus-within:border-0 focus-within:ring-0 focus-within:ring-offset-0',
-        className,
-      )}
+      className={cn('w-full pr-0', 'border-0 focus-within:border-0 focus-within:ring-0', className)}
       {...props}
     >
       {children}
