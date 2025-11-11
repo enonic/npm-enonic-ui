@@ -34,7 +34,12 @@ export type ListboxRootProps = {
   setActive?: (active: string | null | undefined) => void;
   selectionMode?: 'single' | 'multiple';
   disabled?: boolean;
-  focusable?: boolean;
+  /**
+   * Focus management mode for the listbox:
+   * - 'roving-tabindex': Items are individually focusable with roving tabindex (default for standalone listbox)
+   * - 'activedescendant': Container manages focus via aria-activedescendant (used in composite widgets like Combobox)
+   */
+  focusMode?: 'roving-tabindex' | 'activedescendant';
   children?: ReactNode;
   keyHandler?: (e: React.KeyboardEvent<HTMLElement>) => void;
   // Optional external item registry (used by Combobox)
@@ -53,7 +58,7 @@ const ListboxRoot = ({
   defaultActive,
   setActive,
   selectionMode = 'single',
-  focusable = true,
+  focusMode = 'roving-tabindex',
   disabled,
   children,
   keyHandler,
@@ -80,6 +85,28 @@ const ListboxRoot = ({
   const unregisterItem = externalUnregisterItem ?? internalRegistry.unregisterItem;
   const getItems = externalGetItems ?? internalRegistry.getItems;
   const isItemDisabled = externalIsItemDisabled ?? internalRegistry.isItemDisabled;
+
+  // Initialize active state to first available item if not set
+  // Priority: defaultActive > first selected item > first non-disabled item
+  useEffect(() => {
+    if (active === undefined && !disabled) {
+      const items = getItems();
+      if (items.length === 0) return;
+
+      // Check if there's a selected item
+      const firstSelected = items.find(id => selectionSet.has(id) && !isItemDisabled(id));
+      if (firstSelected) {
+        updateActive(firstSelected);
+        return;
+      }
+
+      // Otherwise, use first non-disabled item
+      const firstEnabled = items.find(id => !isItemDisabled(id));
+      if (firstEnabled) {
+        updateActive(firstEnabled);
+      }
+    }
+  }, [active, disabled, getItems, isItemDisabled, selectionSet, updateActive]);
 
   const toggleValue = useCallback(
     (value: string) => {
@@ -113,7 +140,7 @@ const ListboxRoot = ({
       active,
       selection: selectionSet,
       selectionMode,
-      focusable,
+      focusMode,
       disabled,
       setActive: updateActive,
       toggleValue,
@@ -128,7 +155,7 @@ const ListboxRoot = ({
       active,
       selectionSet,
       selectionMode,
-      focusable,
+      focusMode,
       disabled,
       updateActive,
       toggleValue,
@@ -163,7 +190,7 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
       baseId,
       selectionMode,
       keyHandler,
-      focusable = true,
+      focusMode = 'roving-tabindex',
       getItems,
       isItemDisabled,
     } = useListbox();
@@ -183,6 +210,28 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
     // Allow custom keyHandler to override (used by Combobox)
     const handleKeyDown = keyHandler ?? handleNavKeyDown;
 
+    // In activedescendant mode, activate first item when container receives focus
+    const handleContainerFocus = useCallback(() => {
+      if (focusMode === 'activedescendant' && !active && !disabled) {
+        const items = getItems();
+        const firstEnabled = items.find(id => !isItemDisabled(id));
+        if (firstEnabled) {
+          setActive(firstEnabled);
+        }
+      }
+    }, [focusMode, active, disabled, setActive, getItems, isItemDisabled]);
+
+    // Clear active state when mouse leaves container (only in roving-tabindex mode)
+    // Preserve active state if focus is within listbox (keyboard navigation)
+    const handleContainerPointerLeave = useCallback(() => {
+      if (focusMode === 'roving-tabindex') {
+        const focusWithinListbox = innerRef.current?.contains(document.activeElement);
+        if (!focusWithinListbox) {
+          setActive(undefined);
+        }
+      }
+    }, [focusMode, setActive]);
+
     useEffect(() => {
       if (!active || !innerRef.current) {
         return;
@@ -197,13 +246,15 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
     }, [active, baseId]);
 
     return (
+      // tabIndex for aria-activedescendant is properly managed based on focusMode and disabled state
+      // eslint-disable-next-line jsx-a11y/aria-activedescendant-has-tabindex, jsx-a11y/interactive-supports-focus
       <div
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-listbox`}
         className={cn(
           'flex flex-col items-start grow shrink-0 basis-0',
           'max-h-100 overflow-y-auto',
-          'focus-within:outline-none focus-within:ring-3 focus-within:ring-bdr-strong focus-within:ring-offset-3 focus-within:ring-offset-surface-neutral',
+          'outline-none',
           'transition-highlight',
           disabled && 'pointer-events-none select-none opacity-30',
           className,
@@ -212,8 +263,12 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
         aria-disabled={disabled}
         aria-label={label}
         aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
-        aria-activedescendant={active ? `${baseId}-listbox-option-${active}` : undefined}
-        tabIndex={focusable && !disabled ? 0 : -1}
+        aria-activedescendant={
+          focusMode === 'activedescendant' && active ? `${baseId}-listbox-option-${active}` : undefined
+        }
+        tabIndex={focusMode === 'activedescendant' && !disabled ? 0 : undefined}
+        onFocus={focusMode === 'activedescendant' ? handleContainerFocus : undefined}
+        onPointerLeave={focusMode === 'roving-tabindex' ? handleContainerPointerLeave : undefined}
         onKeyDown={handleKeyDown}
         {...props}
       >
@@ -242,6 +297,10 @@ const listboxItemVariants = cva('group flex w-full items-center px-4.5 py-1 gap-
       true: 'opacity-30 cursor-not-allowed pointer-events-none',
       false: '',
     },
+    focusMode: {
+      'roving-tabindex': '',
+      activedescendant: '',
+    },
   },
   compoundVariants: [
     {
@@ -254,6 +313,7 @@ const listboxItemVariants = cva('group flex w-full items-center px-4.5 py-1 gap-
     selected: false,
     active: false,
     disabled: false,
+    focusMode: 'roving-tabindex',
   },
 });
 
@@ -266,15 +326,47 @@ export type ListboxItemProps = {
 
 const ListboxItem = ({ value, disabled = false, children, className, ...props }: ListboxItemProps): ReactElement => {
   const ctx = useListbox();
-  const { disabled: listboxDisabled, toggleValue, baseId, registerItem, unregisterItem } = ctx;
+  const {
+    disabled: listboxDisabled,
+    toggleValue,
+    baseId,
+    active,
+    setActive,
+    focusMode = 'roving-tabindex',
+    registerItem,
+    unregisterItem,
+    getItems,
+    isItemDisabled,
+  } = ctx;
   const isSelected = ctx.selection.has(value);
-  const isActive = ctx.active === value;
+  const isActive = active === value;
   const isDisabled = disabled || listboxDisabled;
+
+  const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     registerItem(value, isDisabled);
     return () => unregisterItem(value);
   }, [value, isDisabled, registerItem, unregisterItem]);
+
+  // Roving tabindex: calculate if this item should be focusable (only when focusMode='roving-tabindex')
+  const items = getItems();
+  const firstItem = items.length > 0 ? items[0] : undefined;
+  const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? value;
+  const isFocusable = focusMode === 'roving-tabindex' && !isDisabled && fallbackFocusableId === value;
+
+  // Auto-focus in roving tabindex mode when item becomes active via keyboard navigation
+  // Only focus if focus is already within the listbox to prevent hover from causing focus ring
+  useEffect(() => {
+    if (focusMode === 'roving-tabindex' && !isDisabled && isActive && document.activeElement !== itemRef.current) {
+      const listboxElement = itemRef.current?.closest('[role="listbox"]');
+      const focusWithinListbox = listboxElement?.contains(document.activeElement);
+
+      if (focusWithinListbox) {
+        itemRef.current?.focus();
+      }
+    }
+  }, [focusMode, isActive, isDisabled]);
 
   const handleClick = useCallback(() => {
     if (!isDisabled) {
@@ -282,20 +374,39 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
     }
   }, [isDisabled, toggleValue, value]);
 
+  const handlePointerMove = useCallback(() => {
+    if (!isActive && !isDisabled) {
+      setActive(value);
+    }
+  }, [isActive, setActive, value, isDisabled]);
+
+  const handleFocus = useCallback(() => {
+    if (isDisabled) return;
+    setActive(value);
+  }, [isDisabled, setActive, value]);
+
   return (
-    // ARIA listbox pattern: options are not individually focusable
-    // Parent listbox handles all keyboard interactions via aria-activedescendant
+    // ARIA listbox pattern: supports both roving tabindex and aria-activedescendant
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
     <div
+      ref={itemRef}
       id={`${baseId}-listbox-option-${value}`}
-      className={cn(listboxItemVariants({ selected: isSelected, active: isActive, disabled: isDisabled }), className)}
+      className={cn(
+        listboxItemVariants({ selected: isSelected, active: isActive, disabled: isDisabled, focusMode }),
+        focusMode === 'roving-tabindex' &&
+          'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-3 focus-visible:ring-offset-bdr-strong focus-visible:ring-surface-neutral outline-none transition-highlight',
+        className,
+      )}
       role='option'
       aria-selected={isSelected}
       aria-disabled={isDisabled ?? undefined}
+      tabIndex={focusMode === 'roving-tabindex' ? (isDisabled ? -1 : isFocusable ? 0 : -1) : undefined}
       data-value={value}
       data-active={isActive || undefined}
       data-tone={isSelected ? 'inverse' : undefined}
       onClick={handleClick}
+      onPointerMove={focusMode === 'roving-tabindex' ? handlePointerMove : undefined}
+      onFocus={focusMode === 'roving-tabindex' ? handleFocus : undefined}
       {...props}
     >
       {children}

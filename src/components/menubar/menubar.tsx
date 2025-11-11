@@ -1185,7 +1185,8 @@ const menubarItemVariants = cva(
       {
         active: true,
         disabled: false,
-        class: 'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-bdr-strong',
+        class:
+          'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-3 focus-visible:ring-offset-bdr-strong focus-visible:ring-surface-neutral',
       },
       {
         active: false,
