@@ -1,5 +1,5 @@
 import { IconButton } from '@/components/icon-button/icon-button';
-import { useControlledState, useScrollLock } from '@/hooks';
+import { useClickOutside, useControlledState, useScrollLock } from '@/hooks';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
@@ -205,27 +205,13 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       return () => document.removeEventListener('keydown', handleEscapeKey);
     }, [open, handleEscapeKey]);
 
-    const handlePointerDownOutside = useCallback(
-      (e: PointerEvent): void => {
-        const target = e.target as Node;
-        if (contentRef.current && !contentRef.current.contains(target)) {
-          onPointerDownOutside?.(e);
-          onInteractOutside?.(e);
-          if (!e.defaultPrevented) {
-            setOpen(false);
-          }
-        }
-      },
-      [onPointerDownOutside, onInteractOutside, setOpen],
-    );
-
-    useEffect(() => {
-      if (!open) {
-        return;
-      }
-      document.addEventListener('pointerdown', handlePointerDownOutside);
-      return () => document.removeEventListener('pointerdown', handlePointerDownOutside);
-    }, [open, handlePointerDownOutside]);
+    useClickOutside({
+      enabled: open,
+      contentRef,
+      onPointerDownOutside,
+      onInteractOutside,
+      onClose: () => setOpen(false),
+    });
 
     if (!forceMount && !open) {
       return null;

@@ -1,4 +1,12 @@
-import { useItemRegistry, useKeyboardNavigation } from '@/hooks';
+import {
+  useActiveItemFocus,
+  useClickOutside,
+  useFloatingPosition,
+  useItemRegistry,
+  useKeyboardNavigation,
+  useRovingTabIndex,
+  useScrollActiveIntoView,
+} from '@/hooks';
 import {
   type MenubarContextValue,
   MenubarMenuProvider,
@@ -96,7 +104,7 @@ const MenubarRoot = ({ defaultActive, onActiveChange, id, children }: MenubarRoo
 
   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
-  // Track which menu (if any) is currently open for Phase 2 dropdown integration
+  // Track which menu (if any) is currently open for dropdown integration
   const [openMenuId, setOpenMenuId] = useState<string | undefined>(undefined);
 
   const value: MenubarContextValue = useMemo(
@@ -225,20 +233,11 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
       [onBlur, setActive, menubarRef, openMenuId],
     );
 
-    // Scroll active item into view
-    useEffect(() => {
-      if (!active || !menubarRef?.current) {
-        return;
-      }
-      const el = menubarRef.current.querySelector<HTMLElement>(`#${active}`);
-      if (el) {
-        el.scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-          behavior: 'auto',
-        });
-      }
-    }, [active, menubarRef]);
+    useScrollActiveIntoView({
+      containerRef: menubarRef,
+      activeId: active,
+      orientation: 'horizontal',
+    });
 
     return (
       <div
@@ -356,12 +355,9 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
     const handlePointerMove = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerMove']>>[0]): void => {
         onPointerMove?.(e);
-        // Phase 1: Hover activation disabled (openMenuId is always undefined)
-        // Phase 2: Hover activates and opens menu only when another menu is already open
-        // This implements the "conditional hover" pattern from W3C ARIA APG
+        // Conditional hover: activate button when another menu is open and mouse enters
         if (!disabled && openMenuId && active !== undefined) {
           setActive(id);
-          // TODO Phase 2: If this button has a menu, open it and close the previous menu
         }
       },
       [disabled, openMenuId, setActive, active, id, onPointerMove],
@@ -370,8 +366,7 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
     const handlePointerLeave = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
-        // Only clear active state if no menu is open or this item's menu isn't open
-        // Phase 2: Prevents clearing active state when user moves into the open menu
+        // Clear active state unless a menu is open or button has focus
         if ((!openMenuId || openMenuId !== id) && document.activeElement !== buttonRef.current) {
           setActive(undefined);
         }
@@ -388,16 +383,19 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
       [onFocus, disabled, setActive, id],
     );
 
-    const items = getItems();
-    const firstItem = items.length > 0 ? items[0] : undefined;
-    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? id;
-    const isFocusable = !disabled && fallbackFocusableId === id;
+    const { tabIndex } = useRovingTabIndex({
+      id,
+      active,
+      disabled,
+      getItems,
+      isItemDisabled,
+    });
 
-    useEffect(() => {
-      if (!disabled && isActive && document.activeElement !== buttonRef.current) {
-        buttonRef.current?.focus();
-      }
-    }, [isActive, disabled]);
+    useActiveItemFocus({
+      ref: buttonRef,
+      isActive,
+      disabled,
+    });
 
     const Comp = asChild ? Slot : 'button';
 
@@ -408,13 +406,14 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
         id={id}
         type={asChild ? undefined : 'button'}
         role='menuitem'
-        tabIndex={disabled ? -1 : isFocusable ? 0 : -1}
+        tabIndex={tabIndex}
         aria-disabled={disabled}
         data-disabled={disabled || undefined}
         data-tone={isActive ? 'inverse' : undefined}
         className={cn(
           'group px-4.5 py-2.5 rounded-sm text-sm cursor-pointer outline-none',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-bdr-strong focus-visible:ring-offset-3',
+          'focus-visible:ring-3 focus-visible:ring-ring',
+          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
           className,
         )}
         onClick={handleClick}
@@ -733,16 +732,19 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
       [onFocus, disabled, setActive, menuId],
     );
 
-    const items = getItems();
-    const firstItem = items.length > 0 ? items[0] : undefined;
-    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? menuId;
-    const isFocusable = !disabled && fallbackFocusableId === menuId;
+    const { tabIndex } = useRovingTabIndex({
+      id: menuId,
+      active,
+      disabled,
+      getItems,
+      isItemDisabled,
+    });
 
-    useEffect(() => {
-      if (!disabled && isActive && triggerRef && document.activeElement !== triggerRef.current) {
-        triggerRef.current?.focus();
-      }
-    }, [isActive, disabled, triggerRef]);
+    useActiveItemFocus({
+      ref: triggerRef,
+      isActive,
+      disabled,
+    });
 
     const Comp = asChild ? Slot : 'button';
 
@@ -753,7 +755,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         id={menuId}
         type={asChild ? undefined : 'button'}
         role='menuitem'
-        tabIndex={disabled ? -1 : isFocusable ? 0 : -1}
+        tabIndex={tabIndex}
         aria-haspopup='menu'
         aria-expanded={open}
         aria-controls={open ? contentId : undefined}
@@ -764,7 +766,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         data-tone={isActive ? 'inverse' : undefined}
         className={cn(
           'group px-4.5 py-2.5 rounded-sm text-sm cursor-pointer outline-none',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-bdr-strong focus-visible:ring-offset-3',
+          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset data-[tone=inverse]:focus-visible:ring-ring-alt data-[tone=inverse]:focus-visible:ring-offset-ring-offset-alt',
           open && 'bg-btn-active text-alt',
           disabled && 'opacity-30 cursor-not-allowed pointer-events-none',
           className,
@@ -908,7 +910,12 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
     // Local item registry for menu items
     const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
     const [active, setActive] = useState<string | undefined>(undefined);
-    const [position, setPosition] = useState<{ top: number; left?: number; right?: number } | null>(null);
+    const position = useFloatingPosition({
+      enabled: open,
+      triggerRef: triggerRef as React.RefObject<HTMLElement>,
+      contentRef,
+      align,
+    });
 
     // Don't render if menu is closed and not force-mounted
     if (!open && !forceMount) {
@@ -1008,8 +1015,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       ],
     );
 
-    // Auto-focus first item when menu opens
-    // Wait for position to be calculated so element is visible before focusing
+    // Select first non-disabled item when menu opens
     useEffect(() => {
       if (open && position !== null) {
         const items = getItems();
@@ -1023,92 +1029,14 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       }
     }, [open, position, getItems, isItemDisabled]);
 
-    // Position calculation
-    useEffect(() => {
-      if (!open || !triggerRef?.current || !contentRef.current) {
-        return;
-      }
-
-      const updatePosition = (): void => {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Needed for resize/scroll event handlers
-        if (!triggerRef?.current || !contentRef.current) return;
-
-        const triggerRect = triggerRef.current.getBoundingClientRect();
-        const contentRect = contentRef.current.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const padding = 10;
-
-        let top = triggerRect.bottom;
-        let left: number | undefined;
-        let right: number | undefined;
-
-        // Vertical positioning: flip if overflows bottom
-        if (top + contentRect.height > viewportHeight - padding) {
-          const topPosition = triggerRect.top - contentRect.height;
-          if (topPosition >= padding) {
-            top = topPosition;
-          }
-        }
-
-        // Horizontal positioning based on align
-        if (align === 'start') {
-          left = triggerRect.left;
-          // Flip to right if overflows
-          if (left + contentRect.width > viewportWidth - padding) {
-            left = undefined;
-            right = viewportWidth - triggerRect.right;
-          }
-        } else {
-          // align === 'end'
-          right = viewportWidth - triggerRect.right;
-          // Flip to left if overflows
-          if (triggerRect.right - contentRect.width < padding) {
-            right = undefined;
-            left = triggerRect.left;
-          }
-        }
-
-        setPosition({ top, left, right });
-      };
-
-      updatePosition();
-
-      window.addEventListener('resize', updatePosition);
-      window.addEventListener('scroll', updatePosition, true);
-
-      return () => {
-        window.removeEventListener('resize', updatePosition);
-        window.removeEventListener('scroll', updatePosition, true);
-      };
-    }, [open, align, triggerRef]);
-
-    // Handle click outside to close menu
-    useEffect(() => {
-      if (!open) return;
-
-      const handlePointerDown = (e: PointerEvent): void => {
-        const target = e.target as Node;
-
-        // Don't close if clicking the trigger
-        if (triggerRef?.current?.contains(target)) {
-          return;
-        }
-
-        // Don't close if clicking inside the content
-        if (contentRef.current?.contains(target)) {
-          return;
-        }
-
-        // Clicked outside - close menu
-        onPointerDownOutside?.(e);
-        onInteractOutside?.(e);
-        setOpen(false);
-      };
-
-      document.addEventListener('pointerdown', handlePointerDown);
-      return () => document.removeEventListener('pointerdown', handlePointerDown);
-    }, [open, setOpen, onPointerDownOutside, onInteractOutside, triggerRef]);
+    useClickOutside({
+      enabled: open,
+      contentRef,
+      excludeRefs: [triggerRef as React.RefObject<HTMLElement>],
+      onPointerDownOutside,
+      onInteractOutside,
+      onClose: () => setOpen(false),
+    });
 
     const contentContextValue = useMemo(
       () => ({
@@ -1185,13 +1113,11 @@ const menubarItemVariants = cva(
       {
         active: true,
         disabled: false,
-        class:
-          'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-3 focus-visible:ring-offset-bdr-strong focus-visible:ring-surface-neutral',
-      },
-      {
-        active: false,
-        disabled: false,
-        class: 'hover:bg-surface-primary-hover',
+        class: [
+          // ring and offset colors are swapped for inset ring focus
+          'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+        ],
       },
     ],
     defaultVariants: {
@@ -1312,16 +1238,19 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
       [onFocus, disabled, setActive, id],
     );
 
-    const items = getItems();
-    const firstItem = items.length > 0 ? items[0] : undefined;
-    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? id;
-    const isFocusable = !disabled && fallbackFocusableId === id;
+    const { tabIndex } = useRovingTabIndex({
+      id,
+      active,
+      disabled,
+      getItems,
+      isItemDisabled,
+    });
 
-    useEffect(() => {
-      if (!disabled && isActive && document.activeElement !== itemRef.current) {
-        itemRef.current?.focus();
-      }
-    }, [isActive, disabled]);
+    useActiveItemFocus({
+      ref: itemRef,
+      isActive,
+      disabled,
+    });
 
     const Comp = asChild ? Slot : 'div';
 
@@ -1331,7 +1260,7 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
         ref={composedRefs}
         id={id}
         role='menuitem'
-        tabIndex={disabled ? -1 : isFocusable ? 0 : -1}
+        tabIndex={tabIndex}
         aria-disabled={disabled}
         data-active={isActive || undefined}
         data-disabled={disabled || undefined}

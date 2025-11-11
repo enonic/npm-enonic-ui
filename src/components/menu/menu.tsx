@@ -1,4 +1,13 @@
-import { useControlledState, useItemRegistry, useKeyboardNavigation } from '@/hooks';
+import {
+  useActiveItemFocus,
+  useClickOutside,
+  useControlledState,
+  useFloatingPosition,
+  useItemRegistry,
+  useKeyboardNavigation,
+  useRovingTabIndex,
+  useScrollActiveIntoView,
+} from '@/hooks';
 import { type MenuContextValue, MenuProvider, useMenu, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
@@ -110,7 +119,7 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
         aria-controls={open ? menuId : undefined}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        className={cn(open && 'bg-btn-active text-alt', className)}
+        className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
         {...props}
       >
         {children}
@@ -150,8 +159,6 @@ MenuPortal.displayName = 'Menu.Portal';
 // * MenuContent
 //
 
-const VIEWPORT_PADDING = 10;
-
 export type MenuContentProps = {
   forceMount?: boolean;
   align?: 'start' | 'end';
@@ -181,80 +188,12 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     const { open, setOpen, active, setActive, getItems, isItemDisabled, menuId, triggerRef } = useMenu();
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
-    const [position, setPosition] = useState<
-      { top: number; left: number } | { top: number; right: number } | undefined
-    >(undefined);
-
-    // Calculate position when menu opens
-    useEffect(() => {
-      if (!open || !triggerRef?.current || !contentRef.current) {
-        return;
-      }
-
-      const updatePosition = (): void => {
-        if (!triggerRef.current || !contentRef.current) return;
-
-        const triggerRect = triggerRef.current.getBoundingClientRect();
-        const contentRect = contentRef.current.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
-        // Position below trigger with specified alignment
-        let top = triggerRect.bottom;
-
-        // Adjust if overflows bottom edge - show above trigger instead
-        if (top + contentRect.height > viewportHeight) {
-          top = triggerRect.top - contentRect.height;
-        }
-
-        // Adjust if overflows top edge
-        if (top < 0) {
-          top = VIEWPORT_PADDING;
-        }
-
-        if (align === 'start') {
-          let left = triggerRect.left;
-
-          if (left + contentRect.width > viewportWidth) {
-            left = triggerRect.right - contentRect.width;
-          }
-
-          // Adjust if overflows left edge
-          if (left < 0) {
-            left = VIEWPORT_PADDING;
-          }
-
-          setPosition({ top, left });
-        } else {
-          // For end alignment, use 'right' property (distance from viewport right edge)
-          let right = viewportWidth - triggerRect.right;
-
-          // Adjust if menu would overflow left edge
-          if (triggerRect.right - contentRect.width < 0) {
-            right = viewportWidth - (triggerRect.left + contentRect.width);
-          }
-
-          // Adjust if overflows right edge
-          if (right < 0) {
-            right = VIEWPORT_PADDING;
-          }
-
-          setPosition({ top, right });
-        }
-      };
-
-      // Initial position calculation
-      updatePosition();
-
-      // Recalculate on window resize or scroll
-      window.addEventListener('resize', updatePosition);
-      window.addEventListener('scroll', updatePosition, true);
-
-      return () => {
-        window.removeEventListener('resize', updatePosition);
-        window.removeEventListener('scroll', updatePosition, true);
-      };
-    }, [open, triggerRef, align]);
+    const position = useFloatingPosition({
+      enabled: open,
+      triggerRef,
+      contentRef,
+      align,
+    });
 
     // Focus menu when it opens and select first selectable item
     useEffect(() => {
@@ -279,7 +218,6 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       loop,
       orientation: 'vertical',
       onSelect: id => {
-        // Item will handle its own onSelect
         const itemElement = document.getElementById(id);
         if (itemElement) {
           itemElement.click();
@@ -308,48 +246,20 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       [handleNavKeyDown, setOpen, onEscapeKeyDown],
     );
 
-    const handlePointerDownOutside = useCallback(
-      (e: PointerEvent): void => {
-        const target = e.target;
-        if (!(target instanceof Node)) {
-          return;
-        }
-        // Don't close if clicking the trigger (let trigger's own handler manage it)
-        if (triggerRef?.current?.contains(target)) {
-          return;
-        }
-        if (contentRef.current && !contentRef.current.contains(target)) {
-          onPointerDownOutside?.(e);
-          onInteractOutside?.(e);
-          if (!e.defaultPrevented) {
-            setOpen(false);
-          }
-        }
-      },
-      [onPointerDownOutside, onInteractOutside, setOpen, triggerRef],
-    );
+    useClickOutside({
+      enabled: open,
+      contentRef,
+      excludeRefs: triggerRef ? [triggerRef] : undefined,
+      onPointerDownOutside,
+      onInteractOutside,
+      onClose: () => setOpen(false),
+    });
 
-    useEffect(() => {
-      if (!open) {
-        return;
-      }
-      document.addEventListener('pointerdown', handlePointerDownOutside);
-      return () => document.removeEventListener('pointerdown', handlePointerDownOutside);
-    }, [open, handlePointerDownOutside]);
-
-    // Scroll active item into view
-    useEffect(() => {
-      if (!active || !contentRef.current) {
-        return;
-      }
-      const el = contentRef.current.querySelector<HTMLDivElement>(`#${active}`);
-      if (el) {
-        el.scrollIntoView({
-          block: 'nearest',
-          behavior: 'auto',
-        });
-      }
-    }, [active]);
+    useScrollActiveIntoView({
+      containerRef: contentRef,
+      activeId: active,
+      orientation: 'vertical',
+    });
 
     if (!forceMount && !open) {
       return null;
@@ -388,33 +298,33 @@ MenuContent.displayName = 'Menu.Content';
 // * MenuItem
 //
 
-const menuItemVariants = cva(
-  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
-  {
-    variants: {
-      active: {
-        true: 'bg-surface-primary-selected text-alt',
-        false: '',
-      },
-      disabled: {
-        true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
-        false: '',
-      },
+const menuItemVariants = cva('flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none', {
+  variants: {
+    active: {
+      true: 'bg-surface-primary-selected text-alt',
+      false: '',
     },
-    compoundVariants: [
-      {
-        active: true,
-        disabled: false,
-        class:
-          'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-3 focus-visible:ring-offset-bdr-strong focus-visible:ring-surface-neutral hover:bg-surface-primary-selected hover:text-alt',
-      },
-    ],
-    defaultVariants: {
-      active: false,
-      disabled: false,
+    disabled: {
+      true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
+      false: '',
     },
   },
-);
+  compoundVariants: [
+    {
+      active: true,
+      disabled: false,
+      class: [
+        // ring and offset colors are swapped for inset ring focus
+        'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+        'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+      ],
+    },
+  ],
+  defaultVariants: {
+    active: false,
+    disabled: false,
+  },
+});
 
 export type MenuItemProps = {
   id?: string;
@@ -445,7 +355,6 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
     const id = usePrefixedId(providedId, providedId ? undefined : 'menu-item');
     const { active, setActive, setOpen, registerItem, unregisterItem, getItems, isItemDisabled } = useMenu();
     const isActive = active === id;
-    const isDisabled = disabled;
     const itemRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, itemRef);
 
@@ -457,7 +366,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
     const handleClick = useCallback(
       (e: React.MouseEvent<HTMLDivElement>): void => {
         onClick?.(e);
-        if (isDisabled) {
+        if (disabled) {
           return;
         }
         const event = new Event('select', { bubbles: true, cancelable: true });
@@ -466,17 +375,17 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
           setOpen(false);
         }
       },
-      [isDisabled, onSelect, setOpen, onClick],
+      [disabled, onSelect, setOpen, onClick],
     );
 
     const handlePointerMove = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerMove']>>[0]): void => {
         onPointerMove?.(e);
-        if (!isActive && !isDisabled) {
+        if (!isActive && !disabled) {
           setActive(id);
         }
       },
-      [isActive, setActive, id, isDisabled, onPointerMove],
+      [isActive, setActive, id, disabled, onPointerMove],
     );
 
     const handlePointerLeave = useCallback(
@@ -492,22 +401,25 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
     const handleFocus = useCallback(
       (e: React.FocusEvent<HTMLDivElement>): void => {
         onFocus?.(e);
-        if (isDisabled) return;
+        if (disabled) return;
         setActive(id);
       },
-      [onFocus, isDisabled, setActive, id],
+      [onFocus, disabled, setActive, id],
     );
 
-    const items = getItems();
-    const firstItem = items.length > 0 ? items[0] : undefined;
-    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? id;
-    const isFocusable = !isDisabled && fallbackFocusableId === id;
+    const { tabIndex } = useRovingTabIndex({
+      id,
+      active,
+      disabled,
+      getItems,
+      isItemDisabled,
+    });
 
-    useEffect(() => {
-      if (!isDisabled && isActive && document.activeElement !== itemRef.current) {
-        itemRef.current?.focus();
-      }
-    }, [isActive, isDisabled]);
+    useActiveItemFocus({
+      ref: itemRef,
+      isActive,
+      disabled,
+    });
 
     const Comp = asChild ? Slot : 'div';
 
@@ -517,12 +429,12 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
         ref={composedRefs}
         id={id}
         role='menuitem'
-        tabIndex={isDisabled ? -1 : isFocusable ? 0 : -1}
-        aria-disabled={isDisabled}
+        tabIndex={tabIndex}
+        aria-disabled={disabled || undefined}
         data-active={isActive || undefined}
-        data-disabled={isDisabled || undefined}
+        data-disabled={disabled || undefined}
         data-tone={isActive ? 'inverse' : undefined}
-        className={cn(menuItemVariants({ active: isActive, disabled: isDisabled }), className)}
+        className={cn(menuItemVariants({ active: isActive, disabled }), className)}
         onClick={handleClick}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}

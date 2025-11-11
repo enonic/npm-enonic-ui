@@ -1,4 +1,4 @@
-import { Checkbox, IconButton } from '@/components';
+import { Checkbox, IconButton, Input } from '@/components';
 import { Listbox, type ListboxRootProps } from '@/components/listbox/listbox';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ArrowDown, ArrowUp } from 'lucide-react';
@@ -315,7 +315,6 @@ export const ActiveDescendantMode: Story = {
   render: () => {
     const [selection, setSelection] = useState<readonly string[]>([]);
     const [active, setActive] = useState<string | null | undefined>(undefined);
-    const [inputValue, setInputValue] = useState('');
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
       const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
@@ -350,15 +349,8 @@ export const ActiveDescendantMode: Story = {
 
     return (
       <div className='max-w-80 p-4'>
-        <h3 className='text-sm font-medium mb-3'>Listbox with external input (aria-activedescendant)</h3>
-        <input
-          type='text'
-          value={inputValue}
-          onChange={e => setInputValue(e.currentTarget.value)}
-          onKeyDown={handleKeyDown}
-          placeholder='Type or use arrow keys'
-          className='w-full px-3 py-2 border border-bdr-subtle rounded-sm bg-surface-neutral mb-2 outline-none focus:ring-3 focus:ring-bdr-strong'
-        />
+        <h3 className='mb-3 text-sm font-medium'>Listbox with external input (aria-activedescendant)</h3>
+        <Input type='text' placeholder='Use arrow keys' onKeyDown={handleKeyDown} />
         <Listbox
           selectionMode='multiple'
           selection={selection}
@@ -367,7 +359,7 @@ export const ActiveDescendantMode: Story = {
           setActive={setActive}
           focusMode='activedescendant'
         >
-          <Listbox.Content tabIndex={-1} label='Frameworks list'>
+          <Listbox.Content className='mt-4' tabIndex={-1} label='Frameworks list'>
             {frameworks.map(({ id, name }) => (
               <Listbox.Item key={id} value={id}>
                 <div className='flex-1'>{name}</div>

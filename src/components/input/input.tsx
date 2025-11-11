@@ -8,7 +8,7 @@ const inputContainerVariants = cva(
   [
     'relative flex rounded-sm overflow-hidden',
     'h-12 border focus-within:border-bdr-solid',
-    'focus-within:outline-none focus-within:ring-3 focus-within:ring-bdr-strong focus-within:ring-offset-3 focus-within:ring-offset-surface-neutral',
+    'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
     'transition-highlight',
   ],
   {

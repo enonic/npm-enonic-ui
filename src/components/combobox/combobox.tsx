@@ -348,7 +348,7 @@ const comboboxControlVariants = cva(
   [
     'flex gap-2.5 items-center',
     'h-12 rounded-sm border bg-surface-neutral',
-    'focus-within:outline-none focus-within:ring-3 focus-within:ring-bdr-strong focus-within:ring-offset-3 focus-within:ring-offset-surface-neutral',
+    'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
     'transition-highlight',
   ],
   {

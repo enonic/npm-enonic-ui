@@ -44,6 +44,7 @@
 
   /* Outline Ring */
   --color-ring: var(--color-ring);
+  --color-ring-offset: var(--color-ring-offset);
 
   /* Buttons */
   --color-btn-primary: var(--color-btn-primary);

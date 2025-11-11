@@ -32,7 +32,8 @@
     --color-bdr-strong: var(--color-black);
 
     /* Outline Ring */
-    --color-ring: var(--color-grey-500);
+    --color-ring: var(--color-black);
+    --color-ring-offset: var(--color-white);
 
     /* Buttons */
     --color-btn-primary: var(--color-white);
