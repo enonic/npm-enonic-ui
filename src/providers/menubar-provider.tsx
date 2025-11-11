@@ -26,9 +26,7 @@ export type MenubarContextValue = {
 
   /**
    * ID of the currently open menu (if any).
-   * Used in Phase 2 to track which menu is expanded in the menubar.
-   *
-   * @phase2
+   * Tracks which menu is expanded in the menubar for conditional hover behavior.
    */
   openMenuId: string | undefined;
   setOpenMenuId: (id: string | undefined) => void;
@@ -85,9 +83,8 @@ export const useMenubar = (): MenubarContextValue => {
  * Hook to optionally access menubar context.
  * Returns undefined if not within a MenubarProvider.
  *
- * Useful for components that can work both inside and outside a menubar (e.g., Menu.Trigger).
+ * Useful for components that can work both inside and outside a menubar.
  *
- * @phase2 Used by Menu components to detect if they're within a Menubar
  * @returns {MenubarContextValue | undefined} The menubar context or undefined
  */
 export const useMenubarOptional = (): MenubarContextValue | undefined => {

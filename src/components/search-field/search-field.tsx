@@ -60,7 +60,7 @@ const SearchFieldRoot = ({
           'relative flex gap-2.5 items-center rounded-sm overflow-hidden',
           'h-11.5 px-4.5 py-3',
           'border border-bdr-subtle focus-within:border-bdr-strong',
-          'focus-within:outline-none focus-within:ring-3 focus-within:ring-bdr-strong focus-within:ring-offset-3 focus-within:ring-offset-surface-neutral',
+          'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
           'transition-highlight',
           readOnly ? 'bg-surface-primary' : 'bg-surface-neutral',
           disabled && 'pointer-events-none select-none opacity-30',

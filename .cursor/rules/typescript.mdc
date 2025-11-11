@@ -159,6 +159,14 @@ type User = {
 type UserStatus = 'active' | 'inactive' | 'pending';
 type UserId = string;
 
+// ✅ Use T[] syntax for arrays
+type Users = User[];
+const items: string[] = [];
+
+// ❌ Avoid Array<T> generic syntax
+type Users = Array<User>; // Bad
+const items: Array<string> = []; // Bad
+
 // ❌ Avoid any type
 const data: any = fetchData(); // Bad
 

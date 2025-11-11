@@ -136,9 +136,12 @@ export const WithIcons: Story = {
             description='Source files'
             metadata='12 items'
           />
+          <ListItem.Right>
+            <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
+          </ListItem.Right>
         </ListItem>
 
-        <ListItem selected>
+        <ListItem selected style={{ '--color-ring-offset': 'var(--color-surface-primary-selected)' }}>
           <ListItem.Left>
             <Checkbox checked={checked2} onCheckedChange={setChecked2} aria-label='Select file' />
           </ListItem.Left>
@@ -149,7 +152,7 @@ export const WithIcons: Story = {
             metadata='Modified 2 hours ago'
           />
           <ListItem.Right>
-            <IconButton icon={Pen} variant='text' size='sm' aria-label='Edit' />
+            <IconButton icon={Pen} variant='solid' size='sm' aria-label='Edit' />
             <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
           </ListItem.Right>
         </ListItem>
@@ -357,7 +360,12 @@ export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
 
     return (
       <div className='w-96'>
-        <ListItem selected={selected} onClick={() => setSelected(!selected)} className='cursor-pointer'>
+        <ListItem
+          selected={selected}
+          onClick={() => setSelected(!selected)}
+          className='cursor-pointer'
+          style={selected ? { '--color-ring-offset': 'var(--color-surface-primary-selected)' } : undefined}
+        >
           {args.showLeft && (
             <ListItem.Left>
               {(args.leftType === 'checkbox' || args.leftType === 'both') && (

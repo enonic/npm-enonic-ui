@@ -673,7 +673,7 @@ export const AutoFocusInput: Story = {
             <Dialog.Overlay />
             <Dialog.Content className='w-120' onOpenAutoFocus={handleOpenAutoFocus}>
               <Dialog.DefaultHeader title='Add New Contact' description='Enter the contact name to continue' />
-              <Dialog.Body className='space-y-3'>
+              <Dialog.Body className='space-y-3 -mx-3 px-3'>
                 <Input
                   ref={inputRef}
                   label='Full Name'

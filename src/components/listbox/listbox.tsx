@@ -1,8 +1,11 @@
 import {
+  useActiveItemFocus,
   useControlledStateWithNull,
   useItemRegistry,
   type UseItemRegistryReturn,
   useKeyboardNavigation,
+  useRovingTabIndex,
+  useScrollActiveIntoView,
 } from '@/hooks';
 import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
@@ -232,18 +235,12 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
       }
     }, [focusMode, setActive]);
 
-    useEffect(() => {
-      if (!active || !innerRef.current) {
-        return;
-      }
-      const el = innerRef.current.querySelector<HTMLDivElement>(`#${baseId}-listbox-option-${active}`);
-      if (el) {
-        el.scrollIntoView({
-          block: 'nearest',
-          behavior: 'auto',
-        });
-      }
-    }, [active, baseId]);
+    useScrollActiveIntoView({
+      containerRef: innerRef,
+      activeId: active ?? undefined,
+      orientation: 'vertical',
+      buildElementId: id => `${baseId}-listbox-option-${id}`,
+    });
 
     return (
       // tabIndex for aria-activedescendant is properly managed based on focusMode and disabled state
@@ -283,39 +280,34 @@ ListboxContent.displayName = 'ListboxContent';
 // * Listbox Item
 //
 
-const listboxItemVariants = cva('group flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer', {
-  variants: {
-    selected: {
-      true: 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover',
-      false: 'hover:bg-surface-primary-hover',
+const listboxItemVariants = cva(
+  'group flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer outline-none transition-highlight',
+  {
+    variants: {
+      selected: {
+        true: 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover',
+        false: 'hover:bg-surface-primary-hover',
+      },
+      disabled: {
+        true: 'opacity-30 cursor-not-allowed pointer-events-none',
+        false: '',
+      },
+      focusMode: {
+        'roving-tabindex': [
+          // ring and offset colors are swapped for inset ring focus
+          'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+        ],
+        activedescendant: '',
+      },
     },
-    active: {
-      true: 'bg-surface-primary-hover',
-      false: '',
-    },
-    disabled: {
-      true: 'opacity-30 cursor-not-allowed pointer-events-none',
-      false: '',
-    },
-    focusMode: {
-      'roving-tabindex': '',
-      activedescendant: '',
+    defaultVariants: {
+      selected: false,
+      disabled: false,
+      focusMode: 'roving-tabindex',
     },
   },
-  compoundVariants: [
-    {
-      selected: true,
-      active: true,
-      class: 'bg-surface-primary-selected-hover',
-    },
-  ],
-  defaultVariants: {
-    selected: false,
-    active: false,
-    disabled: false,
-    focusMode: 'roving-tabindex',
-  },
-});
+);
 
 export type ListboxItemProps = {
   value: string;
@@ -340,7 +332,7 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
   } = ctx;
   const isSelected = ctx.selection.has(value);
   const isActive = active === value;
-  const isDisabled = disabled || listboxDisabled;
+  const isDisabled = disabled || !!listboxDisabled;
 
   const itemRef = useRef<HTMLDivElement>(null);
 
@@ -349,24 +341,25 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
     return () => unregisterItem(value);
   }, [value, isDisabled, registerItem, unregisterItem]);
 
-  // Roving tabindex: calculate if this item should be focusable (only when focusMode='roving-tabindex')
-  const items = getItems();
-  const firstItem = items.length > 0 ? items[0] : undefined;
-  const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? value;
-  const isFocusable = focusMode === 'roving-tabindex' && !isDisabled && fallbackFocusableId === value;
+  const { tabIndex } = useRovingTabIndex({
+    id: value,
+    active,
+    disabled: isDisabled,
+    getItems,
+    isItemDisabled,
+    focusMode,
+  });
 
-  // Auto-focus in roving tabindex mode when item becomes active via keyboard navigation
-  // Only focus if focus is already within the listbox to prevent hover from causing focus ring
-  useEffect(() => {
-    if (focusMode === 'roving-tabindex' && !isDisabled && isActive && document.activeElement !== itemRef.current) {
-      const listboxElement = itemRef.current?.closest('[role="listbox"]');
-      const focusWithinListbox = listboxElement?.contains(document.activeElement);
-
-      if (focusWithinListbox) {
-        itemRef.current?.focus();
-      }
-    }
-  }, [focusMode, isActive, isDisabled]);
+  useActiveItemFocus({
+    ref: itemRef,
+    isActive,
+    disabled: isDisabled,
+    focusMode,
+    checkFocusWithin: {
+      enabled: true,
+      containerRole: 'listbox',
+    },
+  });
 
   const handleClick = useCallback(() => {
     if (!isDisabled) {
@@ -391,16 +384,11 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
     <div
       ref={itemRef}
       id={`${baseId}-listbox-option-${value}`}
-      className={cn(
-        listboxItemVariants({ selected: isSelected, active: isActive, disabled: isDisabled, focusMode }),
-        focusMode === 'roving-tabindex' &&
-          'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-3 focus-visible:ring-offset-bdr-strong focus-visible:ring-surface-neutral outline-none transition-highlight',
-        className,
-      )}
+      className={cn(listboxItemVariants({ selected: isSelected, disabled: isDisabled, focusMode }), className)}
       role='option'
       aria-selected={isSelected}
-      aria-disabled={isDisabled ?? undefined}
-      tabIndex={focusMode === 'roving-tabindex' ? (isDisabled ? -1 : isFocusable ? 0 : -1) : undefined}
+      aria-disabled={isDisabled || undefined}
+      tabIndex={focusMode === 'roving-tabindex' ? tabIndex : undefined}
       data-value={value}
       data-active={isActive || undefined}
       data-tone={isSelected ? 'inverse' : undefined}
