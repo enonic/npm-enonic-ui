@@ -306,6 +306,83 @@ export const OuterNavigation: Story = {
   },
 };
 
+export const ActiveDescendantMode: Story = {
+  name: 'Focus Mode: aria-activedescendant',
+  argTypes: {
+    selectionMode: { control: false },
+    disabled: { control: false },
+  },
+  render: () => {
+    const [selection, setSelection] = useState<readonly string[]>([]);
+    const [active, setActive] = useState<string | null | undefined>(undefined);
+    const [inputValue, setInputValue] = useState('');
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+      const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          if (activeIndex < frameworks.length - 1) {
+            setActive(frameworks[activeIndex + 1].id);
+          } else {
+            setActive(frameworks[0].id);
+          }
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (activeIndex > 0) {
+            setActive(frameworks[activeIndex - 1].id);
+          } else {
+            setActive(frameworks[frameworks.length - 1].id);
+          }
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          if (active) {
+            const isSelected = selection.includes(active);
+            setSelection(isSelected ? selection.filter(id => id !== active) : [...selection, active]);
+          }
+          break;
+      }
+    };
+
+    return (
+      <div className='max-w-80 p-4'>
+        <h3 className='text-sm font-medium mb-3'>Listbox with external input (aria-activedescendant)</h3>
+        <input
+          type='text'
+          value={inputValue}
+          onChange={e => setInputValue(e.currentTarget.value)}
+          onKeyDown={handleKeyDown}
+          placeholder='Type or use arrow keys'
+          className='w-full px-3 py-2 border border-bdr-subtle rounded-sm bg-surface-neutral mb-2 outline-none focus:ring-3 focus:ring-bdr-strong'
+        />
+        <Listbox
+          selectionMode='multiple'
+          selection={selection}
+          onSelectionChange={setSelection}
+          active={active}
+          setActive={setActive}
+          focusMode='activedescendant'
+        >
+          <Listbox.Content tabIndex={-1} label='Frameworks list'>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
+              </Listbox.Item>
+            ))}
+          </Listbox.Content>
+        </Listbox>
+        <p className='text-sm text-main/70 mt-3'>
+          Input keeps focus, so listbox items are not focusable and don’t show focus ring.
+        </p>
+      </div>
+    );
+  },
+};
+
 export const WithCustomGroups: Story = {
   name: 'With Custom Group Headers',
   args: {

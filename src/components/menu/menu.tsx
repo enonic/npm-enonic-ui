@@ -388,30 +388,33 @@ MenuContent.displayName = 'Menu.Content';
 // * MenuItem
 //
 
-const menuItemVariants = cva('flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none', {
-  variants: {
-    active: {
-      true: 'bg-surface-primary-selected text-alt',
-      false: '',
+const menuItemVariants = cva(
+  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+  {
+    variants: {
+      active: {
+        true: 'bg-surface-primary-selected text-alt',
+        false: '',
+      },
+      disabled: {
+        true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
+        false: '',
+      },
     },
-    disabled: {
-      true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
-      false: '',
-    },
-  },
-  compoundVariants: [
-    {
-      active: true,
+    compoundVariants: [
+      {
+        active: true,
+        disabled: false,
+        class:
+          'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-offset-3 focus-visible:ring-offset-bdr-strong focus-visible:ring-surface-neutral hover:bg-surface-primary-selected hover:text-alt',
+      },
+    ],
+    defaultVariants: {
+      active: false,
       disabled: false,
-      class:
-        'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-bdr-strong hover:bg-surface-primary-selected hover:text-alt',
     },
-  ],
-  defaultVariants: {
-    active: false,
-    disabled: false,
   },
-});
+);
 
 export type MenuItemProps = {
   id?: string;

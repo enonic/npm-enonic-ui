@@ -10,7 +10,12 @@ export type ListboxContextValue = {
   selection: ReadonlySet<string>;
   selectionMode: 'single' | 'multiple';
   disabled?: boolean;
-  focusable?: boolean;
+  /**
+   * Focus management mode:
+   * - 'roving-tabindex': Items are individually focusable (default)
+   * - 'activedescendant': Container manages focus via aria-activedescendant
+   */
+  focusMode?: 'roving-tabindex' | 'activedescendant';
   /**
    * Set active item.
    * Accepts `null` for compatibility with controlled prop API, but converts it to `undefined` internally.

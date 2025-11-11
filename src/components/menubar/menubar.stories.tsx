@@ -87,7 +87,7 @@ export const WithSeparators: Story = {
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
-        Separators provide visual grouping between menubar items. They don&apos;t participate in keyboard navigation.
+        Separators provide visual grouping between menubar items. They don’t participate in keyboard navigation.
       </div>
       <Menubar.Root>
         <Menubar.Nav
