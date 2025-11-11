@@ -87,7 +87,7 @@ export const Single: Story = {
           </Avatar>
           <div>
             <p className='text-sm font-medium'>{user.name}</p>
-            <p className='text-xs text-main/70'>Frontend Architect</p>
+            <p className='text-xs text-subtle'>Frontend Architect</p>
           </div>
         </div>
       </div>
@@ -113,7 +113,7 @@ export const WithFallback: Story = {
           </Avatar>
           <div>
             <p className='text-sm font-medium'>{user.name}</p>
-            <p className='text-xs text-main/70'>Designer</p>
+            <p className='text-xs text-subtle'>Designer</p>
           </div>
         </div>
       </div>
@@ -164,21 +164,21 @@ export const Sizes: Story = {
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-main/70'>Small</span>
+            <span className='text-xs text-subtle'>Small</span>
           </div>
           <div className='flex flex-col items-center gap-y-2'>
             <Avatar size='md' shape={shape}>
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-main/70'>Medium</span>
+            <span className='text-xs text-subtle'>Medium</span>
           </div>
           <div className='flex flex-col items-center gap-y-2'>
             <Avatar size='lg' shape={shape}>
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-main/70'>Large</span>
+            <span className='text-xs text-subtle'>Large</span>
           </div>
         </div>
       </div>
@@ -205,14 +205,14 @@ export const Shapes: Story = {
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-main/70'>Circle</span>
+            <span className='text-xs text-subtle'>Circle</span>
           </div>
           <div className='flex flex-col items-center gap-y-2'>
             <Avatar size={size} shape='square'>
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-main/70'>Square</span>
+            <span className='text-xs text-subtle'>Square</span>
           </div>
         </div>
       </div>
@@ -240,7 +240,7 @@ export const AvatarGroup: Story = {
           <Avatar.Fallback>+2</Avatar.Fallback>
         </Avatar>
       </div>
-      <p className='text-xs text-main/70'>6 contributors total</p>
+      <p className='text-xs text-subtle'>6 contributors total</p>
     </div>
   ),
 };
@@ -272,21 +272,21 @@ export const WithCustomFallback: Story = {
               </svg>
             </Avatar.Fallback>
           </Avatar>
-          <span className='text-xs text-main/70'>Icon</span>
+          <span className='text-xs text-subtle'>Icon</span>
         </div>
         <div className='flex flex-col items-center gap-y-2'>
           <Avatar size={size} shape={shape}>
             <Avatar.Image src='' alt='User' />
             <Avatar.Fallback className='bg-blue-500 text-white'>AB</Avatar.Fallback>
           </Avatar>
-          <span className='text-xs text-main/70'>Colored</span>
+          <span className='text-xs text-subtle'>Colored</span>
         </div>
         <div className='flex flex-col items-center gap-y-2'>
           <Avatar size={size} shape={shape}>
             <Avatar.Image src='' alt='User' />
             <Avatar.Fallback className='text-2xl'>🎨</Avatar.Fallback>
           </Avatar>
-          <span className='text-xs text-main/70'>Emoji</span>
+          <span className='text-xs text-subtle'>Emoji</span>
         </div>
       </div>
     </div>

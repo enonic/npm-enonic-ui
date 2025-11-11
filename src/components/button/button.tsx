@@ -46,6 +46,7 @@ export type ButtonProps = {
   startIcon?: LucideIcon;
   endIcon?: LucideIcon;
   label?: string;
+  disabled?: boolean;
 } & ButtonVariantsProps &
   ButtonIconProps &
   ComponentPropsWithoutRef<'button'>;
@@ -74,6 +75,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       endIcon,
       title,
       children,
+      disabled,
       ...props
     },
     ref: ForwardedRef<HTMLButtonElement>,
@@ -89,7 +91,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(buttonVariants({ variant, size }), className)}
         title={title}
         aria-label={title ?? label}
-        aria-disabled={props.disabled}
+        aria-disabled={disabled}
+        data-disabled={disabled ? '' : undefined}
+        disabled={disabled}
         {...props}
       >
         {StartIcon && <StartIcon size={iconSizeValue} strokeWidth={iconStrokeWidth} />}

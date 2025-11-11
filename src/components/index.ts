@@ -13,4 +13,5 @@ export * from './menubar';
 export * from './search-field';
 export * from './selectable-list-item';
 export * from './separator';
+export * from './toggle';
 export * from './tooltip';

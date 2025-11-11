@@ -29,6 +29,7 @@ const iconButtonVariants = cva(['p-0'], {
 
 export type IconButtonProps = {
   icon: LucideIcon;
+  disabled?: boolean;
 } & IconButtonVariantsProps &
   ComponentPropsWithoutRef<'button'>;
 
