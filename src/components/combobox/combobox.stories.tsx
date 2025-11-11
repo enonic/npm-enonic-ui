@@ -446,7 +446,7 @@ type PlaygroundArgs = {
   defaultOpen: boolean;
 };
 
-export const Playground: Story = {
+export const Playground: StoryObj<PlaygroundArgs> = {
   name: 'Interactive Playground',
   args: {
     selectionMode: 'single',
@@ -484,7 +484,7 @@ export const Playground: Story = {
     },
   },
   render: args => {
-    const { selectionMode, closeOnBlur, disabled, error, placeholder, defaultOpen } = args as PlaygroundArgs;
+    const { selectionMode, closeOnBlur, disabled, error, placeholder, defaultOpen } = args;
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<readonly string[]>([]);
 
@@ -502,7 +502,6 @@ export const Playground: Story = {
           <h3 className='text-md font-medium'>Playground</h3>
           <p className='text-sm text-subtle'>Try different configurations</p>
         </header>
-
         <div className='px-3 py-2 bg-surface-primary rounded-sm'>
           <h6 className='text-sm font-medium mb-2'>Current State:</h6>
           <p className='text-xs text-subtle'>
@@ -552,7 +551,6 @@ export const Playground: Story = {
             </Combobox.Popup>
           </Combobox.Content>
         </Combobox.Root>
-
         {error && <p className='text-sm text-error'>There was an error with your selection</p>}
       </div>
     );

@@ -318,9 +318,9 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
     const handleOnBlur = closeOnBlur
       ? useCallback(
           (e: React.FocusEvent<HTMLDivElement>): void => {
-            const nextTarget = e.relatedTarget as HTMLElement | null;
+            const { relatedTarget } = e;
 
-            if (nextTarget && innerRef.current?.contains(nextTarget)) {
+            if (relatedTarget instanceof Node && innerRef.current?.contains(relatedTarget)) {
               return;
             }
 
