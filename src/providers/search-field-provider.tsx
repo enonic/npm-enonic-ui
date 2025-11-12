@@ -22,6 +22,8 @@ export const SearchFieldProvider = ({ value, children }: SearchFieldProviderProp
   return <SearchFieldContext.Provider value={value}>{children}</SearchFieldContext.Provider>;
 };
 
+SearchFieldProvider.displayName = 'SearchFieldProvider';
+
 export const useSearchField = (): SearchFieldContextValue => {
   const context = useContext(SearchFieldContext);
   if (!context) {

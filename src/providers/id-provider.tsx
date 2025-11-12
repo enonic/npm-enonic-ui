@@ -25,7 +25,8 @@ IdProvider.displayName = 'IdProvider';
  * @returns The prefixed id
  */
 export const usePrefixedId = (providedId?: string, prefix?: string): string => {
-  const baseId = providedId ?? useId();
+  const generatedId = useId();
+  const baseId = providedId ?? generatedId;
   const context = useContext(IdContext);
   return [context?.prefix, prefix, baseId].filter(Boolean).join('-');
 };

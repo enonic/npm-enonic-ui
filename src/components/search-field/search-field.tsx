@@ -10,7 +10,6 @@ import { type ComponentPropsWithoutRef, forwardRef, type ReactElement, type Reac
 //
 
 export type SearchFieldRootProps = {
-  id?: string;
   value?: string;
   defaultValue?: string;
   onChange?: (v: string) => void;
@@ -50,7 +49,7 @@ const SearchFieldRoot = ({
       setValue: setInputValue,
       inputRef,
     }),
-    [inputId, inputValue, disabled, readOnly, placeholder, clearLabel, setInputValue],
+    [inputId, inputValue, disabled, readOnly, placeholder, clearLabel, setInputValue, inputRef],
   );
 
   return (

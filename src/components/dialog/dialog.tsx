@@ -1,5 +1,6 @@
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock } from '@/hooks';
+import { usePrefixedId } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
@@ -12,7 +13,6 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
@@ -38,9 +38,9 @@ const DialogRoot = ({
 }: DialogRootProps): ReactElement => {
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
 
-  const value: DialogContextValue = useMemo(() => ({ open, setOpen }), [open, setOpen]);
+  const context = useMemo<DialogContextValue>(() => ({ open, setOpen }), [open, setOpen]);
 
-  return <DialogProvider value={value}>{children}</DialogProvider>;
+  return <DialogProvider value={context}>{children}</DialogProvider>;
 };
 DialogRoot.displayName = 'Dialog.Root';
 
@@ -171,8 +171,8 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
   ): ReactElement | null => {
     const { open, setOpen } = useDialog();
     const contentRef = useRef<HTMLDivElement>(null);
-    const titleId = useId();
-    const descriptionId = useId();
+    const titleId = usePrefixedId();
+    const descriptionId = usePrefixedId();
 
     // Combine refs
     useEffect(() => {
