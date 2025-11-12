@@ -116,12 +116,11 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         <label
           htmlFor={inputId}
           className={cn(
-            'relative flex items-center select-none gap-2 my-0.75 rounded-xs leading-4',
+            'relative flex items-center select-none gap-2 my-0.75 rounded-xs leading-4 transition-highlight',
             align === 'right' && 'flex-row-reverse justify-end',
             editable && [
               'cursor-pointer',
               'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
-              // 'group-data-[tone=inverse]:focus-within:ring-ring-offset group-data-[tone=inverse]:focus-within:ring-offset-ring',
             ],
             error && editable && 'focus-within:ring-error',
             className,
