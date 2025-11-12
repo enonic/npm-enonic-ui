@@ -1,6 +1,6 @@
 import { Button } from '@/components';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { ChevronDown, File, Folder, Printer, Save, Settings } from 'lucide-react';
+import { ChevronDown, File, Folder, Globe, Printer, Save, Settings } from 'lucide-react';
 import { useState } from 'preact/hooks';
 
 import { Menubar } from './menubar';
@@ -514,6 +514,372 @@ export const MixedMenubarButtonsAndMenus: Story = {
                   <Menubar.Item onSelect={() => setLastAction('Keyboard Shortcuts')}>Keyboard Shortcuts</Menubar.Item>
                   <Menubar.Separator />
                   <Menubar.Item onSelect={() => setLastAction('About')}>About</Menubar.Item>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+          </Menubar.Nav>
+        </Menubar.Root>
+      </div>
+    );
+  },
+};
+
+export const RadioItems: Story = {
+  name: 'Radio / Basic',
+  render: () => {
+    const [textSize, setTextSize] = useState('medium');
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4 items-center'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Radio items in menubar dropdowns allow single selection within a group. Note that selecting a radio item does
+          NOT close the menu, allowing users to see their selection.
+        </div>
+        <div className='text-sm'>
+          <span className='text-subtle'>Selected size: </span>
+          <span className='font-semibold'>{textSize}</span>
+        </div>
+        <Menubar.Root>
+          <Menubar.Nav
+            aria-label='View settings'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Menubar.Menu>
+              <Menubar.Trigger asChild>
+                <Button variant='text' endIcon={ChevronDown}>
+                  Text Size
+                </Button>
+              </Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content>
+                  <Menubar.Label>Font Size</Menubar.Label>
+                  <Menubar.RadioGroup value={textSize} onValueChange={setTextSize}>
+                    <Menubar.RadioItem value='small'>
+                      <Menubar.ItemIndicator />
+                      Small
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='medium'>
+                      <Menubar.ItemIndicator />
+                      Medium
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='large'>
+                      <Menubar.ItemIndicator />
+                      Large
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='x-large'>
+                      <Menubar.ItemIndicator />
+                      Extra Large
+                    </Menubar.RadioItem>
+                  </Menubar.RadioGroup>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+          </Menubar.Nav>
+        </Menubar.Root>
+      </div>
+    );
+  },
+};
+
+export const MultipleRadioGroupsInMenubar: Story = {
+  name: 'Radio / Multiple Groups',
+  render: () => {
+    const [textSize, setTextSize] = useState('medium');
+    const [theme, setTheme] = useState('light');
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4 items-center'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Multiple radio groups in a menubar dropdown. Each group maintains its own selection state independently. Test
+          keyboard navigation across groups.
+        </div>
+        <div className='flex flex-col gap-1 text-sm'>
+          <div>
+            <span className='text-subtle'>Text Size: </span>
+            <span className='font-semibold'>{textSize}</span>
+          </div>
+          <div>
+            <span className='text-subtle'>Theme: </span>
+            <span className='font-semibold'>{theme}</span>
+          </div>
+        </div>
+        <Menubar.Root>
+          <Menubar.Nav
+            aria-label='Preferences'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Menubar.Menu>
+              <Menubar.Trigger asChild>
+                <Button variant='text' startIcon={Settings} endIcon={ChevronDown}>
+                  Preferences
+                </Button>
+              </Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content>
+                  <Menubar.Label>Text Size</Menubar.Label>
+                  <Menubar.RadioGroup value={textSize} onValueChange={setTextSize}>
+                    <Menubar.RadioItem value='small'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Small
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='medium'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Medium
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='large'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Large
+                    </Menubar.RadioItem>
+                  </Menubar.RadioGroup>
+                  <Menubar.Separator />
+                  <Menubar.Label>Theme</Menubar.Label>
+                  <Menubar.RadioGroup value={theme} onValueChange={setTheme}>
+                    <Menubar.RadioItem value='light'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Light
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='dark'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Dark
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='auto'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      System
+                    </Menubar.RadioItem>
+                  </Menubar.RadioGroup>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+          </Menubar.Nav>
+        </Menubar.Root>
+      </div>
+    );
+  },
+};
+
+export const RadioWithRegularItemsInMenubar: Story = {
+  name: 'Radio / Mixed with Items',
+  render: () => {
+    const [sortBy, setSortBy] = useState('name');
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4 items-center'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Radio groups can be mixed with regular menu items and separators in menubar dropdowns for flexible
+          composition.
+        </div>
+        <div className='text-sm'>
+          <span className='text-subtle'>Sort by: </span>
+          <span className='font-semibold'>{sortBy}</span>
+        </div>
+        <Menubar.Root>
+          <Menubar.Nav
+            aria-label='View menu'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Menubar.Menu>
+              <Menubar.Trigger asChild>
+                <Button variant='text' endIcon={ChevronDown}>
+                  View
+                </Button>
+              </Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content>
+                  <Menubar.Item>Refresh</Menubar.Item>
+                  <Menubar.Item>Show Hidden Files</Menubar.Item>
+                  <Menubar.Separator />
+                  <Menubar.Label>Sort By</Menubar.Label>
+                  <Menubar.RadioGroup value={sortBy} onValueChange={setSortBy}>
+                    <Menubar.RadioItem value='name'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Name
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='date'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Date Modified
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='size'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Size
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='type'>
+                      <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+                      Type
+                    </Menubar.RadioItem>
+                  </Menubar.RadioGroup>
+                  <Menubar.Separator />
+                  <Menubar.Item>Reset View</Menubar.Item>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+          </Menubar.Nav>
+        </Menubar.Root>
+      </div>
+    );
+  },
+};
+
+export const CustomIndicatorsInMenubar: Story = {
+  name: 'Radio / Custom Indicators',
+  render: () => {
+    const [priority, setPriority] = useState('medium');
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4 items-center'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Indicators can be customized by passing children to <code>Menubar.ItemIndicator</code>. Use custom icons,
+          characters, or any React element.
+        </div>
+        <div className='text-sm'>
+          <span className='text-subtle'>Priority: </span>
+          <span className='font-semibold'>{priority}</span>
+        </div>
+        <Menubar.Root>
+          <Menubar.Nav
+            aria-label='Task priority'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Menubar.Menu>
+              <Menubar.Trigger asChild>
+                <Button variant='text' endIcon={ChevronDown}>
+                  Set Priority
+                </Button>
+              </Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content>
+                  <Menubar.Label>Task Priority</Menubar.Label>
+                  <Menubar.RadioGroup value={priority} onValueChange={setPriority}>
+                    <Menubar.RadioItem value='low'>
+                      <Menubar.ItemIndicator>▹</Menubar.ItemIndicator>
+                      Low
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='medium'>
+                      <Menubar.ItemIndicator>▸</Menubar.ItemIndicator>
+                      Medium
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='high'>
+                      <Menubar.ItemIndicator>▶</Menubar.ItemIndicator>
+                      High
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='urgent'>
+                      <Menubar.ItemIndicator>⚠</Menubar.ItemIndicator>
+                      Urgent
+                    </Menubar.RadioItem>
+                  </Menubar.RadioGroup>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+          </Menubar.Nav>
+        </Menubar.Root>
+      </div>
+    );
+  },
+};
+
+export const CloseOnSelectInMenubar: Story = {
+  name: 'Radio / Close on Select',
+  render: () => {
+    const [region, setRegion] = useState('us');
+
+    const regions = [
+      { value: 'us', label: 'United States' },
+      { value: 'eu', label: 'Europe' },
+      { value: 'asia', label: 'Asia Pacific' },
+      { value: 'latam', label: 'Latin America' },
+    ];
+
+    const selectedLabel = regions.find(r => r.value === region)?.label ?? 'Select Region';
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4 items-center'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Use <code>closeOnSelect</code> prop on <code>Menubar.RadioGroup</code> to automatically close the menu after
+          selecting a radio item. Focus returns to the menubar trigger for continued navigation.
+        </div>
+        <p className='text-sm text-subtle font-semibold'>Server Region: {selectedLabel}</p>
+        <Menubar.Root>
+          <Menubar.Nav
+            aria-label='Server settings'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Menubar.Menu>
+              <Menubar.Trigger asChild>
+                <Button variant='text' startIcon={Globe} endIcon={ChevronDown}>
+                  Region
+                </Button>
+              </Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content>
+                  <Menubar.Label>Select Region</Menubar.Label>
+                  <Menubar.RadioGroup value={region} onValueChange={setRegion} closeOnSelect>
+                    {regions.map(reg => (
+                      <Menubar.RadioItem key={reg.value} value={reg.value}>
+                        <Menubar.ItemIndicator />
+                        {reg.label}
+                      </Menubar.RadioItem>
+                    ))}
+                  </Menubar.RadioGroup>
+                </Menubar.Content>
+              </Menubar.Portal>
+            </Menubar.Menu>
+          </Menubar.Nav>
+        </Menubar.Root>
+      </div>
+    );
+  },
+};
+
+export const DisabledRadioItemsInMenubar: Story = {
+  name: 'Radio / Disabled Items',
+  render: () => {
+    const [quality, setQuality] = useState('medium');
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4 items-center'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Radio items in menubar dropdowns can be disabled individually. Disabled items are skipped during keyboard
+          navigation and cannot be selected.
+        </div>
+        <div className='text-sm'>
+          <span className='text-subtle'>Playback quality: </span>
+          <span className='font-semibold'>{quality}</span>
+        </div>
+        <Menubar.Root>
+          <Menubar.Nav
+            aria-label='Playback settings'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Menubar.Menu>
+              <Menubar.Trigger asChild>
+                <Button variant='text' startIcon={Settings} endIcon={ChevronDown}>
+                  Quality
+                </Button>
+              </Menubar.Trigger>
+              <Menubar.Portal>
+                <Menubar.Content>
+                  <Menubar.Label>Playback Quality</Menubar.Label>
+                  <Menubar.RadioGroup value={quality} onValueChange={setQuality}>
+                    <Menubar.RadioItem value='low'>
+                      <Menubar.ItemIndicator />
+                      Low (360p)
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='medium'>
+                      <Menubar.ItemIndicator />
+                      Medium (720p)
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='high' disabled>
+                      <Menubar.ItemIndicator />
+                      <span>High (1080p)</span>
+                      <span className='ml-auto text-xs'>(Premium)</span>
+                    </Menubar.RadioItem>
+                    <Menubar.RadioItem value='ultra' disabled>
+                      <Menubar.ItemIndicator />
+                      <span>Ultra (4K)</span>
+                      <span className='ml-auto text-xs'>(Premium)</span>
+                    </Menubar.RadioItem>
+                  </Menubar.RadioGroup>
+                  <Menubar.Separator />
+                  <Menubar.Item>Upgrade to Premium</Menubar.Item>
                 </Menubar.Content>
               </Menubar.Portal>
             </Menubar.Menu>

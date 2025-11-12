@@ -19,10 +19,10 @@
 
     /* Surface Colors */
     --color-surface-neutral: var(--color-grey-950);
+    --color-surface-neutral-hover: var(--color-grey-900);
+    --color-surface-selected: var(--color-grey-800);
+    --color-surface-selected-hover: var(--color-grey-900);
     --color-surface-primary: var(--color-grey-900);
-    --color-surface-primary-hover: var(--color-grey-900);
-    --color-surface-primary-selected: var(--color-grey-800);
-    --color-surface-primary-selected-hover: var(--color-grey-900);
     --color-surface-secondary: var(--color-grey-700);
     --color-surface-tertiary: var(--color-grey-900);
 

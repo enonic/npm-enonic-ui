@@ -201,7 +201,7 @@ export const OnSelectedBackground: Story = {
       <div className='p-4 space-y-4'>
         <h3 className='text-sm font-medium mb-3'>Checkboxes on selected background</h3>
 
-        <div className='group bg-surface-primary-selected text-alt p-4 rounded' data-tone='inverse'>
+        <div className='group bg-surface-selected text-alt p-4 rounded' data-tone='inverse'>
           <h4 className='text-sm font-medium mb-3'>Default State</h4>
           <div className='flex items-center gap-3'>
             <Checkbox label='Unchecked' checked={uncheckedBox.checked} onCheckedChange={uncheckedBox.handleChange} />
@@ -214,17 +214,17 @@ export const OnSelectedBackground: Story = {
           </div>
         </div>
 
-        <div className='group bg-surface-primary-selected text-alt p-4 rounded' data-tone='inverse'>
+        <div className='group bg-surface-selected text-alt p-4 rounded' data-tone='inverse'>
           <h4 className='text-sm font-medium mb-3'>Error State</h4>
           {renderCheckboxGroup({ error: true, errorMessage: 'Error message' })}
         </div>
 
-        <div className='group bg-surface-primary-selected text-alt p-4 rounded' data-tone='inverse'>
+        <div className='group bg-surface-selected text-alt p-4 rounded' data-tone='inverse'>
           <h4 className='text-sm font-medium mb-3'>ReadOnly State</h4>
           {renderCheckboxGroup({ readOnly: true })}
         </div>
 
-        <div className='group bg-surface-primary-selected text-alt p-4 rounded' data-tone='inverse'>
+        <div className='group bg-surface-selected text-alt p-4 rounded' data-tone='inverse'>
           <h4 className='text-sm font-medium mb-3'>Disabled State</h4>
           {renderCheckboxGroup({ disabled: true })}
         </div>

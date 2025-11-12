@@ -73,7 +73,7 @@ export const SingleSelection: Story = {
             ))}
           </Listbox.Content>
         </Listbox>
-        <p className='text-sm text-main/70 mt-3'>
+        <p className='text-sm text-subtle mt-3'>
           Selected: {selection.length > 0 ? frameworks.find(({ id }) => selection.includes(id))?.name : 'None'}
         </p>
       </div>
@@ -104,7 +104,7 @@ export const MultipleSelection: Story = {
             ))}
           </Listbox.Content>
         </Listbox>
-        <p className='text-sm text-main/70 mt-3'>
+        <p className='text-sm text-subtle mt-3'>
           Selected {selection.length} {selection.length === 1 ? 'city' : 'cities'}
         </p>
       </div>
@@ -238,11 +238,11 @@ export const LongList: Story = {
               ))}
             </Listbox.Content>
           </Listbox>
-          <p className='text-sm text-main/70'>
+          <p className='text-sm text-subtle'>
             Selected: {selection.length > 0 ? countries.find(({ id }) => selection.includes(id))?.name : 'None'}
           </p>
         </div>
-        <p className='text-sm text-main/70 mt-3'>
+        <p className='text-sm text-subtle mt-3'>
           {'Use '}
           <span className='inline-flex items-center gap-x-1 font-mono text-xs'>
             <span className='px-1 border border-main/20 rounded-sm'>↑</span>
@@ -367,7 +367,7 @@ export const ActiveDescendantMode: Story = {
             ))}
           </Listbox.Content>
         </Listbox>
-        <p className='text-sm text-main/70 mt-3'>
+        <p className='text-sm text-subtle mt-3'>
           Input keeps focus, so listbox items are not focusable and don’t show focus ring.
         </p>
       </div>
@@ -439,7 +439,7 @@ export const WithCustomGroups: Story = {
           </Listbox.Content>
         </Listbox>
 
-        <p className='text-sm text-main/70 mt-3'>Selected: {selection.length > 0 ? selection.join(', ') : 'None'}</p>
+        <p className='text-sm text-subtle mt-3'>Selected: {selection.length > 0 ? selection.join(', ') : 'None'}</p>
       </div>
     );
   },

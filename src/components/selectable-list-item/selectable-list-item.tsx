@@ -26,7 +26,7 @@ export const SelectableListItem = ({
 }: SelectableListItemProps): ReactElement => {
   return (
     <ListItem
-      className={cn(!selected && 'hover:bg-surface-primary-hover', className)}
+      className={cn(!selected && 'hover:bg-surface-neutral-hover', className)}
       selected={selected}
       role='row'
       aria-selected={selected}
