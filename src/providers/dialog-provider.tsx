@@ -3,6 +3,10 @@ import { createContext, type ReactElement, type ReactNode, useContext } from 're
 export type DialogContextValue = {
   open: boolean;
   setOpen: (next: boolean) => void;
+  titleId: string;
+  descriptionId: string;
+  setTitleId: (id: string) => void;
+  setDescriptionId: (id: string) => void;
 };
 
 const DialogContext = createContext<DialogContextValue | undefined>(undefined);

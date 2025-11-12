@@ -3,7 +3,16 @@ import { useControlledState } from '@/hooks';
 import { type SearchFieldContextValue, SearchFieldProvider, usePrefixedId, useSearchField } from '@/providers';
 import { cn, unwrap, useComposedRefs } from '@/utils';
 import { Search, X } from 'lucide-react';
-import { type ComponentPropsWithoutRef, forwardRef, type ReactElement, type ReactNode, useMemo, useRef } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  forwardRef,
+  type ReactElement,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 //
 // * SearchField
@@ -34,22 +43,25 @@ const SearchFieldRoot = ({
   className,
   ...props
 }: SearchFieldRootProps): ReactElement => {
-  const inputId = usePrefixedId(unwrap(id));
+  const defaultId = usePrefixedId(unwrap(id));
+  const [inputId, setInputId] = useState(defaultId);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useControlledState(value, defaultValue, onChange);
 
   const context = useMemo<SearchFieldContextValue>(
     () => ({
       id: inputId,
+      setId: setInputId,
       value: inputValue,
+      setValue: setInputValue,
       disabled,
       readOnly,
       placeholder,
       clearLabel,
-      setValue: setInputValue,
       inputRef,
     }),
-    [inputId, inputValue, disabled, readOnly, placeholder, clearLabel, setInputValue, inputRef],
+    [inputId, setInputId, inputValue, setInputValue, disabled, readOnly, placeholder, clearLabel, inputRef],
   );
 
   return (
@@ -99,8 +111,15 @@ SearchFieldIcon.displayName = 'SearchFieldIcon';
 export type SearchFieldInputProps = ComponentPropsWithoutRef<'input'>;
 
 const SearchFieldInput = forwardRef<HTMLInputElement, SearchFieldInputProps>(
-  ({ className, ...props }, ref): ReactElement => {
-    const { id, value, disabled, readOnly, placeholder, setValue, inputRef } = useSearchField();
+  ({ id: providedId, className, ...props }, ref): ReactElement => {
+    const { id, setId, value, disabled, readOnly, placeholder, setValue, inputRef } = useSearchField();
+
+    const inputId = unwrap(providedId);
+    useEffect(() => {
+      if (inputId) {
+        setId(inputId);
+      }
+    }, [inputId, setId]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
       setValue(e.currentTarget.value);
