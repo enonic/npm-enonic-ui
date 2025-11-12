@@ -70,7 +70,7 @@ export default {
 } satisfies Meta<AvatarRootProps>;
 
 export const Single: Story = {
-  name: 'Single Avatar',
+  name: 'Examples / Single',
   args: {
     size: 'md',
     shape: 'circle',
@@ -96,7 +96,7 @@ export const Single: Story = {
 };
 
 export const WithFallback: Story = {
-  name: 'Avatar with Fallback',
+  name: 'Examples / With Fallback',
   args: {
     size: 'md',
     shape: 'circle',
@@ -122,7 +122,7 @@ export const WithFallback: Story = {
 };
 
 export const Multiple: Story = {
-  name: 'Multiple Avatars',
+  name: 'Examples / Multiple',
   args: {
     size: 'md',
     shape: 'circle',
@@ -146,7 +146,7 @@ export const Multiple: Story = {
 };
 
 export const Sizes: Story = {
-  name: 'Different Sizes',
+  name: 'Features / Sizes',
   args: {
     shape: 'circle',
   },
@@ -187,7 +187,7 @@ export const Sizes: Story = {
 };
 
 export const Shapes: Story = {
-  name: 'Different Shapes',
+  name: 'Features / Shapes',
   args: {
     size: 'lg',
   },
@@ -221,7 +221,7 @@ export const Shapes: Story = {
 };
 
 export const AvatarGroup: Story = {
-  name: 'Avatar Group (Stacked)',
+  name: 'Features / Avatar Group',
   args: {
     size: 'md',
     shape: 'circle',
@@ -246,7 +246,7 @@ export const AvatarGroup: Story = {
 };
 
 export const WithCustomFallback: Story = {
-  name: 'Custom Fallback Content',
+  name: 'Features / Custom Fallback',
   args: {
     size: 'lg',
     shape: 'circle',
@@ -293,8 +293,8 @@ export const WithCustomFallback: Story = {
   ),
 };
 
-export const InteractivePlayground: Story = {
-  name: 'Interactive Playground',
+export const Interactive: Story = {
+  name: 'Features / Interactive',
   render: ({ size, shape }) => {
     const user = users[0];
     return (

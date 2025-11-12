@@ -51,7 +51,7 @@ const ListboxItemContent = ({ name, language }: Omit<Option, 'id'>): ReactElemen
 };
 
 export const Basic: Story = {
-  name: 'Basic Usage',
+  name: 'Examples / Basic',
   render: () => {
     const [value, setValue] = useState<string | undefined>();
 
@@ -93,7 +93,7 @@ export const Basic: Story = {
 };
 
 export const Multi: Story = {
-  name: 'Multiple Selection',
+  name: 'Examples / Multi-Select',
   render: () => {
     const [value, setValue] = useState<string | undefined>();
 
@@ -134,165 +134,8 @@ export const Multi: Story = {
   },
 };
 
-export const CustomFiltering: Story = {
-  name: 'Custom Filtering',
-  render: () => {
-    const [value, setValue] = useState<string | undefined>();
-    const [selection, setSelection] = useState<readonly string[]>([]);
-
-    const filtered = value
-      ? frameworks.filter(f => String(f.year).includes(value) || f.name.toLowerCase().includes(value.toLowerCase()))
-      : frameworks;
-
-    return (
-      <div className='relative space-y-3'>
-        <h3 className='text-md font-medium'>Custom Filtering</h3>
-        <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
-          <Combobox.Content>
-            <Combobox.Control>
-              <Combobox.Search>
-                <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Type year (e.g., 2018)' />
-                <Combobox.Toggle />
-              </Combobox.Search>
-            </Combobox.Control>
-
-            <Combobox.Popup>
-              <Listbox.Content className='rounded-sm'>
-                {filtered.map(({ id, ...rest }) => (
-                  <Listbox.Item key={id} value={id}>
-                    <ListboxItemContent {...rest} />
-                  </Listbox.Item>
-                ))}
-              </Listbox.Content>
-            </Combobox.Popup>
-          </Combobox.Content>
-        </Combobox.Root>
-        <div className='px-3 py-2 bg-surface-primary rounded-sm'>
-          <p className='text-sm text-subtle'>
-            <span className='font-semibold'>Selected:</span> {selection}
-          </p>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const Disabled: Story = {
-  name: 'Disabled State',
-  render: () => {
-    return (
-      <div className='relative space-y-3'>
-        <h3 className='text-md font-medium'>Disabled</h3>
-        <Combobox.Root disabled>
-          <Combobox.Content>
-            <Combobox.Control>
-              <Combobox.Search>
-                <Combobox.SearchIcon />
-                <Combobox.Input placeholder='Search frameworks' />
-                <Combobox.Toggle />
-              </Combobox.Search>
-            </Combobox.Control>
-            <Combobox.Popup>
-              <Listbox.Content className='rounded-sm'>
-                {frameworks.map(({ id, ...rest }) => (
-                  <Listbox.Item key={id} value={id}>
-                    <ListboxItemContent {...rest} />
-                  </Listbox.Item>
-                ))}
-              </Listbox.Content>
-            </Combobox.Popup>
-          </Combobox.Content>
-        </Combobox.Root>
-      </div>
-    );
-  },
-};
-
-export const WithError: Story = {
-  name: 'With Error State',
-  render: () => {
-    const [value, setValue] = useState<string | undefined>();
-
-    const filtered = value
-      ? frameworks.filter(
-          f =>
-            f.name.toLowerCase().includes(value.toLowerCase()) ||
-            f.language.toLowerCase().includes(value.toLowerCase()),
-        )
-      : frameworks;
-
-    return (
-      <div className='relative space-y-3'>
-        <h3 className='text-md font-medium'>Has errors</h3>
-        <Combobox.Root value={value} onChange={setValue} error>
-          <Combobox.Content>
-            <Combobox.Control>
-              <Combobox.Search>
-                <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
-                <Combobox.Toggle />
-              </Combobox.Search>
-            </Combobox.Control>
-            <Combobox.Popup>
-              <Listbox.Content className='rounded-sm'>
-                {filtered.map(({ id, ...rest }) => (
-                  <Listbox.Item key={id} value={id}>
-                    <ListboxItemContent {...rest} />
-                  </Listbox.Item>
-                ))}
-              </Listbox.Content>
-            </Combobox.Popup>
-          </Combobox.Content>
-        </Combobox.Root>
-        <p className='text-sm text-error'>Something went wrong</p>
-      </div>
-    );
-  },
-};
-
-export const LongList: Story = {
-  name: 'Long List with Scroll',
-  render: () => {
-    const [value, setValue] = useState<string | undefined>();
-    const longList = Array.from({ length: 50 }, (_, i) => ({
-      id: `framework-${i + 1}`,
-      name: `Framework ${i + 1}`,
-    }));
-
-    const filtered = value ? longList.filter(f => f.name.toLowerCase().includes(value.toLowerCase())) : longList;
-
-    return (
-      <div className='relative space-y-3'>
-        <h3 className='text-md font-medium'>Long list, stays open on blur</h3>
-        <Combobox.Root value={value} onChange={setValue} closeOnBlur={false}>
-          <Combobox.Content>
-            <Combobox.Control>
-              <Combobox.Search>
-                <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Select from long list' />
-                <Combobox.Toggle />
-              </Combobox.Search>
-            </Combobox.Control>
-
-            <Combobox.Popup>
-              <Listbox.Content className='max-h-60'>
-                {filtered.map(({ id, name }) => (
-                  <Listbox.Item key={id} value={id}>
-                    <div className='text-sm'>{name}</div>
-                  </Listbox.Item>
-                ))}
-              </Listbox.Content>
-            </Combobox.Popup>
-          </Combobox.Content>
-        </Combobox.Root>
-      </div>
-    );
-  },
-};
-
 export const Preselected: Story = {
-  name: 'Preselected',
+  name: 'Examples / Preselected',
   render: () => {
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
@@ -340,8 +183,165 @@ export const Preselected: Story = {
   },
 };
 
+export const Disabled: Story = {
+  name: 'States / Disabled',
+  render: () => {
+    return (
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Disabled</h3>
+        <Combobox.Root disabled>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+            <Combobox.Popup>
+              <Listbox.Content className='rounded-sm'>
+                {frameworks.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+      </div>
+    );
+  },
+};
+
+export const WithError: Story = {
+  name: 'States / Error',
+  render: () => {
+    const [value, setValue] = useState<string | undefined>();
+
+    const filtered = value
+      ? frameworks.filter(
+          f =>
+            f.name.toLowerCase().includes(value.toLowerCase()) ||
+            f.language.toLowerCase().includes(value.toLowerCase()),
+        )
+      : frameworks;
+
+    return (
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Has errors</h3>
+        <Combobox.Root value={value} onChange={setValue} error>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+            <Combobox.Popup>
+              <Listbox.Content className='rounded-sm'>
+                {filtered.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+        <p className='text-sm text-error'>Something went wrong</p>
+      </div>
+    );
+  },
+};
+
+export const LongList: Story = {
+  name: 'Features / Long List',
+  render: () => {
+    const [value, setValue] = useState<string | undefined>();
+    const longList = Array.from({ length: 50 }, (_, i) => ({
+      id: `framework-${i + 1}`,
+      name: `Framework ${i + 1}`,
+    }));
+
+    const filtered = value ? longList.filter(f => f.name.toLowerCase().includes(value.toLowerCase())) : longList;
+
+    return (
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Long list, stays open on blur</h3>
+        <Combobox.Root value={value} onChange={setValue} closeOnBlur={false}>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Select from long list' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              <Listbox.Content className='max-h-60'>
+                {filtered.map(({ id, name }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <div className='text-sm'>{name}</div>
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+      </div>
+    );
+  },
+};
+
+export const CustomFiltering: Story = {
+  name: 'Features / Custom Filtering',
+  render: () => {
+    const [value, setValue] = useState<string | undefined>();
+    const [selection, setSelection] = useState<readonly string[]>([]);
+
+    const filtered = value
+      ? frameworks.filter(f => String(f.year).includes(value) || f.name.toLowerCase().includes(value.toLowerCase()))
+      : frameworks;
+
+    return (
+      <div className='relative space-y-3'>
+        <h3 className='text-md font-medium'>Custom Filtering</h3>
+        <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Type year (e.g., 2018)' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              <Listbox.Content className='rounded-sm'>
+                {filtered.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+        <div className='px-3 py-2 bg-surface-primary rounded-sm'>
+          <p className='text-sm text-subtle'>
+            <span className='font-semibold'>Selected:</span> {selection}
+          </p>
+        </div>
+      </div>
+    );
+  },
+};
+
 export const Staged: Story = {
-  name: 'Confirm Selection Changes',
+  name: 'Features / Staged Selection',
   render: () => {
     const [value, setValue] = useState<string | undefined>();
 
@@ -384,7 +384,7 @@ export const Staged: Story = {
 };
 
 export const Staged_Preselected: Story = {
-  name: 'Confirm / Preselected',
+  name: 'Features / Staged with Preselected',
   render: () => {
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
@@ -446,8 +446,8 @@ type PlaygroundArgs = {
   defaultOpen: boolean;
 };
 
-export const Playground: StoryObj<PlaygroundArgs> = {
-  name: 'Interactive Playground',
+export const Interactive: StoryObj<PlaygroundArgs> = {
+  name: 'Features / Interactive',
   args: {
     selectionMode: 'single',
     closeOnBlur: true,

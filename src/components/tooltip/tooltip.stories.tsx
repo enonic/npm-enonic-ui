@@ -18,6 +18,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  name: 'Examples / Default',
   render: () => (
     <Tooltip value='This is a tooltip'>
       <Button label='Hover me' />
@@ -26,6 +27,7 @@ export const Default: Story = {
 };
 
 export const TopPosition: Story = {
+  name: 'Examples / Top Position',
   render: () => (
     <Tooltip value='Tooltip on top' side='top'>
       <Button label='Hover for top tooltip' />
@@ -34,6 +36,7 @@ export const TopPosition: Story = {
 };
 
 export const WithIconButton: Story = {
+  name: 'Examples / With IconButton',
   render: () => (
     <Tooltip value='More information'>
       <IconButton icon={Info} variant='outline' />
@@ -41,23 +44,23 @@ export const WithIconButton: Story = {
   ),
 };
 
-export const LongContent: Story = {
+export const SimpleButton: Story = {
+  name: 'Examples / Simple Button',
   render: () => (
-    <Tooltip value='This is a much longer tooltip that contains more detailed information about the element'>
-      <Button label='Long tooltip' />
-    </Tooltip>
-  ),
-};
-
-export const CustomStyling: Story = {
-  render: () => (
-    <Tooltip value='Important warning message!' className='bg-error text-alt'>
-      <Button label='Custom styled tooltip' variant='solid' />
+    <Tooltip value='Simple HTML button tooltip'>
+      <button
+        type='button'
+        className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
+        onClick={() => alert('Button clicked!')}
+      >
+        Simple Button
+      </button>
     </Tooltip>
   ),
 };
 
 export const MultipleTooltips: Story = {
+  name: 'Examples / Multiple Tooltips',
   render: () => (
     <div className='flex gap-4'>
       <Tooltip value='First tooltip'>
@@ -75,7 +78,26 @@ export const MultipleTooltips: Story = {
   ),
 };
 
+export const LongContent: Story = {
+  name: 'Features / Long Content',
+  render: () => (
+    <Tooltip value='This is a much longer tooltip that contains more detailed information about the element'>
+      <Button label='Long tooltip' />
+    </Tooltip>
+  ),
+};
+
+export const CustomStyling: Story = {
+  name: 'Features / Custom Styling',
+  render: () => (
+    <Tooltip value='Important warning message!' className='bg-error text-alt'>
+      <Button label='Custom styled tooltip' variant='solid' />
+    </Tooltip>
+  ),
+};
+
 export const AllPositions: Story = {
+  name: 'Features / All Positions',
   render: () => (
     <div className='flex gap-8 items-center justify-center' style={{ minHeight: '200px' }}>
       <Tooltip value='Top tooltip' side='top'>
@@ -98,6 +120,7 @@ export const AllPositions: Story = {
 };
 
 export const WithDelay: Story = {
+  name: 'Features / With Delay',
   render: () => (
     <div className='flex gap-4'>
       <Tooltip value='No delay'>
@@ -115,7 +138,17 @@ export const WithDelay: Story = {
   ),
 };
 
+export const AsChildFalse: Story = {
+  name: 'Features / AsChild False',
+  render: () => (
+    <Tooltip value='Using asChild=false' asChild={false}>
+      <Button label='Wrapped in div' />
+    </Tooltip>
+  ),
+};
+
 export const DisabledTrigger: Story = {
+  name: 'Behavior / Disabled Trigger',
   render: () => (
     <div className='pointer-events-none'>
       <Tooltip value='This button is disabled'>
@@ -127,29 +160,8 @@ export const DisabledTrigger: Story = {
   ),
 };
 
-export const SimpleButton: Story = {
-  render: () => (
-    <Tooltip value='Simple HTML button tooltip'>
-      <button
-        type='button'
-        className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600'
-        onClick={() => alert('Button clicked!')}
-      >
-        Simple Button
-      </button>
-    </Tooltip>
-  ),
-};
-
-export const AsChildFalse: Story = {
-  render: () => (
-    <Tooltip value='Using asChild=false' asChild={false}>
-      <Button label='Wrapped in div' />
-    </Tooltip>
-  ),
-};
-
 export const EmptyTooltip: Story = {
+  name: 'Behavior / Empty Tooltip',
   render: () => (
     <div className='flex gap-4'>
       <Tooltip value=''>

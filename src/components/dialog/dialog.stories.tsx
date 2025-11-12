@@ -18,7 +18,7 @@ export default meta;
 type Story = StoryObj<typeof Dialog>;
 
 export const BasicDialog: Story = {
-  name: 'Basic Dialog',
+  name: 'Examples / Basic',
   render: () => {
     const [open, setOpen] = useState(false);
 
@@ -62,70 +62,8 @@ export const BasicDialog: Story = {
   },
 };
 
-export const CustomHeader: Story = {
-  name: 'Custom Header',
-  render: () => {
-    const [open, setOpen] = useState(false);
-    const [items, setItems] = useState(['Project Alpha', 'Project Beta', 'Project Gamma']);
-
-    const handleNew = (): void => {
-      const newItem = `Project ${String.fromCharCode(65 + items.length)}`;
-      setItems([...items, newItem]);
-    };
-
-    return (
-      <div className='space-y-4'>
-        <Button variant='solid' onClick={() => setOpen(true)} label='Open Custom Header' />
-
-        <Dialog open={open} onOpenChange={setOpen}>
-          <Dialog.Portal>
-            <Dialog.Overlay />
-            <Dialog.Content className='w-140'>
-              <Dialog.Header className='flex flex-col gap-2.5'>
-                <Dialog.Title className='flex items-center gap-2 bg-surface-info px-4 py-3 rounded-sm text-info'>
-                  <BadgeInfo strokeWidth={2} />
-                  <span className='flex-1 text-sm font-semibold uppercase'>Add new project?</span>
-                  <Button
-                    className='bg-transparent hover:bg-info/10 active:bg-info border-info text-info'
-                    variant='outline'
-                    onClick={handleNew}
-                    label='Add'
-                    size='sm'
-                  />
-                </Dialog.Title>
-                <Dialog.Description>
-                  <h2 className='text-2xl font-semibold'>Project Manager</h2>
-                  <p>Manage and organize your active projects</p>
-                </Dialog.Description>
-              </Dialog.Header>
-
-              <Dialog.Body className='space-y-2'>
-                {items.map((item, key) => (
-                  <div
-                    key={key}
-                    className='px-3 py-1 border border-bdr-subtle rounded-sm flex justify-between items-center'
-                  >
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </Dialog.Body>
-
-              <Dialog.Footer>
-                <Dialog.Close asChild>
-                  <Button variant='outline' label='Close' />
-                </Dialog.Close>
-                <Button variant='solid' onClick={() => setOpen(false)} label='Save Changes' />
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog>
-      </div>
-    );
-  },
-};
-
 export const LoadingDialog: Story = {
-  name: 'Loading Dialog',
+  name: 'Examples / Loading',
   render: () => {
     const [open, setOpen] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -182,7 +120,7 @@ export const LoadingDialog: Story = {
 };
 
 export const QuickConfirmation: Story = {
-  name: 'Quick Confirmation',
+  name: 'Examples / Quick Confirmation',
   render: () => {
     const [open, setOpen] = useState(false);
 
@@ -216,7 +154,7 @@ export const QuickConfirmation: Story = {
 };
 
 export const FormDialog: Story = {
-  name: 'Form Dialog',
+  name: 'Examples / Form',
   render: () => {
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState('');
@@ -339,8 +277,91 @@ export const FormDialog: Story = {
   },
 };
 
+export const OpenByDefault: Story = {
+  name: 'Examples / Open By Default',
+  tags: ['!autodocs'],
+  render: () => {
+    return (
+      <Dialog defaultOpen>
+        <Dialog.Portal>
+          <Dialog.Overlay />
+          <Dialog.Content className='min-w-auto w-auto gap-5'>
+            <Dialog.DefaultHeader title='Hey!' description='I was opened automatically' />
+            <Dialog.Body className='flex items-center gap-2 p-4 bg-surface-info rounded-md text-info'>
+              <BadgeInfo />
+              <span>As soon as component mounted.</span>
+            </Dialog.Body>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+    );
+  },
+};
+
+export const CustomHeader: Story = {
+  name: 'Features / Custom Header',
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [items, setItems] = useState(['Project Alpha', 'Project Beta', 'Project Gamma']);
+
+    const handleNew = (): void => {
+      const newItem = `Project ${String.fromCharCode(65 + items.length)}`;
+      setItems([...items, newItem]);
+    };
+
+    return (
+      <div className='space-y-4'>
+        <Button variant='solid' onClick={() => setOpen(true)} label='Open Custom Header' />
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-140'>
+              <Dialog.Header className='flex flex-col gap-2.5'>
+                <Dialog.Title className='flex items-center gap-2 bg-surface-info px-4 py-3 rounded-sm text-info'>
+                  <BadgeInfo strokeWidth={2} />
+                  <span className='flex-1 text-sm font-semibold uppercase'>Add new project?</span>
+                  <Button
+                    className='bg-transparent hover:bg-info/10 active:bg-info border-info text-info'
+                    variant='outline'
+                    onClick={handleNew}
+                    label='Add'
+                    size='sm'
+                  />
+                </Dialog.Title>
+                <Dialog.Description>
+                  <h2 className='text-2xl font-semibold'>Project Manager</h2>
+                  <p>Manage and organize your active projects</p>
+                </Dialog.Description>
+              </Dialog.Header>
+
+              <Dialog.Body className='space-y-2'>
+                {items.map((item, key) => (
+                  <div
+                    key={key}
+                    className='px-3 py-1 border border-bdr-subtle rounded-sm flex justify-between items-center'
+                  >
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </Dialog.Body>
+
+              <Dialog.Footer>
+                <Dialog.Close asChild>
+                  <Button variant='outline' label='Close' />
+                </Dialog.Close>
+                <Button variant='solid' onClick={() => setOpen(false)} label='Save Changes' />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
 export const ScrollableContent: Story = {
-  name: 'Scrollable Content',
+  name: 'Features / Scrollable Content',
   render: () => {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState<number[]>([]);
@@ -396,7 +417,7 @@ export const ScrollableContent: Story = {
 };
 
 export const LargeDialog: Story = {
-  name: 'Large Dialog',
+  name: 'Features / Large Dialog',
   render: () => {
     const [open, setOpen] = useState(false);
 
@@ -469,7 +490,7 @@ export const LargeDialog: Story = {
 };
 
 export const MultiStepWizard: Story = {
-  name: 'Multi-Step Wizard',
+  name: 'Features / Multi-Step Wizard',
   render: () => {
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState(1);
@@ -645,7 +666,7 @@ export const MultiStepWizard: Story = {
 };
 
 export const AutoFocusInput: Story = {
-  name: 'Auto-Focus Input',
+  name: 'Features / Auto-Focus Input',
   render: () => {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
@@ -696,27 +717,6 @@ export const AutoFocusInput: Story = {
           </Dialog.Portal>
         </Dialog>
       </div>
-    );
-  },
-};
-
-export const OpenByDefault: Story = {
-  name: 'Open By Default',
-  tags: ['!autodocs'],
-  render: () => {
-    return (
-      <Dialog defaultOpen>
-        <Dialog.Portal>
-          <Dialog.Overlay />
-          <Dialog.Content className='min-w-auto w-auto gap-5'>
-            <Dialog.DefaultHeader title='Hey!' description='I was opened automatically' />
-            <Dialog.Body className='flex items-center gap-2 p-4 bg-surface-info rounded-md text-info'>
-              <BadgeInfo />
-              <span>As soon as component mounted.</span>
-            </Dialog.Body>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog>
     );
   },
 };

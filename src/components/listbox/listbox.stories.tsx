@@ -51,7 +51,7 @@ export default {
 } satisfies Meta<ListboxRootProps>;
 
 export const SingleSelection: Story = {
-  name: 'Single Selection',
+  name: 'Examples / Single Selection',
   args: {
     selectionMode: 'single',
     disabled: false,
@@ -82,7 +82,7 @@ export const SingleSelection: Story = {
 };
 
 export const MultipleSelection: Story = {
-  name: 'Multiple Selection',
+  name: 'Examples / Multiple Selection',
   args: {
     selectionMode: 'multiple',
     disabled: false,
@@ -112,8 +112,87 @@ export const MultipleSelection: Story = {
   },
 };
 
+export const Preselected: Story = {
+  name: 'Examples / Preselected',
+  args: {
+    selectionMode: 'multiple',
+    disabled: false,
+  },
+  argTypes: {
+    selectionMode: { control: false },
+  },
+  render: ({ disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>(['react', 'vue', 'svelte']);
+    return (
+      <div className='min-w-52 p-4'>
+        <h3 className='text-sm font-medium mb-3'>Your favorite frameworks</h3>
+        <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
+          <Listbox.Content label='Your favorite frameworks'>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
+              </Listbox.Item>
+            ))}
+          </Listbox.Content>
+        </Listbox>
+      </div>
+    );
+  },
+};
+
+export const Uncontrolled: Story = {
+  name: 'Examples / Uncontrolled',
+  render: ({ selectionMode, disabled }) => (
+    <div className='p-4'>
+      <h3 className='text-sm font-medium mb-3'>Uncontrolled listbox</h3>
+      <Listbox selectionMode={selectionMode} disabled={disabled} defaultSelection={['react']}>
+        <Listbox.Content>
+          {frameworks.map(({ id, name }) => (
+            <Listbox.Item key={id} value={id}>
+              <div className='flex-1'>{name}</div>
+            </Listbox.Item>
+          ))}
+        </Listbox.Content>
+      </Listbox>
+    </div>
+  ),
+};
+
+export const Disabled: Story = {
+  name: 'States / Disabled',
+  args: {
+    selectionMode: 'single',
+    disabled: true,
+  },
+  argTypes: {
+    selectionMode: { control: false },
+  },
+  render: ({ selectionMode, disabled }) => {
+    const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
+    return (
+      <div className='p-4'>
+        <h3 className='text-sm font-medium mb-3'>Disabled listbox</h3>
+        <Listbox
+          selectionMode={selectionMode}
+          disabled={disabled}
+          selection={selection}
+          onSelectionChange={setSelection}
+        >
+          <Listbox.Content label='Disabled listbox'>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
+              </Listbox.Item>
+            ))}
+          </Listbox.Content>
+        </Listbox>
+      </div>
+    );
+  },
+};
+
 export const WithCheckboxes: Story = {
-  name: 'Selection with Checkboxes',
+  name: 'Features / With Checkboxes',
   args: {
     selectionMode: 'multiple',
     disabled: false,
@@ -153,69 +232,8 @@ export const WithCheckboxes: Story = {
   },
 };
 
-export const Preselected: Story = {
-  name: 'With Pre-selected Items',
-  args: {
-    selectionMode: 'multiple',
-    disabled: false,
-  },
-  argTypes: {
-    selectionMode: { control: false },
-  },
-  render: ({ disabled }) => {
-    const [selection, setSelection] = useState<readonly string[]>(['react', 'vue', 'svelte']);
-    return (
-      <div className='min-w-52 p-4'>
-        <h3 className='text-sm font-medium mb-3'>Your favorite frameworks</h3>
-        <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
-          <Listbox.Content label='Your favorite frameworks'>
-            {frameworks.map(({ id, name }) => (
-              <Listbox.Item key={id} value={id}>
-                <div className='flex-1'>{name}</div>
-              </Listbox.Item>
-            ))}
-          </Listbox.Content>
-        </Listbox>
-      </div>
-    );
-  },
-};
-
-export const Disabled: Story = {
-  name: 'Disabled State',
-  args: {
-    selectionMode: 'single',
-    disabled: true,
-  },
-  argTypes: {
-    selectionMode: { control: false },
-  },
-  render: ({ selectionMode, disabled }) => {
-    const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
-    return (
-      <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>Disabled listbox</h3>
-        <Listbox
-          selectionMode={selectionMode}
-          disabled={disabled}
-          selection={selection}
-          onSelectionChange={setSelection}
-        >
-          <Listbox.Content label='Disabled listbox'>
-            {frameworks.map(({ id, name }) => (
-              <Listbox.Item key={id} value={id}>
-                <div className='flex-1'>{name}</div>
-              </Listbox.Item>
-            ))}
-          </Listbox.Content>
-        </Listbox>
-      </div>
-    );
-  },
-};
-
 export const LongList: Story = {
-  name: 'Long List with Scroll',
+  name: 'Features / Long List',
   args: {
     selectionMode: 'single',
     disabled: false,
@@ -257,126 +275,8 @@ export const LongList: Story = {
   },
 };
 
-export const OuterNavigation: Story = {
-  name: 'Navigate from Outside',
-  argTypes: {
-    selectionMode: { control: false },
-    disabled: { control: false },
-  },
-  render: () => {
-    const [selection, setSelection] = useState<readonly string[]>([]);
-    const [active, setActive] = useState<string | null | undefined>(undefined);
-
-    const navHandler = (delta: number): void => {
-      const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
-      let newIndex = activeIndex + delta;
-      if (newIndex < 0) {
-        newIndex = frameworks.length - 1;
-      }
-      if (newIndex >= frameworks.length) {
-        newIndex = 0;
-      }
-      setActive(frameworks[newIndex].id);
-    };
-
-    return (
-      <div className='min-w-52 p-4'>
-        <IconButton icon={ArrowUp} onClick={() => navHandler(-1)} variant='outline' shape='round' className='mr-1' />
-        <IconButton icon={ArrowDown} onClick={() => navHandler(1)} variant='outline' shape='round' />
-
-        <Listbox
-          selectionMode='multiple'
-          selection={selection}
-          onSelectionChange={setSelection}
-          active={active}
-          setActive={setActive}
-        >
-          <Listbox.Content className='mt-4' tabIndex={-1}>
-            {frameworks.map(({ id, name }) => (
-              <Listbox.Item key={id} value={id}>
-                <div className='flex-1'>{name}</div>
-              </Listbox.Item>
-            ))}
-          </Listbox.Content>
-        </Listbox>
-
-        <h3 className='text-sm text-subtle mt-3'>Navigate list using buttons</h3>
-      </div>
-    );
-  },
-};
-
-export const ActiveDescendantMode: Story = {
-  name: 'Focus Mode: aria-activedescendant',
-  argTypes: {
-    selectionMode: { control: false },
-    disabled: { control: false },
-  },
-  render: () => {
-    const [selection, setSelection] = useState<readonly string[]>([]);
-    const [active, setActive] = useState<string | null | undefined>(undefined);
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-      const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
-
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          if (activeIndex < frameworks.length - 1) {
-            setActive(frameworks[activeIndex + 1].id);
-          } else {
-            setActive(frameworks[0].id);
-          }
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          if (activeIndex > 0) {
-            setActive(frameworks[activeIndex - 1].id);
-          } else {
-            setActive(frameworks[frameworks.length - 1].id);
-          }
-          break;
-        case 'Enter':
-        case ' ':
-          e.preventDefault();
-          if (active) {
-            const isSelected = selection.includes(active);
-            setSelection(isSelected ? selection.filter(id => id !== active) : [...selection, active]);
-          }
-          break;
-      }
-    };
-
-    return (
-      <div className='max-w-80 p-4'>
-        <h3 className='mb-3 text-sm font-medium'>Listbox with external input (aria-activedescendant)</h3>
-        <Input type='text' placeholder='Use arrow keys' onKeyDown={handleKeyDown} />
-        <Listbox
-          selectionMode='multiple'
-          selection={selection}
-          onSelectionChange={setSelection}
-          active={active}
-          setActive={setActive}
-          focusMode='activedescendant'
-        >
-          <Listbox.Content className='mt-4' tabIndex={-1} label='Frameworks list'>
-            {frameworks.map(({ id, name }) => (
-              <Listbox.Item key={id} value={id}>
-                <div className='flex-1'>{name}</div>
-              </Listbox.Item>
-            ))}
-          </Listbox.Content>
-        </Listbox>
-        <p className='text-sm text-subtle mt-3'>
-          Input keeps focus, so listbox items are not focusable and don’t show focus ring.
-        </p>
-      </div>
-    );
-  },
-};
-
 export const WithCustomGroups: Story = {
-  name: 'With Custom Group Headers',
+  name: 'Features / Custom Groups',
   args: {
     selectionMode: 'multiple',
     disabled: false,
@@ -445,20 +345,120 @@ export const WithCustomGroups: Story = {
   },
 };
 
-export const Uncontrolled: Story = {
-  name: 'Interactive Playground',
-  render: ({ selectionMode, disabled }) => (
-    <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3'>Uncontrolled listbox</h3>
-      <Listbox selectionMode={selectionMode} disabled={disabled} defaultSelection={['react']}>
-        <Listbox.Content>
-          {frameworks.map(({ id, name }) => (
-            <Listbox.Item key={id} value={id}>
-              <div className='flex-1'>{name}</div>
-            </Listbox.Item>
-          ))}
-        </Listbox.Content>
-      </Listbox>
-    </div>
-  ),
+export const OuterNavigation: Story = {
+  name: 'Behavior / Navigate from Outside',
+  argTypes: {
+    selectionMode: { control: false },
+    disabled: { control: false },
+  },
+  render: () => {
+    const [selection, setSelection] = useState<readonly string[]>([]);
+    const [active, setActive] = useState<string | null | undefined>(undefined);
+
+    const navHandler = (delta: number): void => {
+      const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
+      let newIndex = activeIndex + delta;
+      if (newIndex < 0) {
+        newIndex = frameworks.length - 1;
+      }
+      if (newIndex >= frameworks.length) {
+        newIndex = 0;
+      }
+      setActive(frameworks[newIndex].id);
+    };
+
+    return (
+      <div className='min-w-52 p-4'>
+        <IconButton icon={ArrowUp} onClick={() => navHandler(-1)} variant='outline' shape='round' className='mr-1' />
+        <IconButton icon={ArrowDown} onClick={() => navHandler(1)} variant='outline' shape='round' />
+
+        <Listbox
+          selectionMode='multiple'
+          selection={selection}
+          onSelectionChange={setSelection}
+          active={active}
+          setActive={setActive}
+        >
+          <Listbox.Content className='mt-4' tabIndex={-1}>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
+              </Listbox.Item>
+            ))}
+          </Listbox.Content>
+        </Listbox>
+
+        <h3 className='text-sm text-subtle mt-3'>Navigate list using buttons</h3>
+      </div>
+    );
+  },
+};
+
+export const ActiveDescendantMode: Story = {
+  name: 'Behavior / Active Descendant Mode',
+  argTypes: {
+    selectionMode: { control: false },
+    disabled: { control: false },
+  },
+  render: () => {
+    const [selection, setSelection] = useState<readonly string[]>([]);
+    const [active, setActive] = useState<string | null | undefined>(undefined);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+      const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          if (activeIndex < frameworks.length - 1) {
+            setActive(frameworks[activeIndex + 1].id);
+          } else {
+            setActive(frameworks[0].id);
+          }
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (activeIndex > 0) {
+            setActive(frameworks[activeIndex - 1].id);
+          } else {
+            setActive(frameworks[frameworks.length - 1].id);
+          }
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          if (active) {
+            const isSelected = selection.includes(active);
+            setSelection(isSelected ? selection.filter(id => id !== active) : [...selection, active]);
+          }
+          break;
+      }
+    };
+
+    return (
+      <div className='max-w-80 p-4'>
+        <h3 className='mb-3 text-sm font-medium'>Listbox with external input (aria-activedescendant)</h3>
+        <Input type='text' placeholder='Use arrow keys' onKeyDown={handleKeyDown} />
+        <Listbox
+          selectionMode='multiple'
+          selection={selection}
+          onSelectionChange={setSelection}
+          active={active}
+          setActive={setActive}
+          focusMode='activedescendant'
+        >
+          <Listbox.Content className='mt-4' tabIndex={-1} label='Frameworks list'>
+            {frameworks.map(({ id, name }) => (
+              <Listbox.Item key={id} value={id}>
+                <div className='flex-1'>{name}</div>
+              </Listbox.Item>
+            ))}
+          </Listbox.Content>
+        </Listbox>
+        <p className='text-sm text-subtle mt-3'>
+          Input keeps focus, so listbox items are not focusable and don’t show focus ring.
+        </p>
+      </div>
+    );
+  },
 };

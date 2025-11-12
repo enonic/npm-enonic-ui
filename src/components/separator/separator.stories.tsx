@@ -18,7 +18,7 @@ const Container = ({ children }: { children: ReactNode }): ReactElement => (
 );
 
 export const WithoutLabel: Story = {
-  name: 'Without label (hr fallback)',
+  name: 'Examples / Without Label',
   render: () => (
     <Container>
       <p className='text-sm'>Content above</p>
@@ -29,7 +29,7 @@ export const WithoutLabel: Story = {
 };
 
 export const WithShortLabel: Story = {
-  name: 'With short label',
+  name: 'Examples / With Short Label',
   render: () => (
     <Container>
       <p className='text-sm'>Content above</p>
@@ -40,7 +40,7 @@ export const WithShortLabel: Story = {
 };
 
 export const WithLongLabel: Story = {
-  name: 'With long label (truncate)',
+  name: 'Examples / With Long Label',
   render: () => (
     <Container>
       <p className='text-sm'>Content above</p>

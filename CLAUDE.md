@@ -30,6 +30,15 @@
 .cursor/
 ├── docs/              # Project documentation for AI context
 ├── rules/             # Coding standards and conventions
+│   ├── comments.mdc
+│   ├── npm-scripts.mdc
+│   ├── preact.mdc
+│   ├── react.mdc
+│   ├── storybook.mdc  # Storybook stories standards
+│   ├── structure.mdc
+│   ├── tailwind.mdc
+│   ├── testing.mdc
+│   └── typescript.mdc
 └── prompts/           # Reusable prompt templates
 ```
 
@@ -38,6 +47,7 @@
 1. **Context Loading**: Agent automatically reads `.cursor/docs/` for project context
 2. **Rule Enforcement**: Coding standards from `.cursor/rules/` are applied during code reviews
 3. **Prompt Templates**: Use `.cursor/prompts/` for consistent interaction patterns
+4. **Storybook Work**: When working with `*.stories.tsx` files, consult `.cursor/rules/storybook.mdc` for story organization, naming, and best practices
 
 ## 📖 External Documentation (Context7 MCP)
 
@@ -107,6 +117,22 @@ Example: "Getting error during component rendering. Here's the stack trace ..."
 4. Request specific formats (JSDoc, README, API docs)
 ```
 
+### Storybook Story Development
+
+```markdown
+# When creating or updating Storybook stories:
+
+1. Follow story organization from .cursor/rules/storybook.mdc:
+   - Use hierarchical grouping: Examples / States / Features / Behavior / [Specialized]
+   - Order stories from simple → complex
+2. Add Interactive story for components with multiple meaningful props
+3. Use consistent wrapper patterns with helpful descriptions
+4. Include accessibility testing hints where relevant
+5. Follow naming conventions: PascalCase exports, descriptive story names
+
+Example: "Create stories for the Tooltip component following our grouping standards"
+```
+
 ## 📝 Coding Preferences & Standards
 
 ### Code Style
@@ -120,10 +146,21 @@ Example: "Getting error during component rendering. Here's the stack trace ..."
 
 - **Frontend**: Component composition, custom hooks, context for state
 - **Testing**: Jest + React Testing Library, integration tests for APIs
+- **Storybook**: Hierarchical story grouping (Examples/States/Features/Behavior/Specialized), interactive playgrounds for complex components
 
 ### Error Handling
 
 Refer to rules under `.cursor/rules/`.
+
+### File-Specific Standards
+
+When working with specific file types, consult the corresponding rule file:
+
+- **`*.stories.tsx`**: See `.cursor/rules/storybook.mdc` for story organization and naming
+- **`*.tsx` components**: See `.cursor/rules/react.mdc` and `.cursor/rules/preact.mdc`
+- **Styling**: See `.cursor/rules/tailwind.mdc` for class naming utilities
+- **Tests**: See `.cursor/rules/testing.mdc` for test structure and patterns
+- **TypeScript**: See `.cursor/rules/typescript.mdc` for type definitions and patterns
 
 ## 🧪 Testing Strategy
 

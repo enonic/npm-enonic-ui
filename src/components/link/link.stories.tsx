@@ -65,7 +65,7 @@ export default {
 } satisfies Meta<LinkProps>;
 
 export const InternalLink: Story = {
-  name: 'Internal Link',
+  name: 'Examples / Internal Link',
   args: {
     href: '/about',
     children: 'Learn more about us',
@@ -73,7 +73,7 @@ export const InternalLink: Story = {
 };
 
 export const ExternalLink: Story = {
-  name: 'External Link',
+  name: 'Examples / External Link',
   args: {
     href: 'https://enonic.com',
     children: 'Visit Enonic',
@@ -81,7 +81,7 @@ export const ExternalLink: Story = {
 };
 
 export const MailtoLink: Story = {
-  name: 'Mailto Link',
+  name: 'Examples / Mailto Link',
   args: {
     href: 'mailto:hello@example.com',
     children: 'Send us an email',
@@ -89,15 +89,51 @@ export const MailtoLink: Story = {
 };
 
 export const TelLink: Story = {
-  name: 'Tel Link',
+  name: 'Examples / Tel Link',
   args: {
     href: 'tel:+1234567890',
     children: 'Call us',
   },
 };
 
+export const AllStates: Story = {
+  name: 'States / All States',
+  render: () => (
+    <div className='space-y-6 p-6'>
+      <div className='grid grid-cols-2 gap-8'>
+        <div>
+          <h3 className='text-sm font-medium mb-3'>Internal Links</h3>
+          <div className='flex flex-col gap-3'>
+            <Link href='/'>Simple internal</Link>
+            <Link href='#section'>Hash link</Link>
+            <Link href='/about' leftIcon={true}>
+              With left icon
+            </Link>
+            <Link href='/docs' leftIcon={FileText} rightIcon={CornerUpRight}>
+              With both icons
+            </Link>
+          </div>
+        </div>
+        <div>
+          <h3 className='text-sm font-medium mb-3'>External Links</h3>
+          <div className='flex flex-col gap-3'>
+            <Link href='https://enonic.com'>Auto-detected external</Link>
+            <Link href='https://github.com' leftIcon={true}>
+              With arrow icon
+            </Link>
+            <Link href='https://docs.enonic.com' rightIcon={false}>
+              No external icon
+            </Link>
+            <Link href='mailto:hello@example.com'>Email link</Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+};
+
 export const LinkTypes: Story = {
-  name: 'Link Types',
+  name: 'Features / Link Types',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -140,7 +176,7 @@ export const LinkTypes: Story = {
 };
 
 export const WithIcons: Story = {
-  name: 'With Icons',
+  name: 'Features / With Icons',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -202,45 +238,8 @@ export const WithIcons: Story = {
   ),
 };
 
-export const NewTabBehavior: Story = {
-  name: 'New Tab Behavior',
-  render: () => (
-    <div className='space-y-6 p-4'>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Default Behavior</h3>
-        <div className='flex flex-wrap gap-4'>
-          <Link href='/about'>Internal (same tab)</Link>
-          <Link href='https://enonic.com'>External (new tab)</Link>
-        </div>
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Forced New Tab</h3>
-        <div className='flex flex-wrap gap-4'>
-          <Link href='/about' newTab={true}>
-            Internal (forced new tab)
-          </Link>
-          <Link href='https://enonic.com' newTab={true}>
-            External (explicit new tab)
-          </Link>
-        </div>
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Forced Same Tab</h3>
-        <div className='flex flex-wrap gap-4'>
-          <Link href='/about' newTab={false}>
-            Internal (same tab)
-          </Link>
-          <Link href='https://enonic.com' newTab={false}>
-            External (forced same tab)
-          </Link>
-        </div>
-      </div>
-    </div>
-  ),
-};
-
 export const LongText: Story = {
-  name: 'Long Text & Wrapping',
+  name: 'Features / Long Text',
   render: () => (
     <div className='space-y-6 p-4 max-w-md'>
       <div>
@@ -265,7 +264,7 @@ export const LongText: Story = {
 };
 
 export const TruncatedLinks: Story = {
-  name: 'Truncated Links',
+  name: 'Features / Truncated',
   render: () => (
     <div className='space-y-6 p-4 max-w-sm'>
       <div>
@@ -315,7 +314,7 @@ export const TruncatedLinks: Story = {
 };
 
 export const CustomStyling: Story = {
-  name: 'Custom Styling',
+  name: 'Features / Custom Styling',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -339,44 +338,8 @@ export const CustomStyling: Story = {
   ),
 };
 
-export const AllStates: Story = {
-  name: 'All States Overview',
-  render: () => (
-    <div className='space-y-6 p-6'>
-      <div className='grid grid-cols-2 gap-8'>
-        <div>
-          <h3 className='text-sm font-medium mb-3'>Internal Links</h3>
-          <div className='flex flex-col gap-3'>
-            <Link href='/'>Simple internal</Link>
-            <Link href='#section'>Hash link</Link>
-            <Link href='/about' leftIcon={true}>
-              With left icon
-            </Link>
-            <Link href='/docs' leftIcon={FileText} rightIcon={CornerUpRight}>
-              With both icons
-            </Link>
-          </div>
-        </div>
-        <div>
-          <h3 className='text-sm font-medium mb-3'>External Links</h3>
-          <div className='flex flex-col gap-3'>
-            <Link href='https://enonic.com'>Auto-detected external</Link>
-            <Link href='https://github.com' leftIcon={true}>
-              With arrow icon
-            </Link>
-            <Link href='https://docs.enonic.com' rightIcon={false}>
-              No external icon
-            </Link>
-            <Link href='mailto:hello@example.com'>Email link</Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  ),
-};
-
-export const InteractivePlayground: Story = {
-  name: 'Interactive Playground',
+export const Interactive: Story = {
+  name: 'Features / Interactive',
   args: {
     href: 'https://enonic.com',
     children: 'Visit Enonic',
@@ -385,4 +348,41 @@ export const InteractivePlayground: Story = {
     leftIcon: leftIconOptions.none,
     rightIcon: rightIconOptions.auto,
   },
+};
+
+export const NewTabBehavior: Story = {
+  name: 'Behavior / New Tab',
+  render: () => (
+    <div className='space-y-6 p-4'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Default Behavior</h3>
+        <div className='flex flex-wrap gap-4'>
+          <Link href='/about'>Internal (same tab)</Link>
+          <Link href='https://enonic.com'>External (new tab)</Link>
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Forced New Tab</h3>
+        <div className='flex flex-wrap gap-4'>
+          <Link href='/about' newTab={true}>
+            Internal (forced new tab)
+          </Link>
+          <Link href='https://enonic.com' newTab={true}>
+            External (explicit new tab)
+          </Link>
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Forced Same Tab</h3>
+        <div className='flex flex-wrap gap-4'>
+          <Link href='/about' newTab={false}>
+            Internal (same tab)
+          </Link>
+          <Link href='https://enonic.com' newTab={false}>
+            External (forced same tab)
+          </Link>
+        </div>
+      </div>
+    </div>
+  ),
 };
