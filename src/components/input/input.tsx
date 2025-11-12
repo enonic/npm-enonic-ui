@@ -29,7 +29,6 @@ const inputContainerVariants = cva(
 );
 
 export type InputProps = {
-  className?: string;
   label?: string;
   description?: string;
   error?: string;
@@ -37,6 +36,7 @@ export type InputProps = {
   endAddon?: string | ReactElement;
   disabled?: boolean;
   readOnly?: boolean;
+  className?: string;
 } & ComponentPropsWithoutRef<'input'>;
 
 type AddonProps = {
