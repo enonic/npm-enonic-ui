@@ -34,8 +34,64 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta<typeof ListItem>;
 
+export const Selection: Story = {
+  name: 'Examples / Selection',
+  render: () => {
+    const [selectedIndex, setSelectedIndex] = useState<number>(1);
+
+    const items = [
+      {
+        icon: <Home className='w-6 h-6' />,
+        label: 'Dashboard',
+        description: 'Overview and analytics',
+        metadata: 'Home page',
+      },
+      {
+        icon: <Folder className='w-6 h-6' />,
+        label: 'Projects',
+        description: 'Manage your projects',
+        metadata: '8 active projects',
+      },
+      {
+        icon: <Users className='w-6 h-6' />,
+        label: 'Team',
+        description: 'Collaborate with others',
+        metadata: '12 members',
+      },
+      {
+        icon: <Settings className='w-6 h-6' />,
+        label: 'Settings',
+        description: 'Configure preferences',
+        metadata: 'Last updated today',
+      },
+      {
+        icon: <HelpCircle className='w-6 h-6' />,
+        label: 'Help & Support',
+        description: 'Get assistance',
+        metadata: 'Documentation',
+      },
+    ];
+
+    return (
+      <div className='w-80 space-y-1'>
+        <h3 className='text-sm font-semibold text-subtle mb-3'>Click to select items</h3>
+        {items.map((item, index) => (
+          <ListItem
+            key={index}
+            selected={selectedIndex === index}
+            onClick={() => setSelectedIndex(index)}
+            className='cursor-pointer'
+          >
+            <ListItem.DefaultContent {...item} />
+          </ListItem>
+        ))}
+      </div>
+    );
+  },
+};
+
 export const ContentVariations: Story = {
-  name: 'Content Variations',
+  name: 'Features / Content Variations',
   render: () => (
     <div className='w-80 space-y-2'>
       <h3 className='text-sm font-semibold text-subtle mb-2'>Label Only</h3>
@@ -115,7 +171,7 @@ export const ContentVariations: Story = {
 };
 
 export const WithIcons: Story = {
-  name: 'With Icons',
+  name: 'Features / With Icons',
   render: () => {
     const [checked1, setChecked1] = useState<CheckboxChecked>(false);
     const [checked2, setChecked2] = useState<CheckboxChecked>(true);
@@ -178,13 +234,13 @@ export const WithIcons: Story = {
 };
 
 export const CustomContent: Story = {
-  name: 'Custom Content',
+  name: 'Features / Custom Content',
   render: () => (
     <div className='w-80 space-y-2'>
       <h3 className='text-sm font-semibold text-subtle mb-2'>Custom Styled Content</h3>
 
       <ListItem className='outline-1 outline-purple-200 rounded-xl p-1.5'>
-        <ListItem.Content className='bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-2'>
+        <ListItem.Content className='bg-linear-to-r from-blue-50 to-purple-50 rounded-lg p-2'>
           <div className='flex items-center gap-3'>
             <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center'>
               <Dog className='w-10 h-10 text-white' stroke-width={1} />
@@ -205,7 +261,7 @@ export const CustomContent: Story = {
 };
 
 export const ClickableContent: Story = {
-  name: 'Wrapped Default Content',
+  name: 'Features / Wrapped Default Content',
   render: () => (
     <ListItem>
       <ListItem.Left>
@@ -214,7 +270,7 @@ export const ClickableContent: Story = {
       <ListItem.Content>
         <button
           className={cn([
-            'hover:bg-surface-neutral-hover active:bg-surface-selected active:[&_*]:text-rev',
+            'hover:bg-surface-neutral-hover active:bg-surface-selected active:**:text-rev',
             'rounded-sm -m-1 p-1 cursor-pointer',
           ])}
         >
@@ -229,62 +285,6 @@ export const ClickableContent: Story = {
   ),
 };
 
-export const Interactive: Story = {
-  name: 'Interactive Selection',
-  render: () => {
-    const [selectedIndex, setSelectedIndex] = useState<number>(1);
-
-    const items = [
-      {
-        icon: <Home className='w-6 h-6' />,
-        label: 'Dashboard',
-        description: 'Overview and analytics',
-        metadata: 'Home page',
-      },
-      {
-        icon: <Folder className='w-6 h-6' />,
-        label: 'Projects',
-        description: 'Manage your projects',
-        metadata: '8 active projects',
-      },
-      {
-        icon: <Users className='w-6 h-6' />,
-        label: 'Team',
-        description: 'Collaborate with others',
-        metadata: '12 members',
-      },
-      {
-        icon: <Settings className='w-6 h-6' />,
-        label: 'Settings',
-        description: 'Configure preferences',
-        metadata: 'Last updated today',
-      },
-      {
-        icon: <HelpCircle className='w-6 h-6' />,
-        label: 'Help & Support',
-        description: 'Get assistance',
-        metadata: 'Documentation',
-      },
-    ];
-
-    return (
-      <div className='w-80 space-y-1'>
-        <h3 className='text-sm font-semibold text-subtle mb-3'>Click to select items</h3>
-        {items.map((item, index) => (
-          <ListItem
-            key={index}
-            selected={selectedIndex === index}
-            onClick={() => setSelectedIndex(index)}
-            className='cursor-pointer'
-          >
-            <ListItem.DefaultContent {...item} />
-          </ListItem>
-        ))}
-      </div>
-    );
-  },
-};
-
 type PlaygroundArgs = {
   selected: boolean;
   label: string;
@@ -297,8 +297,8 @@ type PlaygroundArgs = {
   rightType: 'actions' | 'badge' | 'both';
 };
 
-export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
-  name: 'Interactive Playground',
+export const Interactive: StoryObj<PlaygroundArgs> = {
+  name: 'Features / Interactive',
   args: {
     selected: false,
     label: 'Playground Item',

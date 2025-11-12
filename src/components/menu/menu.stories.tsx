@@ -32,7 +32,7 @@ export default {
 } satisfies Meta<typeof Menu>;
 
 export const Basic: Story = {
-  name: 'Basic',
+  name: 'Examples / Basic',
   render: () => (
     <Menu>
       <Menu.Trigger asChild>
@@ -54,7 +54,7 @@ export const Basic: Story = {
 };
 
 export const DefaultTrigger: Story = {
-  name: 'Default Trigger',
+  name: 'Examples / Default Trigger',
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
@@ -74,37 +74,8 @@ export const DefaultTrigger: Story = {
   ),
 };
 
-export const FocusNavigation: Story = {
-  name: 'Focus Navigation',
-  render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
-      <div className='max-w-80 text-sm text-subtle'>
-        Test keyboard navigation: Tab should move close menu and focus back to the trigger button
-      </div>
-      <div className='flex gap-4'>
-        <Button>Before</Button>
-        <Menu>
-          <Menu.Trigger asChild>
-            <Button variant='solid'>Open Menu</Button>
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Content>
-              <Menu.Item>Copy</Menu.Item>
-              <Menu.Item>Paste</Menu.Item>
-              <Menu.Item>Cut</Menu.Item>
-              <Menu.Separator />
-              <Menu.Item>Delete</Menu.Item>
-            </Menu.Content>
-          </Menu.Portal>
-        </Menu>
-        <Button>After</Button>
-      </div>
-    </div>
-  ),
-};
-
 export const WithSections: Story = {
-  name: 'With Sections',
+  name: 'Examples / With Sections',
   render: () => (
     <Menu>
       <Menu.Trigger asChild>
@@ -157,7 +128,7 @@ export const WithSections: Story = {
 };
 
 export const WithDisabledItems: Story = {
-  name: 'Disabled Items',
+  name: 'States / Disabled Items',
   render: () => (
     <div className='flex flex-col gap-y-6 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
@@ -287,7 +258,7 @@ export const WithDisabledItems: Story = {
 };
 
 export const AlignEnd: Story = {
-  name: 'Align End',
+  name: 'Features / Align End',
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-end'>
       <div className='text-sm text-subtle'>Menu aligned to the right edge of the trigger button</div>
@@ -311,31 +282,8 @@ export const AlignEnd: Story = {
   ),
 };
 
-export const NoLoop: Story = {
-  name: 'No Loop',
-  render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
-      <div className='text-sm text-subtle'>Arrow key navigation stops at first/last item instead of looping</div>
-      <Menu>
-        <Menu.Trigger asChild>
-          <IconButton icon={RefreshCwOff} iconStrokeWidth={2} variant='filled' aria-label='Open no-loop menu' />
-        </Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Content loop={false}>
-            <Menu.Item>First Item</Menu.Item>
-            <Menu.Item>Second Item</Menu.Item>
-            <Menu.Item>Third Item</Menu.Item>
-            <Menu.Item>Fourth Item</Menu.Item>
-            <Menu.Item>Last Item</Menu.Item>
-          </Menu.Content>
-        </Menu.Portal>
-      </Menu>
-    </div>
-  ),
-};
-
 export const AsChild: Story = {
-  name: 'AsChild Pattern',
+  name: 'Features / AsChild Pattern',
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
@@ -368,7 +316,7 @@ export const AsChild: Story = {
 };
 
 export const Interactive: Story = {
-  name: 'Interactive',
+  name: 'Features / Interactive',
   render: () => {
     const [lastAction, setLastAction] = useState<string>('None');
     const [isOpen, setIsOpen] = useState(false);
@@ -417,6 +365,29 @@ export const Interactive: Story = {
       </div>
     );
   },
+};
+
+export const NoLoop: Story = {
+  name: 'Behavior / No Loop',
+  render: () => (
+    <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='text-sm text-subtle'>Arrow key navigation stops at first/last item instead of looping</div>
+      <Menu>
+        <Menu.Trigger asChild>
+          <IconButton icon={RefreshCwOff} iconStrokeWidth={2} variant='filled' aria-label='Open no-loop menu' />
+        </Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Content loop={false}>
+            <Menu.Item>First Item</Menu.Item>
+            <Menu.Item>Second Item</Menu.Item>
+            <Menu.Item>Third Item</Menu.Item>
+            <Menu.Item>Fourth Item</Menu.Item>
+            <Menu.Item>Last Item</Menu.Item>
+          </Menu.Content>
+        </Menu.Portal>
+      </Menu>
+    </div>
+  ),
 };
 
 export const RadioItems: Story = {

@@ -43,6 +43,7 @@ export default {
 } satisfies Meta<ButtonProps>;
 
 export const Text: Story = {
+  name: 'Examples / Text Variant',
   args: {
     label: 'Text Button',
     variant: 'text',
@@ -50,6 +51,7 @@ export const Text: Story = {
 };
 
 export const Filled: Story = {
+  name: 'Examples / Filled Variant',
   args: {
     label: 'Filled Button',
     variant: 'filled',
@@ -57,6 +59,7 @@ export const Filled: Story = {
 };
 
 export const Solid: Story = {
+  name: 'Examples / Solid Variant',
   args: {
     label: 'Solid Button',
     variant: 'solid',
@@ -64,36 +67,15 @@ export const Solid: Story = {
 };
 
 export const Outline: Story = {
+  name: 'Examples / Outline Variant',
   args: {
     label: 'Outline Button',
     variant: 'outline',
   },
 };
 
-export const CustomStyles: Story = {
-  args: {
-    label: 'Custom Button',
-    size: 'md',
-    disabled: false,
-  },
-  parameters: {
-    controls: {
-      exclude: ['variant', 'startIcon', 'endIcon'],
-    },
-  },
-  render: ({ label, size, disabled }) => (
-    <Button
-      label={label}
-      variant='text'
-      size={size}
-      className='bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
-      disabled={disabled}
-    />
-  ),
-};
-
 export const AllVariantsComparison: Story = {
-  name: 'All Variants Comparison',
+  name: 'Examples / All Variants',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -118,8 +100,46 @@ export const AllVariantsComparison: Story = {
   ),
 };
 
+export const DisabledStates: Story = {
+  name: 'States / Disabled',
+  render: () => (
+    <div className='space-y-4 p-4'>
+      <h3 className='text-sm font-medium mb-3'>All Variants - Disabled</h3>
+      <div className='flex flex-wrap gap-3'>
+        <Button label='Text' variant='text' disabled />
+        <Button label='Filled' variant='filled' disabled />
+        <Button label='Solid' variant='solid' disabled />
+        <Button label='Outline' variant='outline' disabled />
+      </div>
+    </div>
+  ),
+};
+
+export const CustomStyles: Story = {
+  name: 'Features / Custom Styles',
+  args: {
+    label: 'Custom Button',
+    size: 'md',
+    disabled: false,
+  },
+  parameters: {
+    controls: {
+      exclude: ['variant', 'startIcon', 'endIcon'],
+    },
+  },
+  render: ({ label, size, disabled }) => (
+    <Button
+      label={label}
+      variant='text'
+      size={size}
+      className='bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
+      disabled={disabled}
+    />
+  ),
+};
+
 export const TextSizes: Story = {
-  name: 'Text Variant - Size Comparison',
+  name: 'Features / Text Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Text Variant - All Sizes</h3>
@@ -133,7 +153,7 @@ export const TextSizes: Story = {
 };
 
 export const FilledSizes: Story = {
-  name: 'Filled Variant - Size Comparison',
+  name: 'Features / Filled Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Filled Variant - All Sizes</h3>
@@ -147,7 +167,7 @@ export const FilledSizes: Story = {
 };
 
 export const SolidSizes: Story = {
-  name: 'Solid Variant - Size Comparison',
+  name: 'Features / Solid Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Solid Variant - All Sizes</h3>
@@ -161,7 +181,7 @@ export const SolidSizes: Story = {
 };
 
 export const OutlineSizes: Story = {
-  name: 'Outline Variant - Size Comparison',
+  name: 'Features / Outline Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Outline Variant - All Sizes</h3>
@@ -175,7 +195,7 @@ export const OutlineSizes: Story = {
 };
 
 export const WithIcons: Story = {
-  name: 'With Icons',
+  name: 'Features / With Icons',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -217,23 +237,8 @@ export const WithIcons: Story = {
   ),
 };
 
-export const DisabledStates: Story = {
-  name: 'Disabled States',
-  render: () => (
-    <div className='space-y-4 p-4'>
-      <h3 className='text-sm font-medium mb-3'>All Variants - Disabled</h3>
-      <div className='flex flex-wrap gap-3'>
-        <Button label='Text' variant='text' disabled />
-        <Button label='Filled' variant='filled' disabled />
-        <Button label='Solid' variant='solid' disabled />
-        <Button label='Outline' variant='outline' disabled />
-      </div>
-    </div>
-  ),
-};
-
-export const InteractivePlayground: Story = {
-  name: 'Interactive Playground',
+export const Interactive: Story = {
+  name: 'Features / Interactive',
   args: {
     label: 'Click Me',
     variant: 'text',

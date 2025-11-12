@@ -15,7 +15,7 @@ export default {
 } satisfies Meta<typeof Menubar>;
 
 export const Basic: Story = {
-  name: 'Basic',
+  name: 'Examples / Basic',
   render: () => (
     <Menubar.Root>
       <Menubar.Nav aria-label='Main navigation'>
@@ -45,7 +45,7 @@ export const Basic: Story = {
 };
 
 export const WithIcons: Story = {
-  name: 'With Icons',
+  name: 'Examples / With Icons',
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
@@ -83,7 +83,7 @@ export const WithIcons: Story = {
 };
 
 export const WithSeparators: Story = {
-  name: 'With Separators',
+  name: 'Examples / With Separators',
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
@@ -127,219 +127,8 @@ export const WithSeparators: Story = {
   ),
 };
 
-export const WithDisabledItems: Story = {
-  name: 'Disabled Items',
-  render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
-      <div className='max-w-120 text-sm text-subtle'>
-        Disabled items are skipped during keyboard navigation but remain visible and accessible to screen readers. Test
-        ArrowLeft/Right, Home, and End keys.
-      </div>
-      <Menubar.Root>
-        <Menubar.Nav aria-label='Actions' className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'>
-          <Menubar.Button asChild>
-            <Button className='bg-transparent' variant='text' startIcon={File}>
-              New
-            </Button>
-          </Menubar.Button>
-          <Menubar.Button disabled asChild>
-            <Button className='bg-transparent' variant='text' startIcon={Folder} disabled>
-              Open
-            </Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button className='bg-transparent' variant='text' startIcon={Save}>
-              Save
-            </Button>
-          </Menubar.Button>
-          <Menubar.Button disabled asChild>
-            <Button className='bg-transparent' variant='text' startIcon={Printer} disabled>
-              Print
-            </Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button className='bg-transparent' variant='text' startIcon={Settings}>
-              Settings
-            </Button>
-          </Menubar.Button>
-        </Menubar.Nav>
-      </Menubar.Root>
-    </div>
-  ),
-};
-
-export const FocusNavigation: Story = {
-  name: 'Focus Navigation',
-  render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
-      <div className='max-w-120 text-sm text-subtle'>
-        Test keyboard navigation: Tab moves focus out of the menubar entirely to the next focusable element.
-        ArrowLeft/Right navigate within the menubar. First item is auto-activated on focus.
-      </div>
-      <div className='flex flex-col gap-4'>
-        <Button>Before Menubar</Button>
-        <Menubar.Root>
-          <Menubar.Nav
-            aria-label='Navigation'
-            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
-          >
-            <Menubar.Button asChild>
-              <Button className='bg-transparent' variant='text'>
-                File
-              </Button>
-            </Menubar.Button>
-            <Menubar.Button asChild>
-              <Button className='bg-transparent' variant='text'>
-                Edit
-              </Button>
-            </Menubar.Button>
-            <Menubar.Button asChild>
-              <Button className='bg-transparent' variant='text'>
-                View
-              </Button>
-            </Menubar.Button>
-            <Menubar.Button asChild>
-              <Button className='bg-transparent' variant='text'>
-                Help
-              </Button>
-            </Menubar.Button>
-          </Menubar.Nav>
-        </Menubar.Root>
-        <Button>After Menubar</Button>
-      </div>
-    </div>
-  ),
-};
-
-export const NoLoop: Story = {
-  name: 'No Loop',
-  render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
-      <div className='max-w-120 text-sm text-subtle'>
-        Arrow key navigation stops at first/last item instead of looping. Press ArrowLeft at the first item or
-        ArrowRight at the last item to see the difference.
-      </div>
-      <Menubar.Root>
-        <Menubar.Nav
-          aria-label='Navigation'
-          loop={false}
-          className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
-        >
-          <Menubar.Button asChild>
-            <Button variant='text'>First</Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button variant='text'>Second</Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button variant='text'>Third</Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button variant='text'>Fourth</Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button variant='text'>Last</Button>
-          </Menubar.Button>
-        </Menubar.Nav>
-      </Menubar.Root>
-    </div>
-  ),
-};
-
-export const Interactive: Story = {
-  name: 'Interactive',
-  render: () => {
-    const [lastAction, setLastAction] = useState<string>('None');
-    const [activeItem, setActiveItem] = useState<string | undefined>(undefined);
-
-    const handleSelect = (action: string): void => {
-      setLastAction(action);
-    };
-
-    return (
-      <div className='flex flex-col gap-y-3 p-4'>
-        <div className='text-sm'>
-          <span className='text-subtle'>Active item: </span>
-          <span className='font-semibold'>{activeItem ?? 'None'}</span>
-        </div>
-        <div className='text-sm'>
-          <span className='text-subtle'>Last action: </span>
-          <span className='font-semibold'>{lastAction}</span>
-        </div>
-
-        <Menubar.Root onActiveChange={setActiveItem}>
-          <Menubar.Nav
-            aria-label='Actions'
-            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
-          >
-            <Menubar.Button onSelect={() => handleSelect('New File')} asChild>
-              <Button className='bg-transparent' variant='text' startIcon={File}>
-                New
-              </Button>
-            </Menubar.Button>
-            <Menubar.Button onSelect={() => handleSelect('Save File')} asChild>
-              <Button className='bg-transparent' variant='text' startIcon={Save}>
-                Save
-              </Button>
-            </Menubar.Button>
-            <Menubar.Button disabled onSelect={() => handleSelect('Print (should not trigger)')} asChild>
-              <Button className='bg-transparent' variant='text' startIcon={Printer} disabled>
-                Print
-              </Button>
-            </Menubar.Button>
-            <Menubar.Button onSelect={() => handleSelect('Settings')} asChild>
-              <Button className='bg-transparent' variant='text' startIcon={Settings}>
-                Settings
-              </Button>
-            </Menubar.Button>
-          </Menubar.Nav>
-        </Menubar.Root>
-      </div>
-    );
-  },
-};
-
-export const Styled: Story = {
-  name: 'Custom Styled',
-  render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
-      <div className='max-w-120 text-sm text-subtle'>
-        Custom styling can be applied via className prop. This example shows a darker menubar with different button
-        variants.
-      </div>
-      <Menubar.Root>
-        <Menubar.Nav
-          aria-label='Custom styled navigation'
-          className='bg-surface-primary border border-bdr-strong rounded-xl shadow-md'
-        >
-          <Menubar.Button asChild>
-            <Button variant='solid' size='sm'>
-              File
-            </Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button variant='solid' size='sm'>
-              Edit
-            </Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button variant='solid' size='sm'>
-              View
-            </Button>
-          </Menubar.Button>
-          <Menubar.Button asChild>
-            <Button variant='solid' size='sm'>
-              Help
-            </Button>
-          </Menubar.Button>
-        </Menubar.Nav>
-      </Menubar.Root>
-    </div>
-  ),
-};
-
 export const WithDropdownMenus: Story = {
-  name: 'With Dropdown Menus',
+  name: 'Examples / With Dropdown Menus',
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
@@ -410,8 +199,141 @@ export const WithDropdownMenus: Story = {
   ),
 };
 
+export const WithDisabledItems: Story = {
+  name: 'States / Disabled Items',
+  render: () => (
+    <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='max-w-120 text-sm text-subtle'>
+        Disabled items are skipped during keyboard navigation but remain visible and accessible to screen readers. Test
+        ArrowLeft/Right, Home, and End keys.
+      </div>
+      <Menubar.Root>
+        <Menubar.Nav aria-label='Actions' className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'>
+          <Menubar.Button asChild>
+            <Button className='bg-transparent' variant='text' startIcon={File}>
+              New
+            </Button>
+          </Menubar.Button>
+          <Menubar.Button disabled asChild>
+            <Button className='bg-transparent' variant='text' startIcon={Folder} disabled>
+              Open
+            </Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button className='bg-transparent' variant='text' startIcon={Save}>
+              Save
+            </Button>
+          </Menubar.Button>
+          <Menubar.Button disabled asChild>
+            <Button className='bg-transparent' variant='text' startIcon={Printer} disabled>
+              Print
+            </Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button className='bg-transparent' variant='text' startIcon={Settings}>
+              Settings
+            </Button>
+          </Menubar.Button>
+        </Menubar.Nav>
+      </Menubar.Root>
+    </div>
+  ),
+};
+
+export const Interactive: Story = {
+  name: 'Features / Interactive',
+  render: () => {
+    const [lastAction, setLastAction] = useState<string>('None');
+    const [activeItem, setActiveItem] = useState<string | undefined>(undefined);
+
+    const handleSelect = (action: string): void => {
+      setLastAction(action);
+    };
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4'>
+        <div className='text-sm'>
+          <span className='text-subtle'>Active item: </span>
+          <span className='font-semibold'>{activeItem ?? 'None'}</span>
+        </div>
+        <div className='text-sm'>
+          <span className='text-subtle'>Last action: </span>
+          <span className='font-semibold'>{lastAction}</span>
+        </div>
+
+        <Menubar.Root onActiveChange={setActiveItem}>
+          <Menubar.Nav
+            aria-label='Actions'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Menubar.Button onSelect={() => handleSelect('New File')} asChild>
+              <Button className='bg-transparent' variant='text' startIcon={File}>
+                New
+              </Button>
+            </Menubar.Button>
+            <Menubar.Button onSelect={() => handleSelect('Save File')} asChild>
+              <Button className='bg-transparent' variant='text' startIcon={Save}>
+                Save
+              </Button>
+            </Menubar.Button>
+            <Menubar.Button disabled onSelect={() => handleSelect('Print (should not trigger)')} asChild>
+              <Button className='bg-transparent' variant='text' startIcon={Printer} disabled>
+                Print
+              </Button>
+            </Menubar.Button>
+            <Menubar.Button onSelect={() => handleSelect('Settings')} asChild>
+              <Button className='bg-transparent' variant='text' startIcon={Settings}>
+                Settings
+              </Button>
+            </Menubar.Button>
+          </Menubar.Nav>
+        </Menubar.Root>
+      </div>
+    );
+  },
+};
+
+export const Styled: Story = {
+  name: 'Features / Custom Styled',
+  render: () => (
+    <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='max-w-120 text-sm text-subtle'>
+        Custom styling can be applied via className prop. This example shows a darker menubar with different button
+        variants.
+      </div>
+      <Menubar.Root>
+        <Menubar.Nav
+          aria-label='Custom styled navigation'
+          className='bg-surface-primary border border-bdr-strong rounded-xl shadow-md'
+        >
+          <Menubar.Button asChild>
+            <Button variant='solid' size='sm'>
+              File
+            </Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button variant='solid' size='sm'>
+              Edit
+            </Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button variant='solid' size='sm'>
+              View
+            </Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button variant='solid' size='sm'>
+              Help
+            </Button>
+          </Menubar.Button>
+        </Menubar.Nav>
+      </Menubar.Root>
+    </div>
+  ),
+};
+
 export const MenusWithLabels: Story = {
-  name: 'Menus with Labels',
+  name: 'Features / Menus with Labels',
   render: () => (
     <div className='flex flex-col gap-y-3 p-4 items-center'>
       <div className='max-w-120 text-sm text-subtle'>
@@ -451,7 +373,7 @@ export const MenusWithLabels: Story = {
 };
 
 export const MixedMenubarButtonsAndMenus: Story = {
-  name: 'Mixed Buttons and Menus',
+  name: 'Features / Mixed Buttons and Menus',
   render: () => {
     const [lastAction, setLastAction] = useState<string>('None');
 
@@ -522,6 +444,84 @@ export const MixedMenubarButtonsAndMenus: Story = {
       </div>
     );
   },
+};
+
+export const FocusNavigation: Story = {
+  name: 'Behavior / Focus Navigation',
+  render: () => (
+    <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='max-w-120 text-sm text-subtle'>
+        Test keyboard navigation: Tab moves focus out of the menubar entirely to the next focusable element.
+        ArrowLeft/Right navigate within the menubar. First item is auto-activated on focus.
+      </div>
+      <div className='flex flex-col gap-4'>
+        <Button>Before Menubar</Button>
+        <Menubar.Root>
+          <Menubar.Nav
+            aria-label='Navigation'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Menubar.Button asChild>
+              <Button className='bg-transparent' variant='text'>
+                File
+              </Button>
+            </Menubar.Button>
+            <Menubar.Button asChild>
+              <Button className='bg-transparent' variant='text'>
+                Edit
+              </Button>
+            </Menubar.Button>
+            <Menubar.Button asChild>
+              <Button className='bg-transparent' variant='text'>
+                View
+              </Button>
+            </Menubar.Button>
+            <Menubar.Button asChild>
+              <Button className='bg-transparent' variant='text'>
+                Help
+              </Button>
+            </Menubar.Button>
+          </Menubar.Nav>
+        </Menubar.Root>
+        <Button>After Menubar</Button>
+      </div>
+    </div>
+  ),
+};
+
+export const NoLoop: Story = {
+  name: 'Behavior / No Loop',
+  render: () => (
+    <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='max-w-120 text-sm text-subtle'>
+        Arrow key navigation stops at first/last item instead of looping. Press ArrowLeft at the first item or
+        ArrowRight at the last item to see the difference.
+      </div>
+      <Menubar.Root>
+        <Menubar.Nav
+          aria-label='Navigation'
+          loop={false}
+          className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+        >
+          <Menubar.Button asChild>
+            <Button variant='text'>First</Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button variant='text'>Second</Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button variant='text'>Third</Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button variant='text'>Fourth</Button>
+          </Menubar.Button>
+          <Menubar.Button asChild>
+            <Button variant='text'>Last</Button>
+          </Menubar.Button>
+        </Menubar.Nav>
+      </Menubar.Root>
+    </div>
+  ),
 };
 
 export const RadioItems: Story = {

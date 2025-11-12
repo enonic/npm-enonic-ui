@@ -54,6 +54,7 @@ export default {
 } satisfies Meta<ToggleProps>;
 
 export const Default: Story = {
+  name: 'Examples / Default',
   args: {
     label: 'Toggle',
     variant: 'text',
@@ -61,6 +62,7 @@ export const Default: Story = {
 };
 
 export const DefaultPressed: Story = {
+  name: 'Examples / Default Pressed',
   args: {
     label: 'Toggle',
     variant: 'text',
@@ -69,7 +71,7 @@ export const DefaultPressed: Story = {
 };
 
 export const AllVariantsComparison: Story = {
-  name: 'All Variants Comparison',
+  name: 'Examples / All Variants',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -95,7 +97,7 @@ export const AllVariantsComparison: Story = {
 };
 
 export const SizeComparison: Story = {
-  name: 'Size Comparison',
+  name: 'Examples / Size Comparison',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -134,113 +136,8 @@ export const SizeComparison: Story = {
   ),
 };
 
-export const Controlled: Story = {
-  name: 'Controlled',
-  render: () => {
-    const [pressed, setPressed] = useState(false);
-
-    return (
-      <div className='space-y-3 p-4'>
-        <div>
-          <h3 className='text-sm font-medium mb-2'>Controlled Toggle</h3>
-          <Toggle label='Notifications' variant='outline' pressed={pressed} onPressedChange={setPressed} />
-        </div>
-        <p className='text-sm text-subtle'>
-          <strong>State:</strong> {pressed ? 'On' : 'Off'}
-        </p>
-        <Button variant='filled' size='sm' label='Toggle from outside' onClick={() => setPressed(!pressed)} />
-      </div>
-    );
-  },
-};
-
-export const Uncontrolled: Story = {
-  name: 'Uncontrolled',
-  render: () => {
-    return (
-      <div className='space-y-4 p-4'>
-        <div>
-          <h3 className='text-sm font-medium mb-3'>Uncontrolled Toggle</h3>
-          <Toggle
-            label='Notifications'
-            variant='outline'
-            defaultPressed={false}
-            onPressedChange={pressed => console.log('Pressed changed to:', pressed)}
-          />
-        </div>
-        <div className='text-sm text-subtle'>
-          <p>Check the console to see state changes</p>
-        </div>
-      </div>
-    );
-  },
-};
-
-export const WithIcons: Story = {
-  name: 'With Icons',
-  render: () => (
-    <div className='space-y-6 p-4'>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Icon Only - All Variants</h3>
-        <div className='flex flex-wrap gap-3'>
-          <Toggle variant='text' startIcon={Bold} aria-label='Toggle bold' />
-          <Toggle variant='filled' startIcon={Italic} aria-label='Toggle italic' />
-          <Toggle variant='solid' startIcon={Underline} aria-label='Toggle underline' />
-          <Toggle variant='outline' startIcon={Bold} aria-label='Toggle bold outline' />
-        </div>
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Icon with Label</h3>
-        <div className='flex flex-wrap gap-3'>
-          <Toggle label='Bold' variant='text' startIcon={Bold} />
-          <Toggle label='Italic' variant='filled' startIcon={Italic} />
-          <Toggle label='Underline' variant='solid' startIcon={Underline} />
-          <Toggle label='Bold' variant='outline' startIcon={Bold} />
-        </div>
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Different Sizes</h3>
-        <div className='flex items-center gap-3'>
-          <Toggle variant='text' size='sm' startIcon={Bold} aria-label='Small bold' />
-          <Toggle variant='text' size='md' startIcon={Bold} aria-label='Medium bold' />
-          <Toggle variant='text' size='lg' startIcon={Bold} aria-label='Large bold' />
-        </div>
-      </div>
-    </div>
-  ),
-};
-
-export const CustomStyling: Story = {
-  name: 'Custom Styling',
-  render: () => {
-    const [favorite, setFavorite] = useState(false);
-
-    return (
-      <div className='flex flex-col gap-y-3 p-4'>
-        <h3 className='text-sm font-medium'>Star Favorite - Custom Gold Fill</h3>
-        <div className='flex items-center gap-4'>
-          <Toggle
-            variant='text'
-            aria-label='Add to favorites'
-            pressed={favorite}
-            onPressedChange={setFavorite}
-            className={cn(
-              'size-10 p-0 active:bg-initial active:text-initial hover:bg-initial',
-              'data-[state=on]:bg-transparent data-[state=on]:text-[goldenrod] hover:text-[goldenrod]',
-              'transition-highlight',
-            )}
-          >
-            <Star fill={favorite ? 'currentColor' : 'none'} />
-          </Toggle>
-          <span className='text-sm text-subtle'>{favorite ? 'Added to favorites' : 'Add to favorites'}</span>
-        </div>
-      </div>
-    );
-  },
-};
-
 export const DisabledStates: Story = {
-  name: 'Disabled States',
+  name: 'States / Disabled',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -274,8 +171,113 @@ export const DisabledStates: Story = {
   ),
 };
 
+export const Controlled: Story = {
+  name: 'Features / Controlled',
+  render: () => {
+    const [pressed, setPressed] = useState(false);
+
+    return (
+      <div className='space-y-3 p-4'>
+        <div>
+          <h3 className='text-sm font-medium mb-2'>Controlled Toggle</h3>
+          <Toggle label='Notifications' variant='outline' pressed={pressed} onPressedChange={setPressed} />
+        </div>
+        <p className='text-sm text-subtle'>
+          <strong>State:</strong> {pressed ? 'On' : 'Off'}
+        </p>
+        <Button variant='filled' size='sm' label='Toggle from outside' onClick={() => setPressed(!pressed)} />
+      </div>
+    );
+  },
+};
+
+export const Uncontrolled: Story = {
+  name: 'Features / Uncontrolled',
+  render: () => {
+    return (
+      <div className='space-y-4 p-4'>
+        <div>
+          <h3 className='text-sm font-medium mb-3'>Uncontrolled Toggle</h3>
+          <Toggle
+            label='Notifications'
+            variant='outline'
+            defaultPressed={false}
+            onPressedChange={pressed => console.log('Pressed changed to:', pressed)}
+          />
+        </div>
+        <div className='text-sm text-subtle'>
+          <p>Check the console to see state changes</p>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const WithIcons: Story = {
+  name: 'Features / With Icons',
+  render: () => (
+    <div className='space-y-6 p-4'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Icon Only - All Variants</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Toggle variant='text' startIcon={Bold} aria-label='Toggle bold' />
+          <Toggle variant='filled' startIcon={Italic} aria-label='Toggle italic' />
+          <Toggle variant='solid' startIcon={Underline} aria-label='Toggle underline' />
+          <Toggle variant='outline' startIcon={Bold} aria-label='Toggle bold outline' />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Icon with Label</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Toggle label='Bold' variant='text' startIcon={Bold} />
+          <Toggle label='Italic' variant='filled' startIcon={Italic} />
+          <Toggle label='Underline' variant='solid' startIcon={Underline} />
+          <Toggle label='Bold' variant='outline' startIcon={Bold} />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Different Sizes</h3>
+        <div className='flex items-center gap-3'>
+          <Toggle variant='text' size='sm' startIcon={Bold} aria-label='Small bold' />
+          <Toggle variant='text' size='md' startIcon={Bold} aria-label='Medium bold' />
+          <Toggle variant='text' size='lg' startIcon={Bold} aria-label='Large bold' />
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+export const CustomStyling: Story = {
+  name: 'Features / Custom Styling',
+  render: () => {
+    const [favorite, setFavorite] = useState(false);
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4'>
+        <h3 className='text-sm font-medium'>Star Favorite - Custom Gold Fill</h3>
+        <div className='flex items-center gap-4'>
+          <Toggle
+            variant='text'
+            aria-label='Add to favorites'
+            pressed={favorite}
+            onPressedChange={setFavorite}
+            className={cn(
+              'size-10 p-0 active:bg-initial active:text-initial hover:bg-initial',
+              'data-[state=on]:bg-transparent data-[state=on]:text-[goldenrod] hover:text-[goldenrod]',
+              'transition-highlight',
+            )}
+          >
+            <Star fill={favorite ? 'currentColor' : 'none'} />
+          </Toggle>
+          <span className='text-sm text-subtle'>{favorite ? 'Added to favorites' : 'Add to favorites'}</span>
+        </div>
+      </div>
+    );
+  },
+};
+
 export const InteractivePlayground: Story = {
-  name: 'Interactive Playground',
+  name: 'Features / Interactive',
   args: {
     label: 'Toggle Me',
     variant: 'text',

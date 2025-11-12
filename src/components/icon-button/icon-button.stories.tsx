@@ -44,6 +44,7 @@ export default {
 } satisfies Meta<IconButtonProps>;
 
 export const Text: Story = {
+  name: 'Examples / Text Variant',
   args: {
     icon: Monitor,
     variant: 'text',
@@ -52,6 +53,7 @@ export const Text: Story = {
 };
 
 export const Filled: Story = {
+  name: 'Examples / Filled Variant',
   args: {
     icon: Save,
     variant: 'filled',
@@ -60,6 +62,7 @@ export const Filled: Story = {
 };
 
 export const Solid: Story = {
+  name: 'Examples / Solid Variant',
   args: {
     icon: Upload,
     variant: 'solid',
@@ -68,6 +71,7 @@ export const Solid: Story = {
 };
 
 export const Outline: Story = {
+  name: 'Examples / Outline Variant',
   args: {
     icon: Settings,
     variant: 'outline',
@@ -76,7 +80,7 @@ export const Outline: Story = {
 };
 
 export const AllVariantsComparison: Story = {
-  name: 'All Variants Comparison',
+  name: 'Examples / All Variants',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -101,8 +105,34 @@ export const AllVariantsComparison: Story = {
   ),
 };
 
+export const DisabledStates: Story = {
+  name: 'States / Disabled',
+  render: () => (
+    <div className='space-y-6 p-4'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Square - Disabled</h3>
+        <div className='flex flex-wrap gap-3'>
+          <IconButton icon={Monitor} variant='text' shape='square' title='Text variant' disabled />
+          <IconButton icon={Save} variant='filled' shape='square' title='Filled variant' disabled />
+          <IconButton icon={Upload} variant='solid' shape='square' title='Solid variant' disabled />
+          <IconButton icon={Settings} variant='outline' shape='square' title='Outline variant' disabled />
+        </div>
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Round - Disabled</h3>
+        <div className='flex flex-wrap gap-3'>
+          <IconButton icon={Monitor} variant='text' shape='round' title='Text variant' disabled />
+          <IconButton icon={Save} variant='filled' shape='round' title='Filled variant' disabled />
+          <IconButton icon={Upload} variant='solid' shape='round' title='Solid variant' disabled />
+          <IconButton icon={Settings} variant='outline' shape='round' title='Outline variant' disabled />
+        </div>
+      </div>
+    </div>
+  ),
+};
+
 export const TextSizes: Story = {
-  name: 'Text Variant - Size Comparison',
+  name: 'Features / Text Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Text Variant - All Sizes</h3>
@@ -116,7 +146,7 @@ export const TextSizes: Story = {
 };
 
 export const FilledSizes: Story = {
-  name: 'Filled Variant - Size Comparison',
+  name: 'Features / Filled Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Filled Variant - All Sizes</h3>
@@ -130,7 +160,7 @@ export const FilledSizes: Story = {
 };
 
 export const SolidSizes: Story = {
-  name: 'Solid Variant - Size Comparison',
+  name: 'Features / Solid Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Solid Variant - All Sizes</h3>
@@ -144,7 +174,7 @@ export const SolidSizes: Story = {
 };
 
 export const OutlineSizes: Story = {
-  name: 'Outline Variant - Size Comparison',
+  name: 'Features / Outline Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
       <h3 className='text-sm font-medium mb-3'>Outline Variant - All Sizes</h3>
@@ -158,7 +188,7 @@ export const OutlineSizes: Story = {
 };
 
 export const ShapeComparison: Story = {
-  name: 'Shape Comparison',
+  name: 'Features / Shapes',
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
@@ -191,34 +221,8 @@ export const ShapeComparison: Story = {
   ),
 };
 
-export const DisabledStates: Story = {
-  name: 'Disabled States',
-  render: () => (
-    <div className='space-y-6 p-4'>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Square - Disabled</h3>
-        <div className='flex flex-wrap gap-3'>
-          <IconButton icon={Monitor} variant='text' shape='square' title='Text variant' disabled />
-          <IconButton icon={Save} variant='filled' shape='square' title='Filled variant' disabled />
-          <IconButton icon={Upload} variant='solid' shape='square' title='Solid variant' disabled />
-          <IconButton icon={Settings} variant='outline' shape='square' title='Outline variant' disabled />
-        </div>
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Round - Disabled</h3>
-        <div className='flex flex-wrap gap-3'>
-          <IconButton icon={Monitor} variant='text' shape='round' title='Text variant' disabled />
-          <IconButton icon={Save} variant='filled' shape='round' title='Filled variant' disabled />
-          <IconButton icon={Upload} variant='solid' shape='round' title='Solid variant' disabled />
-          <IconButton icon={Settings} variant='outline' shape='round' title='Outline variant' disabled />
-        </div>
-      </div>
-    </div>
-  ),
-};
-
-export const InteractivePlayground: Story = {
-  name: 'Interactive Playground',
+export const Interactive: Story = {
+  name: 'Features / Interactive',
   args: {
     icon: Monitor,
     variant: 'text',

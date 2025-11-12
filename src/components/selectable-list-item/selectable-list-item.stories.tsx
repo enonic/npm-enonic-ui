@@ -14,83 +14,8 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta<typeof SelectableListItem>;
 
-export const ContentVariations: Story = {
-  name: 'Content Variations',
-  render: () => (
-    <div className='w-96 space-y-4'>
-      <h3 className='text-sm font-semibold text-subtle mb-2'>Label Only</h3>
-      <div className='space-y-2'>
-        <SelectableListItem label='Simple item' defaultChecked={false} />
-        <SelectableListItem label='Selected item' defaultChecked={true} />
-      </div>
-
-      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Icon</h3>
-      <div className='space-y-2'>
-        <SelectableListItem icon={<File className='w-6 h-6' />} label='Document.pdf' defaultChecked={false} />
-        <SelectableListItem icon={<Folder className='w-6 h-6' />} label='Projects' defaultChecked={true} />
-      </div>
-
-      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Description</h3>
-      <div className='space-y-2'>
-        <SelectableListItem label='Meeting notes' description='Team sync discussion' defaultChecked={false} />
-        <SelectableListItem label='Project plan' description='Q4 roadmap and goals' defaultChecked={true} />
-      </div>
-
-      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Description + Icon</h3>
-      <div className='space-y-2'>
-        <SelectableListItem
-          icon={<FileText className='w-6 h-6' />}
-          label='Report.docx'
-          description='Quarterly financial report'
-          defaultChecked={false}
-        />
-        <SelectableListItem
-          icon={<Image className='w-6 h-6' />}
-          label='Logo.png'
-          description='Company branding asset'
-          defaultChecked={true}
-        />
-      </div>
-
-      <h3 className='text-sm font-semibold text-subtle mb-2'>All Elements</h3>
-      <div className='space-y-2'>
-        <SelectableListItem
-          icon={<Video className='w-6 h-6' />}
-          label='Tutorial.mp4'
-          description='Product onboarding video'
-          metadata='156 MB • MP4 Video'
-          defaultChecked={false}
-        >
-          <IconButton icon={Pen} variant='text' size='sm' aria-label='Edit' />
-          <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
-        </SelectableListItem>
-        <SelectableListItem
-          icon={<Package className='w-6 h-6' />}
-          label='Archive.zip'
-          description='Project backup files'
-          metadata='45.7 MB • ZIP Archive'
-          defaultChecked={true}
-        >
-          <IconButton icon={X} variant='text' size='sm' aria-label='Delete' />
-          <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
-        </SelectableListItem>
-        <SelectableListItem
-          icon={<Settings className='w-6 h-6' />}
-          label='Config.json'
-          description='Application settings'
-          metadata='2.4 KB • JSON'
-          defaultChecked={'indeterminate'}
-          readOnly
-        >
-          <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
-        </SelectableListItem>
-      </div>
-    </div>
-  ),
-};
-
 export const Examples: Story = {
-  name: 'Selection Examples',
+  name: 'Examples / Selection',
   render: () => (
     <div className='w-96 space-y-2'>
       <SelectableListItem
@@ -164,6 +89,81 @@ export const Examples: Story = {
   ),
 };
 
+export const ContentVariations: Story = {
+  name: 'Features / Content Variations',
+  render: () => (
+    <div className='w-96 space-y-4'>
+      <h3 className='text-sm font-semibold text-subtle mb-2'>Label Only</h3>
+      <div className='space-y-2'>
+        <SelectableListItem label='Simple item' defaultChecked={false} />
+        <SelectableListItem label='Selected item' defaultChecked={true} />
+      </div>
+
+      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Icon</h3>
+      <div className='space-y-2'>
+        <SelectableListItem icon={<File className='w-6 h-6' />} label='Document.pdf' defaultChecked={false} />
+        <SelectableListItem icon={<Folder className='w-6 h-6' />} label='Projects' defaultChecked={true} />
+      </div>
+
+      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Description</h3>
+      <div className='space-y-2'>
+        <SelectableListItem label='Meeting notes' description='Team sync discussion' defaultChecked={false} />
+        <SelectableListItem label='Project plan' description='Q4 roadmap and goals' defaultChecked={true} />
+      </div>
+
+      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Description + Icon</h3>
+      <div className='space-y-2'>
+        <SelectableListItem
+          icon={<FileText className='w-6 h-6' />}
+          label='Report.docx'
+          description='Quarterly financial report'
+          defaultChecked={false}
+        />
+        <SelectableListItem
+          icon={<Image className='w-6 h-6' />}
+          label='Logo.png'
+          description='Company branding asset'
+          defaultChecked={true}
+        />
+      </div>
+
+      <h3 className='text-sm font-semibold text-subtle mb-2'>All Elements</h3>
+      <div className='space-y-2'>
+        <SelectableListItem
+          icon={<Video className='w-6 h-6' />}
+          label='Tutorial.mp4'
+          description='Product onboarding video'
+          metadata='156 MB • MP4 Video'
+          defaultChecked={false}
+        >
+          <IconButton icon={Pen} variant='text' size='sm' aria-label='Edit' />
+          <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
+        </SelectableListItem>
+        <SelectableListItem
+          icon={<Package className='w-6 h-6' />}
+          label='Archive.zip'
+          description='Project backup files'
+          metadata='45.7 MB • ZIP Archive'
+          defaultChecked={true}
+        >
+          <IconButton icon={X} variant='text' size='sm' aria-label='Delete' />
+          <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
+        </SelectableListItem>
+        <SelectableListItem
+          icon={<Settings className='w-6 h-6' />}
+          label='Config.json'
+          description='Application settings'
+          metadata='2.4 KB • JSON'
+          defaultChecked={'indeterminate'}
+          readOnly
+        >
+          <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
+        </SelectableListItem>
+      </div>
+    </div>
+  ),
+};
+
 type PlaygroundArgs = {
   checked: boolean | 'indeterminate';
   selected: boolean;
@@ -176,8 +176,8 @@ type PlaygroundArgs = {
   showActions: boolean;
 };
 
-export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
-  name: 'Interactive Playground',
+export const Interactive: StoryObj<PlaygroundArgs> = {
+  name: 'Features / Interactive',
   args: {
     checked: false,
     selected: false,

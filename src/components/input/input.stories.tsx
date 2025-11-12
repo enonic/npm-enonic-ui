@@ -54,12 +54,14 @@ export default {
 } satisfies Meta<InputProps>;
 
 export const Default: Story = {
+  name: 'Examples / Default',
   args: {
     placeholder: 'Enter text...',
   },
 };
 
 export const WithLabel: Story = {
+  name: 'Examples / With Label',
   args: {
     label: 'Full Name',
     placeholder: 'Enter your full name',
@@ -67,6 +69,7 @@ export const WithLabel: Story = {
 };
 
 export const WithDescription: Story = {
+  name: 'Examples / With Description',
   args: {
     label: 'Email Address',
     description: "We'll use this to send you important updates",
@@ -76,6 +79,7 @@ export const WithDescription: Story = {
 };
 
 export const WithError: Story = {
+  name: 'Examples / With Error',
   args: {
     label: 'Username',
     placeholder: 'Enter username',
@@ -84,85 +88,8 @@ export const WithError: Story = {
   },
 };
 
-export const Disabled: Story = {
-  args: {
-    label: 'Disabled Field',
-    placeholder: 'Cannot edit this field',
-    disabled: true,
-  },
-};
-
-export const ReadOnly: Story = {
-  args: {
-    label: 'Read Only Field',
-    value: 'This value cannot be changed',
-    readOnly: true,
-  },
-};
-
-export const WithStringAddons: Story = {
-  name: 'With String Addons',
-  render: () => (
-    <div className='space-y-6 p-4 w-80'>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Start Addon</h3>
-        <Input label='Website URL' placeholder='example.com' startAddon='https://' />
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>End Addon</h3>
-        <Input label='Price' placeholder='0.00' endAddon='USD' type='number' />
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Both Addons</h3>
-        <Input label='Domain' placeholder='mysite' startAddon='https://' endAddon='.com' />
-      </div>
-    </div>
-  ),
-};
-
-export const WithIconAddons: Story = {
-  name: 'With Icon Addons',
-  render: () => (
-    <div className='space-y-6 p-4 w-80'>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Search Field</h3>
-        <Input label='Search' placeholder='Search users...' startAddon={<Search size={16} />} />
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Email Input</h3>
-        <Input label='Email' placeholder='Enter your email' type='email' startAddon={<Mail size={16} />} />
-      </div>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Password Input</h3>
-        <Input
-          label='Password'
-          placeholder='Enter password'
-          type='password'
-          startAddon={<User size={16} />}
-          endAddon={<Eye size={16} />}
-        />
-      </div>
-    </div>
-  ),
-};
-
-export const InputTypes: Story = {
-  name: 'Input Types',
-  render: () => (
-    <div className='space-y-6 p-4 w-80'>
-      <Input label='Text' type='text' placeholder='Enter text' />
-      <Input label='Email' type='email' placeholder='Enter email' />
-      <Input label='Password' type='password' placeholder='Enter password' />
-      <Input label='Number' type='number' placeholder='Enter number' />
-      <Input label='Search' type='search' placeholder='Search...' />
-      <Input label='URL' type='url' placeholder='https://example.com' />
-      <Input label='Phone' type='tel' placeholder='+1 (555) 123-4567' />
-    </div>
-  ),
-};
-
 export const FormExample: Story = {
-  name: 'Form Example',
+  name: 'Examples / Form',
   render: () => (
     <div className='space-y-6 p-4 w-96'>
       <h3 className='text-lg font-medium mb-4'>User Registration</h3>
@@ -201,7 +128,7 @@ export const FormExample: Story = {
 };
 
 export const States: Story = {
-  name: 'All States',
+  name: 'States / All States',
   render: () => (
     <div className='space-y-6 p-4 w-80'>
       <div>
@@ -232,61 +159,26 @@ export const States: Story = {
   ),
 };
 
-export const ErrorStates: Story = {
-  name: 'Error States with Addons',
-  render: () => (
-    <div className='space-y-6 p-4 w-96'>
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Error - No Addons</h3>
-        <Input
-          label='Email Address'
-          placeholder='Enter your email'
-          type='email'
-          value='invalid-email'
-          error='Please enter a valid email address'
-        />
-      </div>
+export const Disabled: Story = {
+  name: 'States / Disabled',
+  args: {
+    label: 'Disabled Field',
+    placeholder: 'Cannot edit this field',
+    disabled: true,
+  },
+};
 
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Error - Left Addon</h3>
-        <Input
-          label='Website URL'
-          placeholder='example.com'
-          startAddon='https://'
-          value='invalid url'
-          error='Please enter a valid domain name'
-        />
-      </div>
-
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Error - Both Addons</h3>
-        <Input
-          label='Price Range'
-          placeholder='100'
-          startAddon='$'
-          endAddon='USD'
-          value='not-a-number'
-          error='Please enter a valid numeric value'
-        />
-      </div>
-
-      <div>
-        <h3 className='text-sm font-medium mb-3'>Error - Icon Addons</h3>
-        <Input
-          label='Search Query'
-          placeholder='Search...'
-          startAddon={<Search size={16} />}
-          endAddon={<Calendar size={16} />}
-          value='inv@lid characters!'
-          error='Search query contains invalid characters'
-        />
-      </div>
-    </div>
-  ),
+export const ReadOnly: Story = {
+  name: 'States / Read-Only',
+  args: {
+    label: 'Read Only Field',
+    value: 'This value cannot be changed',
+    readOnly: true,
+  },
 };
 
 export const ReadOnlyStates: Story = {
-  name: 'Read Only States with Addons',
+  name: 'States / Read-Only with Addons',
   render: () => (
     <div className='space-y-6 p-4 w-96'>
       <div>
@@ -343,8 +235,122 @@ export const ReadOnlyStates: Story = {
   ),
 };
 
-export const InteractivePlayground: Story = {
-  name: 'Interactive Playground',
+export const ErrorStates: Story = {
+  name: 'States / Error with Addons',
+  render: () => (
+    <div className='space-y-6 p-4 w-96'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Error - No Addons</h3>
+        <Input
+          label='Email Address'
+          placeholder='Enter your email'
+          type='email'
+          value='invalid-email'
+          error='Please enter a valid email address'
+        />
+      </div>
+
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Error - Left Addon</h3>
+        <Input
+          label='Website URL'
+          placeholder='example.com'
+          startAddon='https://'
+          value='invalid url'
+          error='Please enter a valid domain name'
+        />
+      </div>
+
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Error - Both Addons</h3>
+        <Input
+          label='Price Range'
+          placeholder='100'
+          startAddon='$'
+          endAddon='USD'
+          value='not-a-number'
+          error='Please enter a valid numeric value'
+        />
+      </div>
+
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Error - Icon Addons</h3>
+        <Input
+          label='Search Query'
+          placeholder='Search...'
+          startAddon={<Search size={16} />}
+          endAddon={<Calendar size={16} />}
+          value='inv@lid characters!'
+          error='Search query contains invalid characters'
+        />
+      </div>
+    </div>
+  ),
+};
+
+export const WithStringAddons: Story = {
+  name: 'Features / String Addons',
+  render: () => (
+    <div className='space-y-6 p-4 w-80'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Start Addon</h3>
+        <Input label='Website URL' placeholder='example.com' startAddon='https://' />
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>End Addon</h3>
+        <Input label='Price' placeholder='0.00' endAddon='USD' type='number' />
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Both Addons</h3>
+        <Input label='Domain' placeholder='mysite' startAddon='https://' endAddon='.com' />
+      </div>
+    </div>
+  ),
+};
+
+export const WithIconAddons: Story = {
+  name: 'Features / Icon Addons',
+  render: () => (
+    <div className='space-y-6 p-4 w-80'>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Search Field</h3>
+        <Input label='Search' placeholder='Search users...' startAddon={<Search size={16} />} />
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Email Input</h3>
+        <Input label='Email' placeholder='Enter your email' type='email' startAddon={<Mail size={16} />} />
+      </div>
+      <div>
+        <h3 className='text-sm font-medium mb-3'>Password Input</h3>
+        <Input
+          label='Password'
+          placeholder='Enter password'
+          type='password'
+          startAddon={<User size={16} />}
+          endAddon={<Eye size={16} />}
+        />
+      </div>
+    </div>
+  ),
+};
+
+export const InputTypes: Story = {
+  name: 'Features / Input Types',
+  render: () => (
+    <div className='space-y-6 p-4 w-80'>
+      <Input label='Text' type='text' placeholder='Enter text' />
+      <Input label='Email' type='email' placeholder='Enter email' />
+      <Input label='Password' type='password' placeholder='Enter password' />
+      <Input label='Number' type='number' placeholder='Enter number' />
+      <Input label='Search' type='search' placeholder='Search...' />
+      <Input label='URL' type='url' placeholder='https://example.com' />
+      <Input label='Phone' type='tel' placeholder='+1 (555) 123-4567' />
+    </div>
+  ),
+};
+
+export const Interactive: Story = {
+  name: 'Features / Interactive',
   args: {
     label: 'Sample Input',
     description: 'This is a sample input field',
