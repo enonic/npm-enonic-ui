@@ -37,8 +37,15 @@ const DialogRoot = ({
   children,
 }: DialogRootProps): ReactElement => {
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
+  const defaultTitleId = usePrefixedId();
+  const defaultDescriptionId = usePrefixedId();
+  const [titleId, setTitleId] = useState(defaultTitleId);
+  const [descriptionId, setDescriptionId] = useState(defaultDescriptionId);
 
-  const context = useMemo<DialogContextValue>(() => ({ open, setOpen }), [open, setOpen]);
+  const context = useMemo<DialogContextValue>(
+    () => ({ open, setOpen, titleId, descriptionId, setTitleId, setDescriptionId }),
+    [open, titleId, descriptionId],
+  );
 
   return <DialogProvider value={context}>{children}</DialogProvider>;
 };
@@ -169,10 +176,8 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     },
     ref,
   ): ReactElement | null => {
-    const { open, setOpen } = useDialog();
+    const { open, setOpen, titleId, descriptionId } = useDialog();
     const contentRef = useRef<HTMLDivElement>(null);
-    const titleId = usePrefixedId();
-    const descriptionId = usePrefixedId();
 
     // Combine refs
     useEffect(() => {
@@ -339,17 +344,26 @@ DialogClose.displayName = 'Dialog.Close';
 //
 
 export type DialogTitleProps = {
+  id?: string;
   asChild?: boolean;
 } & ComponentPropsWithoutRef<'h2'>;
 
 const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
-  ({ children, className, asChild, ...props }, ref): ReactElement => {
+  ({ children, className, asChild, id, ...props }, ref): ReactElement => {
+    const { titleId, setTitleId } = useDialog();
     const Comp = asChild ? Slot : 'h2';
+
+    useEffect(() => {
+      if (id) {
+        setTitleId(id);
+      }
+    }, [id, setTitleId]);
 
     return (
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
+        id={titleId}
         className={cn('text-2xl font-semibold', className)}
         {...props}
       >
@@ -365,18 +379,26 @@ DialogTitle.displayName = 'Dialog.Title';
 //
 
 export type DialogDescriptionProps = {
+  id?: string;
   asChild?: boolean;
 } & ComponentPropsWithoutRef<'p'>;
 
 const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProps>(
-  ({ children, className, asChild, ...props }, ref): ReactElement => {
+  ({ id, children, asChild, ...props }, ref): ReactElement => {
+    const { descriptionId, setDescriptionId } = useDialog();
     const Comp = asChild ? Slot : 'p';
+
+    useEffect(() => {
+      if (id) {
+        setDescriptionId(id);
+      }
+    }, [id, setDescriptionId]);
 
     return (
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
-        className={cn('', className)}
+        id={descriptionId}
         {...props}
       >
         {children}

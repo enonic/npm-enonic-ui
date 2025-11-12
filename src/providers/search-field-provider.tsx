@@ -2,6 +2,7 @@ import { createContext, type ReactElement, type ReactNode, type RefObject, useCo
 
 export type SearchFieldContextValue = {
   id: string;
+  setId: (id: string) => void;
   value: string;
   disabled?: boolean;
   readOnly?: boolean;

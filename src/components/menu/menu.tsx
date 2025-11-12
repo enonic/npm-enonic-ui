@@ -67,7 +67,7 @@ const MenuRoot = ({
       menuId,
       triggerRef,
     }),
-    [open, setOpen, active, setActive, registerItem, unregisterItem, getItems, isItemDisabled, triggerId, menuId],
+    [open, active, registerItem, unregisterItem, getItems, isItemDisabled, triggerId, menuId],
   );
 
   // Return focus to trigger when menu closes (can't be in MenuContent - it unmounts)
