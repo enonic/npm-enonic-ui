@@ -18,6 +18,7 @@ import {
 import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
 import { cva } from 'class-variance-authority';
+import { Circle, CircleDot } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   createContext,
@@ -1097,12 +1098,12 @@ MenubarContent.displayName = 'Menubar.Content';
 //
 
 const menubarItemVariants = cva(
-  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none',
+  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
   {
     variants: {
       active: {
-        true: 'bg-surface-primary-selected text-alt',
-        false: '',
+        true: 'bg-surface-neutral-hover',
+        false: 'hover:bg-surface-neutral-hover',
       },
       disabled: {
         true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
@@ -1319,6 +1320,407 @@ const MenubarLabel = forwardRef<HTMLDivElement, MenubarLabelProps>(
 );
 MenubarLabel.displayName = 'Menubar.Label';
 
+//
+// * RadioGroup Context
+//
+
+type RadioGroupContextValue = {
+  value: string | undefined;
+  setValue: (value: string) => void;
+  closeOnSelect: boolean;
+};
+
+const RadioGroupContext = createContext<RadioGroupContextValue | undefined>(undefined);
+
+const useRadioGroup = (): RadioGroupContextValue => {
+  const context = useContext(RadioGroupContext);
+  if (!context) {
+    throw new Error('RadioGroup components must be used within a RadioGroup');
+  }
+  return context;
+};
+
+//
+// * MenubarRadioGroup
+//
+
+/**
+ * Radio group container for menubar dropdown menus.
+ *
+ * Manages mutual exclusion state for radio items. Only one radio item
+ * within a group can be checked at a time.
+ *
+ * Must be used within Menubar.Content.
+ *
+ * @example
+ * ```tsx
+ * <Menubar.Content>
+ *   <Menubar.Label>Text Size</Menubar.Label>
+ *   <Menubar.RadioGroup value={size} onValueChange={setSize}>
+ *     <Menubar.RadioItem value="small">
+ *       <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+ *       Small
+ *     </Menubar.RadioItem>
+ *     <Menubar.RadioItem value="large">
+ *       <Menubar.ItemIndicator>•</Menubar.ItemIndicator>
+ *       Large
+ *     </Menubar.RadioItem>
+ *   </Menubar.RadioGroup>
+ * </Menubar.Content>
+ * ```
+ */
+export type MenubarRadioGroupProps = {
+  /** Controlled selected value */
+  value?: string;
+  /** Default selected value (uncontrolled) */
+  defaultValue?: string;
+  /** Callback when selection changes */
+  onValueChange?: (value: string) => void;
+  /** Whether to close the menu after a radio item is selected */
+  closeOnSelect?: boolean;
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'div'>;
+
+const MenubarRadioGroup = forwardRef<HTMLDivElement, MenubarRadioGroupProps>(
+  (
+    { value: controlledValue, defaultValue, onValueChange, closeOnSelect = false, className, children, ...props },
+    ref,
+  ): ReactElement => {
+    const [value, setValue] = useState<string | undefined>(controlledValue ?? defaultValue);
+
+    // Sync controlled value
+    useEffect(() => {
+      if (controlledValue !== undefined) {
+        setValue(controlledValue);
+      }
+    }, [controlledValue]);
+
+    const handleSetValue = useCallback(
+      (newValue: string) => {
+        if (controlledValue === undefined) {
+          setValue(newValue);
+        }
+        onValueChange?.(newValue);
+      },
+      [controlledValue, onValueChange],
+    );
+
+    const contextValue: RadioGroupContextValue = useMemo(
+      () => ({
+        value,
+        setValue: handleSetValue,
+        closeOnSelect,
+      }),
+      [value, handleSetValue, closeOnSelect],
+    );
+
+    return (
+      <RadioGroupContext.Provider value={contextValue}>
+        <div ref={ref} role='group' className={cn('flex flex-col w-full', className)} {...props}>
+          {children}
+        </div>
+      </RadioGroupContext.Provider>
+    );
+  },
+);
+MenubarRadioGroup.displayName = 'Menubar.RadioGroup';
+
+//
+// * MenubarRadioItem
+//
+
+const menubarRadioItemVariants = cva(
+  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+  {
+    variants: {
+      active: {
+        true: 'bg-surface-neutral-hover',
+        false: '',
+      },
+      disabled: {
+        true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
+        false: '',
+      },
+      checked: {
+        true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
+        false: 'hover:bg-surface-neutral-hover',
+      },
+    },
+    compoundVariants: [
+      {
+        active: true,
+        checked: true,
+        disabled: false,
+        class: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
+      },
+      {
+        active: true,
+        disabled: false,
+        class: [
+          // ring and offset colors are swapped for inset ring focus
+          'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+        ],
+      },
+    ],
+    defaultVariants: {
+      active: false,
+      disabled: false,
+      checked: false,
+    },
+  },
+);
+
+/**
+ * A radio item within a menubar dropdown menu.
+ *
+ * Works with Menubar.RadioGroup to provide mutual exclusion.
+ * Unlike regular items, radio items do NOT close the menu when selected,
+ * allowing users to see their selection state.
+ *
+ * Must be used within Menubar.RadioGroup and Menubar.Content.
+ *
+ * @example
+ * ```tsx
+ * <Menubar.RadioGroup value={view} onValueChange={setView}>
+ *   <Menubar.RadioItem value="grid">
+ *     <Menubar.ItemIndicator>
+ *       <CheckIcon />
+ *     </Menubar.ItemIndicator>
+ *     Grid View
+ *   </Menubar.RadioItem>
+ *   <Menubar.RadioItem value="list">
+ *     <Menubar.ItemIndicator>
+ *       <CheckIcon />
+ *     </Menubar.ItemIndicator>
+ *     List View
+ *   </Menubar.RadioItem>
+ * </Menubar.RadioGroup>
+ * ```
+ */
+export type MenubarRadioItemProps = {
+  /** Unique ID for this item (auto-generated if not provided) */
+  id?: string;
+  /** Value identifier for this radio option (required) */
+  value: string;
+  /** Whether the item is disabled */
+  disabled?: boolean;
+  /** Callback when the item is selected (optional) */
+  onSelect?: (event: Event) => void;
+  /** Render as a child element using Radix UI Slot */
+  asChild?: boolean;
+  className?: string;
+  children: ReactNode;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'id' | 'children'>;
+
+const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
+  (
+    {
+      id: providedId,
+      value,
+      disabled = false,
+      onSelect,
+      asChild,
+      className,
+      children,
+      onClick,
+      onPointerMove,
+      onPointerLeave,
+      onFocus,
+      onKeyDown,
+      ...props
+    },
+    ref,
+  ): ReactElement => {
+    const id = usePrefixedId(providedId, 'menubar-radio-item');
+    const { registerItem, unregisterItem, active, setActive, getItems, isItemDisabled } = useMenubarContent();
+    const { setOpen, triggerRef } = useMenubarMenu();
+    const { value: selectedValue, setValue, closeOnSelect } = useRadioGroup();
+    const isActive = active === id;
+    const isChecked = selectedValue === value;
+    const itemRef = useRef<HTMLDivElement>(null);
+    const composedRefs = useComposedRefs(ref, itemRef);
+
+    useEffect(() => {
+      registerItem(id, disabled);
+      return () => unregisterItem(id);
+    }, [id, disabled, registerItem, unregisterItem]);
+
+    const handleClick = useCallback(
+      (e: React.MouseEvent<HTMLDivElement>): void => {
+        onClick?.(e);
+        if (disabled) return;
+
+        setValue(value);
+        const event = new Event('select', { bubbles: true, cancelable: true });
+        onSelect?.(event);
+
+        // Close menu if closeOnSelect is true
+        if (closeOnSelect) {
+          setOpen(false);
+          // Return focus to trigger so user can continue navigating
+          triggerRef?.current?.focus();
+        }
+      },
+      [disabled, value, setValue, onClick, onSelect, closeOnSelect, setOpen, triggerRef],
+    );
+
+    const handleKeyDown_ = useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        onKeyDown?.(e);
+        // Space/Enter key selects the radio item
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          if (!disabled) {
+            setValue(value);
+            const event = new Event('select', { bubbles: true, cancelable: true });
+            onSelect?.(event);
+
+            // Close menu if closeOnSelect is true
+            if (closeOnSelect) {
+              setOpen(false);
+              // Return focus to trigger so user can continue navigating
+              triggerRef?.current?.focus();
+            }
+          }
+        }
+      },
+      [disabled, value, setValue, onKeyDown, onSelect, closeOnSelect, setOpen, triggerRef],
+    );
+
+    const handlePointerMove = useCallback(
+      (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerMove']>>[0]): void => {
+        onPointerMove?.(e);
+        if (!disabled) {
+          setActive(id);
+        }
+      },
+      [disabled, id, setActive, onPointerMove],
+    );
+
+    const handlePointerLeave = useCallback(
+      (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerLeave']>>[0]): void => {
+        onPointerLeave?.(e);
+        if (document.activeElement !== itemRef.current) {
+          setActive(undefined);
+        }
+      },
+      [setActive, onPointerLeave, itemRef],
+    );
+
+    const handleFocus = useCallback(
+      (e: React.FocusEvent<HTMLDivElement>): void => {
+        onFocus?.(e);
+        if (disabled) return;
+        setActive(id);
+      },
+      [onFocus, disabled, setActive, id],
+    );
+
+    const { tabIndex } = useRovingTabIndex({
+      id,
+      active,
+      disabled,
+      getItems,
+      isItemDisabled,
+    });
+
+    useActiveItemFocus({
+      ref: itemRef,
+      isActive,
+      disabled,
+    });
+
+    const Comp = asChild ? Slot : 'div';
+
+    return (
+      <Comp
+        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
+        ref={composedRefs}
+        id={id}
+        role='menuitemradio'
+        tabIndex={tabIndex}
+        aria-checked={isChecked}
+        aria-disabled={disabled}
+        data-active={isActive || undefined}
+        data-disabled={disabled || undefined}
+        data-state={isChecked ? 'checked' : 'unchecked'}
+        data-tone={isActive ? 'inverse' : undefined}
+        className={cn('group', menubarRadioItemVariants({ active: isActive, disabled, checked: isChecked }), className)}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown_}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+        onFocus={handleFocus}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  },
+);
+MenubarRadioItem.displayName = 'Menubar.RadioItem';
+
+//
+// * MenubarItemIndicator
+//
+
+/**
+ * Indicator component that conditionally renders when its parent radio item is checked.
+ *
+ * Used within Menubar.RadioItem to display visual feedback for selection state.
+ * Only renders when inside a RadioGroup context.
+ *
+ * Must be used within Menubar.RadioItem.
+ *
+ * @example
+ * ```tsx
+ * <Menubar.RadioItem value="option">
+ *   <Menubar.ItemIndicator>
+ *     <CheckIcon />
+ *   </Menubar.ItemIndicator>
+ *   Option Label
+ * </Menubar.RadioItem>
+ * ```
+ */
+export type MenubarItemIndicatorProps = {
+  /** Force mount the indicator even when unchecked (for animation purposes) */
+  forceMount?: boolean;
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'span'>;
+
+const MenubarItemIndicator = forwardRef<HTMLSpanElement, MenubarItemIndicatorProps>(
+  ({ forceMount, className, children, ...props }, ref): ReactElement | null => {
+    const radioContext = useContext(RadioGroupContext);
+
+    // If not within a RadioGroup, don't render (could extend for CheckboxItem later)
+    if (!radioContext) {
+      return null;
+    }
+
+    // If no children provided, use default Circle/CircleDot icons
+    // The parent RadioItem has data-state attribute that controls which icon shows
+    const defaultContent = (
+      <>
+        <Circle strokeWidth={1.5} className='size-3.5 group-data-[state=checked]:hidden' />
+        <CircleDot
+          strokeWidth={1.5}
+          className='size-3.5 group-data-[state=unchecked]:hidden [&>circle:last-child]:scale-[3.75] [&>circle:last-child]:origin-center [&>circle:last-child]:fill-current'
+        />
+      </>
+    );
+
+    return (
+      <span ref={ref} data-indicator className={cn('inline-flex items-center justify-center', className)} {...props}>
+        {children ?? defaultContent}
+      </span>
+    );
+  },
+);
+MenubarItemIndicator.displayName = 'Menubar.ItemIndicator';
+
 export const Menubar = Object.assign(MenubarRoot, {
   Root: MenubarRoot,
   Nav: MenubarNav,
@@ -1330,4 +1732,7 @@ export const Menubar = Object.assign(MenubarRoot, {
   Portal: MenubarPortal,
   Item: MenubarItem,
   Label: MenubarLabel,
+  RadioGroup: MenubarRadioGroup,
+  RadioItem: MenubarRadioItem,
+  ItemIndicator: MenubarItemIndicator,
 });

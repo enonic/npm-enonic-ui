@@ -93,7 +93,7 @@ const ListItemRoot = ({ children, className, selected, ...props }: ListItemProps
     <div
       className={cn(
         'group flex items-center px-2.5 py-1 gap-2.5',
-        selected && 'bg-surface-primary-selected text-alt',
+        selected && 'bg-surface-selected text-alt',
         className,
       )}
       data-tone={selected ? 'inverse' : undefined}

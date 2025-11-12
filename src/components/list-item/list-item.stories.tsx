@@ -141,7 +141,7 @@ export const WithIcons: Story = {
           </ListItem.Right>
         </ListItem>
 
-        <ListItem selected style={{ '--color-ring-offset': 'var(--color-surface-primary-selected)' }}>
+        <ListItem selected style={{ '--color-ring-offset': 'var(--color-surface-selected)' }}>
           <ListItem.Left>
             <Checkbox checked={checked2} onCheckedChange={setChecked2} aria-label='Select file' />
           </ListItem.Left>
@@ -214,7 +214,7 @@ export const ClickableContent: Story = {
       <ListItem.Content>
         <button
           className={cn([
-            'hover:bg-surface-primary-hover active:bg-surface-primary-selected active:[&_*]:text-rev',
+            'hover:bg-surface-neutral-hover active:bg-surface-selected active:[&_*]:text-rev',
             'rounded-sm -m-1 p-1 cursor-pointer',
           ])}
         >
@@ -364,7 +364,7 @@ export const InteractivePlayground: StoryObj<PlaygroundArgs> = {
           selected={selected}
           onClick={() => setSelected(!selected)}
           className='cursor-pointer'
-          style={selected ? { '--color-ring-offset': 'var(--color-surface-primary-selected)' } : undefined}
+          style={selected ? { '--color-ring-offset': 'var(--color-surface-selected)' } : undefined}
         >
           {args.showLeft && (
             <ListItem.Left>

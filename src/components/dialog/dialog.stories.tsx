@@ -371,7 +371,7 @@ export const ScrollableContent: Story = {
                 {items.map(({ id, name }) => (
                   <Checkbox
                     key={id}
-                    className={'px-3 py-1 rounded-sm hover:bg-surface-primary-hover'}
+                    className={'px-3 py-1 rounded-sm hover:bg-surface-neutral-hover'}
                     label={name}
                     checked={selected.includes(id)}
                     onCheckedChange={() => toggleItem(id)}
@@ -546,7 +546,7 @@ export const MultiStepWizard: Story = {
                   {Array.from({ length: totalSteps }, (_, i) => (
                     <div
                       key={i}
-                      className={`h-1 flex-1 rounded-full ${i < step ? 'bg-main' : 'bg-surface-primary-hover'}`}
+                      className={`h-1 flex-1 rounded-full ${i < step ? 'bg-main' : 'bg-surface-neutral-hover'}`}
                     />
                   ))}
                 </div>

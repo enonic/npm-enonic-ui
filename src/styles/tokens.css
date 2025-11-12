@@ -26,10 +26,10 @@
 
   /* Surface Colors */
   --color-surface-neutral: var(--color-surface-neutral);
+  --color-surface-neutral-hover: var(--color-surface-neutral-hover);
+  --color-surface-selected: var(--color-surface-selected);
+  --color-surface-selected-hover: var(--color-surface-selected-hover);
   --color-surface-primary: var(--color-surface-primary);
-  --color-surface-primary-hover: var(--color-surface-primary-hover);
-  --color-surface-primary-selected: var(--color-surface-primary-selected);
-  --color-surface-primary-selected-hover: var(--color-surface-primary-selected-hover);
   --color-surface-secondary: var(--color-surface-secondary);
   --color-surface-tertiary: var(--color-surface-tertiary);
   --color-surface-info: var(--color-fbk-info-surface);

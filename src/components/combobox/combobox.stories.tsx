@@ -169,7 +169,7 @@ export const CustomFiltering: Story = {
           </Combobox.Content>
         </Combobox.Root>
         <div className='px-3 py-2 bg-surface-primary rounded-sm'>
-          <p className='text-sm text-main/70'>
+          <p className='text-sm text-subtle'>
             <span className='font-semibold'>Selected:</span> {selection}
           </p>
         </div>

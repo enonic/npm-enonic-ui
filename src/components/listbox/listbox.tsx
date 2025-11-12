@@ -285,8 +285,8 @@ const listboxItemVariants = cva(
   {
     variants: {
       selected: {
-        true: 'bg-surface-primary-selected text-alt hover:bg-surface-primary-selected-hover',
-        false: 'hover:bg-surface-primary-hover',
+        true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
+        false: 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
       },
       disabled: {
         true: 'opacity-30 cursor-not-allowed pointer-events-none',

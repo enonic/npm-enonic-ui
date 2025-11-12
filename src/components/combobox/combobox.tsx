@@ -501,7 +501,7 @@ const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElem
       disabled={disabled}
       tabIndex={-1}
       className={cn(
-        'shrink-0 text-subtle transition-transform hover:bg-surface-primary-hover',
+        'shrink-0 text-subtle transition-transform hover:bg-surface-neutral-hover',
         open && 'rotate-180',
         className,
       )}
