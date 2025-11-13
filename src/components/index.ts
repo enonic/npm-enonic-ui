@@ -15,4 +15,5 @@ export * from './selectable-list-item';
 export * from './separator';
 export * from './toggle';
 export * from './toggle-group';
+export * from './toolbar';
 export * from './tooltip';
