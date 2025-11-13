@@ -1,8 +1,8 @@
 import { IconButton } from '@/components/icon-button/icon-button';
-import { useClickOutside, useControlledState, useScrollLock } from '@/hooks';
+import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
-import { cn } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
 import { FocusTrap } from 'focus-trap-react';
 import { X } from 'lucide-react';
@@ -179,14 +179,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     const { open, setOpen, titleId, descriptionId } = useDialog();
     const contentRef = useRef<HTMLDivElement>(null);
 
-    // Combine refs
-    useEffect(() => {
-      if (typeof ref === 'function') {
-        ref(contentRef.current);
-      } else if (ref) {
-        ref.current = contentRef.current;
-      }
-    }, [ref]);
+    const composedRef = useComposedRefs(ref, contentRef);
 
     useScrollLock(open);
 
@@ -252,7 +245,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       >
         <div className='fixed inset-0 z-40 flex items-center justify-center p-4'>
           <div
-            ref={contentRef}
+            ref={composedRef}
             role='dialog'
             aria-modal='true'
             aria-labelledby={titleId}
@@ -353,11 +346,7 @@ const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
     const { titleId, setTitleId } = useDialog();
     const Comp = asChild ? Slot : 'h2';
 
-    useEffect(() => {
-      if (id) {
-        setTitleId(id);
-      }
-    }, [id, setTitleId]);
+    useSyncValue(id, setTitleId);
 
     return (
       <Comp
@@ -388,11 +377,7 @@ const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProp
     const { descriptionId, setDescriptionId } = useDialog();
     const Comp = asChild ? Slot : 'p';
 
-    useEffect(() => {
-      if (id) {
-        setDescriptionId(id);
-      }
-    }, [id, setDescriptionId]);
+    useSyncValue(id, setDescriptionId);
 
     return (
       <Comp

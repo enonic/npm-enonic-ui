@@ -12,3 +12,4 @@ export {
 export { useRovingTabIndex, type UseRovingTabIndexConfig, type UseRovingTabIndexReturn } from './use-roving-tabindex';
 export { useScrollActiveIntoView, type UseScrollActiveIntoViewConfig } from './use-scroll-active-into-view';
 export { useScrollLock } from './use-scroll-lock';
+export { useSyncValue } from './use-sync-value';
