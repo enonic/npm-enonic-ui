@@ -1,10 +1,10 @@
-import { Checkbox, IconButton } from '@/components';
+import { IconButton } from '@/components';
 import { useControlledState, useControlledStateWithNull, useKeyboardNavigation } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { type TreeListContextValue, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
 import { cn } from '@/utils';
 import { cva } from 'class-variance-authority';
-import { ChevronRight, Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2, Square, SquareCheck } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   type ReactElement,
@@ -15,7 +15,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Virtuoso } from 'react-virtuoso';
 
 const treeListItemVariants = cva(
   'group flex gap-2.5 items-center px-2.5 py-1 hover:bg-surface-primary-hover focus-within:outline-none cursor-pointer',
@@ -41,7 +40,7 @@ const expanderVariants = cva('w-5 h-5 transition-transform duration-150', {
   variants: {
     selected: {
       true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover group-hover:bg-surface-selected-hover',
-      false: 'group-hover:bg-surface-neutral-hover',
+      false: 'group-hover:bg-surface-neutral-hover group-data-[active=true]:bg-surface-neutral-hover',
     },
     expanded: {
       true: 'rotate-90',
@@ -58,31 +57,21 @@ const LOADING_SUFFIX = '__loading__';
 
 const calcSpacerWidth = (level: number): number => Math.max(0, 10 + 20 * (level - 1));
 
-export type SelectionOptions = {
-  mode: 'single' | 'multiple';
-  align?: 'left' | 'right';
-};
-
-const defaultSelectionOptions: SelectionOptions = {
-  mode: 'multiple',
-  align: 'left',
-};
-
 export type TreeListProps<T extends TreeNode = TreeNode> = {
   className?: string;
   items?: T[];
   setItems?: (items: T[]) => void;
-  itemToView: (item: T) => ReactNode;
   isItemSelectable?: (item: T) => boolean;
   fetchChildren: (parentNode: T | undefined, offset: number) => Promise<{ items: T[]; total: number }>;
   expanded?: ReadonlySet<string>;
   onExpandedChange?: (expanded: ReadonlySet<string>) => void;
   selection?: ReadonlySet<string>;
   onSelectionChange?: (selection: ReadonlySet<string>) => void;
-  selectionOptions?: SelectionOptions;
+  selectionMode?: 'single' | 'multiple';
   active?: string | null;
   defaultActive?: string;
   setActive?: (active: string | null | undefined) => void;
+  children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
 function findNode<T extends TreeNode>(nodes: T[], id: string): T | undefined {
@@ -135,6 +124,38 @@ function getRootNodes(nodes: TreeNode[]): TreeNode[] {
   return nodes.filter(node => node.path.length === 0);
 }
 
+export type TreeContentProps = {
+  children?: ReactNode;
+  load?: boolean;
+} & ComponentPropsWithoutRef<'div'>;
+
+const TreeContent = ({ children, load = true }: TreeContentProps): ReactElement => {
+  const { items, loadMore } = useTreeList();
+
+  useEffect(() => {
+    if (load && items.length === 0) {
+      void loadMore();
+    }
+  }, [load, items.length, loadMore]);
+
+  return <>{children}</>;
+};
+
+type TreeContainerProps = {
+  children?: ReactNode;
+  className?: string;
+} & ComponentPropsWithoutRef<'div'>;
+
+const TreeContainer = ({ children, className, ...props }: TreeContainerProps): ReactElement<TreeRowLeftProps> => {
+  const { baseId } = useTreeList();
+
+  return (
+    <div id={`${baseId}-scroll-root`} className={cn('h-full relative overflow-y-auto', className)} {...props}>
+      {children}
+    </div>
+  );
+};
+
 type TreeRowLeftProps = {
   children?: ReactNode;
   className?: string;
@@ -158,16 +179,18 @@ const TreeRowRight = ({ children, className, ...props }: TreeRowRightProps): Rea
 );
 
 type TreeRowLevelSpacerProps = {
-  data: TreeNode;
+  level?: number;
+  className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeRowLevelSpacer = ({ data }: TreeRowLevelSpacerProps): ReactElement<TreeRowLeftProps> => {
-  const level = data.path.length;
-
+const TreeRowLevelSpacer = ({ level = 0, className }: TreeRowLevelSpacerProps): ReactElement<TreeRowLeftProps> => {
   return (
     <>
       {level > 0 && (
-        <div style={{ '--level-indent': `${calcSpacerWidth(level)}px` }} className='pl-[var(--level-indent)]' />
+        <div
+          style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}
+          className={cn('pl-[var(--level-indent)]', className)}
+        />
       )}
     </>
   );
@@ -219,27 +242,17 @@ const TreeRowContent = ({ className, children, ...props }: TreeRowContentProps):
 type TreeRowSelectionControlProps = {
   data: TreeNode;
   className?: string;
-};
+} & ComponentPropsWithoutRef<'div'>;
 
 const TreeRowSelectionControl = ({ data, className }: TreeRowSelectionControlProps): ReactElement => {
   const { selection, isItemSelectable } = useTreeList();
   const isSelected = selection?.has(data.id);
 
-  if (!isItemSelectable(data)) {
-    return <span className={'w-3.5'}></span>;
+  if (isLoadingPlaceholder(data) || !isItemSelectable(data)) {
+    return <span className={cn('w-3.5', className)}></span>;
   }
 
-  return (
-    <Checkbox
-      className={className}
-      checked={isSelected}
-      onClick={e => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      tabIndex={-1}
-    />
-  );
+  return <div className={cn('flex items-center w-3.5', className)}>{isSelected ? <SquareCheck /> : <Square />}</div>;
 };
 
 // ===== TreeRow ==============================================================
@@ -250,7 +263,7 @@ type TreeRowProps<T extends TreeNode> = {
 };
 
 const TreeRow = <T extends TreeNode>({ item, children, className }: TreeRowProps<T>): ReactElement => {
-  const { selection, expanded, toggleSelection, active, baseId, isFocused } = useTreeList<T>();
+  const { selection, selectionMode, expanded, toggleSelection, active, baseId, isFocused } = useTreeList<T>();
   const isExpanded = expanded?.has(item.id);
   const isSelected = selection?.has(item.id);
   const isActive = isFocused && active === item.id;
@@ -259,18 +272,18 @@ const TreeRow = <T extends TreeNode>({ item, children, className }: TreeRowProps
   return (
     // ARIA treeview pattern: options are not individually focusable
     // Parent root list element handles all keyboard interactions
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
     <div
       id={rowDomId}
       role='treeitem'
       aria-expanded={item.hasChildren ? isExpanded : undefined}
-      aria-selected={isSelected}
-      aria-level={item.path.length + 1}
+      aria-selected={isSelected ? true : selectionMode === 'multiple' ? false : undefined}
+      aria-level={item.path.length}
       data-tone={isSelected ? 'inverse' : undefined}
       data-active={isActive || undefined}
       onClick={() => toggleSelection?.(item.id)}
       className={cn(treeListItemVariants({ selected: isSelected, active: isActive }), className)}
-      tabIndex={-1}
+      tabIndex={undefined}
     >
       {children}
     </div>
@@ -282,7 +295,7 @@ TreeRow.displayName = 'TreeRow';
 const LoadingRow = ({ item }: { item: TreeNode }): ReactElement => {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const { loadMore } = useTreeList();
+  const { loadMore, baseId } = useTreeList();
 
   useEffect(() => {
     if (!ref.current) {
@@ -291,13 +304,16 @@ const LoadingRow = ({ item }: { item: TreeNode }): ReactElement => {
     const observer = new IntersectionObserver(
       entries => {
         for (const entry of entries) {
-          const parentId = item.path[item.path.length - 1];
-          if (entry.isIntersecting && parentId) {
+          if (entry.isIntersecting) {
+            const parentId = item.path[item.path.length - 1];
             void loadMore(parentId);
           }
         }
       },
-      { rootMargin: '200px' },
+      {
+        root: document.querySelector(`#${baseId}-scroll-root`),
+        rootMargin: '120px',
+      },
     );
     observer.observe(ref.current);
     return () => observer.disconnect();
@@ -316,51 +332,10 @@ const LoadingRow = ({ item }: { item: TreeNode }): ReactElement => {
 
 LoadingRow.displayName = 'LoadingRow';
 
-// eslint-disable-next-line
-const TreeListContent = <T extends TreeNode>(): ReactElement => {
-  const { items, itemToView, loadMore, selectionOptions } = useTreeList<T>();
-
-  return (
-    <Virtuoso
-      data={items}
-      increaseViewportBy={200}
-      endReached={() => {
-        void loadMore();
-      }}
-      itemContent={(index, item) => {
-        void index; // lint
-
-        if (isLoadingPlaceholder(item)) {
-          return <LoadingRow item={item} />;
-        }
-
-        return (
-          <TreeRow<T> key={item.id} item={item}>
-            <TreeRowLeft>
-              {selectionOptions.mode === 'multiple' && selectionOptions.align === 'left' && (
-                <TreeRowSelectionControl data={item} />
-              )}
-              <TreeRowLevelSpacer data={item} />
-              <TreeRowExpandControl data={item} />
-            </TreeRowLeft>
-            <TreeRowContent>{itemToView(item)}</TreeRowContent>
-            {selectionOptions.mode === 'multiple' && selectionOptions.align === 'right' && (
-              <TreeRowRight>
-                <TreeRowSelectionControl data={item} />
-              </TreeRowRight>
-            )}
-          </TreeRow>
-        );
-      }}
-    />
-  );
-};
-
-export const TreeList = <T extends TreeNode = TreeNode>({
+export const TreeListRoot = <T extends TreeNode = TreeNode>({
   className,
   items: controlledItems,
   setItems: setItemsControlled,
-  itemToView,
   fetchChildren,
   selection: controlledSelection,
   expanded: controlledExpanded,
@@ -369,10 +344,12 @@ export const TreeList = <T extends TreeNode = TreeNode>({
   active: controlledActive,
   defaultActive,
   setActive,
-  selectionOptions = defaultSelectionOptions,
+  selectionMode = 'single',
   isItemSelectable = () => true,
+  children,
   ...props
 }: TreeListProps<T>): ReactElement => {
+  const baseId = usePrefixedId(undefined, 'tree-list');
   const [selection, setSelection] = useControlledState<ReadonlySet<string>>(
     controlledSelection,
     new Set(),
@@ -387,6 +364,7 @@ export const TreeList = <T extends TreeNode = TreeNode>({
   const [active, updateActive] = useControlledStateWithNull(controlledActive, defaultActive, setActive);
   const [isFocused, setFocused] = useState(false);
   const innerRef = useRef<HTMLDivElement>(null);
+  const [hasMoreRoot, setHasMoreRoot] = useState(false);
 
   const loadMore = useCallback(
     async (parentId?: string): Promise<void> => {
@@ -396,23 +374,61 @@ export const TreeList = <T extends TreeNode = TreeNode>({
 
       const { items: newChildren, total } = await fetchChildren(parentNode, offset);
       const hasMore = offset + newChildren.length < total;
-      const updatedItems = updateTreeWithChildren(items, targetParent, newChildren, hasMore);
-      setItems(updatedItems);
+
+      if (!parentId) {
+        setHasMoreRoot(hasMore);
+      }
+
+      setItems((prevItems: T[]) => updateTreeWithChildren(prevItems, targetParent, newChildren, hasMore));
     },
-    [fetchChildren, items],
+    [fetchChildren],
   );
+
+  function flattenTree<T extends TreeNode>(nodes: readonly T[], expandedSet: ReadonlySet<string>): readonly T[] {
+    const result: T[] = [];
+
+    const walk = (items: readonly T[], parentPath: readonly string[]): void => {
+      for (const item of items) {
+        const path = [...parentPath, item.id];
+        result.push(item);
+        const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+        const isExpanded = expandedSet.has(item.id);
+        if (isExpanded && hasChildren) {
+          walk((item.children ?? []) as T[], path);
+          if (item.hasMoreChildren) {
+            result.push({
+              id: `${item.id}${LOADING_SUFFIX}`,
+              path,
+            } as T);
+          }
+        }
+      }
+    };
+
+    walk(nodes, []);
+
+    if (hasMoreRoot) {
+      result.push({
+        id: `${baseId}${LOADING_SUFFIX}`,
+        path: [] as string[],
+      } as T);
+    }
+
+    return result;
+  }
 
   const flattenedItems = useMemo(() => flattenTree(items, expanded), [items, expanded]);
 
   const toggleSelection = useCallback(
     (id: string) => {
       const item = flattenedItems.find(node => node.id === id);
+      updateActive(id);
       if (!item || !isItemSelectable(item)) {
         return;
       }
 
       const isSelected = selection.has(id);
-      const newSelection = new Set(selectionOptions.mode === 'multiple' ? selection : []);
+      const newSelection = new Set(selectionMode === 'multiple' ? selection : []);
 
       if (isSelected) {
         newSelection.delete(id);
@@ -421,9 +437,8 @@ export const TreeList = <T extends TreeNode = TreeNode>({
       }
 
       setSelection(newSelection);
-      updateActive(id);
     },
-    [selection, selectionOptions, flattenedItems],
+    [selection, selectionMode, flattenedItems, isItemSelectable],
   );
 
   const toggleExpanded = useCallback(
@@ -444,7 +459,7 @@ export const TreeList = <T extends TreeNode = TreeNode>({
 
       setExpanded(newExpanded);
     },
-    [flattenedItems, loadMore],
+    [flattenedItems, loadMore, expanded, setExpanded],
   );
 
   const getNavItems = useCallback(
@@ -520,7 +535,7 @@ export const TreeList = <T extends TreeNode = TreeNode>({
     if (!active || !innerRef.current) {
       return;
     }
-    const el = innerRef.current.querySelector<HTMLDivElement>('.active-tree-list-item');
+    const el = document.getElementById(`${baseId}-item-${active}`);
     if (el) {
       el.scrollIntoView({
         block: 'nearest',
@@ -529,20 +544,17 @@ export const TreeList = <T extends TreeNode = TreeNode>({
     }
   }, [active]);
 
-  const baseId = usePrefixedId('tree-list');
-
   const contextValue = useMemo<TreeListContextValue<T>>(
     () => ({
       baseId,
       items: flattenedItems,
       active,
       loadMore,
-      itemToView,
       selection,
       expanded,
       toggleSelection,
       toggleExpanded,
-      selectionOptions,
+      selectionMode,
       isFocused,
       isItemSelectable,
     }),
@@ -550,13 +562,12 @@ export const TreeList = <T extends TreeNode = TreeNode>({
       baseId,
       flattenedItems,
       loadMore,
-      itemToView,
       selection,
       expanded,
       active,
       toggleSelection,
       toggleExpanded,
-      selectionOptions,
+      selectionMode,
       isFocused,
       isItemSelectable,
     ],
@@ -564,6 +575,7 @@ export const TreeList = <T extends TreeNode = TreeNode>({
 
   return (
     <div
+      id={baseId}
       ref={innerRef}
       className={cn(
         className,
@@ -571,16 +583,14 @@ export const TreeList = <T extends TreeNode = TreeNode>({
       )}
       role='tree'
       aria-activedescendant={active ? `${baseId}-item-${active}` : undefined}
-      aria-multiselectable={selectionOptions.mode === 'multiple' ? true : undefined}
+      aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
       tabIndex={0}
       onKeyDown={keyHandler}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       {...props}
     >
-      <TreeListProvider value={contextValue}>
-        <TreeListContent<T> />
-      </TreeListProvider>
+      <TreeListProvider value={contextValue}>{children}</TreeListProvider>
     </div>
   );
 };
@@ -593,31 +603,20 @@ export type TreeNode = {
   path: string[]; // array of ancestor IDs
 };
 
-function isLoadingPlaceholder(node: TreeNode): boolean {
+export function isLoadingPlaceholder(node: TreeNode): boolean {
   return node.id.endsWith(LOADING_SUFFIX);
 }
 
-function flattenTree<T extends TreeNode>(nodes: readonly T[], expandedSet: ReadonlySet<string>): readonly T[] {
-  const result: T[] = [];
-
-  const walk = (items: readonly T[], parentPath: readonly string[]): void => {
-    for (const item of items) {
-      const path = [...parentPath, item.id];
-      result.push(item);
-      const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-      const isExpanded = expandedSet.has(item.id);
-      if (isExpanded && hasChildren) {
-        walk((item.children ?? []) as T[], path);
-        if (item.hasMoreChildren) {
-          result.push({
-            id: `${item.id}${LOADING_SUFFIX}`,
-            path,
-          } as T);
-        }
-      }
-    }
-  };
-
-  walk(nodes, []);
-  return result;
-}
+export const TreeList = Object.assign(TreeListRoot, {
+  Root: TreeListRoot,
+  Container: TreeContainer,
+  Content: TreeContent,
+  Row: TreeRow,
+  LoadingRow: LoadingRow,
+  RowLeft: TreeRowLeft,
+  RowRight: TreeRowRight,
+  RowLevelSpacer: TreeRowLevelSpacer,
+  RowExpandControl: TreeRowExpandControl,
+  RowContent: TreeRowContent,
+  RowSelectionControl: TreeRowSelectionControl,
+});

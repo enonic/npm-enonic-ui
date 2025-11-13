@@ -1,10 +1,10 @@
-import { Checkbox, type CheckboxChecked, IconButton, ListItem } from '@/components';
+import { Checkbox, type CheckboxChecked, IconButton, isLoadingPlaceholder, ListItem } from '@/components';
 import { TreeList, type TreeNode } from '@/components/tree-list/tree-list';
+import { useTreeList } from '@/providers';
 import { cn } from '@/utils';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, FileText, Folder, Image, RefreshCcw, Video } from 'lucide-react';
 import { type ReactNode, useCallback, useState } from 'react';
-import { useEffect } from 'react';
 
 type Story = StoryObj<typeof TreeList>;
 
@@ -23,18 +23,10 @@ function setMaxItems(value: number): void {
   MAX_ITEMS = value;
 }
 
-function resetMaxItems(): void {
-  MAX_ITEMS = 35;
-}
-
 let BATCH_SIZE = 10;
 
 function setBatchSize(value: number): void {
   BATCH_SIZE = value;
-}
-
-function resetBatchSize(): void {
-  BATCH_SIZE = 10;
 }
 
 type ContentData = TreeNode & {
@@ -129,22 +121,31 @@ function flattenNodes(nodes: TreeNode[]): TreeNode[] {
   return flatList;
 }
 
-export const LazyVirtualizedTree: Story = {
-  name: 'Lazy Loading + Virtualization',
+const isMediaItem = (item: ContentData): boolean => {
+  return item.type === 'document' || item.type === 'image' || item.type === 'video';
+};
+
+const getAvailableFeaturesBlock = (): ReactNode => {
+  return (
+    <div>
+      <div className={'mb-4'}>+ Selection/Navigation/Expand/Collapse/Lazy loaded children</div>
+      <div className={'mb-4'}>- No virtualization/No fetching root items on scroll</div>
+    </div>
+  );
+};
+
+export const StaticTree: Story = {
+  name: 'Multi Selection',
   render: () => {
-    resetMaxItems();
-    resetBatchSize();
+    setMaxItems(50);
+    setBatchSize(10);
     const [items, setItems] = useState<ContentData[]>([]);
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
     const [selectAll, setSelectAll] = useState(false);
 
     const refresh = (): void => {
-      setItems(generateItems());
+      setItems([]);
     };
-
-    useEffect(() => {
-      refresh();
-    }, []);
 
     const toggleSelectAll = useCallback(
       (checked: CheckboxChecked) => {
@@ -174,8 +175,30 @@ export const LazyVirtualizedTree: Story = {
       return itemsData;
     };
 
+    const TreeListRowsWithContext = (): React.ReactElement => {
+      const { items } = useTreeList<ContentData>();
+
+      return (
+        <>
+          {items.map(item => (
+            <TreeList.Row<ContentData> key={item.id} item={item}>
+              <TreeList.RowLeft>
+                <TreeList.RowSelectionControl data={item} />
+                <TreeList.RowLevelSpacer level={item.path.length} />
+                <TreeList.RowExpandControl data={item} />
+              </TreeList.RowLeft>
+              <TreeList.RowContent>
+                {isLoadingPlaceholder(item) ? <TreeList.LoadingRow key={item.id} item={item} /> : itemToView(item)}
+              </TreeList.RowContent>
+            </TreeList.Row>
+          ))}
+        </>
+      );
+    };
+
     return (
       <div className={''}>
+        {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
         <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
           <div className={'flex items-center gap-2.5 pl-2.5'}>
@@ -189,107 +212,58 @@ export const LazyVirtualizedTree: Story = {
             fetchChildren={fetchChildrenAndSelect}
             items={items}
             setItems={setItems}
-            itemToView={itemToView}
             selection={selection}
             onSelectionChange={setSelection}
-          />
+            selectionMode={'multiple'}
+          >
+            <TreeList.Container>
+              <TreeList.Content>
+                <TreeListRowsWithContext />
+              </TreeList.Content>
+            </TreeList.Container>
+          </TreeList>
         </div>
       </div>
     );
   },
 };
 
-export const LazyVirtualizedTreeRight: Story = {
-  name: 'Select on the right',
-  render: () => {
-    resetMaxItems();
-    resetBatchSize();
-    const [items, setItems] = useState<ContentData[]>([]);
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-
-    const refresh = (): void => {
-      setItems(generateItems());
-    };
-
-    useEffect(() => {
-      refresh();
-    }, []);
-
-    return (
-      <div className={''}>
-        <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
-        <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
-          <TreeList<ContentData>
-            className={'w-145 h-120'}
-            fetchChildren={fetchChildren}
-            items={items}
-            setItems={setItems}
-            itemToView={itemToView}
-            selection={selection}
-            onSelectionChange={setSelection}
-            selectionOptions={{ mode: 'multiple', align: 'right' }}
-          />
-        </div>
-      </div>
-    );
-  },
-};
-
-export const LazyVirtualizedTreeSingleSelection: Story = {
+export const SingleSelectionTree: Story = {
   name: 'Single Selection',
   render: () => {
-    resetMaxItems();
-    resetBatchSize();
+    setMaxItems(25);
+    setBatchSize(10);
     const [items, setItems] = useState<ContentData[]>([]);
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
     const refresh = (): void => {
-      setItems(generateItems());
+      setItems([]);
     };
 
-    useEffect(() => {
-      refresh();
-    }, []);
+    const TreeListRowsWithContext = (): React.ReactElement => {
+      const { items } = useTreeList<ContentData>();
+
+      return (
+        <>
+          {items.map(item => (
+            <TreeList.Row<ContentData> key={item.id} item={item}>
+              <TreeList.RowLeft>
+                <TreeList.RowLevelSpacer level={item.path.length} />
+                <TreeList.RowExpandControl data={item} />
+              </TreeList.RowLeft>
+              <TreeList.RowContent>
+                {isLoadingPlaceholder(item) ? <TreeList.LoadingRow key={item.id} item={item} /> : itemToView(item)}
+              </TreeList.RowContent>
+            </TreeList.Row>
+          ))}
+        </>
+      );
+    };
 
     return (
       <div className={''}>
+        {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
-        <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
-          <TreeList<ContentData>
-            className={'w-145 h-120'}
-            fetchChildren={fetchChildren}
-            items={items}
-            setItems={setItems}
-            itemToView={itemToView}
-            selection={selection}
-            onSelectionChange={setSelection}
-            selectionOptions={{ mode: 'single' }}
-          />
-        </div>
-      </div>
-    );
-  },
-};
-
-export const ThousandItemsTree: Story = {
-  name: '1000+ Items',
-  render: () => {
-    setMaxItems(1000);
-    setBatchSize(500);
-    const [items, setItems] = useState<ContentData[]>([]);
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-
-    const refresh = (): void => {
-      setItems(generateItems());
-    };
-
-    useEffect(() => {
-      refresh();
-    }, []);
-
-    return (
-      <div className={''}>
-        <div className={'grow'}>Total items: {flattenNodes(items).length}</div>
         <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
           <div className={'flex items-center gap-2.5 pl-2.5'}>
             <span className={'grow'}></span>
@@ -301,21 +275,27 @@ export const ThousandItemsTree: Story = {
             fetchChildren={fetchChildren}
             items={items}
             setItems={setItems}
-            itemToView={itemToView}
             selection={selection}
             onSelectionChange={setSelection}
-          />
+            selectionMode={'single'}
+          >
+            <TreeList.Container>
+              <TreeList.Content>
+                <TreeListRowsWithContext />
+              </TreeList.Content>
+            </TreeList.Container>
+          </TreeList>
         </div>
       </div>
     );
   },
 };
 
-export const OnlyMediaSelectableMulti: Story = {
-  name: 'Media only, multi-select',
+export const MultiSelectNoCheckboxes: Story = {
+  name: 'Multi Selection/ No checkboxes',
   render: () => {
-    resetMaxItems();
-    resetBatchSize();
+    setMaxItems(50);
+    setBatchSize(10);
     const [items, setItems] = useState<ContentData[]>([]);
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
@@ -323,40 +303,62 @@ export const OnlyMediaSelectableMulti: Story = {
       setItems(generateItems());
     };
 
-    useEffect(() => {
-      refresh();
-    }, []);
+    const TreeListRowsWithContext = (): React.ReactElement => {
+      const { items } = useTreeList<ContentData>();
 
-    const isItemSelectable = (item: ContentData): boolean => {
-      return item.type === 'document' || item.type === 'image' || item.type === 'video';
+      return (
+        <>
+          {items.map(item => (
+            <TreeList.Row<ContentData> key={item.id} item={item}>
+              <TreeList.RowLeft>
+                <TreeList.RowLevelSpacer level={item.path.length} />
+                <TreeList.RowExpandControl data={item} />
+              </TreeList.RowLeft>
+              <TreeList.RowContent>
+                {isLoadingPlaceholder(item) ? <TreeList.LoadingRow key={item.id} item={item} /> : itemToView(item)}
+              </TreeList.RowContent>
+            </TreeList.Row>
+          ))}
+        </>
+      );
     };
 
     return (
       <div className={''}>
+        {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
         <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
+          <div className={'flex items-center gap-2.5 pl-2.5'}>
+            <span className={'grow'}></span>
+            <IconButton icon={RefreshCcw} variant='text' title='Text variant' onClick={refresh} />
+          </div>
+
           <TreeList<ContentData>
             className={'w-145 h-120'}
             fetchChildren={fetchChildren}
-            isItemSelectable={isItemSelectable}
             items={items}
             setItems={setItems}
-            itemToView={itemToView}
             selection={selection}
             onSelectionChange={setSelection}
-            selectionOptions={{ mode: 'multiple', align: 'right' }}
-          />
+            selectionMode={'multiple'}
+          >
+            <TreeList.Container>
+              <TreeList.Content>
+                <TreeListRowsWithContext />
+              </TreeList.Content>
+            </TreeList.Container>
+          </TreeList>
         </div>
       </div>
     );
   },
 };
 
-export const OnlyMediaSelectableSingle: Story = {
-  name: 'Media only, single-select',
+export const SelectionOnTheRightTree: Story = {
+  name: 'Checkbox on the right side',
   render: () => {
-    resetMaxItems();
-    resetBatchSize();
+    setMaxItems(50);
+    setBatchSize(10);
     const [items, setItems] = useState<ContentData[]>([]);
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
@@ -364,29 +366,119 @@ export const OnlyMediaSelectableSingle: Story = {
       setItems(generateItems());
     };
 
-    useEffect(() => {
-      refresh();
-    }, []);
+    const TreeListRowsWithContext = (): React.ReactElement => {
+      const { items } = useTreeList<ContentData>();
 
-    const isItemSelectable = (item: ContentData): boolean => {
-      return item.type === 'document' || item.type === 'image' || item.type === 'video';
+      return (
+        <>
+          {items.map(item => (
+            <TreeList.Row<ContentData> key={item.id} item={item}>
+              <TreeList.RowLeft>
+                <TreeList.RowLevelSpacer level={item.path.length} />
+                <TreeList.RowExpandControl data={item} />
+              </TreeList.RowLeft>
+              <TreeList.RowContent>
+                {isLoadingPlaceholder(item) ? <TreeList.LoadingRow key={item.id} item={item} /> : itemToView(item)}
+              </TreeList.RowContent>
+              <TreeList.RowRight>
+                <TreeList.RowSelectionControl data={item} />
+              </TreeList.RowRight>
+            </TreeList.Row>
+          ))}
+        </>
+      );
     };
 
     return (
       <div className={''}>
+        {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
         <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
+          <div className={'flex items-center gap-2.5 pl-2.5'}>
+            <span className={'grow'}></span>
+            <IconButton icon={RefreshCcw} variant='text' title='Text variant' onClick={refresh} />
+          </div>
+
           <TreeList<ContentData>
             className={'w-145 h-120'}
             fetchChildren={fetchChildren}
-            isItemSelectable={isItemSelectable}
             items={items}
             setItems={setItems}
-            itemToView={itemToView}
             selection={selection}
             onSelectionChange={setSelection}
-            selectionOptions={{ mode: 'single' }}
-          />
+            selectionMode={'multiple'}
+          >
+            <TreeList.Container>
+              <TreeList.Content>
+                <TreeListRowsWithContext />
+              </TreeList.Content>
+            </TreeList.Container>
+          </TreeList>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const MediaOnly: Story = {
+  name: 'Media Only Selection',
+  render: () => {
+    setMaxItems(50);
+    setBatchSize(10);
+    const [items, setItems] = useState<ContentData[]>([]);
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+
+    const refresh = (): void => {
+      setItems(generateItems());
+    };
+
+    const TreeListRowsWithContext = (): React.ReactElement => {
+      const { items } = useTreeList<ContentData>();
+
+      return (
+        <>
+          {items.map(item => (
+            <TreeList.Row<ContentData> key={item.id} item={item}>
+              <TreeList.RowLeft>
+                <TreeList.RowSelectionControl data={item} />
+                <TreeList.RowLevelSpacer level={item.path.length} />
+                <TreeList.RowExpandControl data={item} />
+              </TreeList.RowLeft>
+              <TreeList.RowContent>
+                {isLoadingPlaceholder(item) ? <TreeList.LoadingRow key={item.id} item={item} /> : itemToView(item)}
+              </TreeList.RowContent>
+            </TreeList.Row>
+          ))}
+        </>
+      );
+    };
+
+    return (
+      <div className={''}>
+        {getAvailableFeaturesBlock()}
+        <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
+        <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
+          <div className={'flex items-center gap-2.5 pl-2.5'}>
+            <span className={'grow'}></span>
+            <IconButton icon={RefreshCcw} variant='text' title='Text variant' onClick={refresh} />
+          </div>
+
+          <TreeList<ContentData>
+            className={'w-145 h-120'}
+            fetchChildren={fetchChildren}
+            items={items}
+            setItems={setItems}
+            selection={selection}
+            onSelectionChange={setSelection}
+            selectionMode={'multiple'}
+            isItemSelectable={isMediaItem}
+          >
+            <TreeList.Container>
+              <TreeList.Content>
+                <TreeListRowsWithContext />
+              </TreeList.Content>
+            </TreeList.Container>
+          </TreeList>
         </div>
       </div>
     );

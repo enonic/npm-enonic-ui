@@ -1,18 +1,17 @@
-import type { SelectionOptions, TreeNode } from '@/components/tree-list/tree-list';
+import type { TreeNode } from '@/components/tree-list/tree-list';
 import { createContext, type ReactElement, type ReactNode, useContext } from 'react';
 
 export type TreeListContextValue<T extends TreeNode = TreeNode> = {
   baseId: string;
   items: readonly T[];
   loadMore: (parent?: string) => void | Promise<void>;
-  itemToView: (item: T) => ReactNode;
   isItemSelectable: (item: T) => boolean;
   active?: string;
   selection?: ReadonlySet<string>;
   expanded?: ReadonlySet<string>;
   toggleSelection?: (id: string) => void;
   toggleExpanded: (id: string) => void;
-  selectionOptions: SelectionOptions;
+  selectionMode: 'single' | 'multiple';
   isFocused: boolean;
 };
 

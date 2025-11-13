@@ -1,1 +1,1 @@
-export { TreeList, type TreeListProps, type TreeNode, type SelectionOptions } from './tree-list';
+export { TreeList, type TreeListProps, type TreeNode, isLoadingPlaceholder } from './tree-list';
