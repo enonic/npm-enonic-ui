@@ -148,7 +148,7 @@ const ToggleGroupRoot = forwardRef<HTMLDivElement, ToggleGroupRootProps>((props,
   }
 
   const [value, setValue] = useControlledState<string[]>(controlledValue, defaultValue ?? [], onValueChange);
-  const [active, setActive] = useState<string | undefined>(undefined);
+  const [active, setActive] = useState<string | undefined>(() => value.at(0));
 
   const handleValueChange = useCallback(
     (itemValue: string) => {
@@ -228,7 +228,7 @@ export type ToggleGroupItemProps = {
 } & Omit<ButtonProps, 'onClick' | 'aria-pressed' | 'aria-checked'>;
 
 const ToggleGroupItem = forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
-  ({ value, disabled: itemDisabled, asChild, className, ...props }, ref): ReactElement => {
+  ({ value, disabled: itemDisabled, asChild, ...props }, ref): ReactElement => {
     const context = useToggleGroup();
     const {
       selectionMode,
@@ -264,40 +264,6 @@ const ToggleGroupItem = forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
 
     const Comp = asChild ? Slot : Button;
 
-    if (selectionMode === 'single') {
-      const { tabIndex } = useRovingTabIndex({
-        id: value,
-        active: active,
-        disabled,
-        getItems,
-        isItemDisabled,
-      });
-
-      useEffect(() => {
-        if (active === value && itemRef.current) {
-          // ? Avoid unnecessary focus calls when element is already focused
-          if (document.activeElement !== itemRef.current) {
-            itemRef.current.focus();
-          }
-        }
-      }, [active, value]);
-
-      return (
-        <Comp
-          // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
-          ref={composedRef}
-          aria-checked={isSelected}
-          data-state={isSelected ? 'on' : 'off'}
-          data-active={isSelected || undefined}
-          disabled={disabled}
-          tabIndex={tabIndex}
-          onClick={handleClick}
-          className={className}
-          {...props}
-        />
-      );
-    }
-
     const { tabIndex } = useRovingTabIndex({
       id: value,
       active: active,
@@ -308,6 +274,7 @@ const ToggleGroupItem = forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
 
     useEffect(() => {
       if (active === value && itemRef.current) {
+        // Avoid unnecessary focus calls when element is already focused
         if (document.activeElement !== itemRef.current) {
           itemRef.current.focus();
         }
@@ -318,13 +285,12 @@ const ToggleGroupItem = forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRef}
-        aria-pressed={isSelected}
+        {...(selectionMode === 'single' ? { 'aria-pressed': isSelected } : { 'aria-checked': isSelected })}
         data-state={isSelected ? 'on' : 'off'}
         data-active={isSelected || undefined}
         disabled={disabled}
         tabIndex={tabIndex}
         onClick={handleClick}
-        className={className}
         {...props}
       />
     );
