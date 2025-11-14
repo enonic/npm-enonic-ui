@@ -129,7 +129,7 @@ const getAvailableFeaturesBlock = (): ReactNode => {
   return (
     <div>
       <div className={'mb-4'}>+ Selection/Navigation/Expand/Collapse/Lazy loaded children</div>
-      <div className={'mb-4'}>- No virtualization/No fetching root items on scroll</div>
+      <div className={'mb-4'}>- No virtualization</div>
     </div>
   );
 };

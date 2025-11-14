@@ -3,7 +3,6 @@ import { useControlledState, useControlledStateWithNull, useKeyboardNavigation }
 import { usePrefixedId } from '@/providers';
 import { type TreeListContextValue, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
 import { cn } from '@/utils';
-import { cva } from 'class-variance-authority';
 import { ChevronRight, Loader2, Square, SquareCheck } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -15,43 +14,6 @@ import {
   useRef,
   useState,
 } from 'react';
-
-const treeListItemVariants = cva(
-  'group flex gap-2.5 items-center px-2.5 py-1 hover:bg-surface-primary-hover focus-within:outline-none cursor-pointer',
-  {
-    variants: {
-      selected: {
-        true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
-        false: 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
-      },
-      active: {
-        true: 'active-tree-list-item',
-        false: '',
-      },
-    },
-    defaultVariants: {
-      selected: false,
-      active: false,
-    },
-  },
-);
-
-const expanderVariants = cva('w-5 h-5 transition-transform duration-150', {
-  variants: {
-    selected: {
-      true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover group-hover:bg-surface-selected-hover',
-      false: 'group-hover:bg-surface-neutral-hover group-data-[active=true]:bg-surface-neutral-hover',
-    },
-    expanded: {
-      true: 'rotate-90',
-      false: '',
-    },
-  },
-  defaultVariants: {
-    selected: false,
-    expanded: false,
-  },
-});
 
 const LOADING_SUFFIX = '__loading__';
 
@@ -124,12 +86,50 @@ function getRootNodes(nodes: TreeNode[]): TreeNode[] {
   return nodes.filter(node => node.path.length === 0);
 }
 
-export type TreeContentProps = {
+function flattenTree<T extends TreeNode>(
+  nodes: readonly T[],
+  expandedSet: ReadonlySet<string>,
+  baseId: string,
+  hasMoreRoot: boolean,
+): readonly T[] {
+  const result: T[] = [];
+
+  const walk = (items: readonly T[], parentPath: readonly string[]): void => {
+    for (const item of items) {
+      const path = [...parentPath, item.id];
+      result.push(item);
+      const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+      const isExpanded = expandedSet.has(item.id);
+      if (isExpanded && hasChildren) {
+        walk((item.children ?? []) as T[], path);
+        if (item.hasMoreChildren) {
+          result.push({
+            id: `${item.id}${LOADING_SUFFIX}`,
+            path,
+          } as T);
+        }
+      }
+    }
+  };
+
+  walk(nodes, []);
+
+  if (hasMoreRoot) {
+    result.push({
+      id: `${baseId}${LOADING_SUFFIX}`,
+      path: [] as string[],
+    } as T);
+  }
+
+  return result;
+}
+
+export type TreeListContentProps = {
   children?: ReactNode;
   load?: boolean;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeContent = ({ children, load = true }: TreeContentProps): ReactElement => {
+const TreeListContent = ({ children, load = true }: TreeListContentProps): ReactElement => {
   const { items, loadMore } = useTreeList();
 
   useEffect(() => {
@@ -141,12 +141,18 @@ const TreeContent = ({ children, load = true }: TreeContentProps): ReactElement 
   return <>{children}</>;
 };
 
-type TreeContainerProps = {
+TreeListContent.displayName = 'TreeList.Content';
+
+type TreeListContainerProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeContainer = ({ children, className, ...props }: TreeContainerProps): ReactElement<TreeRowLeftProps> => {
+const TreeListContainer = ({
+  children,
+  className,
+  ...props
+}: TreeListContainerProps): ReactElement<TreeListContainerProps> => {
   const { baseId } = useTreeList();
 
   return (
@@ -156,82 +162,111 @@ const TreeContainer = ({ children, className, ...props }: TreeContainerProps): R
   );
 };
 
-type TreeRowLeftProps = {
+TreeListContainer.displayName = 'TreeList.Container';
+
+type TreeListRowLeftProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeRowLeft = ({ children, className, ...props }: TreeRowLeftProps): ReactElement<TreeRowLeftProps> => (
+const TreeListRowLeft = ({
+  children,
+  className,
+  ...props
+}: TreeListRowLeftProps): ReactElement<TreeListRowLeftProps> => (
   <div className={cn('flex items-center gap-2.5', className)} {...props}>
     {children}
   </div>
 );
 
-type TreeRowRightProps = {
+TreeListRowLeft.displayName = 'TreeList.RowLeft';
+
+type TreeListRowRightProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeRowRight = ({ children, className, ...props }: TreeRowRightProps): ReactElement<TreeRowLeftProps> => (
+const TreeListRowRight = ({
+  children,
+  className,
+  ...props
+}: TreeListRowRightProps): ReactElement<TreeListRowLeftProps> => (
   <div className={cn('flex items-center gap-2.5', className)} {...props}>
     {children}
   </div>
 );
 
-type TreeRowLevelSpacerProps = {
+TreeListRowRight.displayName = 'TreeList.RowRight';
+
+type TreeListRowLevelSpacerProps = {
   level?: number;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeRowLevelSpacer = ({ level = 0, className }: TreeRowLevelSpacerProps): ReactElement<TreeRowLeftProps> => {
+const TreeListRowLevelSpacer = ({
+  level = 0,
+  className,
+}: TreeListRowLevelSpacerProps): ReactElement<TreeListRowLeftProps> | undefined => {
+  if (level === 0) {
+    return undefined;
+  }
+
   return (
-    <>
-      {level > 0 && (
-        <div
-          style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}
-          className={cn('pl-[var(--level-indent)]', className)}
-        />
-      )}
-    </>
+    <div
+      style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}
+      className={cn('pl-[var(--level-indent)]', className)}
+    />
   );
 };
 
-type TreeRowExpandControlProps = {
+TreeListRowLevelSpacer.displayName = 'TreeList.RowLevelSpacer';
+
+type TreeListRowExpandControlProps = {
   data: TreeNode;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeRowExpandControl = ({ data }: TreeRowExpandControlProps): ReactElement<TreeRowLeftProps> => {
+const TreeListRowExpandControl = ({ data }: TreeListRowExpandControlProps): ReactElement<TreeListRowLeftProps> => {
+  if (!data.hasChildren) {
+    return <span className='h-5 w-5 flex-shrink-0' />; // placeholder for expand icon;
+  }
+
   const { expanded, toggleExpanded, selection } = useTreeList();
   const isExpanded = expanded?.has(data.id);
   const isSelected = selection?.has(data.id);
 
   return (
-    <>
-      {data.hasChildren ? (
-        <IconButton
-          icon={ChevronRight}
-          variant='text'
-          title='Text variant'
-          tabIndex={-1}
-          className={cn(expanderVariants({ selected: isSelected, expanded: isExpanded }))}
-          onClick={e => {
-            toggleExpanded(data.id);
-            e.stopPropagation();
-          }}
-        />
-      ) : (
-        <span className='h-5 w-5 flex-shrink-0' /> // placeholder for expand icon
+    <IconButton
+      icon={ChevronRight}
+      variant='text'
+      title='Text variant'
+      tabIndex={-1}
+      className={cn(
+        'w-5 h-5 transition-transform duration-150',
+        isSelected
+          ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover group-hover:bg-surface-selected-hover'
+          : 'group-hover:bg-surface-neutral-hover group-data-[active=true]:bg-surface-neutral-hover',
+        isExpanded && 'rotate-90',
       )}
-    </>
+      onClick={e => {
+        toggleExpanded(data.id);
+        e.stopPropagation();
+      }}
+    />
   );
 };
 
-type TreeRowContentProps = {
+TreeListRowExpandControl.displayName = 'TreeList.RowExpandControl';
+
+type TreeListRowContentProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeRowContent = ({ className, children, ...props }: TreeRowContentProps): ReactElement<TreeRowContentProps> => {
+const TreeListRowContent = ({
+  className,
+  children,
+  ...props
+}: TreeListRowContentProps): ReactElement<TreeListRowContentProps> => {
   return (
     <div className={cn('flex-1 min-w-0', className)} {...props}>
       {children}
@@ -239,12 +274,14 @@ const TreeRowContent = ({ className, children, ...props }: TreeRowContentProps):
   );
 };
 
-type TreeRowSelectionControlProps = {
+TreeListRowContent.displayName = 'TreeList.RowContent';
+
+type TreeListRowSelectionControlProps = {
   data: TreeNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeRowSelectionControl = ({ data, className }: TreeRowSelectionControlProps): ReactElement => {
+const TreeListRowSelectionControl = ({ data, className }: TreeListRowSelectionControlProps): ReactElement => {
   const { selection, isItemSelectable } = useTreeList();
   const isSelected = selection?.has(data.id);
 
@@ -255,14 +292,15 @@ const TreeRowSelectionControl = ({ data, className }: TreeRowSelectionControlPro
   return <div className={cn('flex items-center w-3.5', className)}>{isSelected ? <SquareCheck /> : <Square />}</div>;
 };
 
-// ===== TreeRow ==============================================================
-type TreeRowProps<T extends TreeNode> = {
+TreeListRowSelectionControl.displayName = 'TreeList.RowSelectionControl';
+
+type TreeListRowProps<T extends TreeNode> = {
   item: T;
   children: ReactNode;
   className?: string;
 };
 
-const TreeRow = <T extends TreeNode>({ item, children, className }: TreeRowProps<T>): ReactElement => {
+const TreeListRow = <T extends TreeNode>({ item, children, className }: TreeListRowProps<T>): ReactElement => {
   const { selection, selectionMode, expanded, toggleSelection, active, baseId, isFocused } = useTreeList<T>();
   const isExpanded = expanded?.has(item.id);
   const isSelected = selection?.has(item.id);
@@ -282,7 +320,13 @@ const TreeRow = <T extends TreeNode>({ item, children, className }: TreeRowProps
       data-tone={isSelected ? 'inverse' : undefined}
       data-active={isActive || undefined}
       onClick={() => toggleSelection?.(item.id)}
-      className={cn(treeListItemVariants({ selected: isSelected, active: isActive }), className)}
+      className={cn(
+        'group flex gap-2.5 items-center px-2.5 py-1 hover:bg-surface-primary-hover focus-within:outline-none cursor-pointer',
+        isSelected
+          ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover'
+          : 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
+        className,
+      )}
       tabIndex={undefined}
     >
       {children}
@@ -290,9 +334,15 @@ const TreeRow = <T extends TreeNode>({ item, children, className }: TreeRowProps
   );
 };
 
-TreeRow.displayName = 'TreeRow';
+TreeListRow.displayName = 'TreeList.Row';
 
-const LoadingRow = ({ item }: { item: TreeNode }): ReactElement => {
+export type TreeListLoadingRowProps = {
+  item: TreeNode;
+  children?: ReactNode;
+  intersectionProps?: IntersectionObserverInit;
+};
+
+const TreeListLoadingRow = ({ item, children, intersectionProps }: TreeListLoadingRowProps): ReactElement => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { loadMore, baseId } = useTreeList();
@@ -305,32 +355,31 @@ const LoadingRow = ({ item }: { item: TreeNode }): ReactElement => {
       entries => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            const parentId = item.path[item.path.length - 1];
-            void loadMore(parentId);
+            void loadMore(item.path[item.path.length - 1]);
           }
         }
       },
-      {
+      intersectionProps ?? {
         root: document.querySelector(`#${baseId}-scroll-root`),
         rootMargin: '120px',
       },
     );
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [item, loadMore]);
+  }, [item, loadMore, baseId, intersectionProps]);
 
   const level = item.path.length;
 
   return (
-    <div ref={ref} className='flex items-center gap-2 py-1 px-2 text-muted-foreground text-sm'>
+    <div ref={ref} className='flex items-center gap-2 py-1 px-2 text-sm'>
       {level > 0 && <span className={'spacer'} style={{ paddingLeft: calcSpacerWidth(level) }}></span>}
       <Loader2 size={14} className='animate-spin' />
-      <span>Loading...</span>
+      {children ?? <span>Loading...</span>}
     </div>
   );
 };
 
-LoadingRow.displayName = 'LoadingRow';
+TreeListLoadingRow.displayName = 'TreeList.LoadingRow';
 
 export const TreeListRoot = <T extends TreeNode = TreeNode>({
   className,
@@ -375,49 +424,21 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
       const { items: newChildren, total } = await fetchChildren(parentNode, offset);
       const hasMore = offset + newChildren.length < total;
 
+      const updatedItems = updateTreeWithChildren(items, targetParent, newChildren, hasMore);
+
       if (!parentId) {
         setHasMoreRoot(hasMore);
       }
 
-      setItems((prevItems: T[]) => updateTreeWithChildren(prevItems, targetParent, newChildren, hasMore));
+      setItems(updatedItems);
     },
-    [fetchChildren],
+    [fetchChildren, items, setItems, setHasMoreRoot],
   );
 
-  function flattenTree<T extends TreeNode>(nodes: readonly T[], expandedSet: ReadonlySet<string>): readonly T[] {
-    const result: T[] = [];
-
-    const walk = (items: readonly T[], parentPath: readonly string[]): void => {
-      for (const item of items) {
-        const path = [...parentPath, item.id];
-        result.push(item);
-        const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-        const isExpanded = expandedSet.has(item.id);
-        if (isExpanded && hasChildren) {
-          walk((item.children ?? []) as T[], path);
-          if (item.hasMoreChildren) {
-            result.push({
-              id: `${item.id}${LOADING_SUFFIX}`,
-              path,
-            } as T);
-          }
-        }
-      }
-    };
-
-    walk(nodes, []);
-
-    if (hasMoreRoot) {
-      result.push({
-        id: `${baseId}${LOADING_SUFFIX}`,
-        path: [] as string[],
-      } as T);
-    }
-
-    return result;
-  }
-
-  const flattenedItems = useMemo(() => flattenTree(items, expanded), [items, expanded]);
+  const flattenedItems = useMemo(
+    () => flattenTree(items, expanded, baseId, hasMoreRoot),
+    [items, expanded, baseId, hasMoreRoot],
+  );
 
   const toggleSelection = useCallback(
     (id: string) => {
@@ -574,24 +595,26 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
   );
 
   return (
-    <div
-      id={baseId}
-      ref={innerRef}
-      className={cn(
-        className,
-        'focus-within:outline-none focus-within:ring-1 focus-within:ring-bdr-strong focus-within:ring-offset-1 focus-within:ring-offset-surface-neutral',
-      )}
-      role='tree'
-      aria-activedescendant={active ? `${baseId}-item-${active}` : undefined}
-      aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
-      tabIndex={0}
-      onKeyDown={keyHandler}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      {...props}
-    >
-      <TreeListProvider value={contextValue}>{children}</TreeListProvider>
-    </div>
+    <TreeListProvider value={contextValue}>
+      <div
+        id={baseId}
+        ref={innerRef}
+        className={cn(
+          className,
+          'focus-within:outline-none focus-within:ring-1 focus-within:ring-bdr-strong focus-within:ring-offset-1 focus-within:ring-offset-surface-neutral',
+        )}
+        role='tree'
+        aria-activedescendant={active ? `${baseId}-item-${active}` : undefined}
+        aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
+        tabIndex={0}
+        onKeyDown={keyHandler}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        {...props}
+      >
+        {children}
+      </div>
+    </TreeListProvider>
   );
 };
 
@@ -609,14 +632,14 @@ export function isLoadingPlaceholder(node: TreeNode): boolean {
 
 export const TreeList = Object.assign(TreeListRoot, {
   Root: TreeListRoot,
-  Container: TreeContainer,
-  Content: TreeContent,
-  Row: TreeRow,
-  LoadingRow: LoadingRow,
-  RowLeft: TreeRowLeft,
-  RowRight: TreeRowRight,
-  RowLevelSpacer: TreeRowLevelSpacer,
-  RowExpandControl: TreeRowExpandControl,
-  RowContent: TreeRowContent,
-  RowSelectionControl: TreeRowSelectionControl,
+  Container: TreeListContainer,
+  Content: TreeListContent,
+  Row: TreeListRow,
+  LoadingRow: TreeListLoadingRow,
+  RowLeft: TreeListRowLeft,
+  RowRight: TreeListRowRight,
+  RowLevelSpacer: TreeListRowLevelSpacer,
+  RowExpandControl: TreeListRowExpandControl,
+  RowContent: TreeListRowContent,
+  RowSelectionControl: TreeListRowSelectionControl,
 });
