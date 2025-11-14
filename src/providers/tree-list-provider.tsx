@@ -4,7 +4,7 @@ import { createContext, type ReactElement, type ReactNode, useContext } from 're
 export type TreeListContextValue<T extends TreeNode = TreeNode> = {
   baseId: string;
   items: readonly T[];
-  loadMore: (parent?: string) => void | Promise<void>;
+  loadMore: (parent?: string) => void;
   isItemSelectable: (item: T) => boolean;
   active?: string;
   selection?: ReadonlySet<string>;

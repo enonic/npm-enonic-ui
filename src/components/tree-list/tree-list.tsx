@@ -134,7 +134,7 @@ const TreeListContent = ({ children, load = true }: TreeListContentProps): React
 
   useEffect(() => {
     if (load && items.length === 0) {
-      void loadMore();
+      loadMore();
     }
   }, [load, items.length, loadMore]);
 
@@ -355,7 +355,7 @@ const TreeListLoadingRow = ({ item, children, intersectionProps }: TreeListLoadi
       entries => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            void loadMore(item.path[item.path.length - 1]);
+            loadMore(item.path[item.path.length - 1]);
           }
         }
       },
@@ -433,7 +433,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
       setItems(updatedItems);
     },
     [fetchChildren, items, setItems, setHasMoreRoot],
-  );
+  ) as (parentId?: string) => void;
 
   const flattenedItems = useMemo(
     () => flattenTree(items, expanded, baseId, hasMoreRoot),
@@ -474,7 +474,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
 
         const node = flattenedItems.find((node: TreeNode) => node.id === id);
         if (node && (!node.children || node.children.length === 0)) {
-          void loadMore(id);
+          loadMore(id);
         }
       }
 
