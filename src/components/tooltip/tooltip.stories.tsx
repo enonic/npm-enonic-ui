@@ -90,7 +90,7 @@ export const LongContent: Story = {
 export const CustomStyling: Story = {
   name: 'Features / Custom Styling',
   render: () => (
-    <Tooltip value='Important warning message!' className='bg-error text-alt'>
+    <Tooltip value={<strong>Important warning message!</strong>} className='bg-error text-alt'>
       <Button label='Custom styled tooltip' variant='solid' />
     </Tooltip>
   ),
