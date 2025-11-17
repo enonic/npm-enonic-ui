@@ -75,8 +75,8 @@ const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
-        type={asChild ? undefined : 'button'}
         onClick={handleClick}
+        {...(!asChild && { type: 'button' })}
         {...props}
       >
         {children}
@@ -321,8 +321,8 @@ const DialogClose = forwardRef<HTMLButtonElement, DialogCloseProps>(
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
-        type={asChild ? undefined : 'button'}
         onClick={handleClick}
+        {...(!asChild && { type: 'button' })}
         {...props}
       >
         {children}

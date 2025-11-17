@@ -405,7 +405,6 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
-        type={asChild ? undefined : 'button'}
         role='menuitem'
         tabIndex={tabIndex}
         aria-disabled={disabled}
@@ -422,6 +421,7 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         onFocus={handleFocus}
+        {...(!asChild && { type: 'button' })}
         {...props}
       >
         {children}
@@ -754,7 +754,6 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={menuId}
-        type={asChild ? undefined : 'button'}
         role='menuitem'
         tabIndex={tabIndex}
         aria-haspopup='menu'
@@ -778,6 +777,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         onFocus={handleFocus}
+        {...(!asChild && { type: 'button' })}
         {...props}
       >
         {children}

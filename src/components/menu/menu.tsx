@@ -119,7 +119,6 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={useComposedRefs(ref, triggerRef)}
         id={triggerId}
-        type={asChild ? undefined : 'button'}
         aria-haspopup='menu'
         aria-expanded={open}
         data-active={open}
@@ -127,6 +126,7 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
+        {...(!asChild && { type: 'button' })}
         {...props}
       >
         {children}

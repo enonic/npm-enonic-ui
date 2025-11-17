@@ -153,14 +153,16 @@ function TooltipTrigger({
   return (
     <Trigger
       ref={triggerRef}
-      className={!asChild ? 'inline-flex' : undefined}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={onFocus}
       onBlur={onBlur}
       aria-describedby={isOpen ? 'tooltip' : undefined}
-      role={!asChild ? 'button' : undefined}
-      tabIndex={!asChild ? 0 : undefined}
+      {...(!asChild && {
+        className: 'inline-flex',
+        role: 'button',
+        tabIndex: 0,
+      })}
     >
       {children}
     </Trigger>
