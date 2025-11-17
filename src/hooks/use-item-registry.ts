@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 export type ItemMetadata = {
   disabled: boolean;
@@ -63,22 +63,42 @@ export type UseItemRegistryReturn = {
  */
 export function useItemRegistry(): UseItemRegistryReturn {
   const itemsRef = useRef<Map<string, ItemMetadata>>(new Map());
+  const [registryVersion, setRegistryVersion] = useState(0);
 
-  const registerItem = useCallback((id: string, disabled = false): void => {
-    itemsRef.current.set(id, { disabled });
+  const bumpRegistryVersion = useCallback((): void => {
+    setRegistryVersion(version => version + 1);
   }, []);
 
-  const unregisterItem = useCallback((id: string): void => {
-    itemsRef.current.delete(id);
-  }, []);
+  const registerItem = useCallback(
+    (id: string, disabled = false): void => {
+      itemsRef.current.set(id, { disabled });
+      // Always bump version to ensure dependent hooks recalculate
+      // This handles new items, disabled changes, and re-registrations
+      bumpRegistryVersion();
+    },
+    [bumpRegistryVersion],
+  );
+
+  const unregisterItem = useCallback(
+    (id: string): void => {
+      const isDeleted = itemsRef.current.delete(id);
+      if (isDeleted) {
+        bumpRegistryVersion();
+      }
+    },
+    [bumpRegistryVersion],
+  );
 
   const getItems = useCallback((): string[] => {
     return Array.from(itemsRef.current.keys());
-  }, []);
+  }, [registryVersion]);
 
-  const isItemDisabled = useCallback((id: string): boolean => {
-    return itemsRef.current.get(id)?.disabled ?? false;
-  }, []);
+  const isItemDisabled = useCallback(
+    (id: string): boolean => {
+      return itemsRef.current.get(id)?.disabled ?? false;
+    },
+    [registryVersion],
+  );
 
   return {
     registerItem,
