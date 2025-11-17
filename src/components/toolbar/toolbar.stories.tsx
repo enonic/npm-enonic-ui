@@ -17,6 +17,7 @@ import {
   Redo,
   Save,
   Scissors,
+  Search,
   Underline,
   Undo,
 } from 'lucide-react';
@@ -321,6 +322,12 @@ export const AllItemsWithTooltips: Story = {
             aria-label='Full toolbar'
             className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
           >
+            <Tooltip value='Search' asChild>
+              <Toolbar.Item asChild>
+                <Toggle className='p-0 w-10' variant='filled' startIcon={Search} aria-label='Undo' />
+              </Toolbar.Item>
+            </Tooltip>
+            <Toolbar.Separator />
             <Tooltip value='Undo action' asChild>
               <Toolbar.Item asChild>
                 <IconButton variant='outline' size='sm' icon={Undo} aria-label='Undo' />
