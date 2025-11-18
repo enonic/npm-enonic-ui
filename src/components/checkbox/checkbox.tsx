@@ -146,7 +146,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             aria-invalid={error}
             aria-readonly={readOnly}
             data-state={isIndeterminate ? 'indeterminate' : isChecked ? 'checked' : 'unchecked'}
-            data-disabled={disabled ? '' : undefined}
+            data-disabled={disabled ?? undefined}
             onChange={handleChange}
           />
 

@@ -407,6 +407,7 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
         id={id}
         role='menuitem'
         tabIndex={tabIndex}
+        disabled={disabled}
         aria-disabled={disabled}
         data-disabled={disabled || undefined}
         data-tone={isActive ? 'inverse' : undefined}
@@ -1150,6 +1151,11 @@ const menubarItemVariants = cva(
  *   </Menubar.Item>
  * </Menubar.Content>
  * ```
+ *
+ * @remarks
+ * When using `asChild`, do not set the `disabled` prop on the child component.
+ * The `Menubar.Item`'s `disabled` prop should be the single source of truth.
+ * Due to Radix UI Slot's prop merging behavior, child props can override parent props.
  */
 export type MenubarItemProps = {
   /** Unique ID for this item (auto-generated if not provided) */
@@ -1262,6 +1268,7 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
         id={id}
         role='menuitem'
         tabIndex={tabIndex}
+        disabled={disabled}
         aria-disabled={disabled}
         data-active={isActive || undefined}
         data-disabled={disabled || undefined}

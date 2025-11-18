@@ -336,6 +336,32 @@ const menuItemVariants = cva(
   },
 );
 
+/**
+ * An interactive item within a dropdown menu.
+ *
+ * Supports keyboard navigation, hover effects, and the onSelect callback.
+ * Automatically closes the menu when selected.
+ *
+ * @example
+ * ```tsx
+ * <Menu.Content>
+ *   <Menu.Item onSelect={() => console.log('New')}>
+ *     New File
+ *   </Menu.Item>
+ *   <Menu.Item disabled>
+ *     Save (disabled)
+ *   </Menu.Item>
+ *   <Menu.Item asChild>
+ *     <a href="/export">Export</a>
+ *   </Menu.Item>
+ * </Menu.Content>
+ * ```
+ *
+ * @remarks
+ * When using `asChild`, do not set the `disabled` prop on the child component.
+ * The `Menu.Item`'s `disabled` prop should be the single source of truth.
+ * Due to Radix UI Slot's prop merging behavior, child props can override parent props.
+ */
 export type MenuItemProps = {
   id?: string;
   asChild?: boolean;
@@ -440,6 +466,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
         id={id}
         role='menuitem'
         tabIndex={tabIndex}
+        disabled={disabled}
         aria-disabled={disabled || undefined}
         data-active={isActive || undefined}
         data-disabled={disabled || undefined}

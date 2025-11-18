@@ -206,13 +206,13 @@ export const DisabledItems: Story = {
             <IconButton variant='outline' size='sm' icon={Scissors} aria-label='Cut' />
           </Toolbar.Item>
           <Toolbar.Item asChild disabled>
-            <IconButton variant='outline' size='sm' icon={Copy} aria-label='Copy' disabled />
+            <IconButton variant='outline' size='sm' icon={Copy} aria-label='Copy' />
           </Toolbar.Item>
           <Toolbar.Item asChild>
             <IconButton variant='outline' size='sm' icon={ClipboardPaste} aria-label='Paste' />
           </Toolbar.Item>
           <Toolbar.Item asChild disabled>
-            <IconButton variant='outline' size='sm' icon={Save} aria-label='Save' disabled />
+            <IconButton variant='outline' size='sm' icon={Save} aria-label='Save' />
           </Toolbar.Item>
         </Toolbar.Container>
       </Toolbar>

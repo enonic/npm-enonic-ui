@@ -285,6 +285,11 @@ ToolbarContainer.displayName = 'Toolbar.Container';
  *   <Button>Export</Button>
  * </Toolbar.Item>
  * ```
+ *
+ * @remarks
+ * When using `asChild`, do not set the `disabled` prop on the child component.
+ * The `Toolbar.Item`'s `disabled` prop should be the single source of truth.
+ * Due to Radix UI Slot's prop merging behavior, child props can override parent props.
  */
 export type ToolbarItemProps = {
   /** Unique ID for this item (auto-generated if not provided) */
@@ -364,6 +369,7 @@ const ToolbarItem = forwardRef<HTMLDivElement, ToolbarItemProps>(
         ref={composedRefs}
         id={id}
         tabIndex={tabIndex}
+        disabled={disabled}
         aria-disabled={disabled}
         data-disabled={disabled || undefined}
         onPointerDown={handlePointerDown}

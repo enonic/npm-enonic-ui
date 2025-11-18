@@ -49,7 +49,7 @@ export type ButtonProps = {
   disabled?: boolean;
 } & ButtonVariantsProps &
   ButtonIconProps &
-  ComponentPropsWithoutRef<'button'>;
+  Omit<ComponentPropsWithoutRef<'button'>, 'disabled'>;
 
 const getIconSize = (size: NonNullable<ButtonSize>): number => {
   switch (size) {
@@ -77,7 +77,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       disabled,
       ...props
-    },
+    }: ButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
     const StartIcon = startIcon;
@@ -92,7 +92,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         title={title}
         aria-label={title ?? label}
         aria-disabled={disabled}
-        data-disabled={disabled ? '' : undefined}
+        data-disabled={disabled ?? undefined}
         disabled={disabled}
         {...props}
       >
