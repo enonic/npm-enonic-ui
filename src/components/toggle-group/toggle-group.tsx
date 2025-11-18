@@ -222,6 +222,29 @@ ToggleGroupRoot.displayName = 'ToggleGroup.Root';
 // * ToggleGroup.Item
 //
 
+/**
+ * A toggleable item within a toggle group.
+ *
+ * Can be used in single or multiple selection modes.
+ * Integrates with keyboard navigation and roving tabindex.
+ *
+ * @example
+ * ```tsx
+ * <ToggleGroup.Root type="single" value={alignment}>
+ *   <ToggleGroup.Item value="left">
+ *     <AlignLeft />
+ *   </ToggleGroup.Item>
+ *   <ToggleGroup.Item value="center" asChild>
+ *     <CustomButton><AlignCenter /></CustomButton>
+ *   </ToggleGroup.Item>
+ * </ToggleGroup.Root>
+ * ```
+ *
+ * @remarks
+ * When using `asChild`, do not set the `disabled` prop on the child component.
+ * The `ToggleGroup.Item`'s `disabled` prop should be the single source of truth.
+ * Due to Radix UI Slot's prop merging behavior, child props can override parent props.
+ */
 export type ToggleGroupItemProps = {
   value: string;
   asChild?: boolean;

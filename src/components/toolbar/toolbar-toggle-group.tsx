@@ -199,6 +199,29 @@ ToolbarToggleGroupRoot.displayName = 'Toolbar.ToggleGroup';
 // * Toolbar.ToggleItem
 //
 
+/**
+ * A toggleable item within a toolbar toggle group.
+ *
+ * Integrates with both toolbar navigation and toggle group selection.
+ * Supports single or multiple selection modes.
+ *
+ * @example
+ * ```tsx
+ * <Toolbar.ToggleGroup type="single" value={alignment}>
+ *   <Toolbar.ToggleItem value="left">
+ *     <AlignLeft />
+ *   </Toolbar.ToggleItem>
+ *   <Toolbar.ToggleItem value="center" asChild>
+ *     <CustomButton><AlignCenter /></CustomButton>
+ *   </Toolbar.ToggleItem>
+ * </Toolbar.ToggleGroup>
+ * ```
+ *
+ * @remarks
+ * When using `asChild`, do not set the `disabled` prop on the child component.
+ * The `Toolbar.ToggleItem`'s `disabled` prop should be the single source of truth.
+ * Due to Radix UI Slot's prop merging behavior, child props can override parent props.
+ */
 export type ToolbarToggleItemProps = {
   value: string;
   asChild?: boolean;

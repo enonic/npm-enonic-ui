@@ -214,8 +214,8 @@ export const WithDisabledItems: Story = {
               New
             </Button>
           </Menubar.Button>
-          <Menubar.Button disabled asChild>
-            <Button className='bg-transparent' variant='text' startIcon={Folder} disabled>
+          <Menubar.Button asChild disabled>
+            <Button className='bg-transparent' variant='text' startIcon={Folder}>
               Open
             </Button>
           </Menubar.Button>
@@ -224,8 +224,8 @@ export const WithDisabledItems: Story = {
               Save
             </Button>
           </Menubar.Button>
-          <Menubar.Button disabled asChild>
-            <Button className='bg-transparent' variant='text' startIcon={Printer} disabled>
+          <Menubar.Button asChild disabled>
+            <Button className='bg-transparent' variant='text' startIcon={Printer}>
               Print
             </Button>
           </Menubar.Button>
@@ -266,22 +266,22 @@ export const Interactive: Story = {
             aria-label='Actions'
             className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
           >
-            <Menubar.Button onSelect={() => handleSelect('New File')} asChild>
+            <Menubar.Button asChild onSelect={() => handleSelect('New File')}>
               <Button className='bg-transparent' variant='text' startIcon={File}>
                 New
               </Button>
             </Menubar.Button>
-            <Menubar.Button onSelect={() => handleSelect('Save File')} asChild>
+            <Menubar.Button asChild onSelect={() => handleSelect('Save File')}>
               <Button className='bg-transparent' variant='text' startIcon={Save}>
                 Save
               </Button>
             </Menubar.Button>
-            <Menubar.Button disabled onSelect={() => handleSelect('Print (should not trigger)')} asChild>
-              <Button className='bg-transparent' variant='text' startIcon={Printer} disabled>
+            <Menubar.Button asChild disabled onSelect={() => handleSelect('Print (should not trigger)')}>
+              <Button className='bg-transparent' variant='text' startIcon={Printer}>
                 Print
               </Button>
             </Menubar.Button>
-            <Menubar.Button onSelect={() => handleSelect('Settings')} asChild>
+            <Menubar.Button asChild onSelect={() => handleSelect('Settings')}>
               <Button className='bg-transparent' variant='text' startIcon={Settings}>
                 Settings
               </Button>
