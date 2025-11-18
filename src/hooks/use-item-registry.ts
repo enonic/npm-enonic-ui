@@ -19,8 +19,8 @@ export type UseItemRegistryReturn = {
   unregisterItem: (id: string) => void;
 
   /**
-   * Gets all registered item IDs in insertion order.
-   * @returns Array of item IDs
+   * Gets all registered item IDs sorted by DOM position.
+   * @returns Array of item IDs in visual order
    */
   getItems: () => string[];
 
@@ -39,8 +39,11 @@ export type UseItemRegistryReturn = {
  * This pattern is superior to `querySelectorAll` because:
  * - No stale queries from DOM changes
  * - Type-safe item metadata
- * - Better performance (no DOM traversal)
- * - Consistent insertion order
+ * - Better performance (minimal DOM traversal)
+ * - Preserves DOM order even when items re-register
+ *
+ * Items are automatically sorted by their DOM position, ensuring navigation
+ * order matches visual order even when items are dynamically enabled/disabled.
  *
  * @returns Object with registry methods
  *
@@ -90,7 +93,31 @@ export function useItemRegistry(): UseItemRegistryReturn {
   );
 
   const getItems = useCallback((): string[] => {
-    return Array.from(itemsRef.current.keys());
+    const itemIds = Array.from(itemsRef.current.keys());
+
+    // Sort items by their DOM position to preserve visual order
+    // This ensures items maintain their position even after re-registration
+    return itemIds.sort((a, b) => {
+      const elementA = document.getElementById(a);
+      const elementB = document.getElementById(b);
+
+      // If either element doesn't exist in DOM, keep original order
+      if (!elementA || !elementB) {
+        return 0;
+      }
+
+      // Use compareDocumentPosition to determine DOM order
+      const position = elementA.compareDocumentPosition(elementB);
+
+      if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
+        return -1; // a comes before b
+      }
+      if (position & Node.DOCUMENT_POSITION_PRECEDING) {
+        return 1; // b comes before a
+      }
+
+      return 0; // Same position (shouldn't happen)
+    });
   }, [registryVersion]);
 
   const isItemDisabled = useCallback(

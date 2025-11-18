@@ -441,3 +441,98 @@ export const NoLoop: Story = {
     </div>
   ),
 };
+
+export const DynamicDisableStates: Story = {
+  name: 'Behavior / Dynamic Disable States',
+  render: () => {
+    const [disableMode, setDisableMode] = useState<string>('all-enabled');
+
+    return (
+      <div className='flex flex-col gap-y-3 p-4 items-center'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Test keyboard navigation with dynamically changing disabled states. Toggle between modes to see how focus and
+          navigation adapt. Press <kbd>←</kbd> or <kbd>→</kbd> to test keyboard navigation.
+        </div>
+        <Toolbar>
+          <Toolbar.Container
+            aria-label='Dynamic disable demo'
+            className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm'
+          >
+            <Toolbar.Item asChild disabled={disableMode === 'all-disabled' || disableMode === 'some-disabled'}>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={disableMode === 'all-disabled' || disableMode === 'some-disabled'}
+              >
+                Action 1
+              </Button>
+            </Toolbar.Item>
+            <Toolbar.Item asChild disabled={disableMode === 'all-disabled'}>
+              <Button variant='outline' size='sm' disabled={disableMode === 'all-disabled'}>
+                Action 2
+              </Button>
+            </Toolbar.Item>
+            <Toolbar.Item asChild disabled={disableMode === 'all-disabled' || disableMode === 'some-disabled'}>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={disableMode === 'all-disabled' || disableMode === 'some-disabled'}
+              >
+                Action 3
+              </Button>
+            </Toolbar.Item>
+            <Toolbar.Item asChild disabled={disableMode === 'all-disabled'}>
+              <Button variant='outline' size='sm' disabled={disableMode === 'all-disabled'}>
+                Action 4
+              </Button>
+            </Toolbar.Item>
+            <Toolbar.Item asChild disabled={disableMode === 'all-disabled' || disableMode === 'some-disabled'}>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={disableMode === 'all-disabled' || disableMode === 'some-disabled'}
+              >
+                Action 5
+              </Button>
+            </Toolbar.Item>
+          </Toolbar.Container>
+        </Toolbar>
+        <div className='mt-4 flex flex-col gap-y-2 items-center'>
+          <div className='text-sm font-semibold'>Disable Mode</div>
+          <Toolbar>
+            <Toolbar.Container
+              aria-label='Disable mode selector'
+              className='bg-surface-neutral border border-bdr-subtle rounded-xl shadow-sm p-2'
+            >
+              <Toolbar.ToggleGroup
+                type='single'
+                className='gap-0 p-0 [&>*:focus-visible]:z-10'
+                value={disableMode}
+                onValueChange={setDisableMode}
+              >
+                <Toolbar.ToggleItem
+                  value='some-disabled'
+                  label='Some disabled'
+                  size='sm'
+                  className='h-8 text-xs rounded-r-none'
+                />
+                <Toolbar.ToggleItem
+                  value='all-enabled'
+                  label='All enabled'
+                  size='sm'
+                  className='h-8 text-xs rounded-none'
+                />
+                <Toolbar.ToggleItem
+                  value='all-disabled'
+                  label='All disabled'
+                  size='sm'
+                  className='h-8 text-xs rounded-l-none'
+                />
+              </Toolbar.ToggleGroup>
+            </Toolbar.Container>
+          </Toolbar>
+        </div>
+      </div>
+    );
+  },
+};
