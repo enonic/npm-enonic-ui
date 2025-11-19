@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Info } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
@@ -177,4 +178,26 @@ export const EmptyTooltip: Story = {
       </Tooltip>
     </div>
   ),
+};
+
+export const DynamicContent: Story = {
+  name: 'Behavior / Dynamic Content',
+  render: () => {
+    const [isLong, setIsLong] = useState(false);
+    const tooltipContent = isLong
+      ? 'This is a much longer tooltip content that will cause the tooltip to resize and reposition itself automatically'
+      : 'Short';
+
+    // Note: Tooltips use whitespace-nowrap to prevent text wrapping.
+    // For dynamic content that changes while tooltip is visible, keep the height static
+    // to avoid repositioning issues. If content may overflow the screen, consider:
+    // 1. Limiting tooltip text length
+    // 2. Using a Popover component instead for longer content
+    // 3. Ensuring content changes maintain similar dimensions
+    return (
+      <Tooltip value={tooltipContent} side='top'>
+        <Button label='Switch tooltip' onClick={() => setIsLong(!isLong)} />
+      </Tooltip>
+    );
+  },
 };

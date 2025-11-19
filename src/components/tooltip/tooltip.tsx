@@ -7,6 +7,7 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -44,6 +45,7 @@ function useTooltipPosition(
   side: TooltipSide,
   triggerRef: RefObject<HTMLElement>,
   tooltipRef: RefObject<HTMLElement>,
+  value?: ReactNode,
 ): TooltipPosition {
   const [coords, setCoords] = useState<TooltipPosition>({
     top: 0,
@@ -52,7 +54,7 @@ function useTooltipPosition(
     actualSide: side,
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isOpen || !triggerRef.current || !tooltipRef.current) return;
 
     const triggerRect = triggerRef.current.getBoundingClientRect();
@@ -114,7 +116,7 @@ function useTooltipPosition(
     }
 
     setCoords(position);
-  }, [isOpen, side]);
+  }, [isOpen, side, value]);
 
   return coords;
 }
@@ -191,6 +193,7 @@ function TooltipContent({
         className={cn(
           'relative w-fit rounded-xs px-2 py-1 text-xs',
           'bg-tooltip text-tooltip-foreground shadow-md',
+          'whitespace-nowrap',
           'animate-in fade-in-0 zoom-in-95',
           actualSide === 'top' && 'slide-in-from-top-2',
           actualSide === 'bottom' && 'slide-in-from-bottom-2',
@@ -230,7 +233,7 @@ export function Tooltip({
 
   const isEmpty = value == null || value === '';
   const canShow = isOpen && !isEmpty;
-  const coords = useTooltipPosition(canShow, side, triggerRef, tooltipRef);
+  const coords = useTooltipPosition(canShow, side, triggerRef, tooltipRef, value);
 
   useEffect(() => {
     return () => {
