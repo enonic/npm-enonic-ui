@@ -100,7 +100,7 @@ export const CustomStyling: Story = {
 export const AllPositions: Story = {
   name: 'Features / All Positions',
   render: () => (
-    <div className='flex gap-8 items-center justify-center' style={{ minHeight: '200px' }}>
+    <div className='flex gap-8 items-center justify-center min-h-50'>
       <Tooltip value='Top tooltip' side='top'>
         <Button label='Top' />
       </Tooltip>

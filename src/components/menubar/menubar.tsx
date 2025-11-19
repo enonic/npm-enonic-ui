@@ -1052,9 +1052,6 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       [registerItem, unregisterItem, getItems, isItemDisabled, active, setActive],
     );
 
-    // Render hidden initially to get dimensions, then show with calculated position
-    const isPositioned = position !== null;
-
     return (
       <MenubarContentContext.Provider value={contentContextValue}>
         <div
@@ -1066,23 +1063,17 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
           tabIndex={-1}
           data-state={open ? 'open' : 'closed'}
           data-align={align}
-          style={{
-            position: 'fixed',
-            top: position ? `${position.top}px` : '0',
-            left: position?.left !== undefined ? `${position.left}px` : undefined,
-            right: position?.right !== undefined ? `${position.right}px` : undefined,
-            zIndex: 9999,
-            visibility: isPositioned ? 'visible' : 'hidden',
-          }}
           className={cn(
-            'flex flex-col items-start w-fit p-1 mt-2 gap-y-1 overflow-hidden',
-            'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg',
+            'fixed z-40 flex flex-col items-start w-fit p-1 mt-2 gap-y-1 overflow-hidden',
+            'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
             // Animations
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
             'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
             'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            !position && 'invisible',
             className,
           )}
+          style={{ ...position }}
           onKeyDown={handleKeyDown_}
           {...props}
         >

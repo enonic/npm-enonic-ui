@@ -284,6 +284,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
         className={cn(
           'fixed z-40 flex flex-col items-start w-fit p-1 mt-2 gap-y-1 overflow-hidden',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
+          // Animations
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',

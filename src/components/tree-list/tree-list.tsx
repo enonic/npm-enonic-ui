@@ -374,7 +374,11 @@ const TreeListLoadingRow = ({ item, children, intersectionProps }: TreeListLoadi
 
   return (
     <div ref={ref} className='flex items-center gap-2 py-1 px-2 text-sm'>
-      {level > 0 && <span className={'spacer'} style={{ paddingLeft: calcSpacerWidth(level) }}></span>}
+      {level > 0 && (
+        <span className='spacer' style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}>
+          <span className='inline-block w-(--level-indent)' />
+        </span>
+      )}
       <Loader2 size={14} className='animate-spin' />
       {children ?? <span>Loading...</span>}
     </div>

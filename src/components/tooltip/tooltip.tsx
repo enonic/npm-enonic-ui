@@ -205,13 +205,12 @@ function TooltipContent({
         {children}
         <div
           className={cn(
-            'absolute size-2 rotate-45',
+            'absolute size-2 rotate-45 bg-inherit',
             actualSide === 'top' && 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2',
             actualSide === 'bottom' && 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2',
             actualSide === 'left' && 'right-0 top-1/2 -translate-y-1/2 translate-x-1/2',
             actualSide === 'right' && 'left-0 top-1/2 -translate-y-1/2 -translate-x-1/2',
           )}
-          style={{ backgroundColor: 'inherit' }}
         />
       </div>
     </div>
