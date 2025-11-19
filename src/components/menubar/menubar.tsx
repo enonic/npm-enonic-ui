@@ -1075,7 +1075,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
             visibility: isPositioned ? 'visible' : 'hidden',
           }}
           className={cn(
-            'flex flex-col items-start w-fit py-2.5 mt-2.5 overflow-hidden',
+            'flex flex-col items-start w-fit p-1 mt-2 gap-y-1 overflow-hidden',
             'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg',
             // Animations
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
@@ -1099,7 +1099,10 @@ MenubarContent.displayName = 'Menubar.Content';
 //
 
 const menubarItemVariants = cva(
-  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+  [
+    'relative z-0 flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+  ],
   {
     variants: {
       active: {
@@ -1424,7 +1427,7 @@ const MenubarRadioGroup = forwardRef<HTMLDivElement, MenubarRadioGroupProps>(
 
     return (
       <RadioGroupContext.Provider value={contextValue}>
-        <div ref={ref} role='group' className={cn('flex flex-col w-full', className)} {...props}>
+        <div ref={ref} role='group' className={cn('relative flex flex-col w-full gap-y-1', className)} {...props}>
           {children}
         </div>
       </RadioGroupContext.Provider>
@@ -1438,7 +1441,10 @@ MenubarRadioGroup.displayName = 'Menubar.RadioGroup';
 //
 
 const menubarRadioItemVariants = cva(
-  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+  [
+    'relative z-0 flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+  ],
   {
     variants: {
       active: {

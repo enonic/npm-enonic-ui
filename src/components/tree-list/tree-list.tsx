@@ -156,7 +156,11 @@ const TreeListContainer = ({
   const { baseId } = useTreeList();
 
   return (
-    <div id={`${baseId}-scroll-root`} className={cn('h-full relative overflow-y-auto', className)} {...props}>
+    <div
+      id={`${baseId}-scroll-root`}
+      className={cn('flex flex-col relative h-full p-1 gap-y-1 overflow-y-auto', className)}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -212,10 +216,7 @@ const TreeListRowLevelSpacer = ({
   }
 
   return (
-    <div
-      style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}
-      className={cn('pl-[var(--level-indent)]', className)}
-    />
+    <div style={{ '--level-indent': `${calcSpacerWidth(level)}px` }} className={cn('pl-(--level-indent)', className)} />
   );
 };
 
@@ -227,7 +228,7 @@ type TreeListRowExpandControlProps = {
 
 const TreeListRowExpandControl = ({ data }: TreeListRowExpandControlProps): ReactElement<TreeListRowLeftProps> => {
   if (!data.hasChildren) {
-    return <span className='h-5 w-5 flex-shrink-0' />; // placeholder for expand icon;
+    return <span className='h-5 w-5 shrink-0' />; // placeholder for expand icon;
   }
 
   const { expanded, toggleExpanded, selection } = useTreeList();
@@ -321,7 +322,8 @@ const TreeListRow = <T extends TreeNode>({ item, children, className }: TreeList
       data-active={isActive || undefined}
       onClick={() => toggleSelection?.(item.id)}
       className={cn(
-        'group flex gap-2.5 items-center px-2.5 py-1 hover:bg-surface-primary-hover focus-within:outline-none cursor-pointer',
+        'relative z-0 group flex gap-2.5 items-center px-2.5 py-1 hover:bg-surface-primary-hover focus-within:outline-none cursor-pointer',
+        'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
         isSelected
           ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover'
           : 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
