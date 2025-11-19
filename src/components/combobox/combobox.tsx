@@ -554,7 +554,7 @@ const ComboboxPopup = ({ children, className, ...props }: ComboboxPopupProps): R
   return (
     <div
       className={cn(
-        'absolute left-0 right-0 z-50 mt-1 rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+        'absolute left-0 right-0 z-50 mt-2 rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
         className,
       )}
       {...props}

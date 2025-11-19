@@ -249,7 +249,7 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-listbox`}
         className={cn(
-          'flex flex-col items-start grow shrink-0 basis-0',
+          'flex flex-col items-start grow shrink-0 basis-0 p-1 gap-y-1',
           'max-h-100 overflow-y-auto',
           'outline-none',
           'transition-highlight',
@@ -281,7 +281,10 @@ ListboxContent.displayName = 'ListboxContent';
 //
 
 const listboxItemVariants = cva(
-  'group flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer outline-none transition-highlight',
+  [
+    'relative z-0 group flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer outline-none transition-highlight',
+    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+  ],
   {
     variants: {
       selected: {

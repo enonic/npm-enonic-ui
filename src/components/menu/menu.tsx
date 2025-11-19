@@ -282,7 +282,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
         tabIndex={-1}
         data-state={open ? 'open' : 'closed'}
         className={cn(
-          'fixed z-40 flex flex-col items-start w-fit py-2.5 mt-2.5 overflow-hidden',
+          'fixed z-40 flex flex-col items-start w-fit p-1 mt-2 gap-y-1 overflow-hidden',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -306,7 +306,10 @@ MenuContent.displayName = 'Menu.Content';
 //
 
 const menuItemVariants = cva(
-  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+  [
+    'relative z-0 flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+  ],
   {
     variants: {
       active: {
@@ -605,7 +608,10 @@ MenuRadioGroup.displayName = 'Menu.RadioGroup';
 //
 
 const menuRadioItemVariants = cva(
-  'flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+  [
+    'relative z-0 flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
+    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+  ],
   {
     variants: {
       active: {
