@@ -1,7 +1,8 @@
-import { IconButton } from '@/components';
+import { IconButton, type IconButtonProps } from '@/components';
 import { useControlledState, useControlledStateWithNull, useKeyboardNavigation } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { type TreeListContextValue, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
+import type { LucideIcon } from '@/types';
 import { cn } from '@/utils';
 import { ChevronRight, Loader2, Square, SquareCheck } from 'lucide-react';
 import {
@@ -210,13 +211,18 @@ type TreeListRowLevelSpacerProps = {
 const TreeListRowLevelSpacer = ({
   level = 0,
   className,
+  ...props
 }: TreeListRowLevelSpacerProps): ReactElement<TreeListRowLeftProps> | undefined => {
   if (level === 0) {
     return undefined;
   }
 
   return (
-    <div style={{ '--level-indent': `${calcSpacerWidth(level)}px` }} className={cn('pl-(--level-indent)', className)} />
+    <div
+      style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}
+      className={cn('pl-(--level-indent)', className)}
+      {...props}
+    />
   );
 };
 
@@ -224,9 +230,15 @@ TreeListRowLevelSpacer.displayName = 'TreeList.RowLevelSpacer';
 
 type TreeListRowExpandControlProps = {
   data: TreeNode;
-} & ComponentPropsWithoutRef<'div'>;
+  icon?: LucideIcon;
+} & Omit<IconButtonProps, 'icon'>;
 
-const TreeListRowExpandControl = ({ data }: TreeListRowExpandControlProps): ReactElement<TreeListRowLeftProps> => {
+const TreeListRowExpandControl = ({
+  data,
+  icon = ChevronRight,
+  className,
+  ...props
+}: TreeListRowExpandControlProps): ReactElement<TreeListRowExpandControlProps> => {
   if (!data.hasChildren) {
     return <span className='h-5 w-5 shrink-0' />; // placeholder for expand icon;
   }
@@ -237,7 +249,7 @@ const TreeListRowExpandControl = ({ data }: TreeListRowExpandControlProps): Reac
 
   return (
     <IconButton
-      icon={ChevronRight}
+      icon={icon}
       variant='text'
       title='Text variant'
       tabIndex={-1}
@@ -247,11 +259,13 @@ const TreeListRowExpandControl = ({ data }: TreeListRowExpandControlProps): Reac
           ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover group-hover:bg-surface-selected-hover'
           : 'group-hover:bg-surface-neutral-hover group-data-[active=true]:bg-surface-neutral-hover',
         isExpanded && 'rotate-90',
+        className,
       )}
       onClick={e => {
         toggleExpanded(data.id);
         e.stopPropagation();
       }}
+      {...props}
     />
   );
 };
@@ -282,15 +296,19 @@ type TreeListRowSelectionControlProps = {
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowSelectionControl = ({ data, className }: TreeListRowSelectionControlProps): ReactElement => {
+const TreeListRowSelectionControl = ({ data, className, ...props }: TreeListRowSelectionControlProps): ReactElement => {
   const { selection, isItemSelectable } = useTreeList();
   const isSelected = selection?.has(data.id);
 
   if (isLoadingPlaceholder(data) || !isItemSelectable(data)) {
-    return <span className={cn('w-3.5', className)}></span>;
+    return <span className={cn('w-3.5', className)} {...props}></span>;
   }
 
-  return <div className={cn('flex items-center w-3.5', className)}>{isSelected ? <SquareCheck /> : <Square />}</div>;
+  return (
+    <div className={cn('flex items-center w-3.5', className)} {...props}>
+      {isSelected ? <SquareCheck /> : <Square />}
+    </div>
+  );
 };
 
 TreeListRowSelectionControl.displayName = 'TreeList.RowSelectionControl';
@@ -299,9 +317,14 @@ type TreeListRowProps<T extends TreeNode> = {
   item: T;
   children: ReactNode;
   className?: string;
-};
+} & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRow = <T extends TreeNode>({ item, children, className }: TreeListRowProps<T>): ReactElement => {
+const TreeListRow = <T extends TreeNode>({
+  item,
+  children,
+  className,
+  ...props
+}: TreeListRowProps<T>): ReactElement => {
   const { selection, selectionMode, expanded, toggleSelection, active, baseId, isFocused } = useTreeList<T>();
   const isExpanded = expanded?.has(item.id);
   const isSelected = selection?.has(item.id);
@@ -330,6 +353,7 @@ const TreeListRow = <T extends TreeNode>({ item, children, className }: TreeList
         className,
       )}
       tabIndex={undefined}
+      {...props}
     >
       {children}
     </div>
@@ -342,9 +366,9 @@ export type TreeListLoadingRowProps = {
   item: TreeNode;
   children?: ReactNode;
   intersectionProps?: IntersectionObserverInit;
-};
+} & ComponentPropsWithoutRef<'div'>;
 
-const TreeListLoadingRow = ({ item, children, intersectionProps }: TreeListLoadingRowProps): ReactElement => {
+const TreeListLoadingRow = ({ item, children, intersectionProps, ...props }: TreeListLoadingRowProps): ReactElement => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   const { loadMore, baseId } = useTreeList();
@@ -373,7 +397,7 @@ const TreeListLoadingRow = ({ item, children, intersectionProps }: TreeListLoadi
   const level = item.path.length;
 
   return (
-    <div ref={ref} className='flex items-center gap-2 py-1 px-2 text-sm'>
+    <div ref={ref} className='flex items-center gap-2 py-1 px-2 text-sm' {...props}>
       {level > 0 && (
         <span className='spacer' style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}>
           <span className='inline-block w-(--level-indent)' />
@@ -605,10 +629,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
       <div
         id={baseId}
         ref={innerRef}
-        className={cn(
-          className,
-          'focus-within:outline-none focus-within:ring-1 focus-within:ring-bdr-strong focus-within:ring-offset-1 focus-within:ring-offset-surface-neutral',
-        )}
+        className={className}
         role='tree'
         aria-activedescendant={active ? `${baseId}-item-${active}` : undefined}
         aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
