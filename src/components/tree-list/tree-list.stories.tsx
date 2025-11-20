@@ -19,6 +19,12 @@ const colorByStatus: Record<ContentStatus, string> = {
 
 let MAX_ITEMS = 35;
 
+function getTreeRootClassName(): string {
+  return cn(
+    'w-145 h-120 focus-within:outline-none focus-within:ring-1 focus-within:ring-bdr-strong focus-within:ring-offset-1 focus-within:ring-offset-surface-neutral',
+  );
+}
+
 function setMaxItems(value: number): void {
   MAX_ITEMS = value;
 }
@@ -208,7 +214,7 @@ export const StaticTree: Story = {
           </div>
 
           <TreeList<ContentData>
-            className={'w-145 h-120'}
+            className={getTreeRootClassName()}
             fetchChildren={fetchChildrenAndSelect}
             items={items}
             setItems={setItems}
@@ -271,7 +277,7 @@ export const SingleSelectionTree: Story = {
           </div>
 
           <TreeList<ContentData>
-            className={'w-145 h-120'}
+            className={getTreeRootClassName()}
             fetchChildren={fetchChildren}
             items={items}
             setItems={setItems}
@@ -334,7 +340,7 @@ export const MultiSelectNoCheckboxes: Story = {
           </div>
 
           <TreeList<ContentData>
-            className={'w-145 h-120'}
+            className={getTreeRootClassName()}
             fetchChildren={fetchChildren}
             items={items}
             setItems={setItems}
@@ -400,7 +406,7 @@ export const SelectionOnTheRightTree: Story = {
           </div>
 
           <TreeList<ContentData>
-            className={'w-145 h-120'}
+            className={getTreeRootClassName()}
             fetchChildren={fetchChildren}
             items={items}
             setItems={setItems}
@@ -464,7 +470,7 @@ export const MediaOnly: Story = {
           </div>
 
           <TreeList<ContentData>
-            className={'w-145 h-120'}
+            className={getTreeRootClassName()}
             fetchChildren={fetchChildren}
             items={items}
             setItems={setItems}
