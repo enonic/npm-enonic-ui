@@ -32,10 +32,10 @@
   --color-surface-primary: var(--color-surface-primary);
   --color-surface-secondary: var(--color-surface-secondary);
   --color-surface-tertiary: var(--color-surface-tertiary);
-  --color-surface-info: var(--color-fbk-info-surface);
-  --color-surface-warn: var(--color-fbk-warn-surface);
-  --color-surface-success: var(--color-fbk-success-surface);
-  --color-surface-error: var(--color-fbk-danger-surface);
+  --color-surface-info: var(--color-surface-info);
+  --color-surface-warn: var(--color-surface-warn);
+  --color-surface-success: var(--color-surface-success);
+  --color-surface-error: var(--color-surface-error);
 
   /* Borders */
   --color-bdr-subtle: var(--color-bdr-subtle);
