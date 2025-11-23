@@ -18,19 +18,23 @@
     /* Feedback */
     --color-fbk-info: #0270a0;
     --color-fbk-info-subtle: #208ebe;
-    --color-fbk-info-surface: #d7f3ff;
+    --color-fbk-info-surface-light: #d7f3ff;
+    --color-fbk-info-surface-dark: #1a5a6e;
 
     --color-fbk-warn: #cb9126;
     --color-fbk-warn-subtle: #e9af44;
-    --color-fbk-warn-surface: #f7e5c4;
+    --color-fbk-warn-surface-light: #f7e5c4;
+    --color-fbk-warn-surface-dark: #5c4422;
 
     --color-fbk-success: #499349;
     --color-fbk-success-subtle: #67b167;
-    --color-fbk-success-surface: #cee2ce;
+    --color-fbk-success-surface-light: #cee2ce;
+    --color-fbk-success-surface-dark: #2d5a3d;
 
     --color-fbk-danger: #d33030;
     --color-fbk-danger-subtle: #f56262;
-    --color-fbk-danger-surface: #f6d7d7;
+    --color-fbk-danger-surface-light: #f6d7d7;
+    --color-fbk-danger-surface-dark: #5c3333;
 
     /* Misc */
     --color-purple: #800080;

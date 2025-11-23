@@ -25,6 +25,10 @@
     --color-surface-primary: var(--color-grey-900);
     --color-surface-secondary: var(--color-grey-700);
     --color-surface-tertiary: var(--color-grey-900);
+    --color-surface-info: var(--color-fbk-info-surface-dark);
+    --color-surface-warn: var(--color-fbk-warn-surface-dark);
+    --color-surface-success: var(--color-fbk-success-surface-dark);
+    --color-surface-error: var(--color-fbk-danger-surface-dark);
 
     /* Borders */
     --color-bdr-subtle: var(--color-grey-500);
