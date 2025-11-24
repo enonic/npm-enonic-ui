@@ -4,6 +4,7 @@ import { usePrefixedId } from '@/providers';
 import { type TreeListContextValue, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
 import type { LucideIcon } from '@/types';
 import { cn } from '@/utils';
+import { cva } from 'class-variance-authority';
 import { ChevronRight, Loader2, Square, SquareCheck } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -243,22 +244,18 @@ const TreeListRowExpandControl = ({
     return <span className='h-5 w-5 shrink-0' />; // placeholder for expand icon;
   }
 
-  const { expanded, toggleExpanded, selection } = useTreeList();
+  const { expanded, toggleExpanded } = useTreeList();
   const isExpanded = expanded?.has(data.id);
-  const isSelected = selection?.has(data.id);
 
   return (
     <IconButton
       icon={icon}
       variant='text'
-      title='Text variant'
       tabIndex={-1}
       className={cn(
         'w-5 h-5 transition-transform duration-150',
-        isSelected
-          ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover group-hover:bg-surface-selected-hover'
-          : 'group-hover:bg-surface-neutral-hover group-data-[active=true]:bg-surface-neutral-hover',
         isExpanded && 'rotate-90',
+        'bg-transparent hover:bg-transparent',
         className,
       )}
       onClick={e => {
@@ -313,6 +310,36 @@ const TreeListRowSelectionControl = ({ data, className, ...props }: TreeListRowS
 
 TreeListRowSelectionControl.displayName = 'TreeList.RowSelectionControl';
 
+const rowVariants = cva(
+  [
+    'relative z-0 group flex gap-2.5 items-center px-2.5 py-1 focus-within:outline-none cursor-pointer',
+    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+  ],
+  {
+    variants: {
+      active: {
+        true: 'bg-surface-neutral-hover hover:bg-btn-secondary-hover',
+        false: 'hover:bg-surface-neutral-hover',
+      },
+      selected: {
+        true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
+        false: '',
+      },
+    },
+    compoundVariants: [
+      {
+        active: true,
+        selected: true,
+        class: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
+      },
+    ],
+    defaultVariants: {
+      active: false,
+      selected: false,
+    },
+  },
+);
+
 type TreeListRowProps<T extends TreeNode> = {
   item: T;
   children: ReactNode;
@@ -344,14 +371,7 @@ const TreeListRow = <T extends TreeNode>({
       data-tone={isSelected ? 'inverse' : undefined}
       data-active={isActive || undefined}
       onClick={() => toggleSelection?.(item.id)}
-      className={cn(
-        'relative z-0 group flex gap-2.5 items-center px-2.5 py-1 hover:bg-surface-primary-hover focus-within:outline-none cursor-pointer',
-        'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
-        isSelected
-          ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover'
-          : 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
-        className,
-      )}
+      className={cn(isActive && 'active', rowVariants({ active: isActive, selected: isSelected }), className)}
       tabIndex={undefined}
       {...props}
     >
