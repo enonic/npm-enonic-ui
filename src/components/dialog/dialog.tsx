@@ -464,17 +464,25 @@ DialogDefaultClose.displayName = 'Dialog.DefaultClose';
 
 export type DialogDefaultHeaderProps = {
   title: string;
+  titleId?: string;
   description?: string;
+  descriptionId?: string;
   withClose?: boolean;
 } & ComponentPropsWithoutRef<typeof DialogHeader>;
 
 const DialogDefaultHeader = forwardRef<HTMLElement, DialogDefaultHeaderProps>(
-  ({ title, description, withClose, className, children, ...props }, ref): ReactElement => {
+  ({ title, titleId, description, descriptionId, withClose, className, children, ...props }, ref): ReactElement => {
     return (
       <DialogHeader ref={ref} className={cn(withClose && 'grid-cols-[minmax(0,1fr)_auto]', className)} {...props}>
-        <DialogTitle className={cn(withClose && 'col-start-1 row-start-1 min-w-0')}>{title}</DialogTitle>
+        <DialogTitle id={titleId} className={cn(withClose && 'col-start-1 row-start-1 min-w-0')}>
+          {title}
+        </DialogTitle>
         {withClose && <DialogDefaultClose className='col-start-2 row-start-1 row-span-2 self-start justify-self-end' />}
-        {description && <DialogDescription className={cn(withClose && 'row-start-2')}>{description}</DialogDescription>}
+        {description && (
+          <DialogDescription id={descriptionId} className={cn(withClose && 'row-start-2')}>
+            {description}
+          </DialogDescription>
+        )}
         {children}
       </DialogHeader>
     );
