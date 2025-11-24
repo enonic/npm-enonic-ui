@@ -52,7 +52,8 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
           'inline-flex items-center align-baseline gap-1',
           'text-sm font-normal underline underline-offset-3 decoration-1',
           'visited:text-link-visited hover:text-main-hover',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-bdr-strong focus-visible:bg-main focus-visible:text-rev',
+          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-main focus-visible:bg-main focus-visible:text-rev',
+          'data-[tone=inverse]:text-alt data-[tone=inverse]:focus-visible:ring-alt data-[tone=inverse]:focus-visible:bg-alt data-[tone=inverse]:focus-visible:text-alt-rev',
           'transition-highlight',
           className,
         )}
@@ -60,9 +61,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
         rel={newTab || ext ? 'noopener noreferrer' : 'noreferrer'}
         {...props}
       >
-        {LeftIcon && <LeftIcon className='inline-block flex-none w-3.5 h-3.5' strokeWidth={1.5} aria-hidden='true' />}
+        {LeftIcon && <LeftIcon className='inline-block flex-none size-3.5' strokeWidth={1.5} aria-hidden='true' />}
         {children}
-        {RightIcon && <RightIcon className='inline-block flex-none w-3.5 h-3.5' strokeWidth={1.5} aria-hidden='true' />}
+        {RightIcon && <RightIcon className='inline-block flex-none size-3.5' strokeWidth={1.5} aria-hidden='true' />}
       </a>
     );
   },
