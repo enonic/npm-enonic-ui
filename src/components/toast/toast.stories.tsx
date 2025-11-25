@@ -1,5 +1,6 @@
 import { Button } from '@/components/button';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { Bell } from 'lucide-react';
 import { useState } from 'preact/hooks';
 
 import { Toast, type ToastProps } from './toast';
@@ -31,15 +32,32 @@ export const DescriptionOnly: Story = {
 
 export const WithIcon: Story = {
   name: 'Examples / With icon',
-  render: () => {
-    const [open, setOpen] = useState(true);
-    return (
-      <Toast open={open} onOpenChange={setOpen}>
-        <Toast.Icon icon='error' />
-        <Toast.Description>This is a basic notification, with an icon.</Toast.Description>
+  render: () => (
+    <div className='flex flex-col gap-3'>
+      <Toast>
+        <Toast.Icon tone='success' />
+        <Toast.Description>Success: Operation completed successfully.</Toast.Description>
       </Toast>
-    );
-  },
+      <Toast>
+        <Toast.Icon tone='info' />
+        <Toast.Description>Info: Here is some useful information.</Toast.Description>
+      </Toast>
+      <Toast>
+        <Toast.Icon tone='warning' />
+        <Toast.Description>Warning: Please review before proceeding.</Toast.Description>
+      </Toast>
+      <Toast>
+        <Toast.Icon tone='error' />
+        <Toast.Description>Error: Something went wrong.</Toast.Description>
+      </Toast>
+      <Toast>
+        <Toast.Icon>
+          <Bell className='text-alt' strokeWidth={2} aria-hidden='true' />
+        </Toast.Icon>
+        <Toast.Description>Custom: Using a custom Bell icon.</Toast.Description>
+      </Toast>
+    </div>
+  ),
 };
 
 export const WithClose: Story = {
@@ -49,7 +67,7 @@ export const WithClose: Story = {
     return (
       <div className='flex flex-col gap-3 items-center'>
         <Toast open={open} onOpenChange={setOpen} withClose>
-          <Toast.Icon icon='warning' />
+          <Toast.Icon tone='warning' />
           <Toast.Description>
             Editing is paused while we upgrade infrastructure. You will regain access as soon as the maintenance window
             ends.
@@ -90,7 +108,7 @@ export const WithTitle: Story = {
     return (
       <div className='flex flex-col gap-3 items-center'>
         <Toast open={open} onOpenChange={setOpen} withClose>
-          <Toast.Icon icon='warning' />
+          <Toast.Icon tone='warning' />
           <Toast.Title>Ye sir</Toast.Title>
           <Toast.Description>
             Editing is paused while we upgrade infrastructure. You will regain access as soon as the maintenance window
@@ -112,13 +130,13 @@ export const WithLink: Story = {
     return (
       <div className='flex flex-col gap-3 items-center'>
         <Toast open={open} onOpenChange={setOpen} withClose>
-          <Toast.Icon icon='warning' />
+          <Toast.Icon tone='warning' />
           <Toast.Title>Ye sir</Toast.Title>
           <Toast.Description>
             Editing is paused while we upgrade infrastructure. You will regain access as soon as the maintenance window
             ends.
           </Toast.Description>
-          <Toast.Link href='https://mega'>View status</Toast.Link>
+          <Toast.Link href='#'>View status</Toast.Link>
         </Toast>
         <Button size='sm' variant='outline' onClick={() => setOpen(true)}>
           Open toast
@@ -135,13 +153,13 @@ export const WithAction: Story = {
     return (
       <div className='flex flex-col gap-3 items-center'>
         <Toast open={open} onOpenChange={setOpen} withClose>
-          <Toast.Icon icon='error' />
+          <Toast.Icon tone='error' />
           <Toast.Title>Ye sir</Toast.Title>
           <Toast.Description>
             Editing is paused while we upgrade infrastructure. You will regain access as soon as the maintenance window
             ends.
           </Toast.Description>
-          <Toast.Link href='https://mega'>View status</Toast.Link>
+          <Toast.Link href='#'>View status</Toast.Link>
           <Toast.Button label='Notify me' onClick={() => undefined} />
         </Toast>
         <Button size='sm' variant='outline' onClick={() => setOpen(true)}>
@@ -150,4 +168,16 @@ export const WithAction: Story = {
       </div>
     );
   },
+};
+
+export const InSmallContainer: Story = {
+  name: 'Examples / In Small Container',
+  render: () => (
+    <div className='w-64 border border-dashed border-gray-400 p-2'>
+      <Toast>
+        <Toast.Icon tone='info' />
+        <Toast.Description>Toast shrinks to fit the container width.</Toast.Description>
+      </Toast>
+    </div>
+  ),
 };

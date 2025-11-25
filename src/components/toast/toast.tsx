@@ -5,6 +5,7 @@ import { useControlledState } from '@/hooks';
 import { ToastProvider, useToast } from '@/providers';
 import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
+import { cva } from 'class-variance-authority';
 import { CircleAlert, CircleCheck, CircleX, Info, type LucideIcon, X } from 'lucide-react';
 import {
   Children,
@@ -28,9 +29,8 @@ export type ToastProps = {
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
-const toastIconNames = ['success', 'info', 'warning', 'error'] as const;
-type ToastTone = (typeof toastIconNames)[number];
-type ToastIconValue = ToastTone | Omit<ReactNode, 'string'>;
+const toastTones = ['success', 'info', 'warning', 'error'] as const;
+export type ToastTone = (typeof toastTones)[number];
 
 const toneIcons: Record<ToastTone, LucideIcon> = {
   success: CircleCheck,
@@ -39,43 +39,26 @@ const toneIcons: Record<ToastTone, LucideIcon> = {
   error: CircleX,
 };
 
-const isBuiltInIcon = (icon?: ToastIconValue): icon is ToastTone =>
-  typeof icon === 'string' && toastIconNames.includes(icon as ToastTone);
+const toastIconVariants = cva('row-start-1 size-6 flex flex-none items-center justify-center', {
+  variants: {
+    variant: {
+      success: '[&_svg]:fill-success',
+      info: '[&_svg]:fill-info',
+      warning: '[&_svg]:fill-warn',
+      error: '[&_svg]:fill-error',
+      custom: 'text-surface-tertiary',
+    },
+  },
+  defaultVariants: {
+    variant: 'info',
+  },
+});
 
-const ToastIconDisplay = forwardRef<
-  HTMLDivElement,
-  { tone?: ToastTone; children?: ReactNode } & ComponentPropsWithoutRef<'div'>
->(({ tone, children, className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'size-8 stroke flex flex-none items-center justify-center',
-      tone === 'success' && 'fill-success',
-      tone === 'info' && 'fill-info',
-      tone === 'warning' && 'fill-warn',
-      tone === 'error' && 'fill-error',
-      className,
-    )}
-    {...props}
-  >
-    {children}
-  </div>
-));
-ToastIconDisplay.displayName = 'Toast.IconDisplay';
-
-const renderDefaultIcon = (icon?: ToastIconValue): ReactNode => {
-  if (typeof icon === 'string' && isBuiltInIcon(icon)) {
-    const IconComponent = toneIcons[icon];
-    return (
-      <IconComponent className='text-surface-tertiary scale-145' strokeWidth={2.2} fill={icon} aria-hidden='true' />
-    );
-  }
-  if (icon) return icon;
-  return <Info className='text-surface-tertiary scale-145' strokeWidth={2.2} fill='info' aria-hidden='true' />;
-};
+const isToastTone = (value?: string): value is ToastTone =>
+  typeof value === 'string' && toastTones.includes(value as ToastTone);
 
 const ToastTitle = forwardRef<HTMLHeadingElement, { asChild?: boolean } & ComponentPropsWithoutRef<'h4'>>(
-  ({ children, asChild, className, ...props }, ref) => {
+  ({ children, asChild, className, ...props }, ref): ReactElement => {
     const Comp = asChild ? Slot : 'h4';
     return (
       <Comp
@@ -92,7 +75,7 @@ const ToastTitle = forwardRef<HTMLHeadingElement, { asChild?: boolean } & Compon
 ToastTitle.displayName = 'Toast.Title';
 
 const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } & ComponentPropsWithoutRef<'p'>>(
-  ({ className, asChild, children, ...props }, ref) => {
+  ({ className, asChild, children, ...props }, ref): ReactElement => {
     const Comp = asChild ? Slot : 'p';
     return (
       <Comp
@@ -108,7 +91,7 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
 );
 ToastDescription.displayName = 'Toast.Description';
 
-const ToastLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...props }, ref) => {
+const ToastLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...props }, ref): ReactElement => {
   return (
     <Link
       ref={ref}
@@ -122,7 +105,7 @@ const ToastLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...prop
 ToastLink.displayName = 'Toast.Link';
 
 const ToastButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<typeof Button>>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, ...props }, ref): ReactElement => {
     return (
       <Button
         ref={ref}
@@ -139,7 +122,7 @@ const ToastButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<typeo
 ToastButton.displayName = 'Toast.Button';
 
 const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<IconButtonProps, 'icon'>>(
-  ({ asChild, onClick, children, className, ...props }, ref) => {
+  ({ asChild, onClick, children, className, ...props }, ref): ReactElement => {
     const { setOpen } = useToast();
 
     const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
@@ -181,24 +164,44 @@ const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<Ic
 );
 ToastClose.displayName = 'Toast.Close';
 
-const ToastIcon = ({ icon, children }: { icon?: ToastIconValue; children?: ReactNode }): null => {
-  const { setIconSlot, tone: contextTone, setTone } = useToast();
+export type ToastIconProps = {
+  /** Built-in icon tone. Ignored when children are provided. */
+  tone?: ToastTone;
+  /** Custom icon element. Overrides built-in icon. */
+  children?: ReactNode;
+  /** Additional CSS classes for the icon wrapper. */
+  className?: string;
+};
 
-  const memoized = useMemo(() => {
-    const inferredTone = isBuiltInIcon(icon) ? icon : contextTone;
-    const content = children ?? renderDefaultIcon(icon ?? inferredTone);
-    return <ToastIconDisplay tone={inferredTone}>{content}</ToastIconDisplay>;
-  }, [children, icon, contextTone]);
+const ToastIcon = ({ tone, children, className }: ToastIconProps): null => {
+  const { setIconSlot, setTone } = useToast();
+  const resolvedTone = isToastTone(tone) ? tone : undefined;
+
+  const iconElement = useMemo(() => {
+    // Custom icon provided as children
+    if (children) {
+      return <div className={toastIconVariants({ variant: 'custom', className })}>{children}</div>;
+    }
+
+    // Built-in icon based on tone
+    const IconComponent = resolvedTone ? toneIcons[resolvedTone] : Info;
+
+    return (
+      <div className={toastIconVariants({ variant: resolvedTone, className })}>
+        <IconComponent className='text-surface-tertiary scale-125' size={24} strokeWidth={2} aria-hidden='true' />
+      </div>
+    );
+  }, [children, resolvedTone, className]);
 
   useLayoutEffect(() => {
-    setIconSlot?.(memoized);
+    setIconSlot?.(iconElement);
     return () => setIconSlot?.(null);
-  }, [memoized, setIconSlot]);
+  }, [iconElement, setIconSlot]);
 
   useLayoutEffect(() => {
-    setTone?.(isBuiltInIcon(icon) ? icon : undefined);
+    setTone?.(resolvedTone);
     return () => setTone?.(undefined);
-  }, [icon, setTone]);
+  }, [resolvedTone, setTone]);
 
   return null;
 };
@@ -246,14 +249,16 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
           role={role ?? defaultRole}
           aria-live={ariaLive ?? defaultAriaLive}
           className={cn(
+            // Custom properties to make the focus ring look correct in any theme
             '[--color-ring:var(--color-ring-alt)] [--color-ring-offset:var(--color-surface-tertiary)]',
-            'grid w-115 items-center gap-2.5 rounded-lg border border-bdr-soft bg-surface-tertiary p-5 text-alt opacity-90',
-            'grid-cols-[auto_minmax(0,1fr)_auto]',
+            'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center',
+            'max-w-115 w-full gap-2.5 p-5',
+            'rounded-lg border border-bdr-soft bg-surface-tertiary text-alt',
             className,
           )}
           {...rest}
         >
-          {iconSlot && <div className='row-start-1 w-fit'>{iconSlot}</div>}
+          {iconSlot}
           <div className='row-start-1 w-full flex flex-col gap-1 text-left'>{contentChildren}</div>
           <div
             className={cn(
