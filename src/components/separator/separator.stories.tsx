@@ -1,3 +1,4 @@
+import { Button } from '@/components/button';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -46,6 +47,18 @@ export const WithLongLabel: Story = {
       <p className='text-sm'>Content above</p>
       <Separator label='Separator Separator Separator Separator Separator' />
       <p className='text-sm'>Content below</p>
+    </Container>
+  ),
+};
+
+export const InlineWithButton: Story = {
+  name: 'Examples / Inline with Button',
+  render: () => (
+    <Container>
+      <div className='flex items-baseline gap-2'>
+        <Separator label='Recent Items' />
+        <Button size='sm'>View All</Button>
+      </div>
     </Container>
   ),
 };

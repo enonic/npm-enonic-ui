@@ -19,11 +19,11 @@ export const Separator = ({ className, label, decorative = false, ...props }: Se
       role='separator'
       aria-orientation='horizontal'
       aria-hidden={ariaHidden}
-      className={cn('inline-flex w-full gap-2.5', className)}
+      className={cn('inline-flex w-full items-baseline gap-2.5', className)}
       {...props}
     >
-      <span className='min-w-0 truncate text-subtle uppercase'>{label}</span>
-      <span className='min-w-6 flex-1 border-b-1 border-bdr-subtle' />
+      <span className='min-w-0 truncate text-subtle uppercase tracking-wider'>{label}</span>
+      <span className='min-w-6 flex-1 border-b border-bdr-subtle' />
     </div>
   );
 };
