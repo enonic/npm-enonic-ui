@@ -54,6 +54,7 @@
   --color-btn-tertiary: var(--color-btn-tertiary);
   --color-btn-tertiary-hover: var(--color-btn-tertiary-hover);
   --color-btn-active: var(--color-btn-active);
+  --color-btn-active-hover: var(--color-btn-active-hover);
   --color-btn-error: var(--color-fbk-danger);
   --color-btn-error-hover: color-mix(in srgb, var(--color-fbk-danger), black 10%);
   --color-btn-error-active: color-mix(in srgb, var(--color-fbk-danger), black 19%);
