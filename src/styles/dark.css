@@ -46,9 +46,10 @@
     --color-btn-primary-hover: var(--color-grey-900);
     --color-btn-secondary: var(--color-grey-900);
     --color-btn-secondary-hover: var(--color-grey-800);
-    --color-btn-tertiary: var(--color-grey-600);
+    --color-btn-tertiary: var(--color-grey-800);
     --color-btn-tertiary-hover: var(--color-grey-700);
     --color-btn-active: var(--color-grey-800);
+    --color-btn-active-hover: var(--color-grey-700);
 
     /* Inputs */
     --color-input-disabled: var(--color-grey-800);

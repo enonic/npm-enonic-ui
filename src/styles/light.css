@@ -9,7 +9,7 @@
     --color-alt-rev: var(--color-black);
 
     --color-info: var(--color-fbk-info);
-    --color-info-rev: var(--color-fbk-rev);
+    --color-info-rev: var(--color-fbk-info-subtle);
     --color-warn: var(--color-fbk-warn);
     --color-warn-rev: var(--color-fbk-warn-subtle);
     --color-success: var(--color-fbk-success);
@@ -49,6 +49,7 @@
     --color-btn-tertiary: var(--color-black);
     --color-btn-tertiary-hover: var(--color-grey-900);
     --color-btn-active: var(--color-grey-800);
+    --color-btn-active-hover: var(--color-grey-900);
 
     /* Inputs */
     --color-input-disabled: var(--color-grey-100);
