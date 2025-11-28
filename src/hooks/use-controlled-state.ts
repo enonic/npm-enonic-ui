@@ -45,23 +45,30 @@ import { useCallback, useState } from 'react';
  * }
  * ```
  */
+
+type SetStateAction<T> = T | ((prev: T) => T);
+
 export function useControlledState<T>(
   controlledValue: T | undefined,
   defaultValue: T,
   onChange?: (value: T) => void,
-): [T, (value: T) => void] {
+): [T, (value: SetStateAction<T>) => void] {
   const [uncontrolledValue, setUncontrolledValue] = useState<T>(defaultValue);
+
   const isControlled = controlledValue !== undefined;
   const value = isControlled ? controlledValue : uncontrolledValue;
 
   const setValue = useCallback(
-    (nextValue: T) => {
+    (next: SetStateAction<T>) => {
+      const nextValue = typeof next === 'function' ? (next as (prev: T) => T)(value) : next;
+
       if (!isControlled) {
         setUncontrolledValue(nextValue);
       }
+
       onChange?.(nextValue);
     },
-    [isControlled, onChange],
+    [isControlled, onChange, value],
   );
 
   return [value, setValue];
