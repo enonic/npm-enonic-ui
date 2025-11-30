@@ -30,7 +30,7 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
         aria-pressed={pressedState}
         data-state={pressedState ? 'on' : 'off'}
         data-active={pressedState}
-        onClick={() => setPressedState(!pressedState)}
+        onClick={() => setPressedState(prev => !prev)}
         {...props}
       />
     );

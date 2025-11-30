@@ -1,6 +1,11 @@
-import { useCallback } from 'react';
-
+import { useCallback, useRef } from 'react';
 import { useControlledState } from './use-controlled-state';
+
+/**
+ * The action type for the setter function.
+ * Accepts either a direct value or an updater function.
+ */
+type SetStateActionWithNull<T> = T | null | undefined | ((prev: T | undefined) => T | null | undefined);
 
 /**
  * A variant of `useControlledState` that handles `null` as "no value" in controlled mode.
@@ -23,7 +28,9 @@ import { useControlledState } from './use-controlled-state';
  * @param defaultValue - The default value for uncontrolled mode
  * @param onChange - Callback invoked when the value changes (receives `null` for no value)
  *
- * @returns A tuple containing the current value and a setter function
+ * @returns A tuple containing the current value and a setter function.
+ * The setter accepts either a direct value or an updater function `(prev) => next`,
+ * matching React's `useState` API. The setter reference is stable across renders.
  *
  * @example
  * ```tsx
@@ -46,32 +53,50 @@ import { useControlledState } from './use-controlled-state';
  *   // active="item" → activeInternal = "item"
  *   // active not provided → activeInternal from defaultActive
  * }
+ *
+ * // Using updater function
+ * function Toggle({ active, onActiveChange }) {
+ *   const [value, setValue] = useControlledStateWithNull(active, 'item-1', onActiveChange);
+ *   const toggle = (id: string) => {
+ *     setValue(prev => prev === id ? undefined : id); // undefined becomes null in onChange
+ *   };
+ *   return <button onClick={() => toggle('item-1')}>{value ?? 'None'}</button>;
+ * }
  * ```
  */
 export function useControlledStateWithNull<T extends string>(
   controlledValue: T | null | undefined,
   defaultValue: T | undefined,
   onChange?: (value: T | null) => void,
-): [T | undefined, (value: T | null | undefined) => void] {
+): [T | undefined, (action: SetStateActionWithNull<T>) => void] {
   // Convert external null to internal undefined for useControlledState
   const internalControlled = controlledValue === null ? undefined : controlledValue;
 
+  // Ref to track latest onChange for stable callback
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
   // Wrap onChange to convert internal undefined back to external null
-  const internalOnChange = useCallback(
-    (value: T | undefined) => {
-      // Convert undefined to null for external API
-      onChange?.(value ?? null);
-    },
-    [onChange],
-  );
+  const internalOnChange = useCallback((value: T | undefined) => {
+    // Convert undefined to null for external API
+    onChangeRef.current?.(value ?? null);
+  }, []);
 
   const [internalValue, setInternalValue] = useControlledState(internalControlled, defaultValue, internalOnChange);
 
-  // Wrap setter to convert external null to internal undefined
+  // Wrap setter to handle updater functions and convert null to undefined
   const setValue = useCallback(
-    (value: T | null | undefined) => {
-      // Convert null to undefined for internal state
-      setInternalValue(value ?? undefined);
+    (action: SetStateActionWithNull<T>) => {
+      if (typeof action === 'function') {
+        // Wrap updater to convert null result to undefined
+        setInternalValue((prev: T | undefined) => {
+          const result = action(prev);
+          return result ?? undefined;
+        });
+      } else {
+        // Direct value: convert null to undefined
+        setInternalValue(action ?? undefined);
+      }
     },
     [setInternalValue],
   );

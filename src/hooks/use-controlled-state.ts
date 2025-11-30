@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { type SetStateAction, useCallback, useRef, useState } from 'react';
 
 /**
  * Manages state that can be either controlled or uncontrolled.
@@ -10,7 +10,9 @@ import { useCallback, useState } from 'react';
  * @param defaultValue - The default value for uncontrolled mode (e.g., `defaultValue`, `defaultOpen`)
  * @param onChange - Callback invoked when the value changes
  *
- * @returns A tuple containing the current value and a setter function
+ * @returns A tuple containing the current value and a setter function.
+ * The setter accepts either a direct value or an updater function `(prev) => next`,
+ * matching React's `useState` API. The setter reference is stable across renders.
  *
  * **Controlled vs Uncontrolled Detection:**
  * - `undefined` = uncontrolled mode (prop not provided)
@@ -21,6 +23,10 @@ import { useCallback, useState } from 'react';
  * - `active={null}` → controlled with no active item
  * - `active="item-1"` → controlled with active item
  * - `active` not provided → uncontrolled mode
+ *
+ * **Note on function values:**
+ * If `T` is a function type, you must wrap the value in an updater function
+ * to avoid it being interpreted as an updater: `setValue(() => myFunction)`.
  *
  * @example
  * ```tsx
@@ -36,33 +42,57 @@ import { useCallback, useState } from 'react';
  *   return <div>{value ? 'Open' : 'Closed'}</div>;
  * }
  *
- * // Controlled with null support (for "no value" state)
- * function Component({ active, onActiveChange }: { active?: string | null }) {
- *   const [value, setValue] = useControlledState(active, undefined, onActiveChange);
- *   // active={null} → controlled, value = null
- *   // active="item" → controlled, value = "item"
- *   // active not provided → uncontrolled, value from defaultActive
+ * // Using updater function (safe for batched updates)
+ * function Counter() {
+ *   const [count, setCount] = useControlledState(undefined, 0);
+ *   const incrementTwice = () => {
+ *     setCount(prev => prev + 1);
+ *     setCount(prev => prev + 1); // Correctly results in +2
+ *   };
+ *   return <button onClick={incrementTwice}>{count}</button>;
+ * }
+ *
+ * // Toggle pattern
+ * function Toggle() {
+ *   const [pressed, setPressed] = useControlledState(undefined, false);
+ *   return <button onClick={() => setPressed(prev => !prev)}>{pressed ? 'On' : 'Off'}</button>;
  * }
  * ```
  */
+
 export function useControlledState<T>(
   controlledValue: T | undefined,
   defaultValue: T,
   onChange?: (value: T) => void,
-): [T, (value: T) => void] {
+): [T, (action: SetStateAction<T>) => void] {
   const [uncontrolledValue, setUncontrolledValue] = useState<T>(defaultValue);
+
   const isControlled = controlledValue !== undefined;
   const value = isControlled ? controlledValue : uncontrolledValue;
 
-  const setValue = useCallback(
-    (nextValue: T) => {
-      if (!isControlled) {
-        setUncontrolledValue(nextValue);
-      }
-      onChange?.(nextValue);
-    },
-    [isControlled, onChange],
-  );
+  // Refs to track latest values for stable setValue callback
+  const valueRef = useRef(value);
+  const isControlledRef = useRef(isControlled);
+  const onChangeRef = useRef(onChange);
+
+  // Sync refs on every render
+  valueRef.current = value;
+  isControlledRef.current = isControlled;
+  onChangeRef.current = onChange;
+
+  const setValue = useCallback((action: SetStateAction<T>) => {
+    const prevValue = valueRef.current;
+    const nextValue = typeof action === 'function' ? (action as (prev: T) => T)(prevValue) : action;
+
+    // Update ref immediately for subsequent calls in same batch
+    valueRef.current = nextValue;
+
+    if (!isControlledRef.current) {
+      setUncontrolledValue(nextValue);
+    }
+
+    onChangeRef.current?.(nextValue);
+  }, []);
 
   return [value, setValue];
 }
