@@ -1,10 +1,10 @@
-export { Menu } from './menu';
 export type {
-  MenuRootProps,
-  MenuTriggerProps,
-  MenuPortalProps,
   MenuContentProps,
   MenuItemProps,
   MenuLabelProps,
+  MenuPortalProps,
+  MenuRootProps,
   MenuSeparatorProps,
+  MenuTriggerProps,
 } from './menu';
+export { Menu } from './menu';

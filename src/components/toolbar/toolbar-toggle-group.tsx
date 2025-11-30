@@ -1,7 +1,3 @@
-import { Button, type ButtonProps } from '@/components/button';
-import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
-import { usePrefixedId } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
 import {
   type ComponentPropsWithoutRef,
@@ -16,6 +12,10 @@ import {
   useRef,
   useState,
 } from 'react';
+import { Button, type ButtonProps } from '@/components/button';
+import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
+import { usePrefixedId } from '@/providers';
+import { cn, useComposedRefs } from '@/utils';
 
 import { useToolbar } from './toolbar';
 
@@ -75,43 +75,32 @@ type ToolbarToggleGroupRootMultipleProps = {
 // * Toolbar.ToggleGroup.Root
 //
 
-export type ToolbarToggleGroupRootProps = ToolbarToggleGroupRootSingleProps | ToolbarToggleGroupRootMultipleProps;
+const ToolbarToggleGroupRootSingle = forwardRef<HTMLDivElement, ToolbarToggleGroupRootSingleProps>(
+  (props, ref): ReactElement => {
+    const { value: controlledValue, defaultValue, onValueChange, disabled, children, className, ...restProps } = props;
 
-const ToolbarToggleGroupRoot = forwardRef<HTMLDivElement, ToolbarToggleGroupRootProps>((props, ref): ReactElement => {
-  const {
-    type,
-    value: controlledValue,
-    defaultValue,
-    onValueChange,
-    disabled,
-    children,
-    className,
-    ...restProps
-  } = props;
+    const { orientation } = useToolbar();
+    const groupId = usePrefixedId(undefined, 'toolbar-toggle-group');
+    const containerRef = useRef<HTMLDivElement>(null);
+    const composedRef = useComposedRefs(ref, containerRef);
 
-  const { orientation } = useToolbar();
-  const groupId = usePrefixedId(undefined, 'toolbar-toggle-group');
-  const containerRef = useRef<HTMLDivElement>(null);
-  const composedRef = useComposedRefs(ref, containerRef);
+    // Map to track value → id relationships
+    const [valueToId] = useState(() => new Map<string, string>());
 
-  // Map to track value → id relationships
-  const [valueToId] = useState(() => new Map<string, string>());
+    const registerValueId = useCallback(
+      (value: string, id: string) => {
+        valueToId.set(value, id);
+      },
+      [valueToId],
+    );
 
-  const registerValueId = useCallback(
-    (value: string, id: string) => {
-      valueToId.set(value, id);
-    },
-    [valueToId],
-  );
+    const unregisterValue = useCallback(
+      (value: string) => {
+        valueToId.delete(value);
+      },
+      [valueToId],
+    );
 
-  const unregisterValue = useCallback(
-    (value: string) => {
-      valueToId.delete(value);
-    },
-    [valueToId],
-  );
-
-  if (type === 'single') {
     const [value, setValue] = useControlledState<string>(controlledValue, defaultValue ?? '', onValueChange);
 
     const handleValueChange = useCallback(
@@ -125,7 +114,7 @@ const ToolbarToggleGroupRoot = forwardRef<HTMLDivElement, ToolbarToggleGroupRoot
 
     const contextValue: ToolbarToggleGroupContextValue = useMemo(
       () => ({
-        selectionMode: type,
+        selectionMode: 'single',
         value,
         onValueChange: handleValueChange,
         disabled,
@@ -134,7 +123,7 @@ const ToolbarToggleGroupRoot = forwardRef<HTMLDivElement, ToolbarToggleGroupRoot
         registerValueId,
         unregisterValue,
       }),
-      [type, value, handleValueChange, disabled, orientation, valueToId, registerValueId, unregisterValue],
+      [value, handleValueChange, disabled, orientation, valueToId, registerValueId, unregisterValue],
     );
 
     return (
@@ -152,45 +141,85 @@ const ToolbarToggleGroupRoot = forwardRef<HTMLDivElement, ToolbarToggleGroupRoot
         </div>
       </ToolbarToggleGroupContext.Provider>
     );
-  }
+  },
+);
+ToolbarToggleGroupRootSingle.displayName = 'Toolbar.ToggleGroup.RootSingle';
 
-  const [value, setValue] = useControlledState<string[]>(controlledValue, defaultValue ?? [], onValueChange);
+const ToolbarToggleGroupRootMultiple = forwardRef<HTMLDivElement, ToolbarToggleGroupRootMultipleProps>(
+  (props, ref): ReactElement => {
+    const { value: controlledValue, defaultValue, onValueChange, disabled, children, className, ...restProps } = props;
 
-  const handleValueChange = useCallback(
-    (itemValue: string) => {
-      const nextValue = value.includes(itemValue) ? value.filter(v => v !== itemValue) : [...value, itemValue];
-      setValue(nextValue);
-    },
-    [value, setValue],
-  );
+    const { orientation } = useToolbar();
+    const groupId = usePrefixedId(undefined, 'toolbar-toggle-group');
+    const containerRef = useRef<HTMLDivElement>(null);
+    const composedRef = useComposedRefs(ref, containerRef);
 
-  const contextValue: ToolbarToggleGroupContextValue = useMemo(
-    () => ({
-      selectionMode: type,
-      value,
-      onValueChange: handleValueChange,
-      disabled,
-      orientation,
-      valueToId,
-      registerValueId,
-      unregisterValue,
-    }),
-    [type, value, handleValueChange, disabled, orientation, valueToId, registerValueId, unregisterValue],
-  );
+    // Map to track value → id relationships
+    const [valueToId] = useState(() => new Map<string, string>());
 
-  return (
-    <ToolbarToggleGroupContext.Provider value={contextValue}>
-      <div
-        ref={composedRef}
-        role='group'
-        id={groupId}
-        data-orientation={orientation}
-        className={cn('inline-flex gap-2', orientation === 'vertical' && 'flex-col', className)}
-        {...restProps}
-      >
-        {children}
-      </div>
-    </ToolbarToggleGroupContext.Provider>
+    const registerValueId = useCallback(
+      (value: string, id: string) => {
+        valueToId.set(value, id);
+      },
+      [valueToId],
+    );
+
+    const unregisterValue = useCallback(
+      (value: string) => {
+        valueToId.delete(value);
+      },
+      [valueToId],
+    );
+
+    const [value, setValue] = useControlledState<string[]>(controlledValue, defaultValue ?? [], onValueChange);
+
+    const handleValueChange = useCallback(
+      (itemValue: string) => {
+        const nextValue = value.includes(itemValue) ? value.filter(v => v !== itemValue) : [...value, itemValue];
+        setValue(nextValue);
+      },
+      [value, setValue],
+    );
+
+    const contextValue: ToolbarToggleGroupContextValue = useMemo(
+      () => ({
+        selectionMode: 'multiple',
+        value,
+        onValueChange: handleValueChange,
+        disabled,
+        orientation,
+        valueToId,
+        registerValueId,
+        unregisterValue,
+      }),
+      [value, handleValueChange, disabled, orientation, valueToId, registerValueId, unregisterValue],
+    );
+
+    return (
+      <ToolbarToggleGroupContext.Provider value={contextValue}>
+        <div
+          ref={composedRef}
+          role='group'
+          id={groupId}
+          data-orientation={orientation}
+          className={cn('inline-flex gap-2', orientation === 'vertical' && 'flex-col', className)}
+          {...restProps}
+        >
+          {children}
+        </div>
+      </ToolbarToggleGroupContext.Provider>
+    );
+  },
+);
+ToolbarToggleGroupRootMultiple.displayName = 'Toolbar.ToggleGroup.RootMultiple';
+
+export type ToolbarToggleGroupRootProps = ToolbarToggleGroupRootSingleProps | ToolbarToggleGroupRootMultipleProps;
+
+const ToolbarToggleGroupRoot = forwardRef<HTMLDivElement, ToolbarToggleGroupRootProps>((props, ref): ReactElement => {
+  return props.type === 'single' ? (
+    <ToolbarToggleGroupRootSingle {...props} ref={ref} />
+  ) : (
+    <ToolbarToggleGroupRootMultiple {...props} ref={ref} />
   );
 });
 ToolbarToggleGroupRoot.displayName = 'Toolbar.ToggleGroup';

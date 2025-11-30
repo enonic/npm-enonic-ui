@@ -1,10 +1,13 @@
-import { Checkbox, type CheckboxChecked, IconButton, isLoadingPlaceholder, ListItem } from '@/components';
-import { TreeList, type TreeNode } from '@/components/tree-list/tree-list';
-import { useTreeList } from '@/providers';
-import { cn } from '@/utils';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, FileText, Folder, Image, RefreshCcw, Video } from 'lucide-react';
 import { type ReactNode, useCallback, useState } from 'react';
+import { Checkbox, type CheckboxChecked } from '@/components/checkbox';
+import { IconButton } from '@/components/icon-button';
+import { ListItem } from '@/components/list-item';
+import { isLoadingPlaceholder } from '@/components/tree-list';
+import { TreeList, type TreeNode } from '@/components/tree-list/tree-list';
+import { useTreeList } from '@/providers';
+import { cn } from '@/utils';
 
 type Story = StoryObj<typeof TreeList>;
 
@@ -21,7 +24,7 @@ let MAX_ITEMS = 35;
 
 function getTreeRootClassName(): string {
   return cn(
-    'w-145 h-120 focus-within:outline-none focus-within:ring-1 focus-within:ring-bdr-strong focus-within:ring-offset-1 focus-within:ring-offset-surface-neutral',
+    'h-120 w-145 focus-within:outline-none focus-within:ring-1 focus-within:ring-bdr-strong focus-within:ring-offset-1 focus-within:ring-offset-surface-neutral',
   );
 }
 
@@ -206,7 +209,7 @@ export const StaticTree: Story = {
       <div className={''}>
         {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
-        <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
+        <div className={'flex flex-col gap-5 border px-5 pt-2.5 pb-10'}>
           <div className={'flex items-center gap-2.5 pl-2.5'}>
             <Checkbox label='Select all' checked={selectAll} onCheckedChange={toggleSelectAll} />
             <span className={'grow'}></span>
@@ -270,7 +273,7 @@ export const SingleSelectionTree: Story = {
       <div className={''}>
         {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
-        <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
+        <div className={'flex flex-col gap-5 border px-5 pt-2.5 pb-10'}>
           <div className={'flex items-center gap-2.5 pl-2.5'}>
             <span className={'grow'}></span>
             <IconButton icon={RefreshCcw} variant='text' title='Text variant' onClick={refresh} />
@@ -333,7 +336,7 @@ export const MultiSelectNoCheckboxes: Story = {
       <div className={''}>
         {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
-        <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
+        <div className={'flex flex-col gap-5 border px-5 pt-2.5 pb-10'}>
           <div className={'flex items-center gap-2.5 pl-2.5'}>
             <span className={'grow'}></span>
             <IconButton icon={RefreshCcw} variant='text' title='Text variant' onClick={refresh} />
@@ -399,7 +402,7 @@ export const SelectionOnTheRightTree: Story = {
       <div className={''}>
         {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
-        <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
+        <div className={'flex flex-col gap-5 border px-5 pt-2.5 pb-10'}>
           <div className={'flex items-center gap-2.5 pl-2.5'}>
             <span className={'grow'}></span>
             <IconButton icon={RefreshCcw} variant='text' title='Text variant' onClick={refresh} />
@@ -463,7 +466,7 @@ export const MediaOnly: Story = {
       <div className={''}>
         {getAvailableFeaturesBlock()}
         <div className={'grow'}>Total root items: {getRootNodes(items).length}</div>
-        <div className={'flex flex-col gap-5 px-5 pt-2.5 pb-10 border'}>
+        <div className={'flex flex-col gap-5 border px-5 pt-2.5 pb-10'}>
           <div className={'flex items-center gap-2.5 pl-2.5'}>
             <span className={'grow'}></span>
             <IconButton icon={RefreshCcw} variant='text' title='Text variant' onClick={refresh} />

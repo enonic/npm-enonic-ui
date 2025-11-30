@@ -1,7 +1,7 @@
+import type { ReactElement, ReactNode } from 'react';
 import { Checkbox, type CheckboxProps } from '@/components/checkbox/checkbox';
 import { ListItem, type ListItemDefaultContentProps, type ListItemProps } from '@/components/list-item/list-item';
 import { cn } from '@/utils';
-import type { ReactElement, ReactNode } from 'react';
 
 export type SelectableListItemProps = {
   children?: ReactNode;

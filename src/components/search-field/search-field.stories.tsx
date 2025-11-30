@@ -61,7 +61,7 @@ export const ControlledExample: Story = {
 
     return (
       <div className='w-xs'>
-        <h3 className='text-sm font-medium mb-3'>Controlled search with results</h3>
+        <h3 className='mb-3 font-medium text-sm'>Controlled search with results</h3>
 
         <SearchField value={value} onChange={handleSearch} placeholder='Search fruits...'>
           <SearchField.Icon />
@@ -70,8 +70,8 @@ export const ControlledExample: Story = {
         </SearchField>
 
         {results.length > 0 && (
-          <div className='mt-4 p-3 bg-surface-neutral rounded-sm border'>
-            <h4 className='text-xs font-medium text-subtle mb-2'>Results:</h4>
+          <div className='mt-4 rounded-sm border bg-surface-neutral p-3'>
+            <h4 className='mb-2 font-medium text-subtle text-xs'>Results:</h4>
             <ul className='space-y-1'>
               {results.map(r => (
                 <li key={r} className='text-sm'>
@@ -82,7 +82,7 @@ export const ControlledExample: Story = {
           </div>
         )}
         {value && results.length === 0 && (
-          <div className='mt-4 p-3 bg-surface-neutral rounded-sm border'>
+          <div className='mt-4 rounded-sm border bg-surface-neutral p-3'>
             <p className='text-sm text-subtle'>No results found</p>
           </div>
         )}
@@ -128,7 +128,7 @@ export const UncontrolledExample: Story = {
   name: 'Examples / Uncontrolled',
   render: () => (
     <div className='w-xs space-y-4'>
-      <h3 className='text-sm font-medium mb-3'>Uncontrolled search fields</h3>
+      <h3 className='mb-3 font-medium text-sm'>Uncontrolled search fields</h3>
       <div className='space-y-2'>
         <SearchField placeholder='Default empty'>
           <SearchField.Icon />
@@ -166,8 +166,8 @@ export const LiveSearch: Story = {
     }, [value]);
 
     return (
-      <div className='w-xs relative'>
-        <h3 className='text-sm font-medium mb-3'>Live search with debounce</h3>
+      <div className='relative w-xs'>
+        <h3 className='mb-3 font-medium text-sm'>Live search with debounce</h3>
         <SearchField value={value} onChange={setValue} placeholder='Type to search...'>
           <SearchField.Icon />
           <SearchField.Input />
@@ -178,10 +178,10 @@ export const LiveSearch: Story = {
           {isSearching && <p className='mb-2 text-sm text-subtle'>Searching...</p>}
           {history.length > 0 && (
             <div>
-              <h4 className='text-xs font-medium text-subtle mb-2'>Recent searches:</h4>
+              <h4 className='mb-2 font-medium text-subtle text-xs'>Recent searches:</h4>
               <ul className='space-y-1'>
-                {history.map((item, i) => (
-                  <li key={i} className='text-sm text-subtle break-all'>
+                {history.map(item => (
+                  <li key={item} className='break-all text-sm text-subtle'>
                     {item}
                   </li>
                 ))}
@@ -226,7 +226,7 @@ export const Interactive: Story = {
           <SearchField.Input />
           <SearchField.Clear />
         </SearchField>
-        <div className='mt-4 p-3 bg-surface-neutral rounded-sm'>
+        <div className='mt-4 rounded-sm bg-surface-neutral p-3'>
           <p className='text-sm'>
             <span className='font-medium'>Current value:</span>
             <span className='break-all'>{value ? `"${value}"` : '(empty)'}</span>

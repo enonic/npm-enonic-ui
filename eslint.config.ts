@@ -1,49 +1,38 @@
-import eslint from '@eslint/js';
 import type { Linter } from 'eslint';
-import { flatConfigs } from 'eslint-plugin-import';
 // @ts-expect-error - No types available for eslint-plugin-jsx-a11y
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
-import path from 'path';
-import { configs as tsConfigs } from 'typescript-eslint';
+import tseslint from 'typescript-eslint';
 
 export default [
-  eslint.configs.recommended,
-  flatConfigs.recommended,
+  {
+    ignores: ['node_modules/', 'build/', 'public/', 'dist/', 'coverage/', 'reports/', 'storybook-static/', '**/*.d.ts'],
+  },
+  // NOTE: eslint.configs.recommended removed - Biome handles base JS rules
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   jsxA11yPlugin.flatConfigs.strict,
-  ...tsConfigs.strictTypeChecked,
-  ...tsConfigs.stylisticTypeChecked,
+  // NOTE: stylisticTypeChecked removed - overlaps with Biome (useForOf, useOptionalChain, etc.)
+  ...tseslint.configs.strictTypeChecked,
+
+  // TypeScript parser settings
   {
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.app.json'],
-        tsconfigRootDir: path.resolve(__dirname),
-        ecmaFeatures: {
-          jsx: true,
-        },
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
+  },
+
+  // TSX files: React + a11y
+  {
+    files: ['**/*.tsx'],
+    ...reactPlugin.configs.flat.recommended,
+    settings: { react: { version: 'detect', pragma: 'h' } },
     rules: {
-      '@typescript-eslint/no-use-before-define': ['error', { functions: false, classes: true }],
-      '@typescript-eslint/member-ordering': ['error'],
-      '@typescript-eslint/explicit-function-return-type': [
-        'error',
-        {
-          allowExpressions: true,
-          allowConciseArrowFunctionExpressionsStartingWithVoid: true,
-          allowHigherOrderFunctions: true,
-          allowTypedFunctionExpressions: true,
-        },
-      ],
-      '@typescript-eslint/no-confusing-void-expression': [
-        'error',
-        { ignoreArrowShorthand: true, ignoreVoidOperator: true },
-      ],
-      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
-      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
-      '@typescript-eslint/no-dynamic-delete': 'off',
-      'import/named': 'off',
+      ...reactPlugin.configs.flat.recommended.rules,
+      'react/jsx-uses-react': 'off',
+      'react/react-in-jsx-scope': 'off',
       'jsx-a11y/no-noninteractive-element-to-interactive-role': [
         'error',
         {
@@ -55,6 +44,42 @@ export default [
           td: ['gridcell'],
         },
       ],
+    },
+  },
+
+  // TypeScript strict rules (non-conflicting with Biome)
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    rules: {
+      '@typescript-eslint/member-ordering': 'error',
+      '@typescript-eslint/explicit-function-return-type': [
+        'error',
+        {
+          allowExpressions: true,
+          allowConciseArrowFunctionExpressionsStartingWithVoid: true,
+          allowHigherOrderFunctions: true,
+          allowTypedFunctionExpressions: true,
+        },
+      ],
+      '@typescript-eslint/no-deprecated': [
+        'error',
+        {
+          allow: [
+            { from: 'package', name: 'ChangeEvent', package: 'react' },
+            { from: 'package', name: 'FocusEvent', package: 'react' },
+            { from: 'package', name: 'KeyboardEvent', package: 'react' },
+            { from: 'package', name: 'MouseEvent', package: 'react' },
+          ],
+        },
+      ],
+      '@typescript-eslint/no-confusing-void-expression': [
+        'error',
+        { ignoreArrowShorthand: true, ignoreVoidOperator: true },
+      ],
+      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      '@typescript-eslint/no-unnecessary-type-arguments': 'warn',
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      '@typescript-eslint/no-use-before-define': ['error', { functions: false, classes: true }],
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -67,55 +92,23 @@ export default [
           ignoreRestSiblings: true,
         },
       ],
-      '@typescript-eslint/no-unnecessary-type-arguments': 'warn',
-      '@typescript-eslint/no-deprecated': [
-        'error',
-        {
-          allow: [
-            { from: 'package', name: 'ChangeEvent', package: 'react' },
-            { from: 'package', name: 'FocusEvent', package: 'react' },
-            { from: 'package', name: 'KeyboardEvent', package: 'react' },
-            { from: 'package', name: 'MouseEvent', package: 'react' },
-          ],
-        },
-      ],
-    },
-    settings: {
-      react: {
-        version: 'detect',
-        pragma: 'h',
-        createClass: 'Component',
-      },
-      'import/parsers': {
-        '@typescript-eslint/parser': ['.ts', '.tsx'],
-      },
-      'import/resolver': {
-        typescript: {
-          alwaysTryTypes: true,
-          project: ['./tsconfig.app.json'],
-        },
-      },
+      '@typescript-eslint/no-dynamic-delete': 'off',
+      // Disable rules that Biome handles
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/prefer-for-of': 'off',
+      '@typescript-eslint/prefer-optional-chain': 'off',
+      '@typescript-eslint/no-inferrable-types': 'off',
+      '@typescript-eslint/array-type': 'off',
+      'prefer-const': 'off',
+      'no-var': 'off',
     },
   },
-  {
-    files: ['**/*.tsx'],
-    ...reactPlugin.configs.flat.recommended,
-    rules: {
-      ...reactPlugin.configs.flat.recommended.rules,
-      'react/jsx-uses-react': 'off',
-      'react/react-in-jsx-scope': 'off',
-    },
-  },
+
+  // Config files: relax explicit return types
   {
     files: ['*.config.ts', '*.config.*.ts'],
-    languageOptions: {
-      parserOptions: {
-        project: './tsconfig.node.json',
-        tsconfigRootDir: path.resolve(__dirname),
-      },
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
-  },
-  {
-    ignores: ['node_modules/', 'build/', 'public/', 'dist/', 'storybook-static/', '**/*.d.ts'],
   },
 ] satisfies Linter.Config[];

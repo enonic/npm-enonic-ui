@@ -1,9 +1,3 @@
-import { Button } from '@/components/button';
-import { IconButton, type IconButtonProps } from '@/components/icon-button';
-import { Link, type LinkProps } from '@/components/link';
-import { useControlledState } from '@/hooks';
-import { ToastProvider, useToast } from '@/providers';
-import { cn } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
 import { cva } from 'class-variance-authority';
 import { CircleAlert, CircleCheck, CircleX, Info, type LucideIcon, X } from 'lucide-react';
@@ -19,6 +13,12 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { Button } from '@/components/button';
+import { IconButton, type IconButtonProps } from '@/components/icon-button';
+import { Link, type LinkProps } from '@/components/link';
+import { useControlledState } from '@/hooks';
+import { ToastProvider, useToast } from '@/providers';
+import { cn } from '@/utils';
 
 export type ToastProps = {
   id?: string | number;
@@ -39,7 +39,7 @@ const toneIcons: Record<ToastTone, LucideIcon> = {
   error: CircleX,
 };
 
-const toastIconVariants = cva('row-start-1 size-6 flex flex-none items-center justify-center', {
+const toastIconVariants = cva('row-start-1 flex size-6 flex-none items-center justify-center', {
   variants: {
     variant: {
       success: '[&_svg]:fill-success',
@@ -64,7 +64,7 @@ const ToastTitle = forwardRef<HTMLHeadingElement, { asChild?: boolean } & Compon
       <Comp
         // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
-        className={cn('text-lg font-semibold text-alt', className)}
+        className={cn('font-semibold text-alt text-lg', className)}
         {...props}
       >
         {children}
@@ -81,7 +81,7 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
       <Comp
         // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
-        className={cn('text-sm font-semibold leading-4', className)}
+        className={cn('font-semibold text-sm leading-4', className)}
         {...props}
       >
         {children}
@@ -97,7 +97,7 @@ const ToastLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...prop
       ref={ref}
       external={false}
       data-tone='inverse'
-      className={cn('text-sm font-semibold leading-4 w-fit', className)}
+      className={cn('w-fit font-semibold text-sm leading-4', className)}
       {...props}
     />
   );
@@ -111,7 +111,7 @@ const ToastButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<typeo
         ref={ref}
         variant='outline'
         size='sm'
-        className={cn('px-2 text-alt border-alt bg-transparent hover:bg-notification-secondary', className)}
+        className={cn('border-alt bg-transparent px-2 text-alt hover:bg-notification-secondary', className)}
         {...props}
       >
         {children}
@@ -155,7 +155,7 @@ const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<Ic
         title='Close notification'
         variant='text'
         size='sm'
-        className={cn('text-alt bg-transparent hover:text-alt hover:bg-btn-tertiary-hover', className)}
+        className={cn('bg-transparent text-alt hover:bg-btn-tertiary-hover hover:text-alt', className)}
         onClick={handleClick}
         {...props}
       />
@@ -188,7 +188,7 @@ const ToastIcon = ({ tone, children, className }: ToastIconProps): null => {
 
     return (
       <div className={toastIconVariants({ variant: resolvedTone, className })}>
-        <IconComponent className='text-surface-tertiary scale-125' size={24} strokeWidth={2} aria-hidden='true' />
+        <IconComponent className='scale-125 text-surface-tertiary' size={24} strokeWidth={2} aria-hidden='true' />
       </div>
     );
   }, [children, resolvedTone, className]);
@@ -217,7 +217,7 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
       withClose,
       className,
       role,
-      ['aria-live']: ariaLive,
+      'aria-live': ariaLive,
       children,
       ...rest
     },
@@ -250,19 +250,19 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
           aria-live={ariaLive ?? defaultAriaLive}
           className={cn(
             // Custom properties to make the focus ring look correct in any theme
-            '[--color-ring:var(--color-ring-alt)] [--color-ring-offset:var(--color-surface-tertiary)]',
+            '[--color-ring-offset:var(--color-surface-tertiary)] [--color-ring:var(--color-ring-alt)]',
             'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center',
-            'max-w-115 w-full gap-2.5 p-5',
+            'w-full max-w-115 gap-2.5 p-5',
             'rounded-lg border border-bdr-soft bg-surface-tertiary text-alt',
             className,
           )}
           {...rest}
         >
           {iconSlot}
-          <div className='row-start-1 w-full flex flex-col gap-1 text-left'>{contentChildren}</div>
+          <div className='row-start-1 flex w-full flex-col gap-1 text-left'>{contentChildren}</div>
           <div
             className={cn(
-              'row-start-1 grid h-full items-center justify-items-end gap-2 col-start-3',
+              'col-start-3 row-start-1 grid h-full items-center justify-items-end gap-2',
               actionButtons.length > 0 && 'content-between',
             )}
           >

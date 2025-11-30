@@ -1,4 +1,3 @@
-export { Menubar } from './menubar';
 export type {
   MenubarButtonProps,
   MenubarContentProps,
@@ -11,3 +10,4 @@ export type {
   MenubarSeparatorProps,
   MenubarTriggerProps,
 } from './menubar';
+export { Menubar } from './menubar';

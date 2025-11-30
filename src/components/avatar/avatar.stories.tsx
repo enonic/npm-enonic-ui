@@ -1,5 +1,5 @@
-import { Avatar, type AvatarRootProps } from '@/components/avatar/avatar';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { Avatar, type AvatarRootProps } from '@/components/avatar/avatar';
 
 type Story = StoryObj<AvatarRootProps>;
 
@@ -79,15 +79,15 @@ export const Single: Story = {
     const user = users[0];
     return (
       <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>User Profile</h3>
+        <h3 className='mb-3 font-medium text-sm'>User Profile</h3>
         <div className='flex items-center gap-x-3'>
           <Avatar size={size} shape={shape}>
             <Avatar.Image src={user.avatar} alt={user.alt} />
             <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
           </Avatar>
           <div>
-            <p className='text-sm font-medium'>{user.name}</p>
-            <p className='text-xs text-subtle'>Frontend Architect</p>
+            <p className='font-medium text-sm'>{user.name}</p>
+            <p className='text-subtle text-xs'>Frontend Architect</p>
           </div>
         </div>
       </div>
@@ -105,15 +105,15 @@ export const WithFallback: Story = {
     const user = users[3]; // User without avatar
     return (
       <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>No Image - Shows Fallback</h3>
+        <h3 className='mb-3 font-medium text-sm'>No Image - Shows Fallback</h3>
         <div className='flex items-center gap-x-3'>
           <Avatar size={size} shape={shape}>
             <Avatar.Image src={user.avatar} alt={user.alt} />
             <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
           </Avatar>
           <div>
-            <p className='text-sm font-medium'>{user.name}</p>
-            <p className='text-xs text-subtle'>Designer</p>
+            <p className='font-medium text-sm'>{user.name}</p>
+            <p className='text-subtle text-xs'>Designer</p>
           </div>
         </div>
       </div>
@@ -129,15 +129,15 @@ export const Multiple: Story = {
   },
   render: ({ size, shape }) => (
     <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3'>Team Members</h3>
+      <h3 className='mb-3 font-medium text-sm'>Team Members</h3>
       <div className='flex flex-col gap-y-3'>
-        {users.map(({ name, avatar }, index) => (
-          <div key={index} className='flex items-center gap-x-3'>
+        {users.map(({ name, avatar, alt }) => (
+          <div key={alt} className='flex items-center gap-x-3'>
             <Avatar size={size} shape={shape}>
               <Avatar.Image src={avatar} alt={name} />
               <Avatar.Fallback>{getInitials(name)}</Avatar.Fallback>
             </Avatar>
-            <p className='text-sm font-medium'>{name}</p>
+            <p className='font-medium text-sm'>{name}</p>
           </div>
         ))}
       </div>
@@ -157,28 +157,28 @@ export const Sizes: Story = {
     const user = users[0];
     return (
       <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>Avatar Sizes</h3>
+        <h3 className='mb-3 font-medium text-sm'>Avatar Sizes</h3>
         <div className='flex items-center gap-x-4'>
           <div className='flex flex-col items-center gap-y-2'>
             <Avatar size='sm' shape={shape}>
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-subtle'>Small</span>
+            <span className='text-subtle text-xs'>Small</span>
           </div>
           <div className='flex flex-col items-center gap-y-2'>
             <Avatar size='md' shape={shape}>
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-subtle'>Medium</span>
+            <span className='text-subtle text-xs'>Medium</span>
           </div>
           <div className='flex flex-col items-center gap-y-2'>
             <Avatar size='lg' shape={shape}>
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-subtle'>Large</span>
+            <span className='text-subtle text-xs'>Large</span>
           </div>
         </div>
       </div>
@@ -198,21 +198,21 @@ export const Shapes: Story = {
     const user = users[0];
     return (
       <div className='p-4'>
-        <h3 className='text-sm font-medium mb-3'>Avatar Shapes</h3>
+        <h3 className='mb-3 font-medium text-sm'>Avatar Shapes</h3>
         <div className='flex items-center gap-x-4'>
           <div className='flex flex-col items-center gap-y-2'>
             <Avatar size={size} shape='circle'>
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-subtle'>Circle</span>
+            <span className='text-subtle text-xs'>Circle</span>
           </div>
           <div className='flex flex-col items-center gap-y-2'>
             <Avatar size={size} shape='square'>
               <Avatar.Image src={user.avatar} alt={user.alt} />
               <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
             </Avatar>
-            <span className='text-xs text-subtle'>Square</span>
+            <span className='text-subtle text-xs'>Square</span>
           </div>
         </div>
       </div>
@@ -227,11 +227,11 @@ export const AvatarGroup: Story = {
     shape: 'circle',
   },
   render: ({ size, shape }) => (
-    <div className='p-4 flex flex-col items-center gap-y-3'>
-      <h3 className='text-sm font-medium'>Project Contributors</h3>
-      <div className='flex -space-x-2'>
-        {users.slice(0, 4).map(({ name, avatar, alt }, index) => (
-          <Avatar key={index} size={size} shape={shape} className='ring-2 ring-surface-neutral'>
+    <div className='flex flex-col items-center gap-y-3 p-4'>
+      <h3 className='font-medium text-sm'>Project Contributors</h3>
+      <div className='-space-x-2 flex'>
+        {users.slice(0, 4).map(({ name, avatar, alt }) => (
+          <Avatar key={alt} size={size} shape={shape} className='ring-2 ring-surface-neutral'>
             <Avatar.Image src={avatar} alt={alt} />
             <Avatar.Fallback>{getInitials(name)}</Avatar.Fallback>
           </Avatar>
@@ -240,7 +240,7 @@ export const AvatarGroup: Story = {
           <Avatar.Fallback>+2</Avatar.Fallback>
         </Avatar>
       </div>
-      <p className='text-xs text-subtle'>6 contributors total</p>
+      <p className='text-subtle text-xs'>6 contributors total</p>
     </div>
   ),
 };
@@ -253,7 +253,7 @@ export const WithCustomFallback: Story = {
   },
   render: ({ size, shape }) => (
     <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3'>Custom Fallback Examples</h3>
+      <h3 className='mb-3 font-medium text-sm'>Custom Fallback Examples</h3>
       <div className='flex items-center gap-x-4'>
         <div className='flex flex-col items-center gap-y-2'>
           <Avatar size={size} shape={shape}>
@@ -265,28 +265,28 @@ export const WithCustomFallback: Story = {
                 fill='none'
                 stroke='currentColor'
                 strokeWidth='2'
-                className='w-1/2 h-1/2'
+                className='size-1/2'
               >
                 <path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' />
                 <circle cx='12' cy='7' r='4' />
               </svg>
             </Avatar.Fallback>
           </Avatar>
-          <span className='text-xs text-subtle'>Icon</span>
+          <span className='text-subtle text-xs'>Icon</span>
         </div>
         <div className='flex flex-col items-center gap-y-2'>
           <Avatar size={size} shape={shape}>
             <Avatar.Image src='' alt='User' />
             <Avatar.Fallback className='bg-blue-500 text-white'>AB</Avatar.Fallback>
           </Avatar>
-          <span className='text-xs text-subtle'>Colored</span>
+          <span className='text-subtle text-xs'>Colored</span>
         </div>
         <div className='flex flex-col items-center gap-y-2'>
           <Avatar size={size} shape={shape}>
             <Avatar.Image src='' alt='User' />
             <Avatar.Fallback className='text-2xl'>🎨</Avatar.Fallback>
           </Avatar>
-          <span className='text-xs text-subtle'>Emoji</span>
+          <span className='text-subtle text-xs'>Emoji</span>
         </div>
       </div>
     </div>
@@ -298,8 +298,8 @@ export const Interactive: Story = {
   render: ({ size, shape }) => {
     const user = users[0];
     return (
-      <div className='p-4 flex flex-col items-center gap-y-3'>
-        <h3 className='text-sm font-medium'>Customize Avatar</h3>
+      <div className='flex flex-col items-center gap-y-3 p-4'>
+        <h3 className='font-medium text-sm'>Customize Avatar</h3>
         <Avatar size={size} shape={shape}>
           <Avatar.Image src={user.avatar} alt={user.alt} />
           <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>

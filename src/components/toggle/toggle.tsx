@@ -1,3 +1,4 @@
+import { type ForwardedRef, forwardRef } from 'react';
 import {
   Button,
   type ButtonIconProps,
@@ -7,7 +8,6 @@ import {
   type ButtonVariantsProps,
 } from '@/components/button';
 import { useControlledState } from '@/hooks';
-import { type ForwardedRef, forwardRef } from 'react';
 
 export type ToggleProps = {
   pressed?: boolean;

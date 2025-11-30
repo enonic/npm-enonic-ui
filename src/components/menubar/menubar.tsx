@@ -1,3 +1,20 @@
+import { Slot } from '@radix-ui/react-slot';
+import { cva } from 'class-variance-authority';
+import { Circle, CircleDot } from 'lucide-react';
+import {
+  type ComponentPropsWithoutRef,
+  createContext,
+  forwardRef,
+  type ReactElement,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 import {
   useActiveItemFocus,
   useClickOutside,
@@ -16,23 +33,6 @@ import {
   usePrefixedId,
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
-import { Slot } from '@radix-ui/react-slot';
-import { cva } from 'class-variance-authority';
-import { Circle, CircleDot } from 'lucide-react';
-import {
-  type ComponentPropsWithoutRef,
-  createContext,
-  forwardRef,
-  type ReactElement,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { createPortal } from 'react-dom';
 
 //
 // * MenubarContentContext (internal)
@@ -372,7 +372,7 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
           setActive(undefined);
         }
       },
-      [openMenuId, id, active, setActive, onPointerLeave, buttonRef],
+      [openMenuId, id, setActive, onPointerLeave],
     );
 
     const handleFocus = useCallback(
@@ -412,7 +412,7 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
         data-disabled={disabled || undefined}
         data-tone={isActive ? 'inverse' : undefined}
         className={cn(
-          'group px-4.5 py-2.5 rounded-sm text-sm cursor-pointer outline-none',
+          'group cursor-pointer rounded-sm px-4.5 py-2.5 text-sm outline-none',
           'focus-visible:ring-3 focus-visible:ring-ring',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
           className,
@@ -495,7 +495,7 @@ const MenubarSeparator = forwardRef<HTMLDivElement, MenubarSeparatorProps>(
         ref={ref}
         role='separator'
         aria-orientation='vertical'
-        className={cn('mx-1 w-px h-4 bg-bdr-subtle', className)}
+        className={cn('mx-1 h-4 w-px bg-bdr-subtle', className)}
         {...props}
       />
     );
@@ -766,10 +766,10 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         data-state={open ? 'open' : 'closed'}
         data-tone={isActive ? 'inverse' : undefined}
         className={cn(
-          'group px-4.5 py-2.5 rounded-sm text-sm cursor-pointer outline-none',
+          'group cursor-pointer rounded-sm px-4.5 py-2.5 text-sm outline-none',
           'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset data-[tone=inverse]:focus-visible:ring-ring-alt data-[tone=inverse]:focus-visible:ring-offset-ring-offset-alt',
           open && 'bg-btn-active text-alt',
-          disabled && 'opacity-30 cursor-not-allowed pointer-events-none',
+          disabled && 'pointer-events-none cursor-not-allowed opacity-30',
           className,
         )}
         onClick={handleClick}
@@ -839,7 +839,7 @@ const MenubarPortal = ({ container, forceMount = false, children }: MenubarPorta
   }
 
   const targetContainer = container ?? document.body;
-  return createPortal(<>{children}</>, targetContainer) as ReactElement;
+  return createPortal(children, targetContainer) as ReactElement;
 };
 MenubarPortal.displayName = 'Menubar.Portal';
 
@@ -918,11 +918,6 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       contentRef,
       align,
     });
-
-    // Don't render if menu is closed and not force-mounted
-    if (!open && !forceMount) {
-      return null;
-    }
 
     // Keyboard navigation for vertical menu items
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
@@ -1049,8 +1044,13 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
         active,
         setActive,
       }),
-      [registerItem, unregisterItem, getItems, isItemDisabled, active, setActive],
+      [registerItem, unregisterItem, getItems, isItemDisabled, active],
     );
+
+    // Don't render if menu is closed and not force-mounted
+    if (!open && !forceMount) {
+      return null;
+    }
 
     return (
       <MenubarContentContext.Provider value={contentContextValue}>
@@ -1064,10 +1064,10 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
           data-state={open ? 'open' : 'closed'}
           data-align={align}
           className={cn(
-            'fixed z-40 flex flex-col items-start w-fit p-1 mt-2 gap-y-1 overflow-hidden',
+            'fixed z-40 mt-2 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
             'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
             // Animations
-            'data-[state=open]:animate-in data-[state=closed]:animate-out',
+            'data-[state=closed]:animate-out data-[state=open]:animate-in',
             'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
             'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
             !position && 'invisible',
@@ -1091,8 +1091,8 @@ MenubarContent.displayName = 'Menubar.Content';
 
 const menubarItemVariants = cva(
   [
-    'relative z-0 flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
-    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+    'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
+    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
   ],
   {
     variants: {
@@ -1101,7 +1101,7 @@ const menubarItemVariants = cva(
         false: 'hover:bg-surface-neutral-hover',
       },
       disabled: {
-        true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
+        true: 'pointer-events-none select-none opacity-30 hover:bg-transparent',
         false: '',
       },
     },
@@ -1111,7 +1111,7 @@ const menubarItemVariants = cva(
         disabled: false,
         class: [
           // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
         ],
       },
@@ -1227,7 +1227,7 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
           setActive(undefined);
         }
       },
-      [setActive, onPointerLeave, itemRef],
+      [setActive, onPointerLeave],
     );
 
     const handleFocus = useCallback(
@@ -1313,7 +1313,7 @@ export type MenubarLabelProps = {
 const MenubarLabel = forwardRef<HTMLDivElement, MenubarLabelProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <div ref={ref} role='none' className={cn('px-3 py-1.5 text-xs font-semibold text-subtle', className)} {...props}>
+      <div ref={ref} role='none' className={cn('px-3 py-1.5 font-semibold text-subtle text-xs', className)} {...props}>
         {children}
       </div>
     );
@@ -1418,7 +1418,7 @@ const MenubarRadioGroup = forwardRef<HTMLDivElement, MenubarRadioGroupProps>(
 
     return (
       <RadioGroupContext.Provider value={contextValue}>
-        <div ref={ref} role='group' className={cn('relative flex flex-col w-full gap-y-1', className)} {...props}>
+        <div ref={ref} role='group' className={cn('relative flex w-full flex-col gap-y-1', className)} {...props}>
           {children}
         </div>
       </RadioGroupContext.Provider>
@@ -1433,8 +1433,8 @@ MenubarRadioGroup.displayName = 'Menubar.RadioGroup';
 
 const menubarRadioItemVariants = cva(
   [
-    'relative z-0 flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
-    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+    'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
+    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
   ],
   {
     variants: {
@@ -1443,7 +1443,7 @@ const menubarRadioItemVariants = cva(
         false: '',
       },
       disabled: {
-        true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
+        true: 'pointer-events-none select-none opacity-30 hover:bg-transparent',
         false: '',
       },
       checked: {
@@ -1463,7 +1463,7 @@ const menubarRadioItemVariants = cva(
         disabled: false,
         class: [
           // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
         ],
       },
@@ -1610,7 +1610,7 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
           setActive(undefined);
         }
       },
-      [setActive, onPointerLeave, itemRef],
+      [setActive, onPointerLeave],
     );
 
     const handleFocus = useCallback(
@@ -1711,7 +1711,7 @@ const MenubarItemIndicator = forwardRef<HTMLSpanElement, MenubarItemIndicatorPro
         <Circle strokeWidth={1.5} className='size-3.5 group-data-[state=checked]:hidden' />
         <CircleDot
           strokeWidth={1.5}
-          className='size-3.5 group-data-[state=unchecked]:hidden [&>circle:last-child]:scale-[3.75] [&>circle:last-child]:origin-center [&>circle:last-child]:fill-current'
+          className='size-3.5 group-data-[state=unchecked]:hidden [&>circle:last-child]:origin-center [&>circle:last-child]:scale-[3.75] [&>circle:last-child]:fill-current'
         />
       </>
     );

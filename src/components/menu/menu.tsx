@@ -1,15 +1,3 @@
-import {
-  useActiveItemFocus,
-  useClickOutside,
-  useControlledState,
-  useFloatingPosition,
-  useItemRegistry,
-  useKeyboardNavigation,
-  useRovingTabIndex,
-  useScrollActiveIntoView,
-} from '@/hooks';
-import { type MenuContextValue, MenuProvider, useMenu, usePrefixedId } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
 import { cva } from 'class-variance-authority';
 import { Circle, CircleDot } from 'lucide-react';
@@ -27,6 +15,18 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import {
+  useActiveItemFocus,
+  useClickOutside,
+  useControlledState,
+  useFloatingPosition,
+  useItemRegistry,
+  useKeyboardNavigation,
+  useRovingTabIndex,
+  useScrollActiveIntoView,
+} from '@/hooks';
+import { type MenuContextValue, MenuProvider, useMenu, usePrefixedId } from '@/providers';
+import { cn, useComposedRefs } from '@/utils';
 
 //
 // * Menu
@@ -67,7 +67,7 @@ const MenuRoot = ({
       menuId,
       triggerRef,
     }),
-    [open, active, registerItem, unregisterItem, getItems, isItemDisabled, triggerId, menuId],
+    [open, active, registerItem, unregisterItem, getItems, isItemDisabled, triggerId, menuId, setOpen],
   );
 
   const [hasOpened, setHasOpened] = useState(false);
@@ -79,7 +79,7 @@ const MenuRoot = ({
       // Return focus to trigger when menu closes (can't be in MenuContent - it unmounts)
       triggerRef.current.focus();
     }
-  }, [open, hasOpened, triggerRef]);
+  }, [open, hasOpened]);
 
   return <MenuProvider value={value}>{children}</MenuProvider>;
 };
@@ -282,13 +282,13 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
         tabIndex={-1}
         data-state={open ? 'open' : 'closed'}
         className={cn(
-          'fixed z-40 flex flex-col items-start w-fit p-1 mt-2 gap-y-1 overflow-hidden',
+          'fixed z-40 mt-2 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
           // Animations
-          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-          !position && 'opacity-0 pointer-events-none',
+          !position && 'pointer-events-none opacity-0',
           className,
         )}
         style={{ ...position }}
@@ -308,8 +308,8 @@ MenuContent.displayName = 'Menu.Content';
 
 const menuItemVariants = cva(
   [
-    'relative z-0 flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
-    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+    'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
+    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
   ],
   {
     variants: {
@@ -318,7 +318,7 @@ const menuItemVariants = cva(
         false: 'hover:bg-surface-neutral-hover',
       },
       disabled: {
-        true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
+        true: 'pointer-events-none select-none opacity-30 hover:bg-transparent',
         false: '',
       },
     },
@@ -328,7 +328,7 @@ const menuItemVariants = cva(
         disabled: false,
         class: [
           // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
         ],
       },
@@ -435,7 +435,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
           setActive(undefined);
         }
       },
-      [setActive, onPointerLeave, itemRef],
+      [setActive, onPointerLeave],
     );
 
     const handleFocus = useCallback(
@@ -500,7 +500,7 @@ export type MenuLabelProps = {
 
 const MenuLabel = forwardRef<HTMLDivElement, MenuLabelProps>(({ className, children, ...props }, ref): ReactElement => {
   return (
-    <div ref={ref} className={cn('px-3 py-1.5 text-xs font-semibold text-subtle', className)} {...props}>
+    <div ref={ref} className={cn('px-3 py-1.5 font-semibold text-subtle text-xs', className)} {...props}>
       {children}
     </div>
   );
@@ -595,7 +595,7 @@ const MenuRadioGroup = forwardRef<HTMLDivElement, MenuRadioGroupProps>(
 
     return (
       <RadioGroupContext.Provider value={contextValue}>
-        <div ref={ref} role='group' className={cn('flex flex-col w-full', className)} {...props}>
+        <div ref={ref} role='group' className={cn('flex w-full flex-col', className)} {...props}>
           {children}
         </div>
       </RadioGroupContext.Provider>
@@ -610,8 +610,8 @@ MenuRadioGroup.displayName = 'Menu.RadioGroup';
 
 const menuRadioItemVariants = cva(
   [
-    'relative z-0 flex w-full items-center px-4.5 py-2.5 gap-x-1.25 cursor-pointer text-sm outline-none transition-highlight',
-    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+    'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
+    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
   ],
   {
     variants: {
@@ -620,7 +620,7 @@ const menuRadioItemVariants = cva(
         false: '',
       },
       disabled: {
-        true: 'hover:bg-transparent opacity-30 select-none pointer-events-none',
+        true: 'pointer-events-none select-none opacity-30 hover:bg-transparent',
         false: '',
       },
       checked: {
@@ -640,7 +640,7 @@ const menuRadioItemVariants = cva(
         disabled: false,
         class: [
           // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
         ],
       },
@@ -749,7 +749,7 @@ const MenuRadioItem = forwardRef<HTMLDivElement, MenuRadioItemProps>(
           setActive(undefined);
         }
       },
-      [setActive, onPointerLeave, itemRef],
+      [setActive, onPointerLeave],
     );
 
     const handleFocus = useCallback(
@@ -831,7 +831,7 @@ const MenuItemIndicator = forwardRef<HTMLSpanElement, MenuItemIndicatorProps>(
         <Circle strokeWidth={1.5} className='size-3.5 group-data-[state=checked]:hidden' />
         <CircleDot
           strokeWidth={1.5}
-          className='size-3.5 group-data-[state=unchecked]:hidden [&>circle:last-child]:scale-[3.75] [&>circle:last-child]:origin-center [&>circle:last-child]:fill-current'
+          className='size-3.5 group-data-[state=unchecked]:hidden [&>circle:last-child]:origin-center [&>circle:last-child]:scale-[3.75] [&>circle:last-child]:fill-current'
         />
       </>
     );

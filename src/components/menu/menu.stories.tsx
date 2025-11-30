@@ -1,4 +1,3 @@
-import { Button, IconButton } from '@/components';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   ChevronDown,
@@ -19,6 +18,8 @@ import {
   Upload,
 } from 'lucide-react';
 import { useState } from 'preact/hooks';
+import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button';
 
 import { Menu } from './menu';
 
@@ -56,12 +57,12 @@ export const Basic: Story = {
 export const DefaultTrigger: Story = {
   name: 'Examples / Default Trigger',
   render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
+    <div className='flex flex-col items-center gap-y-3 p-4'>
       <div className='max-w-120 text-sm text-subtle'>
         Menu.Trigger without <code>asChild</code> renders a fallback button element
       </div>
       <Menu>
-        <Menu.Trigger className='p-2 rounded-sm cursor-pointer hover:bg-surface-neutral-hover'>Open Menu</Menu.Trigger>
+        <Menu.Trigger className='cursor-pointer rounded-sm p-2 hover:bg-surface-neutral-hover'>Open Menu</Menu.Trigger>
         <Menu.Portal>
           <Menu.Content>
             <Menu.Item>Action 1</Menu.Item>
@@ -85,40 +86,40 @@ export const WithSections: Story = {
         <Menu.Content>
           <Menu.Label>New</Menu.Label>
           <Menu.Item>
-            <FileText className='w-4 h-4' />
+            <FileText className='size-4' />
             <span>Text Document</span>
           </Menu.Item>
           <Menu.Item>
-            <Folder className='w-4 h-4' />
+            <Folder className='size-4' />
             <span>Folder</span>
           </Menu.Item>
           <Menu.Item>
-            <Image className='w-4 h-4' />
+            <Image className='size-4' />
             <span>Image</span>
           </Menu.Item>
           <Menu.Separator />
           <Menu.Label>Actions</Menu.Label>
           <Menu.Item>
-            <Upload className='w-4 h-4' />
+            <Upload className='size-4' />
             <span>Upload</span>
           </Menu.Item>
           <Menu.Item>
-            <Download className='w-4 h-4' />
+            <Download className='size-4' />
             <span>Download</span>
           </Menu.Item>
           <Menu.Separator />
           <Menu.Label>Edit</Menu.Label>
           <Menu.Item>
-            <Copy className='w-4 h-4' />
+            <Copy className='size-4' />
             <span>Copy</span>
           </Menu.Item>
           <Menu.Item>
-            <Link className='w-4 h-4' />
+            <Link className='size-4' />
             <span>Copy Link</span>
           </Menu.Item>
           <Menu.Separator />
           <Menu.Item className='text-error data-[active=true]:not-dark:text-error-rev'>
-            <Trash2 className='w-4 h-4' />
+            <Trash2 className='size-4' />
             <span>Delete</span>
           </Menu.Item>
         </Menu.Content>
@@ -130,15 +131,15 @@ export const WithSections: Story = {
 export const WithDisabledItems: Story = {
   name: 'States / Disabled Items',
   render: () => (
-    <div className='flex flex-col gap-y-6 p-4 items-center'>
+    <div className='flex flex-col items-center gap-y-6 p-4'>
       <div className='max-w-120 text-sm text-subtle'>
         Disabled items are skipped during keyboard navigation but remain visible and accessible to screen readers. Test
         arrow keys, Home, and End.
       </div>
-      <div className='flex gap-6 flex-wrap justify-center'>
+      <div className='flex flex-wrap justify-center gap-6'>
         {/* Menu 1: Disabled in middle */}
-        <div className='flex flex-col gap-2 items-center'>
-          <div className='text-xs text-subtle'>Middle disabled</div>
+        <div className='flex flex-col items-center gap-2'>
+          <div className='text-subtle text-xs'>Middle disabled</div>
           <Menu>
             <Menu.Trigger asChild>
               <Button endIcon={ChevronDown} iconStrokeWidth={2} variant='outline'>
@@ -148,29 +149,29 @@ export const WithDisabledItems: Story = {
             <Menu.Portal>
               <Menu.Content>
                 <Menu.Item>
-                  <File className='w-4 h-4' />
+                  <File className='size-4' />
                   <span>New Document</span>
                 </Menu.Item>
                 <Menu.Item>
-                  <Folder className='w-4 h-4' />
+                  <Folder className='size-4' />
                   <span>Open Folder</span>
                 </Menu.Item>
                 <Menu.Separator />
                 <Menu.Item disabled>
-                  <Share2 className='w-4 h-4' />
+                  <Share2 className='size-4' />
                   <span>Share (unavailable)</span>
                 </Menu.Item>
                 <Menu.Item disabled>
-                  <Download className='w-4 h-4' />
+                  <Download className='size-4' />
                   <span>Download (processing...)</span>
                 </Menu.Item>
                 <Menu.Separator />
                 <Menu.Item>
-                  <Upload className='w-4 h-4' />
+                  <Upload className='size-4' />
                   <span>Upload</span>
                 </Menu.Item>
                 <Menu.Item>
-                  <Save className='w-4 h-4' />
+                  <Save className='size-4' />
                   <span>Save</span>
                 </Menu.Item>
               </Menu.Content>
@@ -179,8 +180,8 @@ export const WithDisabledItems: Story = {
         </div>
 
         {/* Menu 2: First and last disabled */}
-        <div className='flex flex-col gap-2 items-center'>
-          <div className='text-xs text-subtle'>First & last disabled</div>
+        <div className='flex flex-col items-center gap-2'>
+          <div className='text-subtle text-xs'>First & last disabled</div>
           <Menu>
             <Menu.Trigger asChild>
               <Button endIcon={ChevronDown} iconStrokeWidth={2} variant='outline'>
@@ -190,29 +191,29 @@ export const WithDisabledItems: Story = {
             <Menu.Portal>
               <Menu.Content>
                 <Menu.Item disabled>
-                  <File className='w-4 h-4' />
+                  <File className='size-4' />
                   <span>New (disabled)</span>
                 </Menu.Item>
                 <Menu.Item disabled>
-                  <Folder className='w-4 h-4' />
+                  <Folder className='size-4' />
                   <span>Open (disabled)</span>
                 </Menu.Item>
                 <Menu.Separator />
                 <Menu.Item>
-                  <Share2 className='w-4 h-4' />
+                  <Share2 className='size-4' />
                   <span>Share</span>
                 </Menu.Item>
                 <Menu.Item>
-                  <Download className='w-4 h-4' />
+                  <Download className='size-4' />
                   <span>Download</span>
                 </Menu.Item>
                 <Menu.Separator />
                 <Menu.Item disabled>
-                  <Upload className='w-4 h-4' />
+                  <Upload className='size-4' />
                   <span>Upload (disabled)</span>
                 </Menu.Item>
                 <Menu.Item disabled>
-                  <Save className='w-4 h-4' />
+                  <Save className='size-4' />
                   <span>Save (disabled)</span>
                 </Menu.Item>
               </Menu.Content>
@@ -221,8 +222,8 @@ export const WithDisabledItems: Story = {
         </div>
 
         {/* Menu 3: All disabled */}
-        <div className='flex flex-col gap-2 items-center'>
-          <div className='text-xs text-subtle'>All disabled</div>
+        <div className='flex flex-col items-center gap-2'>
+          <div className='text-subtle text-xs'>All disabled</div>
           <Menu>
             <Menu.Trigger asChild>
               <Button endIcon={ChevronDown} iconStrokeWidth={2} variant='outline'>
@@ -232,20 +233,20 @@ export const WithDisabledItems: Story = {
             <Menu.Portal>
               <Menu.Content>
                 <Menu.Item disabled>
-                  <File className='w-4 h-4' />
+                  <File className='size-4' />
                   <span>New (disabled)</span>
                 </Menu.Item>
                 <Menu.Item disabled>
-                  <Folder className='w-4 h-4' />
+                  <Folder className='size-4' />
                   <span>Open (disabled)</span>
                 </Menu.Item>
                 <Menu.Separator />
                 <Menu.Item disabled>
-                  <Share2 className='w-4 h-4' />
+                  <Share2 className='size-4' />
                   <span>Share (disabled)</span>
                 </Menu.Item>
                 <Menu.Item disabled>
-                  <Download className='w-4 h-4' />
+                  <Download className='size-4' />
                   <span>Download (disabled)</span>
                 </Menu.Item>
               </Menu.Content>
@@ -260,7 +261,7 @@ export const WithDisabledItems: Story = {
 export const AlignEnd: Story = {
   name: 'Features / Align End',
   render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-end'>
+    <div className='flex flex-col items-end gap-y-3 p-4'>
       <div className='text-sm text-subtle'>Menu aligned to the right edge of the trigger button</div>
       <Menu>
         <Menu.Trigger asChild>
@@ -285,7 +286,7 @@ export const AlignEnd: Story = {
 export const AsChild: Story = {
   name: 'Features / AsChild Pattern',
   render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
+    <div className='flex flex-col items-center gap-y-3 p-4'>
       <div className='max-w-120 text-sm text-subtle'>
         Menu.Item with <code>asChild</code> allows rendering custom elements like links or buttons while maintaining
         menu behavior
@@ -299,13 +300,13 @@ export const AsChild: Story = {
             <Menu.Item asChild>
               <a href='https://enonic.com' target='_blank' rel='noreferrer' className='no-underline'>
                 <span>Enonic.com</span>
-                <ExternalLink className='w-3 h-3 ml-auto' />
+                <ExternalLink className='ml-auto size-3' />
               </a>
             </Menu.Item>
             <Menu.Item asChild>
               <a href='https://example.com' target='_blank' rel='noreferrer' className='no-underline'>
                 <span>example.com</span>
-                <ExternalLink className='w-3 h-3 ml-auto' />
+                <ExternalLink className='ml-auto size-3' />
               </a>
             </Menu.Item>
           </Menu.Content>
@@ -356,7 +357,7 @@ export const Interactive: Story = {
                   setLastAction('Delete (menu stayed open)');
                 }}
               >
-                <Trash2 className='w-4 h-4 text-red-600' />
+                <Trash2 className='size-4 text-red-600' />
                 <span className='text-red-600'>Delete (stay open)</span>
               </Menu.Item>
             </Menu.Content>
@@ -370,7 +371,7 @@ export const Interactive: Story = {
 export const NoLoop: Story = {
   name: 'Behavior / No Loop',
   render: () => (
-    <div className='flex flex-col gap-y-3 p-4 items-center'>
+    <div className='flex flex-col items-center gap-y-3 p-4'>
       <div className='text-sm text-subtle'>Arrow key navigation stops at first/last item instead of looping</div>
       <Menu>
         <Menu.Trigger asChild>
@@ -396,7 +397,7 @@ export const RadioItems: Story = {
     const [textSize, setTextSize] = useState('medium');
 
     return (
-      <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='flex flex-col items-center gap-y-3 p-4'>
         <div className='max-w-120 text-sm text-subtle'>
           Radio items allow single selection within a group.
           <br />
@@ -448,7 +449,7 @@ export const MultipleRadioGroups: Story = {
     const [theme, setTheme] = useState('light');
 
     return (
-      <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='flex flex-col items-center gap-y-3 p-4'>
         <div className='max-w-120 text-sm text-subtle'>
           Multiple radio groups can exist in the same menu. Each group maintains its own selection state independently.
         </div>
@@ -516,7 +517,7 @@ export const RadioWithRegularItems: Story = {
     const [viewMode, setViewMode] = useState(defaultViewMode);
 
     return (
-      <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='flex flex-col items-center gap-y-3 p-4'>
         <div className='max-w-120 text-sm text-subtle'>
           Radio groups can be mixed with regular menu items and separators for flexible menu composition.
         </div>
@@ -531,11 +532,11 @@ export const RadioWithRegularItems: Story = {
           <Menu.Portal>
             <Menu.Content>
               <Menu.Item>
-                <Save className='w-4 h-4' />
+                <Save className='size-4' />
                 <span>Save View</span>
               </Menu.Item>
               <Menu.Item>
-                <Share2 className='w-4 h-4' />
+                <Share2 className='size-4' />
                 <span>Share View</span>
               </Menu.Item>
               <Menu.Separator />
@@ -556,7 +557,7 @@ export const RadioWithRegularItems: Story = {
               </Menu.RadioGroup>
               <Menu.Separator />
               <Menu.Item onSelect={() => setViewMode(defaultViewMode)}>
-                <RefreshCwOff className='w-4 h-4' />
+                <RefreshCwOff className='size-4' />
                 <span>Reset to Default</span>
               </Menu.Item>
             </Menu.Content>
@@ -573,7 +574,7 @@ export const CustomIndicators: Story = {
     const [priority, setPriority] = useState('medium');
 
     return (
-      <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='flex flex-col items-center gap-y-3 p-4'>
         <div className='max-w-120 text-sm text-subtle'>
           Indicators can be customized by passing children to <code>Menu.ItemIndicator</code>. Use custom icons,
           characters, or any React element.
@@ -632,12 +633,12 @@ export const CloseOnSelect: Story = {
     const selectedLabel = languages.find(lang => lang.value === language)?.label ?? 'Select Language';
 
     return (
-      <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='flex flex-col items-center gap-y-3 p-4'>
         <div className='max-w-120 text-sm text-subtle'>
           Use <code>closeOnSelect</code> prop on <code>Menu.RadioGroup</code> to automatically close the menu after
           selecting a radio item. Useful for simple dropdowns.
         </div>
-        <p className='text-sm text-subtle font-semibold'>Language</p>
+        <p className='font-semibold text-sm text-subtle'>Language</p>
         <Menu>
           <Menu.Trigger asChild>
             <Button variant='outline' endIcon={ChevronDown}>
@@ -685,12 +686,12 @@ export const DisabledRadioItems: Story = {
     const selectedLabel = qualityOptions.find(opt => opt.value === quality)?.label ?? 'Select Quality';
 
     return (
-      <div className='flex flex-col gap-y-3 p-4 items-center'>
+      <div className='flex flex-col items-center gap-y-3 p-4'>
         <div className='max-w-120 text-sm text-subtle'>
           Radio items can be disabled individually. Disabled items are skipped during keyboard navigation and cannot be
           selected.
         </div>
-        <p className='text-sm text-subtle font-semibold'>Video quality</p>
+        <p className='font-semibold text-sm text-subtle'>Video quality</p>
         <Menu>
           <Menu.Trigger asChild>
             <Button variant='outline' endIcon={ChevronDown}>

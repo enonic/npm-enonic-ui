@@ -1,10 +1,3 @@
-import { Button, Listbox, SearchField } from '@/components';
-import { IconButton } from '@/components/icon-button/icon-button';
-import { useControlledState, useControlledStateWithNull, useItemRegistry, useKeyboardNavigation } from '@/hooks';
-import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
-import { cn } from '@/utils';
-import { areArraysEquals } from '@/utils/array';
-import { useComposedRefs } from '@/utils/ref';
 import { cva } from 'class-variance-authority';
 import { ChevronDown } from 'lucide-react';
 import {
@@ -18,6 +11,15 @@ import {
   useRef,
   useState,
 } from 'react';
+import { Button } from '@/components/button';
+import { IconButton } from '@/components/icon-button/icon-button';
+import { Listbox } from '@/components/listbox';
+import { SearchField } from '@/components/search-field';
+import { useControlledState, useControlledStateWithNull, useItemRegistry, useKeyboardNavigation } from '@/hooks';
+import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
+import { cn } from '@/utils';
+import { areArraysEquals } from '@/utils/array';
+import { useComposedRefs } from '@/utils/ref';
 
 // Shared empty array to maintain referential equality across renders
 const EMPTY_SELECTION: readonly string[] = [];
@@ -315,20 +317,22 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
 
     const { setOpen, closeOnBlur } = useCombobox();
 
-    const handleOnBlur = closeOnBlur
-      ? useCallback(
-          (e: React.FocusEvent<HTMLDivElement>): void => {
-            const { relatedTarget } = e;
+    const handleOnBlur = useCallback(
+      (e: React.FocusEvent<HTMLDivElement>): void => {
+        if (!closeOnBlur) {
+          return;
+        }
 
-            if (relatedTarget instanceof Node && innerRef.current?.contains(relatedTarget)) {
-              return;
-            }
+        const { relatedTarget } = e;
 
-            setOpen(false);
-          },
-          [setOpen],
-        )
-      : undefined;
+        if (relatedTarget instanceof Node && innerRef.current?.contains(relatedTarget)) {
+          return;
+        }
+
+        setOpen(false);
+      },
+      [setOpen, closeOnBlur],
+    );
 
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions
@@ -346,7 +350,7 @@ ComboboxContent.displayName = 'Combobox.Content';
 
 const comboboxControlVariants = cva(
   [
-    'flex gap-2.5 items-center',
+    'flex items-center gap-2.5',
     'h-12 rounded-sm border bg-surface-neutral',
     'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
     'transition-highlight',
@@ -524,7 +528,7 @@ const ComboboxApply = ({ className, label = 'Apply', ...props }: ComboboxApplyPr
 
   return (
     <Button
-      className={cn('h-7 px-2.5 min-w-14 gap-2 text-xs', className)}
+      className={cn('h-7 min-w-14 gap-2 px-2.5 text-xs', className)}
       type='button'
       label={label}
       variant='outline'
@@ -554,7 +558,7 @@ const ComboboxPopup = ({ children, className, ...props }: ComboboxPopupProps): R
   return (
     <div
       className={cn(
-        'absolute left-0 right-0 z-50 mt-2 rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+        'absolute right-0 left-0 z-50 mt-2 rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
         className,
       )}
       {...props}

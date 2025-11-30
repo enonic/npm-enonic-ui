@@ -1,17 +1,17 @@
-import type { LucideIcon } from '@/types';
-import { cn } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef } from 'react';
+import type { LucideIcon } from '@/types';
+import { cn } from '@/utils';
 
 const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'text-main font-semibold',
+    'font-semibold text-main',
     'box-border rounded-sm transition-highlight',
     'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
     'active:bg-btn-active active:text-alt data-[active=true]:bg-btn-active data-[active=true]:text-alt',
-    'disabled:select-none disabled:pointer-events-none disabled:opacity-30',
-    'overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer',
+    'disabled:pointer-events-none disabled:select-none disabled:opacity-30',
+    'cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap',
   ],
   {
     variants: {
@@ -19,12 +19,12 @@ const buttonVariants = cva(
         text: 'bg-btn-primary hover:bg-btn-primary-hover hover:text-main',
         filled: 'bg-btn-secondary hover:bg-btn-secondary-hover hover:text-main',
         solid: 'bg-btn-tertiary text-alt hover:bg-btn-tertiary-hover',
-        outline: 'bg-btn-primary hover:bg-btn-primary-hover border border-bdr-strong',
+        outline: 'border border-bdr-strong bg-btn-primary hover:bg-btn-primary-hover',
       },
       size: {
-        sm: 'h-9 px-3.5 gap-2 text-sm',
-        md: 'h-10 px-3.5 gap-2.5 text-base',
-        lg: 'h-11.5 px-4 gap-3 text-lg',
+        sm: 'h-9 gap-2 px-3.5 text-sm',
+        md: 'h-10 gap-2.5 px-3.5 text-base',
+        lg: 'h-11.5 gap-3 px-4 text-lg',
       },
     },
     defaultVariants: {

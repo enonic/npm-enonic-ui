@@ -1,7 +1,7 @@
-import type { LucideIcon } from '@/types';
-import { cn } from '@/utils';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+import type { LucideIcon } from '@/types';
+import { cn } from '@/utils';
 
 function isExternalHref(href: string): boolean {
   try {
@@ -49,11 +49,11 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
         ref={ref}
         href={href}
         className={cn(
-          'inline-flex items-center align-baseline gap-1',
-          'text-sm font-normal underline underline-offset-3 decoration-1',
+          'inline-flex items-center gap-1 align-baseline',
+          'font-normal text-sm underline decoration-1 underline-offset-3',
           'visited:text-link-visited hover:text-main-hover',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-main focus-visible:bg-main focus-visible:text-rev',
-          'data-[tone=inverse]:text-alt data-[tone=inverse]:focus-visible:ring-alt data-[tone=inverse]:focus-visible:bg-alt data-[tone=inverse]:focus-visible:text-alt-rev',
+          'focus-visible:bg-main focus-visible:text-rev focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-main',
+          'data-[tone=inverse]:text-alt data-[tone=inverse]:focus-visible:bg-alt data-[tone=inverse]:focus-visible:text-alt-rev data-[tone=inverse]:focus-visible:ring-alt',
           'transition-highlight',
           className,
         )}
@@ -61,9 +61,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
         rel={newTab || ext ? 'noopener noreferrer' : 'noreferrer'}
         {...props}
       >
-        {LeftIcon && <LeftIcon className='inline-block flex-none size-3.5' strokeWidth={1.5} aria-hidden='true' />}
+        {LeftIcon && <LeftIcon className='inline-block size-3.5 flex-none' strokeWidth={1.5} aria-hidden='true' />}
         {children}
-        {RightIcon && <RightIcon className='inline-block flex-none size-3.5' strokeWidth={1.5} aria-hidden='true' />}
+        {RightIcon && <RightIcon className='inline-block size-3.5 flex-none' strokeWidth={1.5} aria-hidden='true' />}
       </a>
     );
   },

@@ -1,5 +1,3 @@
-import { type AvatarContextValue, type AvatarImageLoadingStatus, AvatarProvider, useAvatar } from '@/providers';
-import { cn } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
@@ -10,13 +8,15 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { type AvatarContextValue, type AvatarImageLoadingStatus, AvatarProvider, useAvatar } from '@/providers';
+import { cn } from '@/utils';
 
 const avatarVariants = cva('relative flex shrink-0 overflow-hidden', {
   variants: {
     size: {
-      sm: 'w-6 h-6 text-xs',
-      md: 'w-8 h-8 text-sm',
-      lg: 'w-12 h-12 text-base',
+      sm: 'size-6 text-xs',
+      md: 'size-8 text-sm',
+      lg: 'size-12 text-base',
     },
     shape: {
       circle: 'rounded-full',
@@ -162,7 +162,7 @@ const AvatarFallback = forwardRef<HTMLSpanElement, AvatarFallbackProps>(
         ref={ref}
         className={cn(
           'flex h-full w-full items-center justify-center',
-          'bg-surface-secondary text-alt font-medium uppercase cursor-default',
+          'cursor-default bg-surface-secondary font-medium text-alt uppercase',
           className,
         )}
         {...props}

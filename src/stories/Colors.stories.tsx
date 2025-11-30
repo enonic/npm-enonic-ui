@@ -38,7 +38,7 @@ const ColorSwatch = ({ name, variable, description, size = 'md' }: ColorSwatchPr
     <button
       type='button'
       onClick={handleClick}
-      className='group relative flex cursor-pointer flex-col overflow-hidden rounded-lg border border-bdr-soft bg-surface-neutral text-left transition-all duration-200 hover:border-bdr-strong hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset'
+      className='group hover:-translate-y-0.5 relative flex cursor-pointer flex-col overflow-hidden rounded-lg border border-bdr-soft bg-surface-neutral text-left transition-all duration-200 hover:border-bdr-strong hover:shadow-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset'
       title={`Click to copy: ${name}`}
     >
       <div
@@ -48,12 +48,12 @@ const ColorSwatch = ({ name, variable, description, size = 'md' }: ColorSwatchPr
         <div className='absolute inset-0 bg-linear-to-br from-white/0 to-black/5 opacity-0 transition-opacity group-hover:opacity-100' />
       </div>
       <div className='flex flex-col gap-1 p-3'>
-        <div className='font-mono text-sm font-bold tracking-tight text-main'>{name}</div>
-        {description && <div className='text-xs leading-tight text-subtle'>{description}</div>}
-        <div className='font-mono text-[10px] uppercase tracking-wider text-subtle opacity-60'>{variable}</div>
+        <div className='font-bold font-mono text-main text-sm tracking-tight'>{name}</div>
+        {description && <div className='text-subtle text-xs leading-tight'>{description}</div>}
+        <div className='font-mono text-[10px] text-subtle uppercase tracking-wider opacity-60'>{variable}</div>
       </div>
       {copied && (
-        <div className='absolute right-2 top-2 animate-in fade-in slide-in-from-top-1 rounded-md bg-surface-success px-2.5 py-1 text-xs font-semibold tracking-wide text-success shadow-lg'>
+        <div className='fade-in slide-in-from-top-1 absolute top-2 right-2 animate-in rounded-md bg-surface-success px-2.5 py-1 font-semibold text-success text-xs tracking-wide shadow-lg'>
           COPIED
         </div>
       )}
@@ -84,15 +84,15 @@ const ColorGroup = ({ title, description, badge, colors, columns = 6, size = 'md
     <section className='mb-12'>
       <div className='mb-5 flex items-start justify-between gap-4'>
         <div className='flex-1'>
-          <div className='flex items-center gap-3 mb-2'>
-            <h3 className='text-2xl font-bold tracking-tight text-main'>{title}</h3>
+          <div className='mb-2 flex items-center gap-3'>
+            <h3 className='font-bold text-2xl text-main tracking-tight'>{title}</h3>
             {badge && (
-              <span className='rounded-full border border-bdr-soft bg-surface-primary px-3 py-0.5 text-xs font-semibold uppercase tracking-wider text-subtle'>
+              <span className='rounded-full border border-bdr-soft bg-surface-primary px-3 py-0.5 font-semibold text-subtle text-xs uppercase tracking-wider'>
                 {badge}
               </span>
             )}
           </div>
-          {description && <p className='text-sm leading-relaxed text-subtle max-w-2xl'>{description}</p>}
+          {description && <p className='max-w-2xl text-sm text-subtle leading-relaxed'>{description}</p>}
         </div>
       </div>
       <div className={`grid gap-4 ${gridCols[columns]}`}>
@@ -111,25 +111,25 @@ const SectionDivider = (): ReactElement => (
 );
 
 const PageHeader = ({ title, subtitle, note }: { title: string; subtitle: string; note?: string }): ReactElement => (
-  <header className='mb-12 border-b border-bdr-soft pb-8'>
-    <div className='flex items-start justify-between gap-8 mb-6'>
+  <header className='mb-12 border-bdr-soft border-b pb-8'>
+    <div className='mb-6 flex items-start justify-between gap-8'>
       <div className='flex-1'>
-        <h1 className='mb-3 text-5xl font-bold tracking-tight text-main'>{title}</h1>
-        <p className='text-lg leading-relaxed text-subtle max-w-3xl'>{subtitle}</p>
+        <h1 className='mb-3 font-bold text-5xl text-main tracking-tight'>{title}</h1>
+        <p className='max-w-3xl text-lg text-subtle leading-relaxed'>{subtitle}</p>
       </div>
       <div className='flex items-center gap-2 rounded-full border border-bdr-soft bg-surface-primary px-4 py-2'>
-        <div className='size-2 rounded-full bg-success animate-pulse' />
-        <span className='text-xs font-semibold uppercase tracking-wider text-subtle'>Interactive</span>
+        <div className='size-2 animate-pulse rounded-full bg-success' />
+        <span className='font-semibold text-subtle text-xs uppercase tracking-wider'>Interactive</span>
       </div>
     </div>
     {note && (
-      <div className='relative overflow-hidden rounded-lg border-l-4 border-main bg-surface-primary p-5'>
-        <div className='absolute right-0 top-0 size-32 translate-x-16 -translate-y-16 rounded-full bg-main/5' />
+      <div className='relative overflow-hidden rounded-lg border-main border-l-4 bg-surface-primary p-5'>
+        <div className='-translate-y-16 absolute top-0 right-0 size-32 translate-x-16 rounded-full bg-main/5' />
         <div className='relative flex gap-3'>
           <div className='shrink-0 text-2xl'>💡</div>
           <div>
-            <div className='mb-1 text-sm font-bold uppercase tracking-wider text-main'>Important Note</div>
-            <p className='text-sm leading-relaxed text-subtle'>{note}</p>
+            <div className='mb-1 font-bold text-main text-sm uppercase tracking-wider'>Important Note</div>
+            <p className='text-sm text-subtle leading-relaxed'>{note}</p>
           </div>
         </div>
       </div>

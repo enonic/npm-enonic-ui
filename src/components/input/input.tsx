@@ -1,12 +1,12 @@
-import { usePrefixedId } from '@/providers/id-provider';
-import { cn, unwrap } from '@/utils';
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
 import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactElement, type ReactNode } from 'react';
+import { usePrefixedId } from '@/providers/id-provider';
+import { cn, unwrap } from '@/utils';
 
 const inputContainerVariants = cva(
   [
-    'relative flex rounded-sm overflow-hidden',
+    'relative flex overflow-hidden rounded-sm',
     'h-12 border focus-within:border-bdr-solid',
     'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
     'transition-highlight',
@@ -47,10 +47,10 @@ type AddonProps = {
 const Addon = ({ children, error }: AddonProps): ReactElement => (
   <div
     className={cn(
-      'flex items-center justify-center shrink-0 min-w-12 px-4',
-      'text-sm text-subtle bg-surface-primary',
-      'first:rounded-l-sm first:border-r first:border-bdr-subtle',
-      'last:rounded-r-sm last:border-l last:border-bdr-subtle',
+      'flex min-w-12 shrink-0 items-center justify-center px-4',
+      'bg-surface-primary text-sm text-subtle',
+      'first:rounded-l-sm first:border-bdr-subtle first:border-r',
+      'last:rounded-r-sm last:border-bdr-subtle last:border-l',
       error && 'first:border-error last:border-error',
     )}
   >
@@ -72,7 +72,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {(!!label || !!description) && (
           <div className='mb-2'>
             {label && (
-              <label htmlFor={inputId} className='block text-base font-semibold text-main'>
+              <label htmlFor={inputId} className='block font-semibold text-base text-main'>
                 <div className='flex items-center gap-2'>
                   {readOnly && <LockKeyhole size={16} strokeWidth={2.5} />}
                   {label}
@@ -90,10 +90,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'flex-1 w-full px-4.5 text-base',
-              'text-main bg-surface-neutral placeholder:text-subtle',
+              'w-full flex-1 px-4.5 text-base',
+              'bg-surface-neutral text-main placeholder:text-subtle',
               'border-0 focus:outline-none',
-              'disabled:select-none enabled:read-only:bg-surface-primary',
+              'enabled:read-only:bg-surface-primary disabled:select-none',
               startAddon && 'rounded-l-none',
               endAddon && 'rounded-r-none',
             )}
@@ -106,7 +106,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error && (
-          <div className='flex items-center gap-2 mt-2 leading-5 text-error'>
+          <div className='mt-2 flex items-center gap-2 text-error leading-5'>
             <OctagonAlert size={16} strokeWidth={2.5} />
             {error}
           </div>
