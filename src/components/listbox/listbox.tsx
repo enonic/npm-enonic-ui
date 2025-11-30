@@ -1,14 +1,3 @@
-import {
-  useActiveItemFocus,
-  useControlledStateWithNull,
-  useItemRegistry,
-  type UseItemRegistryReturn,
-  useKeyboardNavigation,
-  useRovingTabIndex,
-  useScrollActiveIntoView,
-} from '@/hooks';
-import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
 import { cva } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
@@ -21,6 +10,17 @@ import {
   useRef,
   useState,
 } from 'react';
+import {
+  type UseItemRegistryReturn,
+  useActiveItemFocus,
+  useControlledStateWithNull,
+  useItemRegistry,
+  useKeyboardNavigation,
+  useRovingTabIndex,
+  useScrollActiveIntoView,
+} from '@/hooks';
+import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
+import { cn, useComposedRefs } from '@/utils';
 
 const EMPTY_SELECTION: readonly string[] = [];
 
@@ -70,7 +70,8 @@ const ListboxRoot = ({
   getItems: externalGetItems,
   isItemDisabled: externalIsItemDisabled,
 }: ListboxRootProps): ReactElement => {
-  const listboxBaseId = baseId ?? usePrefixedId();
+  const prefixedId = usePrefixedId();
+  const listboxBaseId = baseId ?? prefixedId;
 
   // Selection - store as Set internally for O(1) lookups
   const [uncontrolledSelection, setUncontrolledSelection] = useState<Set<string>>(() => new Set(defaultSelection));
@@ -249,7 +250,7 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-listbox`}
         className={cn(
-          'flex flex-col items-start grow shrink-0 basis-0 p-1 gap-y-1',
+          'flex shrink-0 grow basis-0 flex-col items-start gap-y-1 p-1',
           'max-h-100 overflow-y-auto',
           'outline-none',
           'transition-highlight',
@@ -282,8 +283,8 @@ ListboxContent.displayName = 'ListboxContent';
 
 const listboxItemVariants = cva(
   [
-    'relative z-0 group flex w-full items-center px-4.5 py-1 gap-x-2.5 cursor-pointer outline-none transition-highlight',
-    'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+    'group relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-1 outline-none transition-highlight',
+    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
   ],
   {
     variants: {
@@ -292,13 +293,13 @@ const listboxItemVariants = cva(
         false: 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
       },
       disabled: {
-        true: 'opacity-30 cursor-not-allowed pointer-events-none',
+        true: 'pointer-events-none cursor-not-allowed opacity-30',
         false: '',
       },
       focusMode: {
         'roving-tabindex': [
           // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-ring-offset',
+          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
         ],
         activedescendant: '',

@@ -66,7 +66,7 @@ export type UseItemRegistryReturn = {
  */
 export function useItemRegistry(): UseItemRegistryReturn {
   const itemsRef = useRef<Map<string, ItemMetadata>>(new Map());
-  const [registryVersion, setRegistryVersion] = useState(0);
+  const [_registryVersion, setRegistryVersion] = useState(0);
 
   const bumpRegistryVersion = useCallback((): void => {
     setRegistryVersion(version => version + 1);
@@ -118,14 +118,11 @@ export function useItemRegistry(): UseItemRegistryReturn {
 
       return 0; // Same position (shouldn't happen)
     });
-  }, [registryVersion]);
+  }, []);
 
-  const isItemDisabled = useCallback(
-    (id: string): boolean => {
-      return itemsRef.current.get(id)?.disabled ?? false;
-    },
-    [registryVersion],
-  );
+  const isItemDisabled = useCallback((id: string): boolean => {
+    return itemsRef.current.get(id)?.disabled ?? false;
+  }, []);
 
   return {
     registerItem,

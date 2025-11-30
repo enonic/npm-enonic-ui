@@ -1,16 +1,16 @@
-import { useControlledState } from '@/hooks';
-import { usePrefixedId } from '@/providers/id-provider';
-import { cn, unwrap } from '@/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Check, Minus, OctagonAlert } from 'lucide-react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+import { useControlledState } from '@/hooks';
+import { usePrefixedId } from '@/providers/id-provider';
+import { cn, unwrap } from '@/utils';
 
 const checkboxBoxVariants = cva(
   [
     'inline-block',
-    'flex-shrink-0 flex items-center justify-center',
-    'h-3.5 w-3.5',
-    'border-[1.5px] rounded-xs',
+    'flex flex-shrink-0 items-center justify-center',
+    'size-3.5',
+    'rounded-xs border-[1.5px]',
     'bg-transparent',
     'transition-highlight',
   ],
@@ -23,8 +23,8 @@ const checkboxBoxVariants = cva(
       state: {
         default: [
           'border-main',
-          'peer-checked:bg-main peer-checked:border-main',
-          'peer-indeterminate:bg-main peer-indeterminate:border-main',
+          'peer-checked:border-main peer-checked:bg-main',
+          'peer-indeterminate:border-main peer-indeterminate:bg-main',
           'group-data-[tone=inverse]:border-alt',
           'group-data-[tone=inverse]:peer-checked:bg-alt',
           'group-data-[tone=inverse]:peer-checked:border-alt',
@@ -33,8 +33,8 @@ const checkboxBoxVariants = cva(
         ],
         error: [
           'border-error',
-          'peer-checked:bg-error peer-checked:border-error',
-          'peer-indeterminate:bg-error peer-indeterminate:border-error',
+          'peer-checked:border-error peer-checked:bg-error',
+          'peer-indeterminate:border-error peer-indeterminate:bg-error',
         ],
       },
     },
@@ -112,11 +112,11 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     };
 
     return (
-      <div className='flex flex-col gap-1 w-fit'>
+      <div className='flex w-fit flex-col gap-1'>
         <label
           htmlFor={inputId}
           className={cn(
-            'relative flex items-center select-none gap-2 my-0.75 rounded-xs leading-4 transition-highlight',
+            'relative my-0.75 flex select-none items-center gap-2 rounded-xs leading-4 transition-highlight',
             align === 'right' && 'flex-row-reverse justify-end',
             editable && [
               'cursor-pointer',

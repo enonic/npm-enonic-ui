@@ -1,6 +1,6 @@
-import { Button } from '@/components/button';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import type { ReactElement, ReactNode } from 'react';
+import { Button } from '@/components/button';
 
 import { Separator, type SeparatorProps } from './separator';
 

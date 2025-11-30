@@ -1,7 +1,3 @@
-import { Button, type ButtonProps } from '@/components/button';
-import { useControlledState, useItemRegistry, useKeyboardNavigation, useRovingTabIndex, useSyncValue } from '@/hooks';
-import { type ToggleGroupContextValue, ToggleGroupProvider, usePrefixedId, useToggleGroup } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
 import {
   type ComponentPropsWithoutRef,
@@ -14,6 +10,10 @@ import {
   useRef,
   useState,
 } from 'react';
+import { Button, type ButtonProps } from '@/components/button';
+import { useControlledState, useItemRegistry, useKeyboardNavigation, useRovingTabIndex, useSyncValue } from '@/hooks';
+import { type ToggleGroupContextValue, ToggleGroupProvider, usePrefixedId, useToggleGroup } from '@/providers';
+import { cn, useComposedRefs } from '@/utils';
 
 //
 // * ToggleGroup.Root - Single Selection
@@ -48,9 +48,7 @@ type ToggleGroupRootMultipleProps = {
 // * ToggleGroup.Root
 //
 
-export type ToggleGroupRootProps = ToggleGroupRootSingleProps | ToggleGroupRootMultipleProps;
-
-const ToggleGroupRoot = forwardRef<HTMLDivElement, ToggleGroupRootProps>((props, ref): ReactElement => {
+const ToggleGroupRootSingle = forwardRef<HTMLDivElement, ToggleGroupRootSingleProps>((props, ref): ReactElement => {
   const {
     type,
     value: controlledValue,
@@ -69,83 +67,101 @@ const ToggleGroupRoot = forwardRef<HTMLDivElement, ToggleGroupRootProps>((props,
 
   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
-  if (type === 'single') {
-    const [value, setValue] = useControlledState<string>(controlledValue, defaultValue ?? '', onValueChange);
-    const [active, setActive] = useState<string | undefined>(value || undefined);
-    const loop = props.loop ?? false;
+  const [value, setValue] = useControlledState<string>(controlledValue, defaultValue ?? '', onValueChange);
+  const [active, setActive] = useState<string | undefined>(value || undefined);
+  const loop = props.loop ?? false;
 
-    useSyncValue(value, setActive);
+  useSyncValue(value, setActive);
 
-    const handleValueChange = useCallback(
-      (newValue: string) => {
-        // In single selection, clicking the selected item deselects it
-        const nextValue = value === newValue ? '' : newValue;
-        setValue(nextValue);
-        // Keep the item active (focused) even if deselected
-        setActive(newValue);
-      },
-      [value, setValue],
-    );
+  const handleValueChange = useCallback(
+    (newValue: string) => {
+      // In single selection, clicking the selected item deselects it
+      const nextValue = value === newValue ? '' : newValue;
+      setValue(nextValue);
+      // Keep the item active (focused) even if deselected
+      setActive(newValue);
+    },
+    [value, setValue],
+  );
 
-    const { handleKeyDown } = useKeyboardNavigation({
+  const { handleKeyDown } = useKeyboardNavigation({
+    getItems,
+    isItemDisabled,
+    active,
+    setActive,
+    loop,
+    orientation,
+    onSelect: id => {
+      handleValueChange(id);
+    },
+  });
+
+  const contextValue: ToggleGroupContextValue = useMemo(
+    () => ({
+      selectionMode: type,
+      value,
+      onValueChange: handleValueChange,
+      disabled,
+      registerItem,
+      unregisterItem,
       getItems,
       isItemDisabled,
+      orientation,
       active,
       setActive,
-      loop,
+    }),
+    [
+      type,
+      value,
+      handleValueChange,
+      disabled,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
       orientation,
-      onSelect: id => {
-        handleValueChange(id);
-      },
-    });
+      active,
+    ],
+  );
 
-    const contextValue: ToggleGroupContextValue = useMemo(
-      () => ({
-        selectionMode: type,
-        value,
-        onValueChange: handleValueChange,
-        disabled,
-        registerItem,
-        unregisterItem,
-        getItems,
-        isItemDisabled,
-        orientation,
-        active,
-        setActive,
-      }),
-      [
-        type,
-        value,
-        handleValueChange,
-        disabled,
-        registerItem,
-        unregisterItem,
-        getItems,
-        isItemDisabled,
-        orientation,
-        active,
-        setActive,
-      ],
-    );
+  return (
+    <ToggleGroupProvider value={contextValue}>
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus -- Keyboard navigation is handled via roving tabindex on child items */}
+      <div
+        ref={composedRef}
+        role='radiogroup'
+        id={groupId}
+        aria-orientation={orientation}
+        data-orientation={orientation}
+        className={cn('inline-flex gap-2', orientation === 'vertical' && 'flex-col', className)}
+        onKeyDown={handleKeyDown}
+        {...restProps}
+      >
+        {children}
+      </div>
+    </ToggleGroupProvider>
+  );
+});
+ToggleGroupRootSingle.displayName = 'ToggleGroup.RootSingle';
 
-    return (
-      <ToggleGroupProvider value={contextValue}>
-        {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus -- Keyboard navigation is handled via roving tabindex on child items */}
-        <div
-          ref={composedRef}
-          role='radiogroup'
-          id={groupId}
-          aria-orientation={orientation}
-          data-orientation={orientation}
-          className={cn('inline-flex gap-2', orientation === 'vertical' && 'flex-col', className)}
-          onKeyDown={handleKeyDown}
-          {...restProps}
-        >
-          {children}
-        </div>
-      </ToggleGroupProvider>
-    );
-  }
+const ToggleGroupRootMultiple = forwardRef<HTMLDivElement, ToggleGroupRootMultipleProps>((props, ref): ReactElement => {
+  const {
+    type,
+    value: controlledValue,
+    defaultValue,
+    onValueChange,
+    disabled,
+    orientation = 'horizontal',
+    children,
+    className,
+    ...restProps
+  } = props;
+
+  const groupId = usePrefixedId(undefined, 'toggle-group');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const composedRef = useComposedRefs(ref, containerRef);
+
+  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
   const [value, setValue] = useControlledState<string[]>(controlledValue, defaultValue ?? [], onValueChange);
   const [active, setActive] = useState<string | undefined>(() => value.at(0));
@@ -195,7 +211,6 @@ const ToggleGroupRoot = forwardRef<HTMLDivElement, ToggleGroupRootProps>((props,
       isItemDisabled,
       orientation,
       active,
-      setActive,
     ],
   );
 
@@ -214,6 +229,17 @@ const ToggleGroupRoot = forwardRef<HTMLDivElement, ToggleGroupRootProps>((props,
         {children}
       </div>
     </ToggleGroupProvider>
+  );
+});
+ToggleGroupRootMultiple.displayName = 'ToggleGroup.RootMultiple';
+
+export type ToggleGroupRootProps = ToggleGroupRootSingleProps | ToggleGroupRootMultipleProps;
+
+const ToggleGroupRoot = forwardRef<HTMLDivElement, ToggleGroupRootProps>((props, ref): ReactElement => {
+  return props.type === 'single' ? (
+    <ToggleGroupRootSingle {...props} ref={ref} />
+  ) : (
+    <ToggleGroupRootMultiple {...props} ref={ref} />
   );
 });
 ToggleGroupRoot.displayName = 'ToggleGroup.Root';

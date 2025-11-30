@@ -94,7 +94,7 @@ export const DefaultState: Story = {
   name: 'Examples / Default',
   render: () => (
     <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3'>Default checkboxes</h3>
+      <h3 className='mb-3 font-medium text-sm'>Default checkboxes</h3>
       {renderCheckboxGroup({})}
     </div>
   ),
@@ -103,8 +103,8 @@ export const DefaultState: Story = {
 export const UncontrolledExample: Story = {
   name: 'Examples / Uncontrolled',
   render: () => (
-    <div className='p-4 space-y-4'>
-      <h3 className='text-sm font-medium mb-3'>Uncontrolled checkboxes</h3>
+    <div className='space-y-4 p-4'>
+      <h3 className='mb-3 font-medium text-sm'>Uncontrolled checkboxes</h3>
       <div className='space-y-2'>
         <Checkbox label='Default unchecked' />
         <Checkbox label='Default checked' defaultChecked />
@@ -118,7 +118,7 @@ export const ErrorState: Story = {
   name: 'States / Error',
   render: () => (
     <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3 '>Error checkboxes</h3>
+      <h3 className='mb-3 font-medium text-sm'>Error checkboxes</h3>
       {renderCheckboxGroup({ error: true })}
     </div>
   ),
@@ -131,7 +131,7 @@ export const ErrorWithText: Story = {
   },
   render: args => (
     <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3'>Error checkboxes with text</h3>
+      <h3 className='mb-3 font-medium text-sm'>Error checkboxes with text</h3>
       {renderCheckboxGroup({ error: true, errorMessage: args.errorMessage })}
     </div>
   ),
@@ -141,7 +141,7 @@ export const ReadOnlyState: Story = {
   name: 'States / Read-Only',
   render: () => (
     <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3'>ReadOnly checkboxes</h3>
+      <h3 className='mb-3 font-medium text-sm'>ReadOnly checkboxes</h3>
       {renderCheckboxGroup({ readOnly: true })}
       {renderCheckboxGroup({ readOnly: true, error: true })}
     </div>
@@ -152,7 +152,7 @@ export const DisabledState: Story = {
   name: 'States / Disabled',
   render: () => (
     <div className='p-4'>
-      <h3 className='text-sm font-medium mb-3'>Disabled checkboxes</h3>
+      <h3 className='mb-3 font-medium text-sm'>Disabled checkboxes</h3>
       {renderCheckboxGroup({ disabled: true })}
       {renderCheckboxGroup({ disabled: true, error: true })}
     </div>
@@ -176,8 +176,8 @@ export const SummaryCheckbox: Story = {
     };
 
     return (
-      <div className='p-4 space-y-3'>
-        <h3 className='text-sm font-medium mb-3'>Summary checkbox with child options</h3>
+      <div className='space-y-3 p-4'>
+        <h3 className='mb-3 font-medium text-sm'>Summary checkbox with child options</h3>
         <div className='space-y-2'>
           <Checkbox label='Select All' checked={summaryState} onCheckedChange={handleSummaryChange} />
           <div className='ml-6 space-y-2'>
@@ -198,11 +198,11 @@ export const OnSelectedBackground: Story = {
     const indeterminateBox = useCheckboxState('indeterminate');
 
     return (
-      <div className='p-4 space-y-4' style={{ '--color-ring-offset': 'var(--color-surface-selected)' }}>
-        <h3 className='text-sm font-medium mb-3'>Checkboxes on selected background</h3>
+      <div className='space-y-4 p-4' style={{ '--color-ring-offset': 'var(--color-surface-selected)' }}>
+        <h3 className='mb-3 font-medium text-sm'>Checkboxes on selected background</h3>
 
-        <div className='group bg-surface-selected text-alt p-4 rounded' data-tone='inverse'>
-          <h4 className='text-sm font-medium mb-3'>Default State</h4>
+        <div className='group rounded bg-surface-selected p-4 text-alt' data-tone='inverse'>
+          <h4 className='mb-3 font-medium text-sm'>Default State</h4>
           <div className='flex items-center gap-3'>
             <Checkbox label='Unchecked' checked={uncheckedBox.checked} onCheckedChange={uncheckedBox.handleChange} />
             <Checkbox label='Checked' checked={checkedBox.checked} onCheckedChange={checkedBox.handleChange} />
@@ -214,18 +214,18 @@ export const OnSelectedBackground: Story = {
           </div>
         </div>
 
-        <div className='group bg-surface-selected text-alt p-4 rounded' data-tone='inverse'>
-          <h4 className='text-sm font-medium mb-3'>Error State</h4>
+        <div className='group rounded bg-surface-selected p-4 text-alt' data-tone='inverse'>
+          <h4 className='mb-3 font-medium text-sm'>Error State</h4>
           {renderCheckboxGroup({ error: true, errorMessage: 'Error message' })}
         </div>
 
-        <div className='group bg-surface-selected text-alt p-4 rounded' data-tone='inverse'>
-          <h4 className='text-sm font-medium mb-3'>ReadOnly State</h4>
+        <div className='group rounded bg-surface-selected p-4 text-alt' data-tone='inverse'>
+          <h4 className='mb-3 font-medium text-sm'>ReadOnly State</h4>
           {renderCheckboxGroup({ readOnly: true })}
         </div>
 
-        <div className='group bg-surface-selected text-alt p-4 rounded' data-tone='inverse'>
-          <h4 className='text-sm font-medium mb-3'>Disabled State</h4>
+        <div className='group rounded bg-surface-selected p-4 text-alt' data-tone='inverse'>
+          <h4 className='mb-3 font-medium text-sm'>Disabled State</h4>
           {renderCheckboxGroup({ disabled: true })}
         </div>
       </div>

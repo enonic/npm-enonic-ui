@@ -1,120 +1,85 @@
 ---
-description:
+description: Rules for running pnpm scripts and understanding the lint/build system
 globs:
 alwaysApply: true
 ---
 
-# Using pnpm Scripts
+# pnpm Scripts Rules
 
-## Dependency Management
+## Package Manager
 
-- Always use `pnpm` instead of `npm` if possible:
+- Always use `pnpm`, never `npm` or `yarn`
+- Use `pnpm dlx` instead of `npx` for one-off commands
 
+## Before Committing Code
+
+Run `pnpm check` to validate all code quality checks pass:
 ```bash
-# Manage dependencies
-pnpm install
-pnpm add <pkg>
-pnpm add -D <pkg>
-pnpm remove <pkg>
-
-# List packages with newer versions available
-pnpm update
-
-# List packages with newer versions available
-pnpm outdated
-
-# List packages with newer versions available
-pnpm dedupe
-
-# Prefer over `npx` to run one-off commands without installing globally
-pnpm dlx <cli>
+pnpm check  # typecheck → lint → format:check
 ```
 
-- Pin critical dev tools (eslint, prettier, jest) to exact versions in `devDependencies` to avoid unexpected CI failures.
+If checks fail, run `pnpm lint:fix` to auto-fix issues.
 
-## Project Scripts
+## Available Scripts
 
-Use these commands to keep your code healthy, consistent, and secure:
+### Code Quality (use these to verify changes)
 
-### Development
-
-- **`pnpm dev`**
-  Start Storybook development server on port 6006 for component development.
-
-- **`pnpm preview`**
-  Serve examples on port 4000 using a static file server without Vite.
+- `pnpm check` - Run all checks (typecheck + lint + format)
+- `pnpm typecheck` - TypeScript type checking only
+- `pnpm lint` - Biome + ESLint (read-only)
+- `pnpm lint:fix` - Biome + ESLint with auto-fix
+- `pnpm format` - Format files with Biome
+- `pnpm format:check` - Check formatting without changes
 
 ### Building
 
-- **`pnpm build`**
-  Build the library for production (cleans + compiles + bundles).
+- `pnpm build` - Full production build
+- `pnpm build:storybook` - Build Storybook
 
-- **`pnpm build:lib`**
-  Build only the library (TypeScript compilation + Vite bundle).
+### Development
 
-- **`pnpm build:storybook`**
-  Build Storybook for static hosting.
+- `pnpm dev` - Start Storybook on port 6006
 
-- **`pnpm build:all`**
-  Build both library and Storybook.
+## Linting System
 
-- **`pnpm compile`**
-  Run TypeScript compiler in build mode.
+Two tools run in sequence:
 
-- **`pnpm clean`**
-  Remove all build artifacts (dist, coverage, reports, storybook-static).
+1. **Biome** (`biome check .`) - Handles:
+   - TypeScript/TSX: lint + format + import sorting + Tailwind class sorting
+   - JSON: lint + format
+   - CSS: format (with Tailwind v4 directives)
 
-### Code Quality
+2. **ESLint** (`eslint **/*.{ts,tsx}`) - Handles:
+   - React-specific rules
+   - Accessibility (jsx-a11y)
+   - TypeScript rules (explicit-return-type, member-ordering)
 
-- **`pnpm check`**
-  Run complete code quality check: typecheck + lint + format:check.
+## Pre-commit Behavior
 
-- **`pnpm typecheck`**
-  Validate TypeScript types without emitting files.
+When code is committed, `lint-staged` runs automatically:
+- Pattern: `*.{ts,tsx,json,css}`
+- Action: `biome check --write --unsafe`
 
-- **`pnpm lint`**
-  Run ESLint to catch code-style issues and potential bugs.
+This auto-fixes and formats staged files before commit.
 
-- **`pnpm lint:fix`**
-  Auto-fix minor ESLint problems (use after quick edits).
+## CI Checks
 
-- **`pnpm format`**
-  Run Prettier to normalize code style; always after code changes.
+GitHub Actions runs on push/PR to master:
+1. `pnpm typecheck`
+2. `pnpm lint`
+3. `pnpm format:check`
+4. `pnpm build`
+5. `pnpm size`
 
-- **`pnpm format:check`**
-  Check if files are properly formatted without making changes.
+All must pass for CI to succeed.
 
-### Testing
+## When to Use Each Command
 
-- **`pnpm test`**
-  Run the test suite (currently placeholder).
-
-- **`pnpm test:ci`**
-  Run tests in CI mode (currently placeholder).
-
-### Bundle Analysis
-
-- **`pnpm analyze`**
-  Build and open bundle analyzer to inspect package size.
-
-- **`pnpm size`**
-  Check bundle sizes against defined limits using size-limit.
-
-### Publishing
-
-- **`pnpm release:dry`**
-  Dry run of npm publish to test package configuration.
-
-- **`pnpm release`**
-  Publish package to npm with public access.
-
-### Hooks
-
-- **`pnpm prepare`**
-  Set up Husky git hooks (runs automatically after install).
-
-- **`prepack`**
-  Automatically runs build before packing (npm publish).
-
-- **`prepublishOnly`**
-  Runs quality checks and build before publishing.
+| Situation | Command |
+|-----------|---------|
+| Verify code before PR | `pnpm check` |
+| Fix lint/format issues | `pnpm lint:fix` |
+| Check types only | `pnpm typecheck` |
+| Format only | `pnpm format` |
+| Build for production | `pnpm build` |
+| Test components visually | `pnpm dev` |

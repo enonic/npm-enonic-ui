@@ -1,4 +1,3 @@
-import { cn } from '@/utils';
 import { Root } from '@radix-ui/react-slot';
 import {
   createPortal,
@@ -11,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { cn } from '@/utils';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 
@@ -45,7 +45,7 @@ function useTooltipPosition(
   side: TooltipSide,
   triggerRef: RefObject<HTMLElement>,
   tooltipRef: RefObject<HTMLElement>,
-  value?: ReactNode,
+  _value?: ReactNode,
 ): TooltipPosition {
   const [coords, setCoords] = useState<TooltipPosition>({
     top: 0,
@@ -116,7 +116,7 @@ function useTooltipPosition(
     }
 
     setCoords(position);
-  }, [isOpen, side, value]);
+  }, [isOpen, side, tooltipRef.current, triggerRef.current]);
 
   return coords;
 }
@@ -182,7 +182,7 @@ function TooltipContent({
     <div
       ref={tooltipRef}
       role='tooltip'
-      className={cn('fixed z-50 pointer-events-none select-none', !position.transformOrigin && 'opacity-0')}
+      className={cn('pointer-events-none fixed z-50 select-none', !position.transformOrigin && 'opacity-0')}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
@@ -194,7 +194,7 @@ function TooltipContent({
           'relative w-fit rounded-xs px-2 py-1 text-xs',
           'bg-tooltip text-tooltip-foreground shadow-md',
           'whitespace-nowrap',
-          'animate-in fade-in-0 zoom-in-95',
+          'fade-in-0 zoom-in-95 animate-in',
           actualSide === 'top' && 'slide-in-from-top-2',
           actualSide === 'bottom' && 'slide-in-from-bottom-2',
           actualSide === 'left' && 'slide-in-from-left-2',
@@ -206,10 +206,10 @@ function TooltipContent({
         <div
           className={cn(
             'absolute size-2 rotate-45 bg-inherit',
-            actualSide === 'top' && 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2',
-            actualSide === 'bottom' && 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2',
-            actualSide === 'left' && 'right-0 top-1/2 -translate-y-1/2 translate-x-1/2',
-            actualSide === 'right' && 'left-0 top-1/2 -translate-y-1/2 -translate-x-1/2',
+            actualSide === 'top' && '-translate-x-1/2 bottom-0 left-1/2 translate-y-1/2',
+            actualSide === 'bottom' && '-translate-x-1/2 -translate-y-1/2 top-0 left-1/2',
+            actualSide === 'left' && '-translate-y-1/2 top-1/2 right-0 translate-x-1/2',
+            actualSide === 'right' && '-translate-y-1/2 -translate-x-1/2 top-1/2 left-0',
           )}
         />
       </div>

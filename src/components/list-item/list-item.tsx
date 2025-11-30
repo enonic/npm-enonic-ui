@@ -1,6 +1,6 @@
+import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 import { cn } from '@/utils';
 import { findComponentByType } from '@/utils/find';
-import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 
 export type ListItemProps = {
   className?: string;
@@ -32,7 +32,7 @@ export type ListItemRightProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 export const ListItemLeft = ({ children, className, ...props }: ListItemLeftProps): ReactElement<ListItemLeftProps> => (
-  <div className={cn('flex items-center gap-2.5 flex-shrink-0', className)} {...props}>
+  <div className={cn('flex flex-shrink-0 items-center gap-2.5', className)} {...props}>
     {children}
   </div>
 );
@@ -43,7 +43,7 @@ export const ListItemContent = ({
   ...props
 }: ListItemContentProps): ReactElement<ListItemContentProps> => {
   return (
-    <div className={cn('flex-1 min-w-0', className)} {...props}>
+    <div className={cn('min-w-0 flex-1', className)} {...props}>
       {children}
     </div>
   );
@@ -58,16 +58,16 @@ export const ListItemDefaultContent = ({
   icon,
 }: ListItemDefaultContentProps): ReactElement<ListItemDefaultContentProps> => {
   return (
-    <ListItemContent className={cn(icon && 'grid grid-cols-[auto_1fr] gap-2.5 items-center', className)}>
+    <ListItemContent className={cn(icon && 'grid grid-cols-[auto_1fr] items-center gap-2.5', className)}>
       {icon && (
-        <div className='flex items-center justify-center flex-shrink-0 group-data-[tone=inverse]:text-alt'>{icon}</div>
+        <div className='flex flex-shrink-0 items-center justify-center group-data-[tone=inverse]:text-alt'>{icon}</div>
       )}
       <div className='min-w-0 text-left'>
         {label && <h1 className='truncate font-semibold group-data-[tone=inverse]:text-alt'>{label}</h1>}
         {description && (
           <p className='truncate text-sm text-subtle group-data-[tone=inverse]:text-alt'>{description}</p>
         )}
-        {metadata && <p className='text-xs text-subtle group-data-[tone=inverse]:text-alt'>{metadata}</p>}
+        {metadata && <p className='text-subtle text-xs group-data-[tone=inverse]:text-alt'>{metadata}</p>}
       </div>
     </ListItemContent>
   );
@@ -78,7 +78,7 @@ export const ListItemRight = ({
   className,
   ...props
 }: ListItemRightProps): ReactElement<ListItemRightProps> => (
-  <div className={cn('flex items-center gap-5 flex-shrink-0', className)} {...props}>
+  <div className={cn('flex flex-shrink-0 items-center gap-5', className)} {...props}>
     {children}
   </div>
 );
@@ -92,7 +92,7 @@ const ListItemRoot = ({ children, className, selected, ...props }: ListItemProps
   return (
     <div
       className={cn(
-        'group flex items-center px-2.5 py-1 gap-2.5',
+        'group flex items-center gap-2.5 px-2.5 py-1',
         selected && 'bg-surface-selected text-alt',
         className,
       )}

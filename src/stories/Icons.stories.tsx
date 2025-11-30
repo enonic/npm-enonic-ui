@@ -1,4 +1,3 @@
-import { ListItem, type ListItemDefaultContentProps } from '@/components/list-item/list-item';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   Archive,
@@ -26,6 +25,7 @@ import {
   SquarePlay,
 } from 'lucide-react';
 import type { ReactElement } from 'react';
+import { ListItem, type ListItemDefaultContentProps } from '@/components/list-item/list-item';
 
 export default {
   title: 'Design/Icons',
@@ -48,9 +48,9 @@ const IconListItem = ({
 export const AllIcons: Story = {
   render: () => (
     <div>
-      <h3 className='mb-3 text-2xl font-bold'>Content Icons</h3>
+      <h3 className='mb-3 font-bold text-2xl'>Content Icons</h3>
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
         <IconListItem icon={<FolderOpen />} label='Folder' description='Container for items' />
         <IconListItem icon={<FileChartPie />} label='Fragment' description='Reusable page part' />
         <IconListItem icon={<FileImage />} label='Image (legacy)' description='Content with image' />

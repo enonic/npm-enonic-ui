@@ -1,8 +1,7 @@
-import { IconButton } from '@/components';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, FileText, Folder, Image, MoreVertical, Package, Pen, Settings, User, Video, X } from 'lucide-react';
 import { useEffect, useState } from 'preact/hooks';
-
+import { IconButton } from '@/components/icon-button';
 import { SelectableListItem } from './selectable-list-item';
 
 type Story = StoryObj<typeof SelectableListItem>;
@@ -19,7 +18,7 @@ export const Examples: Story = {
   render: () => (
     <div className='w-96 space-y-2'>
       <SelectableListItem
-        icon={<File className='w-6 h-6' />}
+        icon={<File className='size-6' />}
         label='Report.pdf'
         description='Shared by John'
         metadata='PDF Document • 12 KB'
@@ -29,7 +28,7 @@ export const Examples: Story = {
         <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
       </SelectableListItem>
       <SelectableListItem
-        icon={<FileText className='w-6 h-6' />}
+        icon={<FileText className='size-6' />}
         label='Meeting Notes.docx'
         description='Last edited yesterday'
         metadata='Word Document • 8.5 KB'
@@ -40,7 +39,7 @@ export const Examples: Story = {
       </SelectableListItem>
       <SelectableListItem
         readOnly={true}
-        icon={<Folder className='w-6 h-6' />}
+        icon={<Folder className='size-6' />}
         label='System Files'
         description='Protected folder'
         metadata='Folder • 5 items'
@@ -51,7 +50,7 @@ export const Examples: Story = {
       </SelectableListItem>
       <SelectableListItem
         selected
-        icon={<Image className='w-6 h-6' />}
+        icon={<Image className='size-6' />}
         label='Logo.png'
         description='Company branding'
         metadata='PNG Image • 2.4 MB'
@@ -63,7 +62,7 @@ export const Examples: Story = {
 
       <SelectableListItem
         selected
-        icon={<Video className='w-6 h-6' />}
+        icon={<Video className='size-6' />}
         label='Tutorial.mp4'
         description='Product demo'
         metadata='MP4 Video • 156 MB'
@@ -76,7 +75,7 @@ export const Examples: Story = {
       <SelectableListItem
         readOnly={true}
         selected
-        icon={<Package className='w-6 h-6' />}
+        icon={<Package className='size-6' />}
         label='Archive.zip'
         description='Read-only backup'
         metadata='ZIP Archive • 45 MB'
@@ -93,44 +92,44 @@ export const ContentVariations: Story = {
   name: 'Features / Content Variations',
   render: () => (
     <div className='w-96 space-y-4'>
-      <h3 className='text-sm font-semibold text-subtle mb-2'>Label Only</h3>
+      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label Only</h3>
       <div className='space-y-2'>
         <SelectableListItem label='Simple item' defaultChecked={false} />
         <SelectableListItem label='Selected item' defaultChecked={true} />
       </div>
 
-      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Icon</h3>
+      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label + Icon</h3>
       <div className='space-y-2'>
-        <SelectableListItem icon={<File className='w-6 h-6' />} label='Document.pdf' defaultChecked={false} />
-        <SelectableListItem icon={<Folder className='w-6 h-6' />} label='Projects' defaultChecked={true} />
+        <SelectableListItem icon={<File className='size-6' />} label='Document.pdf' defaultChecked={false} />
+        <SelectableListItem icon={<Folder className='size-6' />} label='Projects' defaultChecked={true} />
       </div>
 
-      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Description</h3>
+      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label + Description</h3>
       <div className='space-y-2'>
         <SelectableListItem label='Meeting notes' description='Team sync discussion' defaultChecked={false} />
         <SelectableListItem label='Project plan' description='Q4 roadmap and goals' defaultChecked={true} />
       </div>
 
-      <h3 className='text-sm font-semibold text-subtle mb-2'>Label + Description + Icon</h3>
+      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label + Description + Icon</h3>
       <div className='space-y-2'>
         <SelectableListItem
-          icon={<FileText className='w-6 h-6' />}
+          icon={<FileText className='size-6' />}
           label='Report.docx'
           description='Quarterly financial report'
           defaultChecked={false}
         />
         <SelectableListItem
-          icon={<Image className='w-6 h-6' />}
+          icon={<Image className='size-6' />}
           label='Logo.png'
           description='Company branding asset'
           defaultChecked={true}
         />
       </div>
 
-      <h3 className='text-sm font-semibold text-subtle mb-2'>All Elements</h3>
+      <h3 className='mb-2 font-semibold text-sm text-subtle'>All Elements</h3>
       <div className='space-y-2'>
         <SelectableListItem
-          icon={<Video className='w-6 h-6' />}
+          icon={<Video className='size-6' />}
           label='Tutorial.mp4'
           description='Product onboarding video'
           metadata='156 MB • MP4 Video'
@@ -140,7 +139,7 @@ export const ContentVariations: Story = {
           <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
         </SelectableListItem>
         <SelectableListItem
-          icon={<Package className='w-6 h-6' />}
+          icon={<Package className='size-6' />}
           label='Archive.zip'
           description='Project backup files'
           metadata='45.7 MB • ZIP Archive'
@@ -150,7 +149,7 @@ export const ContentVariations: Story = {
           <IconButton icon={MoreVertical} variant='text' size='sm' aria-label='More options' />
         </SelectableListItem>
         <SelectableListItem
-          icon={<Settings className='w-6 h-6' />}
+          icon={<Settings className='size-6' />}
           label='Config.json'
           description='Application settings'
           metadata='2.4 KB • JSON'
@@ -237,11 +236,11 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
     }, [args.checked]);
 
     const iconMap = {
-      file: <File className='w-6 h-6' />,
-      folder: <Folder className='w-6 h-6' />,
-      image: <Image className='w-6 h-6' />,
-      video: <Video className='w-6 h-6' />,
-      user: <User className='w-6 h-6' />,
+      file: <File className='size-6' />,
+      folder: <Folder className='size-6' />,
+      image: <Image className='size-6' />,
+      video: <Video className='size-6' />,
+      user: <User className='size-6' />,
     };
 
     return (

@@ -1,12 +1,3 @@
-import {
-  useActiveItemFocus,
-  useItemRegistry,
-  useKeyboardNavigation,
-  useRovingTabIndex,
-  useScrollActiveIntoView,
-} from '@/hooks';
-import { usePrefixedId } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
 import {
   type ComponentPropsWithoutRef,
@@ -21,6 +12,15 @@ import {
   useRef,
   useState,
 } from 'react';
+import {
+  useActiveItemFocus,
+  useItemRegistry,
+  useKeyboardNavigation,
+  useRovingTabIndex,
+  useScrollActiveIntoView,
+} from '@/hooks';
+import { usePrefixedId } from '@/providers';
+import { cn, useComposedRefs } from '@/utils';
 
 import { ToolbarToggleGroup, ToolbarToggleItem } from './toolbar-toggle-group';
 
@@ -242,7 +242,7 @@ const ToolbarContainer = forwardRef<HTMLDivElement, ToolbarContainerProps>(
         className={cn(
           'flex items-center gap-1.5 p-2 transition-highlight',
           // Thinner focus ring compared to menubar
-          'focus-within:ring-inset focus-within:ring-2 focus-within:ring-ring/25',
+          'focus-within:ring-2 focus-within:ring-ring/25 focus-within:ring-inset',
           orientation === 'vertical' && 'flex-col',
           className,
         )}
@@ -432,7 +432,7 @@ const ToolbarSeparator = forwardRef<HTMLDivElement, ToolbarSeparatorProps>(
         ref={ref}
         role='separator'
         aria-orientation='vertical'
-        className={cn('mx-1 w-px h-4 bg-bdr-subtle', className)}
+        className={cn('mx-1 h-4 w-px bg-bdr-subtle', className)}
         {...props}
       />
     );

@@ -1,7 +1,7 @@
-import { Button } from '@/components/button';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Bell } from 'lucide-react';
 import { useState } from 'preact/hooks';
+import { Button } from '@/components/button';
 
 import { Toast, type ToastProps } from './toast';
 
@@ -65,7 +65,7 @@ export const WithClose: Story = {
   render: () => {
     const [open, setOpen] = useState(true);
     return (
-      <div className='flex flex-col gap-3 items-center'>
+      <div className='flex flex-col items-center gap-3'>
         <Toast open={open} onOpenChange={setOpen} withClose>
           <Toast.Icon tone='warning' />
           <Toast.Description>
@@ -86,7 +86,7 @@ export const WithoutIcon: Story = {
   render: () => {
     const [open, setOpen] = useState(true);
     return (
-      <div className='flex flex-col gap-3 items-center'>
+      <div className='flex flex-col items-center gap-3'>
         <Toast open={open} onOpenChange={setOpen} withClose>
           <Toast.Description>
             Editing is paused while we upgrade infrastructure. You will regain access as soon as the maintenance window
@@ -106,7 +106,7 @@ export const WithTitle: Story = {
   render: () => {
     const [open, setOpen] = useState(true);
     return (
-      <div className='flex flex-col gap-3 items-center'>
+      <div className='flex flex-col items-center gap-3'>
         <Toast open={open} onOpenChange={setOpen} withClose>
           <Toast.Icon tone='warning' />
           <Toast.Title>Ye sir</Toast.Title>
@@ -128,7 +128,7 @@ export const WithLink: Story = {
   render: () => {
     const [open, setOpen] = useState(true);
     return (
-      <div className='flex flex-col gap-3 items-center'>
+      <div className='flex flex-col items-center gap-3'>
         <Toast open={open} onOpenChange={setOpen} withClose>
           <Toast.Icon tone='warning' />
           <Toast.Title>Ye sir</Toast.Title>
@@ -151,7 +151,7 @@ export const WithAction: Story = {
   render: () => {
     const [open, setOpen] = useState(true);
     return (
-      <div className='flex flex-col gap-3 items-center'>
+      <div className='flex flex-col items-center gap-3'>
         <Toast open={open} onOpenChange={setOpen} withClose>
           <Toast.Icon tone='error' />
           <Toast.Title>Ye sir</Toast.Title>
@@ -173,7 +173,7 @@ export const WithAction: Story = {
 export const InSmallContainer: Story = {
   name: 'Examples / In Small Container',
   render: () => (
-    <div className='w-64 border border-dashed border-gray-400 p-2'>
+    <div className='w-64 border border-gray-400 border-dashed p-2'>
       <Toast>
         <Toast.Icon tone='info' />
         <Toast.Description>Toast shrinks to fit the container width.</Toast.Description>

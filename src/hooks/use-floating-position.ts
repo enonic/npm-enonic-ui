@@ -123,7 +123,7 @@ export function useFloatingPosition({
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
     };
-  }, [enabled, align, triggerRef]);
+  }, [enabled, align, triggerRef, contentRef]);
 
   return position;
 }

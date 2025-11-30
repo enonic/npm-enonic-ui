@@ -1,9 +1,3 @@
-import { IconButton, type IconButtonProps } from '@/components';
-import { useControlledState, useControlledStateWithNull, useKeyboardNavigation } from '@/hooks';
-import { usePrefixedId } from '@/providers';
-import { type TreeListContextValue, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
-import type { LucideIcon } from '@/types';
-import { cn } from '@/utils';
 import { ChevronRight, Loader2, Square, SquareCheck } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -15,6 +9,12 @@ import {
   useRef,
   useState,
 } from 'react';
+import { IconButton, type IconButtonProps } from '@/components/icon-button';
+import { useControlledState, useControlledStateWithNull, useKeyboardNavigation } from '@/hooks';
+import { usePrefixedId } from '@/providers';
+import { type TreeListContextValue, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
+import type { LucideIcon } from '@/types';
+import { cn } from '@/utils';
 
 const LOADING_SUFFIX = '__loading__';
 
@@ -159,7 +159,7 @@ const TreeListContainer = ({
   return (
     <div
       id={`${baseId}-scroll-root`}
-      className={cn('flex flex-col relative h-full p-1 gap-y-1 overflow-y-auto', className)}
+      className={cn('relative flex h-full flex-col gap-y-1 overflow-y-auto p-1', className)}
       {...props}
     >
       {children}
@@ -239,11 +239,12 @@ const TreeListRowExpandControl = ({
   className,
   ...props
 }: TreeListRowExpandControlProps): ReactElement<TreeListRowExpandControlProps> => {
+  const { expanded, toggleExpanded, selection } = useTreeList();
+
   if (!data.hasChildren) {
-    return <span className='h-5 w-5 shrink-0' />; // placeholder for expand icon;
+    return <span className='size-5 shrink-0' />; // placeholder for expand icon;
   }
 
-  const { expanded, toggleExpanded, selection } = useTreeList();
   const isExpanded = expanded?.has(data.id);
   const isSelected = selection?.has(data.id);
 
@@ -254,7 +255,7 @@ const TreeListRowExpandControl = ({
       title='Text variant'
       tabIndex={-1}
       className={cn(
-        'w-5 h-5 transition-transform duration-150',
+        'size-5 transition-transform duration-150',
         isSelected
           ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover group-hover:bg-surface-selected-hover'
           : 'group-hover:bg-surface-neutral-hover group-data-[active=true]:bg-surface-neutral-hover',
@@ -283,7 +284,7 @@ const TreeListRowContent = ({
   ...props
 }: TreeListRowContentProps): ReactElement<TreeListRowContentProps> => {
   return (
-    <div className={cn('flex-1 min-w-0', className)} {...props}>
+    <div className={cn('min-w-0 flex-1', className)} {...props}>
       {children}
     </div>
   );
@@ -305,7 +306,7 @@ const TreeListRowSelectionControl = ({ data, className, ...props }: TreeListRowS
   }
 
   return (
-    <div className={cn('flex items-center w-3.5', className)} {...props}>
+    <div className={cn('flex w-3.5 items-center', className)} {...props}>
       {isSelected ? <SquareCheck /> : <Square />}
     </div>
   );
@@ -345,8 +346,8 @@ const TreeListRow = <T extends TreeNode>({
       data-active={isActive || undefined}
       onClick={() => toggleSelection?.(item.id)}
       className={cn(
-        'relative z-0 group flex gap-2.5 items-center px-2.5 py-1 hover:bg-surface-primary-hover focus-within:outline-none cursor-pointer',
-        'after:absolute after:-inset-0.5 after:content-[""] after:rounded-sm after:pointer-events-auto after:-z-10',
+        'group relative z-0 flex cursor-pointer items-center gap-2.5 px-2.5 py-1 focus-within:outline-none hover:bg-surface-primary-hover',
+        'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
         isSelected
           ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover'
           : 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
@@ -397,7 +398,7 @@ const TreeListLoadingRow = ({ item, children, intersectionProps, ...props }: Tre
   const level = item.path.length;
 
   return (
-    <div ref={ref} className='flex items-center gap-2 py-1 px-2 text-sm' {...props}>
+    <div ref={ref} className='flex items-center gap-2 px-2 py-1 text-sm' {...props}>
       {level > 0 && (
         <span className='spacer' style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}>
           <span className='inline-block w-(--level-indent)' />
@@ -462,7 +463,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
 
       setItems(updatedItems);
     },
-    [fetchChildren, items, setItems, setHasMoreRoot],
+    [fetchChildren, items, setItems],
   ) as (parentId?: string) => void;
 
   const flattenedItems = useMemo(
@@ -489,7 +490,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
 
       setSelection(newSelection);
     },
-    [selection, selectionMode, flattenedItems, isItemSelectable],
+    [selection, selectionMode, flattenedItems, isItemSelectable, setSelection, updateActive],
   );
 
   const toggleExpanded = useCallback(
@@ -579,7 +580,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
 
       handleKeyDown(e);
     },
-    [active, flattenedItems, expanded, handleKeyDown, moveActive, toggleExpanded],
+    [active, flattenedItems, expanded, handleKeyDown, moveActive, toggleExpanded, updateActive],
   );
 
   useEffect(() => {
@@ -593,7 +594,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
         behavior: 'auto',
       });
     }
-  }, [active]);
+  }, [active, baseId]);
 
   const contextValue = useMemo<TreeListContextValue<T>>(
     () => ({

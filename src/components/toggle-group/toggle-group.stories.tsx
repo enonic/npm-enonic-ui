@@ -25,8 +25,8 @@ export const SingleSelection: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Text Alignment (Single Selection)</h3>
-        <p className='text-sm text-subtle mb-3'>Only one option can be selected at a time, like radio buttons.</p>
+        <h3 className='mb-3 font-medium text-sm'>Text Alignment (Single Selection)</h3>
+        <p className='mb-3 text-sm text-subtle'>Only one option can be selected at a time, like radio buttons.</p>
         <ToggleGroup type='single' defaultValue='left'>
           <ToggleGroup.Item value='left' variant='filled' startIcon={AlignLeft} aria-label='Align left' />
           <ToggleGroup.Item value='center' variant='filled' startIcon={AlignCenter} aria-label='Align center' />
@@ -43,8 +43,8 @@ export const MultipleSelection: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Text Formatting (Multiple Selection)</h3>
-        <p className='text-sm text-subtle mb-3'>Multiple options can be selected independently, like checkboxes.</p>
+        <h3 className='mb-3 font-medium text-sm'>Text Formatting (Multiple Selection)</h3>
+        <p className='mb-3 text-sm text-subtle'>Multiple options can be selected independently, like checkboxes.</p>
         <ToggleGroup type='multiple' defaultValue={['bold']}>
           <ToggleGroup.Item value='bold' variant='filled' startIcon={Bold} aria-label='Bold' />
           <ToggleGroup.Item value='italic' variant='filled' startIcon={Italic} aria-label='Italic' />
@@ -66,7 +66,7 @@ export const WithLabels: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Single Selection with Labels</h3>
+        <h3 className='mb-3 font-medium text-sm'>Single Selection with Labels</h3>
         <ToggleGroup type='single' defaultValue='left'>
           <ToggleGroup.Item value='left' variant='filled' label='Left' startIcon={AlignLeft} />
           <ToggleGroup.Item value='center' variant='filled' label='Center' startIcon={AlignCenter} />
@@ -74,7 +74,7 @@ export const WithLabels: Story = {
         </ToggleGroup>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Multiple Selection with Labels</h3>
+        <h3 className='mb-3 font-medium text-sm'>Multiple Selection with Labels</h3>
         <ToggleGroup type='multiple' defaultValue={[]}>
           <ToggleGroup.Item value='bold' variant='filled' label='Bold' startIcon={Bold} />
           <ToggleGroup.Item value='italic' variant='filled' label='Italic' startIcon={Italic} />
@@ -94,8 +94,8 @@ export const DisabledGroup: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Disabled Group (Single Selection)</h3>
-        <p className='text-sm text-subtle mb-3'>All items are disabled when the group is disabled.</p>
+        <h3 className='mb-3 font-medium text-sm'>Disabled Group (Single Selection)</h3>
+        <p className='mb-3 text-sm text-subtle'>All items are disabled when the group is disabled.</p>
         <ToggleGroup type='single' defaultValue='left' disabled>
           <ToggleGroup.Item value='left' variant='filled' startIcon={AlignLeft} aria-label='Align left' />
           <ToggleGroup.Item value='center' variant='filled' startIcon={AlignCenter} aria-label='Align center' />
@@ -103,7 +103,7 @@ export const DisabledGroup: Story = {
         </ToggleGroup>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Disabled Group (Multiple Selection)</h3>
+        <h3 className='mb-3 font-medium text-sm'>Disabled Group (Multiple Selection)</h3>
         <ToggleGroup type='multiple' defaultValue={['bold', 'italic']} disabled>
           <ToggleGroup.Item value='bold' variant='filled' startIcon={Bold} aria-label='Bold' />
           <ToggleGroup.Item value='italic' variant='filled' startIcon={Italic} aria-label='Italic' />
@@ -119,8 +119,8 @@ export const DisabledItems: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Disabled Individual Items (Single Selection)</h3>
-        <p className='text-sm text-subtle mb-3'>Individual items can be disabled while others remain enabled.</p>
+        <h3 className='mb-3 font-medium text-sm'>Disabled Individual Items (Single Selection)</h3>
+        <p className='mb-3 text-sm text-subtle'>Individual items can be disabled while others remain enabled.</p>
         <ToggleGroup type='single' defaultValue='left'>
           <ToggleGroup.Item value='left' variant='filled' startIcon={AlignLeft} aria-label='Align left' />
           <ToggleGroup.Item
@@ -135,7 +135,7 @@ export const DisabledItems: Story = {
         </ToggleGroup>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Disabled Individual Items (Multiple Selection)</h3>
+        <h3 className='mb-3 font-medium text-sm'>Disabled Individual Items (Multiple Selection)</h3>
         <ToggleGroup type='multiple' defaultValue={['bold']}>
           <ToggleGroup.Item value='bold' variant='filled' startIcon={Bold} aria-label='Bold' />
           <ToggleGroup.Item value='italic' variant='filled' startIcon={Italic} aria-label='Italic' disabled />
@@ -165,7 +165,7 @@ export const ControlledSingleSelection: Story = {
     return (
       <div className='space-y-4 p-4'>
         <div>
-          <h3 className='text-sm font-medium mb-3'>Controlled Single Selection</h3>
+          <h3 className='mb-3 font-medium text-sm'>Controlled Single Selection</h3>
           <ToggleGroup type='single' value={value} onValueChange={setValue}>
             <ToggleGroup.Item value='left' variant='filled' startIcon={AlignLeft} aria-label='Align left' />
             <ToggleGroup.Item value='center' variant='filled' startIcon={AlignCenter} aria-label='Align center' />
@@ -196,7 +196,7 @@ export const ControlledMultipleSelection: Story = {
     return (
       <div className='space-y-4 p-4'>
         <div>
-          <h3 className='text-sm font-medium mb-3'>Controlled Multiple Selection</h3>
+          <h3 className='mb-3 font-medium text-sm'>Controlled Multiple Selection</h3>
           <ToggleGroup type='multiple' value={values} onValueChange={setValues}>
             <ToggleGroup.Item value='bold' variant='filled' startIcon={Bold} aria-label='Bold' />
             <ToggleGroup.Item value='italic' variant='filled' startIcon={Italic} aria-label='Italic' />
@@ -233,8 +233,8 @@ export const UncontrolledMode: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Uncontrolled Single Selection</h3>
-        <p className='text-sm text-subtle mb-3'>Uses defaultValue and reports changes via onValueChange callback.</p>
+        <h3 className='mb-3 font-medium text-sm'>Uncontrolled Single Selection</h3>
+        <p className='mb-3 text-sm text-subtle'>Uses defaultValue and reports changes via onValueChange callback.</p>
         <ToggleGroup
           type='single'
           defaultValue='center'
@@ -246,7 +246,7 @@ export const UncontrolledMode: Story = {
         </ToggleGroup>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Uncontrolled Multiple Selection</h3>
+        <h3 className='mb-3 font-medium text-sm'>Uncontrolled Multiple Selection</h3>
         <ToggleGroup
           type='multiple'
           defaultValue={['bold', 'underline']}
@@ -257,7 +257,7 @@ export const UncontrolledMode: Story = {
           <ToggleGroup.Item value='underline' variant='filled' startIcon={Underline} aria-label='Underline' />
         </ToggleGroup>
       </div>
-      <p className='text-sm text-subtle mt-3'>Check the console to see state changes.</p>
+      <p className='mt-3 text-sm text-subtle'>Check the console to see state changes.</p>
     </div>
   ),
 };
@@ -267,7 +267,7 @@ export const OrientationComparison: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Horizontal Orientation (Default)</h3>
+        <h3 className='mb-3 font-medium text-sm'>Horizontal Orientation (Default)</h3>
         <ToggleGroup type='single' orientation='horizontal' defaultValue='left'>
           <ToggleGroup.Item value='left' variant='filled' startIcon={AlignLeft} aria-label='Align left' />
           <ToggleGroup.Item value='center' variant='filled' startIcon={AlignCenter} aria-label='Align center' />
@@ -275,7 +275,7 @@ export const OrientationComparison: Story = {
         </ToggleGroup>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Vertical Orientation</h3>
+        <h3 className='mb-3 font-medium text-sm'>Vertical Orientation</h3>
         <ToggleGroup type='single' orientation='vertical' defaultValue='left' className='flex-col'>
           <ToggleGroup.Item value='left' variant='filled' startIcon={AlignLeft} label='Left' className='w-32' />
           <ToggleGroup.Item value='center' variant='filled' startIcon={AlignCenter} label='Center' className='w-32' />
@@ -293,11 +293,11 @@ export const OrientationComparison: Story = {
 export const KeyboardNavigation: Story = {
   name: 'Behavior / Keyboard Navigation',
   render: () => (
-    <div className='space-y-6 p-4 max-w-2xl'>
+    <div className='max-w-2xl space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Single Selection (Toolbar Pattern)</h3>
-        <div className='bg-primary/10 p-4 rounded mb-3 bg-surface-primary'>
-          <ul className='text-sm space-y-1'>
+        <h3 className='mb-3 font-medium text-sm'>Single Selection (Toolbar Pattern)</h3>
+        <div className='mb-3 rounded bg-primary/10 bg-surface-primary p-4'>
+          <ul className='space-y-1 text-sm'>
             <li>
               <kbd>Tab</kbd> - Enter/exit the group (focuses active or first item)
             </li>
@@ -323,9 +323,9 @@ export const KeyboardNavigation: Story = {
         </ToggleGroup>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Multiple Selection (Toolbar Pattern)</h3>
-        <div className='bg-primary/10 p-4 rounded mb-3 bg-surface-primary'>
-          <ul className='text-sm space-y-1'>
+        <h3 className='mb-3 font-medium text-sm'>Multiple Selection (Toolbar Pattern)</h3>
+        <div className='mb-3 rounded bg-primary/10 bg-surface-primary p-4'>
+          <ul className='space-y-1 text-sm'>
             <li>
               <kbd>Tab</kbd> - Enter/exit the group (focuses active or first item)
             </li>
@@ -368,18 +368,18 @@ export const Interactive: Story = {
     const [disabled, setDisabled] = useState(false);
 
     return (
-      <div className='space-y-6 p-4 max-w-2xl'>
+      <div className='max-w-2xl space-y-6 p-4'>
         <div>
-          <h3 className='text-sm font-medium mb-3'>Interactive Playground</h3>
-          <p className='text-sm text-subtle mb-3'>
+          <h3 className='mb-3 font-medium text-sm'>Interactive Playground</h3>
+          <p className='mb-3 text-sm text-subtle'>
             Try different selection modes, orientations, and keyboard navigation.
           </p>
         </div>
 
         <div className='space-y-4'>
-          <div className='flex gap-4 items-start flex-wrap'>
+          <div className='flex flex-wrap items-start gap-4'>
             <div>
-              <h3 className='text-xs font-medium text-subtle mb-2 block'>Selection Mode</h3>
+              <h3 className='mb-2 block font-medium text-subtle text-xs'>Selection Mode</h3>
               <ToggleGroup
                 type='single'
                 value={type}
@@ -391,7 +391,7 @@ export const Interactive: Story = {
             </div>
 
             <div>
-              <h3 className='text-xs font-medium text-subtle mb-2 block'>Orientation</h3>
+              <h3 className='mb-2 block font-medium text-subtle text-xs'>Orientation</h3>
               <ToggleGroup
                 type='single'
                 value={orientation}
@@ -403,7 +403,7 @@ export const Interactive: Story = {
             </div>
 
             <div>
-              <h3 className='text-xs font-medium text-subtle mb-2 block'>State</h3>
+              <h3 className='mb-2 block font-medium text-subtle text-xs'>State</h3>
               <ToggleGroup
                 type='single'
                 value={disabled ? 'disabled' : 'enabled'}
@@ -415,7 +415,7 @@ export const Interactive: Story = {
             </div>
           </div>
 
-          <div className='border border-border rounded-lg p-6 bg-surface-secondary'>
+          <div className='rounded-lg border border-border bg-surface-secondary p-6'>
             {type === 'single' ? (
               <ToggleGroup
                 type='single'
@@ -452,7 +452,7 @@ export const Interactive: Story = {
             )}
           </div>
 
-          <div className='bg-primary/10 p-4 rounded'>
+          <div className='rounded bg-primary/10 p-4'>
             <p className='text-sm'>
               <strong>Current value:</strong>{' '}
               {type === 'single' ? value || '(none)' : multiValue.length ? multiValue.join(', ') : '(none)'}

@@ -1,9 +1,9 @@
-import { Button } from '@/components/button';
-import { Checkbox } from '@/components/checkbox';
-import { Input } from '@/components/input';
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { BadgeInfo, ChevronLeft, ChevronRight, Loader2, Plus, TriangleAlert, User } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
+import { Button } from '@/components/button';
+import { Checkbox } from '@/components/checkbox';
+import { Input } from '@/components/input';
 
 import { Dialog } from './dialog';
 
@@ -45,7 +45,7 @@ export const BasicDialog: Story = {
                     This is a basic dialog example using all default components. It includes a header with title and
                     description, a body section for content, and a footer with action buttons.
                   </p>
-                  <p className='text-subtle text-sm'>
+                  <p className='text-sm text-subtle'>
                     You can close this dialog by clicking outside, pressing Escape, or using the buttons below.
                   </p>
                 </div>
@@ -92,12 +92,12 @@ export const LoadingDialog: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-100'>
-              <Dialog.Body className='flex flex-col items-center justify-center py-8 space-y-4'>
-                <Loader2 className='w-12 h-12 animate-spin text-main' />
-                <div className='text-center space-y-2'>
+              <Dialog.Body className='flex flex-col items-center justify-center space-y-4 py-8'>
+                <Loader2 className='size-12 animate-spin text-main' />
+                <div className='space-y-2 text-center'>
                   <p className='font-semibold'>Processing your request</p>
                   <p className='text-sm text-subtle'>Please wait while we sync your data...</p>
-                  <p className='text-xs text-subtle'>{progress}% complete</p>
+                  <p className='text-subtle text-xs'>{progress}% complete</p>
                 </div>
               </Dialog.Body>
               <Dialog.Footer className='justify-center'>
@@ -137,9 +137,9 @@ export const QuickConfirmation: Story = {
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-96'>
-              <Dialog.Body className='text-center py-2'>
+              <Dialog.Body className='py-2 text-center'>
                 <p className='font-medium'>Enable experimental features?</p>
-                <p className='text-sm text-subtle mt-1'>This may affect application stability.</p>
+                <p className='mt-1 text-sm text-subtle'>This may affect application stability.</p>
               </Dialog.Body>
               <Dialog.Footer className='justify-center'>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
@@ -230,7 +230,7 @@ export const FormDialog: Story = {
                     }}
                     placeholder='you@example.com'
                   />
-                  {errors.email && <p className='text-sm text-error'>{errors.email}</p>}
+                  {errors.email && <p className='text-error text-sm'>{errors.email}</p>}
                 </div>
 
                 <div className='space-y-2'>
@@ -245,12 +245,12 @@ export const FormDialog: Story = {
                     }}
                     placeholder='Enter password'
                   />
-                  {errors.password && <p className='text-sm text-error'>{errors.password}</p>}
+                  {errors.password && <p className='text-error text-sm'>{errors.password}</p>}
                 </div>
 
                 {isDirty && (
-                  <p className='text-xs text-subtle'>
-                    <TriangleAlert className='inline w-3 h-3 mr-1' />
+                  <p className='text-subtle text-xs'>
+                    <TriangleAlert className='mr-1 inline size-3' />
                     Dialog will not close while form has unsaved changes
                   </p>
                 )}
@@ -285,9 +285,9 @@ export const OpenByDefault: Story = {
       <Dialog defaultOpen>
         <Dialog.Portal>
           <Dialog.Overlay />
-          <Dialog.Content className='min-w-auto w-auto gap-5'>
+          <Dialog.Content className='w-auto min-w-auto gap-5'>
             <Dialog.DefaultHeader title='Hey!' description='I was opened automatically' />
-            <Dialog.Body className='flex items-center gap-2 p-4 bg-surface-info rounded-md text-info'>
+            <Dialog.Body className='flex items-center gap-2 rounded-md bg-surface-info p-4 text-info'>
               <BadgeInfo />
               <span>As soon as component mounted.</span>
             </Dialog.Body>
@@ -318,11 +318,11 @@ export const CustomHeader: Story = {
             <Dialog.Overlay />
             <Dialog.Content className='w-140'>
               <Dialog.Header className='flex flex-col gap-2.5'>
-                <Dialog.Title className='flex items-center gap-2 bg-surface-info px-4 py-3 rounded-sm text-info'>
+                <Dialog.Title className='flex items-center gap-2 rounded-sm bg-surface-info px-4 py-3 text-info'>
                   <BadgeInfo strokeWidth={2} />
-                  <span className='flex-1 text-sm font-semibold uppercase'>Add new project?</span>
+                  <span className='flex-1 font-semibold text-sm uppercase'>Add new project?</span>
                   <Button
-                    className='bg-transparent hover:bg-info/10 active:bg-info border-info text-info'
+                    className='border-info bg-transparent text-info hover:bg-info/10 active:bg-info'
                     variant='outline'
                     onClick={handleNew}
                     label='Add'
@@ -330,16 +330,16 @@ export const CustomHeader: Story = {
                   />
                 </Dialog.Title>
                 <Dialog.Description>
-                  <h2 className='text-2xl font-semibold'>Project Manager</h2>
+                  <h2 className='font-semibold text-2xl'>Project Manager</h2>
                   <p>Manage and organize your active projects</p>
                 </Dialog.Description>
               </Dialog.Header>
 
               <Dialog.Body className='space-y-2'>
-                {items.map((item, key) => (
+                {items.map(item => (
                   <div
-                    key={key}
-                    className='px-3 py-1 border border-bdr-subtle rounded-sm flex justify-between items-center'
+                    key={item}
+                    className='flex items-center justify-between rounded-sm border border-bdr-subtle px-3 py-1'
                   >
                     <span>{item}</span>
                   </div>
@@ -392,7 +392,7 @@ export const ScrollableContent: Story = {
                 {items.map(({ id, name }) => (
                   <Checkbox
                     key={id}
-                    className={'px-3 py-1 rounded-sm hover:bg-surface-neutral-hover'}
+                    className={'rounded-sm px-3 py-1 hover:bg-surface-neutral-hover'}
                     label={name}
                     checked={selected.includes(id)}
                     onCheckedChange={() => toggleItem(id)}
@@ -428,7 +428,7 @@ export const LargeDialog: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='max-w-auto w-200 h-160'>
+            <Dialog.Content className='h-160 w-200 max-w-auto'>
               <Dialog.DefaultHeader
                 title='Project Overview'
                 description='Comprehensive view of project metrics and statistics'
@@ -436,25 +436,25 @@ export const LargeDialog: Story = {
               />
               <Dialog.Body className='space-y-6'>
                 <div className='grid grid-cols-3 gap-4'>
-                  <div className='p-4 border border-bdr-subtle rounded-lg'>
+                  <div className='rounded-lg border border-bdr-subtle p-4'>
                     <p className='text-sm text-subtle'>Total Tasks</p>
-                    <p className='text-3xl font-bold mt-1'>127</p>
+                    <p className='mt-1 font-bold text-3xl'>127</p>
                   </div>
-                  <div className='p-4 border border-bdr-subtle rounded-lg'>
+                  <div className='rounded-lg border border-bdr-subtle p-4'>
                     <p className='text-sm text-subtle'>Completed</p>
-                    <p className='text-3xl font-bold mt-1 text-success'>89</p>
+                    <p className='mt-1 font-bold text-3xl text-success'>89</p>
                   </div>
-                  <div className='p-4 border border-bdr-subtle rounded-lg'>
+                  <div className='rounded-lg border border-bdr-subtle p-4'>
                     <p className='text-sm text-subtle'>Pending</p>
-                    <p className='text-3xl font-bold mt-1 text-warn'>38</p>
+                    <p className='mt-1 font-bold text-3xl text-warn'>38</p>
                   </div>
                 </div>
 
                 <div className='space-y-3'>
                   <h3 className='font-semibold'>Recent Activity</h3>
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <div key={i} className='p-3 border border-bdr-subtle rounded-lg'>
-                      <p className='font-medium'>Task #{i + 1} completed</p>
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map(key => (
+                    <div key={key} className='rounded-lg border border-bdr-subtle p-3'>
+                      <p className='font-medium'>Task #{key} completed</p>
                       <p className='text-sm text-subtle'>2 hours ago by Team Member</p>
                     </div>
                   ))}
@@ -463,13 +463,13 @@ export const LargeDialog: Story = {
                 <div className='space-y-3'>
                   <h3 className='font-semibold'>Team Members</h3>
                   <div className='grid grid-cols-2 gap-3'>
-                    {Array.from({ length: 8 }, (_, i) => (
-                      <div key={i} className='p-3 border border-bdr-subtle rounded-lg flex items-center gap-3'>
-                        <div className='w-10 h-10 rounded-full bg-main/10 flex items-center justify-center'>
-                          <User className='w-5 h-5' />
+                    {Array.from({ length: 8 }, (_, i) => i + 1).map(key => (
+                      <div key={key} className='flex items-center gap-3 rounded-lg border border-bdr-subtle p-3'>
+                        <div className='flex size-10 items-center justify-center rounded-full bg-main/10'>
+                          <User className='size-5' />
                         </div>
                         <div>
-                          <p className='font-medium'>Member {i + 1}</p>
+                          <p className='font-medium'>Member {key}</p>
                           <p className='text-sm text-subtle'>Developer</p>
                         </div>
                       </div>
@@ -564,10 +564,10 @@ export const MultiStepWizard: Story = {
               <Dialog.Body className='space-y-4'>
                 {/* Progress Indicator */}
                 <div className='flex gap-2'>
-                  {Array.from({ length: totalSteps }, (_, i) => (
+                  {Array.from({ length: totalSteps }, (_, i) => i + 1).map(key => (
                     <div
-                      key={i}
-                      className={`h-1 flex-1 rounded-full ${i < step ? 'bg-main' : 'bg-surface-neutral-hover'}`}
+                      key={key}
+                      className={`h-1 flex-1 rounded-full ${key <= step ? 'bg-main' : 'bg-surface-neutral-hover'}`}
                     />
                   ))}
                 </div>
@@ -592,10 +592,10 @@ export const MultiStepWizard: Story = {
                   <div className='space-y-2'>
                     <h5 className='font-semibold'>Project Type</h5>
                     <div className='space-y-2'>
-                      {['Web Application', 'Mobile App', 'Desktop Software', 'API Service'].map((type, index) => (
+                      {['Web Application', 'Mobile App', 'Desktop Software', 'API Service'].map(type => (
                         <Button
-                          key={index}
-                          className='w-full justify-start border-1'
+                          key={type}
+                          className='w-full justify-start border'
                           variant={projectType === type ? 'solid' : 'outline'}
                           onClick={() => setProjectType(type)}
                           label={type}
@@ -611,10 +611,10 @@ export const MultiStepWizard: Story = {
                   <div className='space-y-2'>
                     <h5 className='font-semibold'>Expected Team Size</h5>
                     <div className='space-y-2'>
-                      {['Just me', '2-5 people', '6-10 people', '11+ people'].map((team, index) => (
+                      {['Just me', '2-5 people', '6-10 people', '11+ people'].map(team => (
                         <Button
-                          key={index}
-                          className='w-full justify-start border-1'
+                          key={team}
+                          className='w-full justify-start border'
                           variant={teamSize === team ? 'solid' : 'outline'}
                           onClick={() => setTeamSize(team)}
                           label={team}
@@ -694,7 +694,7 @@ export const AutoFocusInput: Story = {
             <Dialog.Overlay />
             <Dialog.Content className='w-120' onOpenAutoFocus={handleOpenAutoFocus}>
               <Dialog.DefaultHeader title='Add New Contact' description='Enter the contact name to continue' />
-              <Dialog.Body className='space-y-3 -mx-3 px-3'>
+              <Dialog.Body className='-mx-3 space-y-3 px-3'>
                 <Input
                   ref={inputRef}
                   label='Full Name'
@@ -707,7 +707,7 @@ export const AutoFocusInput: Story = {
                     }
                   }}
                 />
-                <p className='text-xs text-subtle'>The input receives focus automatically when the dialog opens.</p>
+                <p className='text-subtle text-xs'>The input receives focus automatically when the dialog opens.</p>
               </Dialog.Body>
               <Dialog.Footer>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />

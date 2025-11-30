@@ -1,5 +1,5 @@
+import path from 'node:path';
 import type { StorybookConfig } from '@storybook/preact-vite';
-import path from 'path';
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],

@@ -111,3 +111,26 @@ export * from './menu-provider';
 export * from './dialog-provider';
 // ... all providers
 ```
+
+## Import Patterns
+
+### Component Imports (Avoiding Circular Dependencies)
+
+Import components from their folder, not from the barrel `@/components`. Barrel imports cause circular dependencies with Rollup chunking.
+
+```typescript
+// ❌ DON'T: Import from barrel (causes circular deps in stories/tests)
+import { IconButton } from '@/components';
+import { isLoadingPlaceholder } from '@/components';
+
+// ✅ DO: Import from component folder
+import { IconButton } from '@/components/icon-button';
+import { isLoadingPlaceholder } from '@/components/tree-list';
+```
+
+This applies to:
+- Story files (`*.stories.tsx`)
+- Test files
+- Components importing sibling components
+
+The barrel `@/components` is for external consumers only.

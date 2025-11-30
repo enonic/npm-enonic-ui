@@ -14,7 +14,13 @@ export function setRef<T>(ref: Ref<T> | undefined | null, value: T | null): void
 }
 
 export function useComposedRefs<T>(...refs: (Ref<T> | undefined | null)[]): ForwardedRef<T> {
-  return useCallback((node: T | null) => {
-    refs.forEach(ref => setRef(ref, node));
-  }, refs);
+  return useCallback(
+    (node: T | null) => {
+      refs.forEach(ref => {
+        setRef(ref, node);
+      });
+    },
+    // biome-ignore lint/correctness/useExhaustiveDependencies: refs is spread as deps for callback stability
+    refs,
+  );
 }

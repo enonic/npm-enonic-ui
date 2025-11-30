@@ -1,0 +1,25 @@
+# EditorConfig - https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+max_line_length = 120
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.ts,*.tsx,*.js,*.jsx,*.css]
+quote_style = single
+
+[*.md]
+# Trailing whitespace is significant in Markdown (line breaks)
+trim_trailing_whitespace = false
+
+[{pnpm-lock.yaml,package-lock.json}]
+# Auto-generated files - don't touch
+indent_size = unset
+max_line_length = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset

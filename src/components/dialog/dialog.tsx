@@ -1,8 +1,3 @@
-import { IconButton } from '@/components/icon-button/icon-button';
-import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
-import { usePrefixedId } from '@/providers';
-import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
-import { cn, useComposedRefs } from '@/utils';
 import { Slot } from '@radix-ui/react-slot';
 import { FocusTrap } from 'focus-trap-react';
 import { X } from 'lucide-react';
@@ -18,6 +13,11 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { IconButton } from '@/components/icon-button/icon-button';
+import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
+import { usePrefixedId } from '@/providers';
+import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
+import { cn, useComposedRefs } from '@/utils';
 
 //
 // * Dialog
@@ -44,7 +44,7 @@ const DialogRoot = ({
 
   const context = useMemo<DialogContextValue>(
     () => ({ open, setOpen, titleId, descriptionId, setTitleId, setDescriptionId }),
-    [open, titleId, descriptionId],
+    [open, titleId, descriptionId, setOpen],
   );
 
   return <DialogProvider value={context}>{children}</DialogProvider>;
@@ -135,7 +135,7 @@ const DialogOverlay = forwardRef<HTMLDivElement, DialogOverlayProps>(
         data-state={open ? 'open' : 'closed'}
         className={cn(
           'fixed inset-0 z-30 bg-overlay backdrop-blur-xs',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           className,
         )}
@@ -253,11 +253,11 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
             data-state={open ? 'open' : 'closed'}
             tabIndex={-1}
             className={cn(
-              'relative rounded-lg shadow-xl bg-surface-neutral',
-              'flex flex-col max-w-lg w-full max-h-[90vh] gap-10 p-10',
-              'border border-bdr-subtle outline-none overflow-hidden',
+              'relative rounded-lg bg-surface-neutral shadow-xl',
+              'flex max-h-[90vh] w-full max-w-lg flex-col gap-10 p-10',
+              'overflow-hidden border border-bdr-subtle outline-none',
               'focus:outline-none focus:ring-0',
-              'data-[state=open]:animate-in data-[state=closed]:animate-out',
+              'data-[state=closed]:animate-out data-[state=open]:animate-in',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
               'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
               className,
@@ -353,7 +353,7 @@ const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         id={titleId}
-        className={cn('text-2xl font-semibold', className)}
+        className={cn('font-semibold text-2xl', className)}
         {...props}
       >
         {children}
@@ -477,7 +477,7 @@ const DialogDefaultHeader = forwardRef<HTMLElement, DialogDefaultHeaderProps>(
         <DialogTitle id={titleId} className={cn(withClose && 'col-start-1 row-start-1 min-w-0')}>
           {title}
         </DialogTitle>
-        {withClose && <DialogDefaultClose className='col-start-2 row-start-1 row-span-2 self-start justify-self-end' />}
+        {withClose && <DialogDefaultClose className='col-start-2 row-span-2 row-start-1 self-start justify-self-end' />}
         {description && (
           <DialogDescription id={descriptionId} className={cn(withClose && 'row-start-2')}>
             {description}

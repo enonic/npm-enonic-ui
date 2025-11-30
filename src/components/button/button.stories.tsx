@@ -79,7 +79,7 @@ export const AllVariantsComparison: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>All Variants - Medium Size</h3>
+        <h3 className='mb-3 font-medium text-sm'>All Variants - Medium Size</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Text' variant='text' />
           <Button label='Filled' variant='filled' />
@@ -88,7 +88,7 @@ export const AllVariantsComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>All Variants - Disabled</h3>
+        <h3 className='mb-3 font-medium text-sm'>All Variants - Disabled</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Text' variant='text' disabled />
           <Button label='Filled' variant='filled' disabled />
@@ -104,7 +104,7 @@ export const DisabledStates: Story = {
   name: 'States / Disabled',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='text-sm font-medium mb-3'>All Variants - Disabled</h3>
+      <h3 className='mb-3 font-medium text-sm'>All Variants - Disabled</h3>
       <div className='flex flex-wrap gap-3'>
         <Button label='Text' variant='text' disabled />
         <Button label='Filled' variant='filled' disabled />
@@ -132,7 +132,7 @@ export const CustomStyles: Story = {
       label={label}
       variant='text'
       size={size}
-      className='bg-btn-error text-alt hover:bg-btn-error-hover active:bg-btn-error-active focus-visible:ring-error/50'
+      className='bg-btn-error text-alt hover:bg-btn-error-hover focus-visible:ring-error/50 active:bg-btn-error-active'
       disabled={disabled}
     />
   ),
@@ -142,7 +142,7 @@ export const TextSizes: Story = {
   name: 'Features / Text Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='text-sm font-medium mb-3'>Text Variant - All Sizes</h3>
+      <h3 className='mb-3 font-medium text-sm'>Text Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <Button label='Small' variant='text' size='sm' />
         <Button label='Medium' variant='text' size='md' />
@@ -156,7 +156,7 @@ export const FilledSizes: Story = {
   name: 'Features / Filled Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='text-sm font-medium mb-3'>Filled Variant - All Sizes</h3>
+      <h3 className='mb-3 font-medium text-sm'>Filled Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <Button label='Small' variant='filled' size='sm' />
         <Button label='Medium' variant='filled' size='md' />
@@ -170,7 +170,7 @@ export const SolidSizes: Story = {
   name: 'Features / Solid Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='text-sm font-medium mb-3'>Solid Variant - All Sizes</h3>
+      <h3 className='mb-3 font-medium text-sm'>Solid Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <Button label='Small' variant='solid' size='sm' />
         <Button label='Medium' variant='solid' size='md' />
@@ -184,7 +184,7 @@ export const OutlineSizes: Story = {
   name: 'Features / Outline Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='text-sm font-medium mb-3'>Outline Variant - All Sizes</h3>
+      <h3 className='mb-3 font-medium text-sm'>Outline Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <Button label='Small' variant='outline' size='sm' />
         <Button label='Medium' variant='outline' size='md' />
@@ -199,7 +199,7 @@ export const WithIcons: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Buttons with Left Icons</h3>
+        <h3 className='mb-3 font-medium text-sm'>Buttons with Left Icons</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Monitor' variant='text' startIcon={Monitor} />
           <Button label='Save' variant='filled' startIcon={Save} />
@@ -208,7 +208,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Buttons with Right Icons</h3>
+        <h3 className='mb-3 font-medium text-sm'>Buttons with Right Icons</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Options' variant='text' endIcon={ChevronDown} />
           <Button label='More Actions' variant='filled' endIcon={ChevronDown} />
@@ -217,7 +217,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Buttons with Both Icons</h3>
+        <h3 className='mb-3 font-medium text-sm'>Buttons with Both Icons</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Export' variant='text' startIcon={Download} endIcon={ChevronDown} />
           <Button label='Import' variant='filled' startIcon={Upload} endIcon={ChevronDown} />
@@ -226,7 +226,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='text-sm font-medium mb-3'>Icon Button Sizes</h3>
+        <h3 className='mb-3 font-medium text-sm'>Icon Button Sizes</h3>
         <div className='flex items-center gap-3'>
           <Button label='Small' variant='filled' size='sm' startIcon={Monitor} endIcon={ChevronDown} />
           <Button label='Medium' variant='filled' size='md' startIcon={Monitor} endIcon={ChevronDown} />

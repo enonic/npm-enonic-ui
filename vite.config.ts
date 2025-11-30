@@ -1,6 +1,6 @@
+import path from 'node:path';
 import preact from '@preact/preset-vite';
 import tailwindcss from '@tailwindcss/vite';
-import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';

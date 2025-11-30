@@ -1,5 +1,5 @@
-import { cn } from '@/utils';
 import type { ComponentPropsWithoutRef, ReactElement } from 'react';
+import { cn } from '@/utils';
 
 export type SeparatorProps = {
   className?: string;
@@ -23,7 +23,7 @@ export const Separator = ({ className, label, decorative = false, ...props }: Se
       {...props}
     >
       <span className='min-w-0 truncate text-subtle uppercase tracking-wider'>{label}</span>
-      <span className='min-w-6 flex-1 border-b border-bdr-subtle' />
+      <span className='min-w-6 flex-1 border-bdr-subtle border-b' />
     </div>
   );
 };

@@ -1,7 +1,3 @@
-import { IconButton } from '@/components';
-import { useControlledState } from '@/hooks';
-import { type SearchFieldContextValue, SearchFieldProvider, usePrefixedId, useSearchField } from '@/providers';
-import { cn, unwrap, useComposedRefs } from '@/utils';
 import { Search, X } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -13,6 +9,10 @@ import {
   useRef,
   useState,
 } from 'react';
+import { IconButton } from '@/components/icon-button';
+import { useControlledState } from '@/hooks';
+import { type SearchFieldContextValue, SearchFieldProvider, usePrefixedId, useSearchField } from '@/providers';
+import { cn, unwrap, useComposedRefs } from '@/utils';
 
 //
 // * SearchField
@@ -61,14 +61,14 @@ const SearchFieldRoot = ({
       clearLabel,
       inputRef,
     }),
-    [inputId, setInputId, inputValue, setInputValue, disabled, readOnly, placeholder, clearLabel, inputRef],
+    [inputId, inputValue, setInputValue, disabled, readOnly, placeholder, clearLabel],
   );
 
   return (
     <SearchFieldProvider value={context}>
       <div
         className={cn(
-          'relative flex gap-2.5 items-center rounded-sm overflow-hidden',
+          'relative flex items-center gap-2.5 overflow-hidden rounded-sm',
           'h-11.5 px-4.5 py-3',
           'border border-bdr-subtle focus-within:border-bdr-strong',
           'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
@@ -97,7 +97,7 @@ export type SearchFieldIconProps = {
 const SearchFieldIcon = ({ className }: SearchFieldIconProps): ReactElement => {
   return (
     <Search
-      className={cn('flex items-center justify-center shrink-0 size-5.5 text-subtle', className)}
+      className={cn('flex size-5.5 shrink-0 items-center justify-center text-subtle', className)}
       strokeWidth={1.5}
     />
   );
@@ -130,8 +130,8 @@ const SearchFieldInput = forwardRef<HTMLInputElement, SearchFieldInputProps>(
         ref={useComposedRefs(ref, inputRef)}
         id={id}
         className={cn(
-          'h-5.5 w-full text-base border-0',
-          'text-main bg-surface-neutral',
+          'h-5.5 w-full border-0 text-base',
+          'bg-surface-neutral text-main',
           'placeholder:text-subtle',
           'focus:outline-none',
           'enabled:read-only:bg-surface-primary',
@@ -171,7 +171,7 @@ const SearchFieldClear = ({ className, ...props }: SearchFieldClearProps): React
 
   return (
     <IconButton
-      className={cn('flex items-center justify-center shrink-0 size-7 -mx-1.5 text-subtle', className)}
+      className={cn('-mx-1.5 flex size-7 shrink-0 items-center justify-center text-subtle', className)}
       icon={X}
       title={clearLabel}
       onClick={handleClear}

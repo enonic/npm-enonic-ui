@@ -1,8 +1,8 @@
 export {
   Combobox,
+  type ComboboxContentProps,
   type ComboboxControlProps,
   type ComboboxPopupProps,
-  type ComboboxToggleProps,
   type ComboboxRootProps,
-  type ComboboxContentProps,
+  type ComboboxToggleProps,
 } from './combobox';
