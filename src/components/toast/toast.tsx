@@ -81,7 +81,7 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
       <Comp
         // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
-        className={cn('font-semibold text-md leading-4', className)}
+        className={cn('text-md', className)}
         {...props}
       >
         {children}
@@ -92,15 +92,7 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
 ToastDescription.displayName = 'Toast.Description';
 
 const ToastLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...props }, ref): ReactElement => {
-  return (
-    <Link
-      ref={ref}
-      external={false}
-      data-tone='inverse'
-      className={cn('w-fit font-semibold text-sm leading-4', className)}
-      {...props}
-    />
-  );
+  return <Link ref={ref} external={false} data-tone='inverse' className={cn('w-fit text-md', className)} {...props} />;
 });
 ToastLink.displayName = 'Toast.Link';
 
@@ -110,7 +102,7 @@ const ToastButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<typeo
       <Button
         ref={ref}
         variant='outline'
-        size='sm'
+        size='md'
         className={cn('border-alt bg-transparent px-2 text-alt hover:bg-notification-secondary', className)}
         {...props}
       >
@@ -252,7 +244,7 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
             // Custom properties to make the focus ring look correct in any theme
             '[--color-ring-offset:var(--color-surface-tertiary)] [--color-ring:var(--color-ring-alt)]',
             'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center',
-            'w-full max-w-115 gap-2.5 p-5',
+            'w-full max-w-125 gap-2.5 p-5',
             'rounded-lg border border-bdr-soft bg-surface-tertiary text-alt',
             className,
           )}
