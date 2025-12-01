@@ -43,6 +43,9 @@ jobs:
     needs: precheck
     if: needs.precheck.outputs.allowed == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout code
@@ -65,8 +68,6 @@ jobs:
 
       - name: Publish
         run: pnpm release
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
