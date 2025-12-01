@@ -9,6 +9,10 @@ concurrency:
   group: release
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   precheck:
     name: Verify tag points to main/master or version branches (x.y)
@@ -59,15 +63,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Publish
-        run: pnpm release
+      - name: Publish (npm)
+        # Must be run with --provenance if repository is public
+        run: npm publish --access public
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
