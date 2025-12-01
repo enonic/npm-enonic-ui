@@ -244,7 +244,7 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
             // Custom properties to make the focus ring look correct in any theme
             '[--color-ring-offset:var(--color-surface-tertiary)] [--color-ring:var(--color-ring-alt)]',
             'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center',
-            'w-full max-w-125 gap-2.5 p-5',
+            'w-full max-w-130 gap-2.5 p-5',
             'rounded-lg border border-bdr-soft bg-surface-tertiary text-alt',
             className,
           )}
