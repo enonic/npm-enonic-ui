@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -47,9 +47,6 @@ jobs:
     needs: precheck
     if: needs.precheck.outputs.allowed == 'true'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
 
     steps:
       - name: Checkout code
@@ -70,9 +67,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Publish (npm)
-        # Must be run with --provenance if repository is public
-        run: npm publish --access public
+      - name: Publish
+        # --no-git-checks: CI runs in detached HEAD state (tag checkout)
+        # --provenance: Required for public repositories
+        run: pnpm publish --no-git-checks
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
