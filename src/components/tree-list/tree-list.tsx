@@ -1,6 +1,7 @@
 import { ChevronRight, Loader2, Square, SquareCheck } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
+  Fragment,
   type ReactElement,
   type ReactNode,
   useCallback,
@@ -16,16 +17,164 @@ import { type TreeListContextValue, TreeListProvider, useTreeList } from '@/prov
 import type { LucideIcon } from '@/types';
 import { cn } from '@/utils';
 
-const LOADING_SUFFIX = '__loading__';
+export const LOADING_SUFFIX = '__loading__';
+export const ROOT_PARENT_ID = '__root__';
 
 const calcSpacerWidth = (level: number): number => Math.max(0, 10 + 20 * (level - 1));
 
-export type TreeListProps<T extends TreeNode = TreeNode> = {
+function createDefaultTreeItems<TData extends TreeData>(): TreeItems<TData> {
+  return {
+    nodes: {},
+    children: {},
+    hasMore: {},
+  };
+}
+
+export type TreeData = {
+  id: string;
+  hasChildren: boolean;
+};
+
+export type TreeItems<TreeData> = {
+  nodes: Record<string, TreeData | undefined>;
+  children: Record<string, string[] | undefined>;
+  hasMore: Record<string, boolean | undefined>;
+};
+
+export type FlatTreeNode<TData extends TreeData> = {
+  id: string;
+  data: TData;
+  level: number;
+  parentId: string | null;
+  nodeType: 'node' | 'loading' | 'error';
+};
+
+function flattenTree<TData extends TreeData>(
+  items: TreeItems<TData>,
+  expandedSet: ReadonlySet<string>,
+  baseId: string,
+  loadingById: Map<string | null, boolean>,
+  errorById: Map<string | null, Error | string>,
+): FlatTreeNode<TData>[] {
+  const result: FlatTreeNode<TData>[] = [];
+
+  const rootIds = items.children[ROOT_PARENT_ID] ?? [];
+  const hasMoreRoot = items.hasMore[ROOT_PARENT_ID] ?? false;
+
+  const visit = (id: string, level: number, parentId: string | null): void => {
+    const data = items.nodes[id];
+
+    if (!data) {
+      return;
+    }
+
+    const hasMoreChildren = items.hasMore[id] ?? false;
+
+    result.push({
+      id,
+      data,
+      level,
+      parentId,
+      nodeType: 'node',
+    });
+
+    const isExpanded = expandedSet.has(id);
+
+    if (isExpanded && data.hasChildren) {
+      const children = items.children[id] ?? [];
+
+      for (const childId of children) {
+        visit(childId, level + 1, id);
+      }
+
+      const hasErrorLoadingChildren = !!errorById.get(id);
+
+      if (hasErrorLoadingChildren) {
+        const errorId = `${id}${LOADING_SUFFIX}error`;
+
+        result.push({
+          id: errorId,
+          data: {
+            id: errorId,
+            hasChildren: false,
+          } as TData,
+          level: level + 1,
+          parentId: id,
+          nodeType: 'error',
+        });
+
+        return;
+      }
+
+      const isLoading = loadingById.get(id) === true;
+      const childrenLoaded = Object.hasOwn(items.children, id);
+      const shouldShowLoadingRow =
+        isLoading || // show loading row
+        !childrenLoaded || // expanded for the first time
+        hasMoreChildren; // pagination
+
+      if (shouldShowLoadingRow) {
+        const loadingId = `${id}${LOADING_SUFFIX}${children.length}`;
+
+        result.push({
+          id: loadingId,
+          data: {
+            id: loadingId,
+            hasChildren: false,
+          } as TData,
+          level: level + 1,
+          parentId: id,
+          nodeType: 'loading',
+        });
+      }
+    }
+  };
+
+  for (const rootId of rootIds) {
+    visit(rootId, 1, null);
+  }
+
+  const hasRootLoadingError = !!errorById.get(null);
+  const isRootLoading = loadingById.get(null) === true;
+
+  if (hasRootLoadingError) {
+    const loadingId = `${baseId}${LOADING_SUFFIX}error`;
+    result.push({
+      id: loadingId,
+      data: {
+        id: loadingId,
+        hasChildren: false,
+      } as TData,
+      level: 1,
+      parentId: null,
+      nodeType: 'error',
+    });
+  } else if (hasMoreRoot || isRootLoading) {
+    const loadingId = `${baseId}${LOADING_SUFFIX}${rootIds.length}`;
+    result.push({
+      id: loadingId,
+      parentId: null,
+      data: {
+        id: loadingId,
+        hasChildren: false,
+      } as TData,
+      level: 1,
+      nodeType: 'loading',
+    });
+  }
+
+  return result;
+}
+
+export type TreeListProps<TData extends TreeData = TreeData> = {
   className?: string;
-  items?: T[];
-  setItems?: (items: T[]) => void;
-  isItemSelectable?: (item: T) => boolean;
-  fetchChildren: (parentNode: T | undefined, offset: number) => Promise<{ items: T[]; total: number }>;
+  fetchChildren: (
+    parentId: string | undefined,
+    offset: number,
+  ) => Promise<{
+    items: TData[];
+    hasMore: boolean;
+  }>;
   expanded?: ReadonlySet<string>;
   onExpandedChange?: (expanded: ReadonlySet<string>) => void;
   selection?: ReadonlySet<string>;
@@ -34,117 +183,13 @@ export type TreeListProps<T extends TreeNode = TreeNode> = {
   active?: string | null;
   defaultActive?: string;
   setActive?: (active: string | null | undefined) => void;
+  isItemSelectable?: (item: TData) => boolean;
+  items?: TreeItems<TData>;
+  onItemsChange?: (items: TreeItems<TData>) => void;
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
-function findNode<T extends TreeNode>(nodes: T[], id: string): T | undefined {
-  for (const node of nodes) {
-    if (node.id === id) {
-      return node;
-    }
-    if (node.children) {
-      const found = findNode<T>(node.children as T[], id);
-      if (found) {
-        return found;
-      }
-    }
-  }
-  return undefined;
-}
-
-function updateTreeWithChildren<T extends TreeNode>(
-  nodes: readonly T[],
-  parentId: string | undefined,
-  newChildren: readonly T[],
-  hasMore: boolean,
-): T[] {
-  if (parentId == null) {
-    return nodes.concat(
-      newChildren.map(c => ({
-        ...c,
-        hasMoreChildren: hasMore,
-      })),
-    );
-  }
-
-  return nodes.map(n => {
-    if (n.id === parentId) {
-      const children = [...(n.children ?? []), ...newChildren].map(c => ({
-        ...c,
-        parentId,
-        path: [...n.path, n.id],
-      }));
-      return { ...n, children, hasMoreChildren: hasMore };
-    }
-    if (n.children) {
-      return { ...n, children: updateTreeWithChildren<T>(n.children as T[], parentId, newChildren, hasMore) };
-    }
-    return n;
-  });
-}
-
-function getRootNodes(nodes: TreeNode[]): TreeNode[] {
-  return nodes.filter(node => node.path.length === 0);
-}
-
-function flattenTree<T extends TreeNode>(
-  nodes: readonly T[],
-  expandedSet: ReadonlySet<string>,
-  baseId: string,
-  hasMoreRoot: boolean,
-): readonly T[] {
-  const result: T[] = [];
-
-  const walk = (items: readonly T[], parentPath: readonly string[]): void => {
-    for (const item of items) {
-      const path = [...parentPath, item.id];
-      result.push(item);
-      const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-      const isExpanded = expandedSet.has(item.id);
-      if (isExpanded && hasChildren) {
-        walk((item.children ?? []) as T[], path);
-        if (item.hasMoreChildren) {
-          result.push({
-            id: `${item.id}${LOADING_SUFFIX}`,
-            path,
-          } as T);
-        }
-      }
-    }
-  };
-
-  walk(nodes, []);
-
-  if (hasMoreRoot) {
-    result.push({
-      id: `${baseId}${LOADING_SUFFIX}`,
-      path: [] as string[],
-    } as T);
-  }
-
-  return result;
-}
-
-export type TreeListContentProps = {
-  children?: ReactNode;
-  load?: boolean;
-} & ComponentPropsWithoutRef<'div'>;
-
-const TreeListContent = ({ children, load = true }: TreeListContentProps): ReactElement => {
-  const { items, loadMore } = useTreeList();
-
-  useEffect(() => {
-    if (load && items.length === 0) {
-      loadMore();
-    }
-  }, [load, items.length, loadMore]);
-
-  return <>{children}</>;
-};
-
-TreeListContent.displayName = 'TreeList.Content';
-
-type TreeListContainerProps = {
+export type TreeListContainerProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
@@ -154,11 +199,12 @@ const TreeListContainer = ({
   className,
   ...props
 }: TreeListContainerProps): ReactElement<TreeListContainerProps> => {
-  const { baseId } = useTreeList();
+  const { baseId, scrollRootRef } = useTreeList();
 
   return (
     <div
       id={`${baseId}-scroll-root`}
+      ref={scrollRootRef}
       className={cn('relative flex h-full flex-col gap-y-1 overflow-y-auto p-1', className)}
       {...props}
     >
@@ -169,7 +215,166 @@ const TreeListContainer = ({
 
 TreeListContainer.displayName = 'TreeList.Container';
 
-type TreeListRowLeftProps = {
+export type DefaultTreeListLoadingRowViewProps<TData extends TreeData> = {
+  item: FlatTreeNode<TData>;
+} & ComponentPropsWithoutRef<'div'>;
+
+const DefaultTreeListLoadingRowView = <TData extends TreeData>({
+  item,
+  className,
+  children,
+  ...props
+}: DefaultTreeListLoadingRowViewProps<TData>): ReactElement => {
+  return (
+    <div className={cn('flex items-center gap-2 px-2 py-1 text-sm', className)} {...props}>
+      {item.level > 1 && (
+        <span className='spacer' style={{ '--level-indent': `${calcSpacerWidth(item.level)}px` }}>
+          <span className='inline-block w-(--level-indent)' />
+        </span>
+      )}
+      <Loader2 size={14} className='animate-spin' />
+      {children ?? <span>Loading...</span>}
+    </div>
+  );
+};
+
+export type TreeListLoadingRowProps<TData extends TreeData> = {
+  item: FlatTreeNode<TData>;
+  renderLoading?: (item: FlatTreeNode<TData>) => ReactNode;
+  children?: ReactNode;
+  intersectionProps?: IntersectionObserverInit;
+} & ComponentPropsWithoutRef<'div'>;
+
+const TreeListLoadingRow = <TData extends TreeData>({
+  item,
+  renderLoading,
+  className,
+  children,
+  intersectionProps,
+  ...props
+}: TreeListLoadingRowProps<TData>): ReactElement => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const { loadMore, scrollRootRef } = useTreeList<TData>();
+
+  useEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            const parentId = item.parentId ?? undefined;
+            void loadMore(parentId);
+          }
+        }
+      },
+      intersectionProps ?? {
+        root: scrollRootRef?.current ?? undefined,
+        rootMargin: '120px',
+      },
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [item.parentId, loadMore, intersectionProps, scrollRootRef]);
+
+  return (
+    <div ref={ref} className={className} {...props}>
+      {renderLoading ? renderLoading(item) : <DefaultTreeListLoadingRowView item={item} />}
+    </div>
+  );
+};
+
+TreeListLoadingRow.displayName = 'TreeList.LoadingRow';
+
+export type TreeListErrorRowProps<TData extends TreeData> = {
+  item: FlatTreeNode<TData>;
+  renderError?: (item: FlatTreeNode<TData>) => ReactNode;
+  className?: string;
+  onRetry?: () => void;
+} & ComponentPropsWithoutRef<'div'>;
+
+const TreeListErrorRow = <TData extends TreeData>({
+  item,
+  onRetry,
+  renderError,
+  className,
+  ...props
+}: TreeListErrorRowProps<TData>): ReactElement => {
+  return (
+    <div
+      tabIndex={-1}
+      role={'button'}
+      className={cn('flex cursor-pointer items-center gap-2 px-2 py-1 text-red-600 text-sm', className)}
+      onClick={onRetry}
+      onKeyDown={(e: React.KeyboardEvent<HTMLElement>) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onRetry?.();
+        }
+      }}
+      {...props}
+    >
+      {renderError ? (
+        renderError(item)
+      ) : (
+        <>
+          {item.level > 1 && (
+            <span className='spacer' style={{ '--level-indent': `${calcSpacerWidth(item.level)}px` }}>
+              <span className='inline-block w-(--level-indent)' />
+            </span>
+          )}
+          <span>Failed to load. Click to retry.</span>
+        </>
+      )}
+    </div>
+  );
+};
+
+TreeListErrorRow.displayName = 'TreeList.ErrorRow';
+
+export type TreeListContentProps<TData extends TreeData> = {
+  renderNode: (item: FlatTreeNode<TData>) => ReactNode;
+  renderLoading?: (item: FlatTreeNode<TData>) => ReactNode;
+  renderError?: (item: FlatTreeNode<TData>) => ReactNode;
+};
+
+const TreeListContent = <TData extends TreeData>({
+  renderNode,
+  renderLoading,
+  renderError,
+}: TreeListContentProps<TData>): ReactElement => {
+  const { items, loadMore } = useTreeList<TData>();
+
+  return (
+    <>
+      {items.map(item => {
+        if (item.nodeType === 'error') {
+          return (
+            <TreeListErrorRow
+              key={item.id}
+              item={item}
+              renderError={renderError}
+              onRetry={() => void loadMore(item.parentId ?? undefined)}
+            />
+          );
+        }
+
+        if (item.nodeType === 'loading') {
+          return <TreeListLoadingRow key={item.id} item={item} renderLoading={renderLoading} />;
+        }
+
+        return <Fragment key={item.id}>{renderNode(item)}</Fragment>;
+      })}
+    </>
+  );
+};
+
+TreeListContent.displayName = 'TreeList.Content';
+
+export type TreeListRowLeftProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
@@ -186,7 +391,7 @@ const TreeListRowLeft = ({
 
 TreeListRowLeft.displayName = 'TreeList.RowLeft';
 
-type TreeListRowRightProps = {
+export type TreeListRowRightProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
@@ -195,7 +400,7 @@ const TreeListRowRight = ({
   children,
   className,
   ...props
-}: TreeListRowRightProps): ReactElement<TreeListRowLeftProps> => (
+}: TreeListRowRightProps): ReactElement<TreeListRowRightProps> => (
   <div className={cn('flex items-center gap-2.5', className)} {...props}>
     {children}
   </div>
@@ -203,18 +408,18 @@ const TreeListRowRight = ({
 
 TreeListRowRight.displayName = 'TreeList.RowRight';
 
-type TreeListRowLevelSpacerProps = {
+export type TreeListRowLevelSpacerProps = {
   level?: number;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
 const TreeListRowLevelSpacer = ({
-  level = 0,
+  level = 1,
   className,
   ...props
-}: TreeListRowLevelSpacerProps): ReactElement<TreeListRowLeftProps> | undefined => {
-  if (level === 0) {
-    return undefined;
+}: TreeListRowLevelSpacerProps): ReactElement<TreeListRowLevelSpacerProps> | null => {
+  if (level === 1) {
+    return null; // no spacer needed for level 1
   }
 
   return (
@@ -228,42 +433,40 @@ const TreeListRowLevelSpacer = ({
 
 TreeListRowLevelSpacer.displayName = 'TreeList.RowLevelSpacer';
 
-type TreeListRowExpandControlProps = {
-  data: TreeNode;
+export type TreeListRowExpandControlProps<TData extends TreeData> = {
+  data: FlatTreeNode<TData>;
   icon?: LucideIcon;
 } & Omit<IconButtonProps, 'icon'>;
 
-const TreeListRowExpandControl = ({
+const TreeListRowExpandControl = <TData extends TreeData>({
   data,
   icon = ChevronRight,
   className,
   ...props
-}: TreeListRowExpandControlProps): ReactElement<TreeListRowExpandControlProps> => {
-  const { expanded, toggleExpanded, selection } = useTreeList();
-
-  if (!data.hasChildren) {
-    return <span className='size-5 shrink-0' />; // placeholder for expand icon;
-  }
-
+}: TreeListRowExpandControlProps<TData>): ReactElement<TreeListRowExpandControlProps<TData>> => {
+  const { expanded, toggleExpanded, selection, updateActive } = useTreeList<TData>();
   const isExpanded = expanded?.has(data.id);
   const isSelected = selection?.has(data.id);
+
+  if (data.nodeType === 'loading' || !data.data.hasChildren) {
+    return <span className='size-5 shrink-0' />;
+  }
 
   return (
     <IconButton
       icon={icon}
       variant='text'
-      title='Text variant'
+      title='Expand'
       tabIndex={-1}
       className={cn(
-        'size-5 transition-transform duration-150',
-        isSelected
-          ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover group-hover:bg-surface-selected-hover'
-          : 'group-hover:bg-surface-neutral-hover group-data-[active=true]:bg-surface-neutral-hover',
+        'size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent active:text-main',
+        isSelected && 'text-alt hover:text-alt active:text-alt',
         isExpanded && 'rotate-90',
         className,
       )}
       onClick={e => {
         toggleExpanded(data.id);
+        updateActive(data.id);
         e.stopPropagation();
       }}
       {...props}
@@ -273,7 +476,7 @@ const TreeListRowExpandControl = ({
 
 TreeListRowExpandControl.displayName = 'TreeList.RowExpandControl';
 
-type TreeListRowContentProps = {
+export type TreeListRowContentProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
@@ -292,17 +495,21 @@ const TreeListRowContent = ({
 
 TreeListRowContent.displayName = 'TreeList.RowContent';
 
-type TreeListRowSelectionControlProps = {
-  data: TreeNode;
+export type TreeListRowSelectionControlProps<TData extends TreeData> = {
+  data: FlatTreeNode<TData>;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowSelectionControl = ({ data, className, ...props }: TreeListRowSelectionControlProps): ReactElement => {
-  const { selection, isItemSelectable } = useTreeList();
+const TreeListRowSelectionControl = <TData extends TreeData>({
+  data,
+  className,
+  ...props
+}: TreeListRowSelectionControlProps<TData>): ReactElement => {
+  const { selection, isItemSelectable } = useTreeList<TData>();
   const isSelected = selection?.has(data.id);
 
-  if (isLoadingPlaceholder(data) || !isItemSelectable(data)) {
-    return <span className={cn('w-3.5', className)} {...props}></span>;
+  if (data.nodeType === 'loading' || !isItemSelectable(data.data)) {
+    return <span className={cn('w-3.5', className)} {...props} />;
   }
 
   return (
@@ -314,43 +521,70 @@ const TreeListRowSelectionControl = ({ data, className, ...props }: TreeListRowS
 
 TreeListRowSelectionControl.displayName = 'TreeList.RowSelectionControl';
 
-type TreeListRowProps<T extends TreeNode> = {
-  item: T;
+export type TreeListRowProps<TData extends TreeData> = {
+  item: FlatTreeNode<TData>;
   children: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRow = <T extends TreeNode>({
+const TreeListRow = <TData extends TreeData>({
   item,
   children,
   className,
   ...props
-}: TreeListRowProps<T>): ReactElement => {
-  const { selection, selectionMode, expanded, toggleSelection, active, baseId, isFocused } = useTreeList<T>();
+}: TreeListRowProps<TData>): ReactElement => {
+  const {
+    selection,
+    selectionMode,
+    expanded,
+    toggleSelection,
+    isItemSelectable,
+    updateActive,
+    active,
+    baseId,
+    isFocused,
+  } = useTreeList<TData>();
   const isExpanded = expanded?.has(item.id);
   const isSelected = selection?.has(item.id);
+  const isSelectable = isItemSelectable(item.data);
   const isActive = isFocused && active === item.id;
   const rowDomId = `${baseId}-item-${item.id}`;
 
+  if (item.nodeType === 'loading') {
+    return (
+      <div
+        id={rowDomId}
+        role='none'
+        className={cn('relative z-0 flex items-center gap-2.5 px-2.5 py-1 text-sm text-subtle', className)}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+
   return (
-    // ARIA treeview pattern: options are not individually focusable
-    // Parent root list element handles all keyboard interactions
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
     <div
       id={rowDomId}
       role='treeitem'
-      aria-expanded={item.hasChildren ? isExpanded : undefined}
+      aria-expanded={item.data.hasChildren ? isExpanded : undefined}
       aria-selected={isSelected ? true : selectionMode === 'multiple' ? false : undefined}
-      aria-level={item.path.length}
+      aria-level={item.level}
       data-tone={isSelected ? 'inverse' : undefined}
       data-active={isActive || undefined}
-      onClick={() => toggleSelection?.(item.id)}
+      onClick={() => {
+        updateActive(item.id);
+        toggleSelection(item.id);
+      }}
       className={cn(
-        'group relative z-0 flex cursor-pointer items-center gap-2.5 px-2.5 py-1 focus-within:outline-none hover:bg-surface-primary-hover',
+        'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 focus-within:outline-none hover:bg-surface-primary-hover',
         'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+        'data-[active=true]:ring-2 data-[active=true]:ring-offset-0',
+        isSelectable && 'cursor-pointer',
         isSelected
-          ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover'
-          : 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
+          ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover data-[active=true]:ring-main'
+          : 'hover:bg-surface-neutral-hover',
         className,
       )}
       tabIndex={undefined}
@@ -363,59 +597,8 @@ const TreeListRow = <T extends TreeNode>({
 
 TreeListRow.displayName = 'TreeList.Row';
 
-export type TreeListLoadingRowProps = {
-  item: TreeNode;
-  children?: ReactNode;
-  intersectionProps?: IntersectionObserverInit;
-} & ComponentPropsWithoutRef<'div'>;
-
-const TreeListLoadingRow = ({ item, children, intersectionProps, ...props }: TreeListLoadingRowProps): ReactElement => {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  const { loadMore, baseId } = useTreeList();
-
-  useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-    const observer = new IntersectionObserver(
-      entries => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            loadMore(item.path[item.path.length - 1]);
-          }
-        }
-      },
-      intersectionProps ?? {
-        root: document.querySelector(`#${baseId}-scroll-root`),
-        rootMargin: '120px',
-      },
-    );
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [item, loadMore, baseId, intersectionProps]);
-
-  const level = item.path.length;
-
-  return (
-    <div ref={ref} className='flex items-center gap-2 px-2 py-1 text-sm' {...props}>
-      {level > 0 && (
-        <span className='spacer' style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}>
-          <span className='inline-block w-(--level-indent)' />
-        </span>
-      )}
-      <Loader2 size={14} className='animate-spin' />
-      {children ?? <span>Loading...</span>}
-    </div>
-  );
-};
-
-TreeListLoadingRow.displayName = 'TreeList.LoadingRow';
-
-export const TreeListRoot = <T extends TreeNode = TreeNode>({
+const TreeListRoot = <TData extends TreeData = TreeData>({
   className,
-  items: controlledItems,
-  setItems: setItemsControlled,
   fetchChildren,
   selection: controlledSelection,
   expanded: controlledExpanded,
@@ -426,55 +609,105 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
   setActive,
   selectionMode = 'single',
   isItemSelectable = () => true,
+  items: controlledItems,
+  onItemsChange,
   children,
   ...props
-}: TreeListProps<T>): ReactElement => {
+}: TreeListProps<TData>): ReactElement => {
   const baseId = usePrefixedId(undefined, 'tree-list');
+
   const [selection, setSelection] = useControlledState<ReadonlySet<string>>(
     controlledSelection,
     new Set(),
     onSelectionChange,
   );
+
   const [expanded, setExpanded] = useControlledState<ReadonlySet<string>>(
     controlledExpanded,
     new Set(),
     onExpandedChange,
   );
-  const [items, setItems] = useControlledState<T[]>(controlledItems, [], setItemsControlled);
+
   const [active, updateActive] = useControlledStateWithNull(controlledActive, defaultActive, setActive);
   const [isFocused, setFocused] = useState(false);
   const innerRef = useRef<HTMLDivElement>(null);
-  const [hasMoreRoot, setHasMoreRoot] = useState(false);
+
+  const [items, setItems] = useControlledState<TreeItems<TData>>(
+    controlledItems,
+    createDefaultTreeItems<TData>(),
+    onItemsChange,
+  );
+
+  const [loadingById, setLoadingById] = useState<Map<string | null, boolean>>(() => new Map());
+  const [errorById, setErrorById] = useState<Map<string | null, Error | string>>(() => new Map());
 
   const loadMore = useCallback(
-    async (parentId?: string): Promise<void> => {
-      const targetParent: string | undefined = parentId ?? undefined;
-      const parentNode = targetParent ? findNode(items, targetParent) : undefined;
-      const offset = parentNode ? (parentNode.children ? parentNode.children.length : 0) : getRootNodes(items).length;
-
-      const { items: newChildren, total } = await fetchChildren(parentNode, offset);
-      const hasMore = offset + newChildren.length < total;
-
-      const updatedItems = updateTreeWithChildren(items, targetParent, newChildren, hasMore);
-
-      if (!parentId) {
-        setHasMoreRoot(hasMore);
+    async (parentId?: string) => {
+      if (loadingById.get(parentId ?? null) === true) {
+        return;
       }
 
-      setItems(updatedItems);
+      const key = parentId ?? ROOT_PARENT_ID;
+      const offset = (items.children[parentId ?? ROOT_PARENT_ID] ?? []).length;
+
+      setLoadingById(prev => {
+        const next = new Map(prev);
+        next.set(parentId ?? null, true);
+        return next;
+      });
+
+      setErrorById(prev => {
+        const next = new Map(prev);
+        next.delete(parentId ?? null);
+        return next;
+      });
+
+      try {
+        const { items: newItems, hasMore } = await fetchChildren(parentId, offset);
+
+        setItems(prev => {
+          const nodes = { ...prev.nodes };
+          const children = { ...prev.children };
+          const hasMoreMap = { ...prev.hasMore };
+
+          for (const item of newItems) {
+            nodes[item.id] = item;
+          }
+
+          const prevChildren = children[key] ?? [];
+          const newIds = newItems.map(item => item.id);
+
+          children[key] = offset === 0 ? newIds : [...prevChildren, ...newIds];
+          hasMoreMap[key] = hasMore;
+
+          return { nodes, children, hasMore: hasMoreMap };
+        });
+      } catch (error) {
+        setErrorById(prev => {
+          const next = new Map(prev);
+          next.set(parentId ?? null, error instanceof Error ? error : String(error));
+          return next;
+        });
+      } finally {
+        setLoadingById(prev => {
+          const next = new Map(prev);
+          next.set(parentId ?? null, false);
+          return next;
+        });
+      }
     },
-    [fetchChildren, items, setItems],
-  ) as (parentId?: string) => void;
+    [fetchChildren, items.children, setItems, loadingById],
+  );
 
   const flattenedItems = useMemo(
-    () => flattenTree(items, expanded, baseId, hasMoreRoot),
-    [items, expanded, baseId, hasMoreRoot],
+    () => flattenTree<TData>(items, expanded, baseId, loadingById, errorById),
+    [items, expanded, baseId, loadingById, errorById],
   );
 
   const toggleSelection = useCallback(
     (id: string) => {
-      const item = flattenedItems.find(node => node.id === id);
-      updateActive(id);
+      const item = items.nodes[id];
+
       if (!item || !isItemSelectable(item)) {
         return;
       }
@@ -490,11 +723,15 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
 
       setSelection(newSelection);
     },
-    [selection, selectionMode, flattenedItems, isItemSelectable, setSelection, updateActive],
+    [selection, selectionMode, isItemSelectable, items, setSelection],
   );
 
   const toggleExpanded = useCallback(
     (id: string) => {
+      if (id.includes(LOADING_SUFFIX)) {
+        return;
+      }
+
       const isExpanded = expanded.has(id);
       const newExpanded = new Set(expanded);
 
@@ -502,26 +739,19 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
         newExpanded.delete(id);
       } else {
         newExpanded.add(id);
-
-        const node = flattenedItems.find((node: TreeNode) => node.id === id);
-        if (node && (!node.children || node.children.length === 0)) {
-          loadMore(id);
-        }
       }
 
       setExpanded(newExpanded);
     },
-    [flattenedItems, loadMore, expanded, setExpanded],
+    [expanded, setExpanded],
   );
 
   const getNavItems = useCallback(
-    () => flattenedItems.filter(item => !isLoadingPlaceholder(item)).map(item => item.id),
+    () => flattenedItems.filter(item => item.nodeType !== 'loading').map(item => item.id),
     [flattenedItems],
   );
-  const isItemDisabled = useCallback((id: string) => {
-    void id;
-    return false;
-  }, []);
+
+  const isItemDisabled = useCallback((_id: string) => false, []);
 
   const { handleKeyDown, moveActive } = useKeyboardNavigation({
     getItems: getNavItems,
@@ -531,6 +761,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
     loop: false,
     orientation: 'vertical',
     onSelect: id => {
+      updateActive(id);
       toggleSelection(id);
     },
   });
@@ -540,10 +771,8 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
       if (e.key === 'ArrowRight') {
         const activeNode = active ? flattenedItems.find(item => item.id === active) : null;
 
-        if (activeNode) {
-          const hasChildren = activeNode.hasChildren;
-
-          if (hasChildren) {
+        if (activeNode && activeNode.nodeType !== 'loading') {
+          if (activeNode.data.hasChildren) {
             const isExpanded = expanded.has(activeNode.id);
 
             if (isExpanded) {
@@ -560,18 +789,11 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
       if (e.key === 'ArrowLeft') {
         const activeNode = active ? flattenedItems.find(item => item.id === active) : null;
 
-        if (activeNode) {
-          const hasChildren = activeNode.hasChildren;
-          const isExpanded = expanded.has(activeNode.id);
-
-          if (hasChildren && isExpanded) {
+        if (activeNode && activeNode.nodeType !== 'loading') {
+          if (activeNode.data.hasChildren && expanded.has(activeNode.id)) {
             toggleExpanded(activeNode.id);
-          } else {
-            const parentId = activeNode.path[activeNode.path.length - 1];
-
-            if (parentId) {
-              updateActive(parentId);
-            }
+          } else if (activeNode.parentId) {
+            updateActive(activeNode.parentId);
           }
         }
 
@@ -587,6 +809,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
     if (!active || !innerRef.current) {
       return;
     }
+
     const el = document.getElementById(`${baseId}-item-${active}`);
     if (el) {
       el.scrollIntoView({
@@ -596,7 +819,17 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
     }
   }, [active, baseId]);
 
-  const contextValue = useMemo<TreeListContextValue<T>>(
+  const hasAnyNodes = useMemo(() => Object.keys(items.nodes).length > 0, [items.nodes]);
+
+  useEffect(() => {
+    if (!hasAnyNodes) {
+      void loadMore();
+    }
+  }, [hasAnyNodes, loadMore]);
+
+  const scrollRootRef = useRef<HTMLDivElement>(null);
+
+  const contextValue = useMemo<TreeListContextValue<TData>>(
     () => ({
       baseId,
       items: flattenedItems,
@@ -606,9 +839,11 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
       expanded,
       toggleSelection,
       toggleExpanded,
+      updateActive,
       selectionMode,
       isFocused,
       isItemSelectable,
+      scrollRootRef,
     }),
     [
       baseId,
@@ -619,6 +854,7 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
       active,
       toggleSelection,
       toggleExpanded,
+      updateActive,
       selectionMode,
       isFocused,
       isItemSelectable,
@@ -646,24 +882,14 @@ export const TreeListRoot = <T extends TreeNode = TreeNode>({
   );
 };
 
-export type TreeNode = {
-  id: string;
-  hasChildren?: boolean;
-  children?: TreeNode[];
-  hasMoreChildren?: boolean;
-  path: string[]; // array of ancestor IDs
-};
-
-export function isLoadingPlaceholder(node: TreeNode): boolean {
-  return node.id.endsWith(LOADING_SUFFIX);
-}
-
 export const TreeList = Object.assign(TreeListRoot, {
   Root: TreeListRoot,
   Container: TreeListContainer,
   Content: TreeListContent,
   Row: TreeListRow,
   LoadingRow: TreeListLoadingRow,
+  DefaultLoadingRowView: DefaultTreeListLoadingRowView,
+  ErrorRow: TreeListErrorRow,
   RowLeft: TreeListRowLeft,
   RowRight: TreeListRowRight,
   RowLevelSpacer: TreeListRowLevelSpacer,
