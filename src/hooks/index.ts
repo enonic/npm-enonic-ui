@@ -4,6 +4,7 @@ export { useControlledState } from './use-controlled-state';
 export { useControlledStateWithNull } from './use-controlled-state-with-null';
 export { type FloatingPosition, type UseFloatingPositionConfig, useFloatingPosition } from './use-floating-position';
 export { type ItemMetadata, type UseItemRegistryReturn, useItemRegistry } from './use-item-registry';
+export { type UseItemTextRegistryReturn, useItemTextRegistry } from './use-item-text-registry';
 export {
   type KeyboardNavigationConfig,
   type UseKeyboardNavigationReturn,

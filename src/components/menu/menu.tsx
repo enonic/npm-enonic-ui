@@ -46,8 +46,7 @@ const MenuRoot = ({
   children,
 }: MenuRootProps): ReactElement => {
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const triggerId = usePrefixedId(undefined, 'menu-trigger');
-  const menuId = usePrefixedId(undefined, 'menu');
+  const baseId = usePrefixedId();
 
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const [active, setActive] = useState<string | undefined>(undefined);
@@ -55,6 +54,7 @@ const MenuRoot = ({
 
   const value: MenuContextValue = useMemo(
     () => ({
+      baseId,
       open,
       setOpen,
       active,
@@ -63,11 +63,9 @@ const MenuRoot = ({
       unregisterItem,
       getItems,
       isItemDisabled,
-      triggerId,
-      menuId,
       triggerRef,
     }),
-    [open, active, registerItem, unregisterItem, getItems, isItemDisabled, triggerId, menuId, setOpen],
+    [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, setOpen],
   );
 
   const [hasOpened, setHasOpened] = useState(false);
@@ -97,7 +95,9 @@ export type MenuTriggerProps = {
 
 const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
   ({ asChild, onClick, onKeyDown, className, children, ...props }, ref): ReactElement => {
-    const { open, setOpen, triggerId, menuId, triggerRef } = useMenu();
+    const { baseId, open, setOpen, triggerRef } = useMenu();
+    const triggerId = `${baseId}-trigger`;
+    const menuId = `${baseId}-content`;
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
       onClick?.(e);
@@ -192,7 +192,8 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     },
     ref,
   ): ReactElement | null => {
-    const { open, setOpen, active, setActive, getItems, isItemDisabled, menuId, triggerRef } = useMenu();
+    const { baseId, open, setOpen, active, setActive, getItems, isItemDisabled, triggerRef } = useMenu();
+    const menuId = `${baseId}-content`;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
     const position = useFloatingPosition({

@@ -17,6 +17,7 @@ import {
   useControlledState,
   useFloatingPosition,
   useItemRegistry,
+  useItemTextRegistry,
   useScrollActiveIntoView,
   useSelectorKeyboard,
 } from '@/hooks';
@@ -79,19 +80,7 @@ const SelectorRoot = ({
   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
   // Item text registry for type-ahead
-  const itemTextMapRef = useRef<Map<string, string>>(new Map());
-
-  const registerItemText = useCallback((id: string, text: string) => {
-    itemTextMapRef.current.set(id, text);
-  }, []);
-
-  const unregisterItemText = useCallback((id: string) => {
-    itemTextMapRef.current.delete(id);
-  }, []);
-
-  const getItemText = useCallback((id: string): string | undefined => {
-    return itemTextMapRef.current.get(id);
-  }, []);
+  const { registerItemText, unregisterItemText, getItemText } = useItemTextRegistry();
 
   // Set open with focus return handling
   const setOpen = useCallback(
@@ -380,11 +369,12 @@ export type SelectorContentProps = {
   align?: 'start' | 'end';
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
+  onInteractOutside?: (event: Event) => void;
 } & ComponentPropsWithoutRef<'div'>;
 
 const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
   (
-    { className, children, align = 'start', onEscapeKeyDown, onPointerDownOutside, ...props },
+    { className, children, align = 'start', onEscapeKeyDown, onPointerDownOutside, onInteractOutside, ...props },
     ref,
   ): ReactElement | null => {
     const { baseId, open, setOpen, active, triggerRef } = useSelector();
@@ -408,6 +398,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
       contentRef,
       excludeRefs: [triggerRef],
       onPointerDownOutside,
+      onInteractOutside,
       onClose: () => setOpen(false),
     });
 
@@ -551,14 +542,15 @@ const SelectorItem = forwardRef<HTMLDivElement, SelectorItemProps>(
     const composedRefs = useComposedRefs(ref, itemRef);
 
     // Register item and text for type-ahead and HiddenSelect
-    // Note: We don't unregister on unmount so HiddenSelect can show options when closed
+    // NOTE: Items are intentionally NOT unregistered on unmount.
+    // This allows HiddenSelect to display options when the dropdown is closed,
+    // and SelectorValue to show the correct label without re-rendering items.
     useEffect(() => {
       registerItem(value, isDisabled);
       const text = textValue ?? (typeof children === 'string' ? children : undefined);
       if (text) {
         registerItemText(value, text);
       }
-      // No cleanup - items stay registered for HiddenSelect and text for SelectorValue
     }, [value, isDisabled, textValue, children, registerItem, registerItemText]);
 
     const handleClick = useCallback(
@@ -593,6 +585,7 @@ const SelectorItem = forwardRef<HTMLDivElement, SelectorItemProps>(
         aria-disabled={isDisabled || undefined}
         data-value={value}
         data-active={isActive || undefined}
+        data-disabled={isDisabled || undefined}
         data-state={isSelected ? 'selected' : undefined}
         data-tone={isSelected ? 'inverse' : undefined}
         className={cn(
