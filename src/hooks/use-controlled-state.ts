@@ -1,4 +1,4 @@
-import { type SetStateAction, useCallback, useRef, useState } from 'react';
+import { type SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * Manages state that can be either controlled or uncontrolled.
@@ -69,6 +69,25 @@ export function useControlledState<T>(
 
   const isControlled = controlledValue !== undefined;
   const value = isControlled ? controlledValue : uncontrolledValue;
+
+  // Sync uncontrolled value when controlled value changes or when
+  // transitioning between controlled/uncontrolled modes.
+  // This ensures correct behavior when parent sets value to undefined
+  // (e.g., to "clear" the selection in a controlled selector).
+  const prevControlledRef = useRef(controlledValue);
+  const prevIsControlledRef = useRef(isControlled);
+  useEffect(() => {
+    // Sync when controlled value changes
+    if (isControlled && controlledValue !== prevControlledRef.current) {
+      setUncontrolledValue(controlledValue);
+    }
+    // Reset to default when transitioning from controlled → uncontrolled
+    if (prevIsControlledRef.current && !isControlled) {
+      setUncontrolledValue(defaultValue);
+    }
+    prevControlledRef.current = controlledValue;
+    prevIsControlledRef.current = isControlled;
+  }, [isControlled, controlledValue, defaultValue]);
 
   // Refs to track latest values for stable setValue callback
   const valueRef = useRef(value);

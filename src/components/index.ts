@@ -12,6 +12,7 @@ export * from './menu';
 export * from './menubar';
 export * from './search-field';
 export * from './selectable-list-item';
+export * from './selector';
 export * from './separator';
 export * from './toast';
 export * from './toggle';

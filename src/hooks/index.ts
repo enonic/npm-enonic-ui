@@ -12,4 +12,10 @@ export {
 export { type UseRovingTabIndexConfig, type UseRovingTabIndexReturn, useRovingTabIndex } from './use-roving-tabindex';
 export { type UseScrollActiveIntoViewConfig, useScrollActiveIntoView } from './use-scroll-active-into-view';
 export { useScrollLock } from './use-scroll-lock';
+export {
+  type UseSelectorKeyboardConfig,
+  type UseSelectorKeyboardReturn,
+  useSelectorKeyboard,
+} from './use-selector-keyboard';
 export { useSyncValue } from './use-sync-value';
+export { type UseTypeAheadConfig, type UseTypeAheadReturn, useTypeAhead } from './use-type-ahead';

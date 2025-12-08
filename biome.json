@@ -78,7 +78,7 @@
       "nursery": {
         "useSortedClasses": {
           "level": "warn",
-          "fix": "unsafe",
+          "fix": "safe",
           "options": {
             "functions": ["clsx", "cva", "cn", "twMerge", "twJoin"]
           }
