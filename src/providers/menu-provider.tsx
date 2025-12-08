@@ -1,6 +1,7 @@
 import { createContext, type ReactElement, type ReactNode, type RefObject, useContext } from 'react';
 
 export type MenuContextValue = {
+  baseId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
   active: string | undefined;
@@ -9,8 +10,6 @@ export type MenuContextValue = {
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
-  triggerId: string;
-  menuId: string;
   triggerRef: RefObject<HTMLButtonElement> | null;
 };
 
