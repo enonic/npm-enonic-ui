@@ -233,6 +233,155 @@ export const OnSelectedBackground: Story = {
   },
 };
 
+export const UnlabeledClickArea: Story = {
+  name: 'Features / Unlabeled Click Area',
+  render: () => {
+    const labeled = useCheckboxState(false);
+    const unlabeled = useCheckboxState(false);
+    const [showDebug, setShowDebug] = useState(false);
+
+    const unchecked = useCheckboxState(false);
+    const checked = useCheckboxState(true);
+    const indeterminate = useCheckboxState('indeterminate');
+
+    const dense1 = useCheckboxState(false);
+    const dense2 = useCheckboxState(true);
+    const dense3 = useCheckboxState(false);
+    const dense4 = useCheckboxState(true);
+    const dense5 = useCheckboxState(false);
+
+    const overflow1 = useCheckboxState(false);
+    const overflow2 = useCheckboxState(false);
+
+    const zIndex1 = useCheckboxState(false);
+    const zIndex2 = useCheckboxState(false);
+
+    return (
+      <div className='flex flex-col gap-6 p-4'>
+        <div className='max-w-140 text-sm text-subtle'>
+          Checkboxes without labels have an extended click area for better UX. The click area is implemented using a CSS
+          pseudo-element positioned behind the checkbox.
+        </div>
+
+        {/* Debug toggle */}
+        <div className='flex items-center gap-2'>
+          <label className='flex items-center gap-2 text-sm'>
+            <input type='checkbox' checked={showDebug} onChange={e => setShowDebug(e.currentTarget.checked)} />
+            Show click areas (debug)
+          </label>
+        </div>
+
+        {/* Section 1: Comparison */}
+        <div className='space-y-2'>
+          <h4 className='font-medium text-sm'>Labeled vs Unlabeled</h4>
+          <div className='flex items-center gap-8'>
+            <div className='flex flex-col items-center gap-1'>
+              <Checkbox label='With label' checked={labeled.checked} onCheckedChange={labeled.handleChange} />
+              <span className='text-subtle text-xs'>Standard click area</span>
+            </div>
+            <div className='flex flex-col items-center gap-1'>
+              <div className={showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}>
+                <Checkbox checked={unlabeled.checked} onCheckedChange={unlabeled.handleChange} />
+              </div>
+              <span className='text-subtle text-xs'>Extended click area</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2: All states */}
+        <div className='space-y-2'>
+          <h4 className='font-medium text-sm'>All States (Unlabeled)</h4>
+          <div className={`flex items-center gap-4 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}>
+            <div className='flex flex-col items-center gap-1'>
+              <Checkbox checked={unchecked.checked} onCheckedChange={unchecked.handleChange} />
+              <span className='text-subtle text-xs'>Unchecked</span>
+            </div>
+            <div className='flex flex-col items-center gap-1'>
+              <Checkbox checked={checked.checked} onCheckedChange={checked.handleChange} />
+              <span className='text-subtle text-xs'>Checked</span>
+            </div>
+            <div className='flex flex-col items-center gap-1'>
+              <Checkbox checked={indeterminate.checked} onCheckedChange={indeterminate.handleChange} />
+              <span className='text-subtle text-xs'>Indeterminate</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Dense layout */}
+        <div className='space-y-2'>
+          <h4 className='font-medium text-sm'>Dense Layout</h4>
+          <p className='text-subtle text-xs'>Multiple unlabeled checkboxes with minimal spacing (gap-2 = 8px)</p>
+          <div className={`flex items-center gap-2 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}>
+            <Checkbox checked={dense1.checked} onCheckedChange={dense1.handleChange} />
+            <Checkbox checked={dense2.checked} onCheckedChange={dense2.handleChange} />
+            <Checkbox checked={dense3.checked} onCheckedChange={dense3.handleChange} />
+            <Checkbox checked={dense4.checked} onCheckedChange={dense4.handleChange} />
+            <Checkbox checked={dense5.checked} onCheckedChange={dense5.handleChange} />
+          </div>
+          <p className='text-subtle text-xs'>
+            Note: With 7px extended area on each side, adjacent checkboxes may have overlapping click zones.
+          </p>
+        </div>
+
+        {/* Section 4: Overflow clipping */}
+        <div className='space-y-2'>
+          <h4 className='font-medium text-sm'>Overflow Clipping</h4>
+          <p className='text-subtle text-xs'>
+            Testing if <code className='rounded bg-surface-alt px-1'>overflow: hidden</code> clips the extended click
+            area
+          </p>
+          <div className='flex items-center gap-4'>
+            <div className='flex flex-col items-center gap-1'>
+              <div
+                className={`overflow-hidden rounded border border-subtle border-dashed p-0.25 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
+              >
+                <Checkbox checked={overflow1.checked} onCheckedChange={overflow1.handleChange} />
+              </div>
+              <span className='text-subtle text-xs'>overflow: hidden</span>
+            </div>
+            <div className='flex flex-col items-center gap-1'>
+              <div
+                className={`overflow-visible rounded border border-subtle border-dashed p-0.25 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
+              >
+                <Checkbox checked={overflow2.checked} onCheckedChange={overflow2.handleChange} />
+              </div>
+              <span className='text-subtle text-xs'>overflow: visible</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 5: Z-index stacking */}
+        <div className='space-y-2'>
+          <h4 className='font-medium text-sm'>Z-index Stacking Context</h4>
+          <p className='text-subtle text-xs'>
+            Testing checkbox inside containers that create new stacking contexts (
+            <code className='rounded bg-surface-alt px-1'>z-index</code> or{' '}
+            <code className='rounded bg-surface-alt px-1'>isolation</code>)
+          </p>
+          <div className='flex items-center gap-4'>
+            <div className='flex flex-col items-center gap-1'>
+              <div
+                className={`relative z-10 rounded border border-subtle border-dashed px-1.75 py-1 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
+              >
+                <Checkbox checked={zIndex1.checked} onCheckedChange={zIndex1.handleChange} />
+              </div>
+              <span className='text-subtle text-xs'>z-index: 10</span>
+            </div>
+            <div className='flex flex-col items-center gap-1'>
+              <div
+                className={`isolate rounded border border-subtle border-dashed px-1.75 py-1 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
+              >
+                <Checkbox checked={zIndex2.checked} onCheckedChange={zIndex2.handleChange} />
+              </div>
+              <span className='text-subtle text-xs'>isolation: isolate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+};
+
 export const Interactive: Story = {
   name: 'Features / Interactive',
   args: {

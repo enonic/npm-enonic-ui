@@ -20,6 +20,11 @@ const checkboxBoxVariants = cva(
         true: [],
         false: 'opacity-30',
       },
+      labeled: {
+        true: '',
+        false:
+          'after:-inset-1.75 after:-z-10 relative z-0 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+      },
       state: {
         default: [
           'border-main',
@@ -40,6 +45,7 @@ const checkboxBoxVariants = cva(
     },
     defaultVariants: {
       state: 'default',
+      labeled: false,
       editable: true,
     },
   },
@@ -92,6 +98,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const inputId = usePrefixedId(unwrap(id));
     const state: CheckboxState = error ? 'error' : 'default';
     const editable = !disabled && !readOnly;
+    const labeled = !!label;
 
     const [checkedState, setCheckedState] = useControlledState(checked, defaultChecked, onCheckedChange);
     const isIndeterminate = checkedState === 'indeterminate';
@@ -150,7 +157,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             onChange={handleChange}
           />
 
-          <span className={cn(checkboxBoxVariants({ state, editable }))} aria-hidden='true'>
+          <span className={cn(checkboxBoxVariants({ state, editable, labeled }))} aria-hidden='true'>
             {isIndeterminate ? (
               <Minus
                 size={10}
