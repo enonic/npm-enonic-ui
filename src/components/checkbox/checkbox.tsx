@@ -69,9 +69,30 @@ export type CheckboxProps = {
   name?: string;
   value?: string;
   onCheckedChange?: (checked: CheckboxChecked) => void;
+  /**
+   * Click handler attached to the label element (the entire clickable area).
+   * Note: This is intentionally on label, not the hidden input, since the label
+   * is what users interact with visually.
+   */
+  onClick?: (e: React.MouseEvent<HTMLLabelElement>) => void;
+  /** Capture phase click handler on the label element. */
+  onClickCapture?: (e: React.MouseEvent<HTMLLabelElement>) => void;
+  /** Mouse down handler on the label element. Useful for preventing default focus behavior. */
+  onMouseDown?: (e: React.MouseEvent<HTMLLabelElement>) => void;
 } & Omit<
   ComponentPropsWithoutRef<'input'>,
-  'type' | 'readOnly' | 'disabled' | 'onChange' | 'checked' | 'defaultChecked' | 'required' | 'name' | 'value'
+  | 'type'
+  | 'readOnly'
+  | 'disabled'
+  | 'onChange'
+  | 'checked'
+  | 'defaultChecked'
+  | 'required'
+  | 'name'
+  | 'value'
+  | 'onClick'
+  | 'onClickCapture'
+  | 'onMouseDown'
 >;
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
@@ -91,6 +112,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       value = 'on',
       onCheckedChange,
       errorMessage,
+      onClick,
+      onClickCapture,
+      onMouseDown,
       ...props
     },
     ref,
@@ -120,8 +144,12 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
     return (
       <div className='flex w-fit flex-col gap-1'>
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events -- Label with htmlFor is interactive; keyboard events handled by linked input */}
         <label
           htmlFor={inputId}
+          onClick={onClick}
+          onClickCapture={onClickCapture}
+          onMouseDown={onMouseDown}
           className={cn(
             'relative my-0.75 flex select-none items-center gap-2 rounded-xs leading-4 transition-highlight',
             align === 'right' && 'flex-row-reverse justify-end',
