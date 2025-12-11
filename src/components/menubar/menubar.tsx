@@ -1,5 +1,4 @@
 import { Slot } from '@radix-ui/react-slot';
-import { cva } from 'class-variance-authority';
 import { Circle, CircleDot } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -24,6 +23,12 @@ import {
   useRovingTabIndex,
   useScrollActiveIntoView,
 } from '@/hooks';
+import {
+  MenuPrimitiveLabel,
+  type MenuPrimitiveLabelProps,
+  menuItemVariants,
+  menuRadioItemVariants,
+} from '@/primitives/menu-primitive';
 import {
   type MenubarContextValue,
   MenubarMenuProvider,
@@ -1089,40 +1094,6 @@ MenubarContent.displayName = 'Menubar.Content';
 // * MenubarItem
 //
 
-const menubarItemVariants = cva(
-  [
-    'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
-    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
-  ],
-  {
-    variants: {
-      active: {
-        true: 'bg-surface-neutral-hover',
-        false: 'hover:bg-surface-neutral-hover',
-      },
-      disabled: {
-        true: 'pointer-events-none select-none opacity-30 hover:bg-transparent',
-        false: '',
-      },
-    },
-    compoundVariants: [
-      {
-        active: true,
-        disabled: false,
-        class: [
-          // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
-        ],
-      },
-    ],
-    defaultVariants: {
-      active: false,
-      disabled: false,
-    },
-  },
-);
-
 /**
  * An interactive item within a menubar dropdown menu.
  *
@@ -1267,7 +1238,7 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
         data-active={isActive || undefined}
         data-disabled={disabled || undefined}
         data-tone={isActive ? 'inverse' : undefined}
-        className={cn(menubarItemVariants({ active: isActive, disabled }), className)}
+        className={cn(menuItemVariants({ active: isActive, disabled }), className)}
         onClick={handleClick}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
@@ -1305,20 +1276,11 @@ MenubarItem.displayName = 'Menubar.Item';
  * </Menubar.Content>
  * ```
  */
-export type MenubarLabelProps = {
-  className?: string;
-  children?: ReactNode;
-} & ComponentPropsWithoutRef<'div'>;
+export type MenubarLabelProps = MenuPrimitiveLabelProps;
 
-const MenubarLabel = forwardRef<HTMLDivElement, MenubarLabelProps>(
-  ({ className, children, ...props }, ref): ReactElement => {
-    return (
-      <div ref={ref} role='none' className={cn('px-3 py-1.5 font-semibold text-subtle text-xs', className)} {...props}>
-        {children}
-      </div>
-    );
-  },
-);
+const MenubarLabel = forwardRef<HTMLDivElement, MenubarLabelProps>((props, ref): ReactElement => {
+  return <MenuPrimitiveLabel ref={ref} {...props} />;
+});
 MenubarLabel.displayName = 'Menubar.Label';
 
 //
@@ -1430,51 +1392,6 @@ MenubarRadioGroup.displayName = 'Menubar.RadioGroup';
 //
 // * MenubarRadioItem
 //
-
-const menubarRadioItemVariants = cva(
-  [
-    'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
-    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
-  ],
-  {
-    variants: {
-      active: {
-        true: 'bg-surface-neutral-hover',
-        false: '',
-      },
-      disabled: {
-        true: 'pointer-events-none select-none opacity-30 hover:bg-transparent',
-        false: '',
-      },
-      checked: {
-        true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
-        false: 'hover:bg-surface-neutral-hover',
-      },
-    },
-    compoundVariants: [
-      {
-        active: true,
-        checked: true,
-        disabled: false,
-        class: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
-      },
-      {
-        active: true,
-        disabled: false,
-        class: [
-          // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
-        ],
-      },
-    ],
-    defaultVariants: {
-      active: false,
-      disabled: false,
-      checked: false,
-    },
-  },
-);
 
 /**
  * A radio item within a menubar dropdown menu.
@@ -1651,7 +1568,7 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
         data-disabled={disabled || undefined}
         data-state={isChecked ? 'checked' : 'unchecked'}
         data-tone={isActive ? 'inverse' : undefined}
-        className={cn('group', menubarRadioItemVariants({ active: isActive, disabled, checked: isChecked }), className)}
+        className={cn('group', menuRadioItemVariants({ active: isActive, disabled, checked: isChecked }), className)}
         onClick={handleClick}
         onKeyDown={handleKeyDown_}
         onPointerMove={handlePointerMove}

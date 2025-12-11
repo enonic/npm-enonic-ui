@@ -14,9 +14,9 @@ import { createPortal } from 'react-dom';
 import {
   useClickOutside,
   useControlledState,
-  useFloatingPosition,
   useItemRegistry,
   useKeyboardNavigation,
+  usePointerPosition,
   useScrollActiveIntoView,
 } from '@/hooks';
 import {
@@ -33,34 +33,34 @@ import {
   type MenuRadioGroupOwnProps,
   type MenuRadioItemOwnProps,
 } from '@/primitives/menu-primitive';
-import { type MenuContextValue, MenuProvider, useMenu, usePrefixedId } from '@/providers';
+import { type ContextMenuContextValue, ContextMenuProvider, useContextMenu, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 
 //
-// * Menu
+// * ContextMenu
 //
 
-export type MenuRootProps = {
+export type ContextMenuRootProps = {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   children?: ReactNode;
 };
 
-const MenuRoot = ({
+const ContextMenuRoot = ({
   open: controlledOpen,
   defaultOpen = false,
   onOpenChange,
   children,
-}: MenuRootProps): ReactElement => {
-  const triggerRef = useRef<HTMLButtonElement>(null);
+}: ContextMenuRootProps): ReactElement => {
   const baseId = usePrefixedId();
 
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const [active, setActive] = useState<string | undefined>(undefined);
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
-  const value: MenuContextValue = useMemo(
+  const value: ContextMenuContextValue = useMemo(
     () => ({
       baseId,
       open,
@@ -71,70 +71,60 @@ const MenuRoot = ({
       unregisterItem,
       getItems,
       isItemDisabled,
-      triggerRef,
+      position,
+      setPosition,
     }),
-    [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, setOpen],
+    [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, setOpen, position],
   );
 
-  const [hasOpened, setHasOpened] = useState(false);
-
+  // Reset position when menu closes
   useEffect(() => {
-    if (open) {
-      setHasOpened(true);
-    } else if (hasOpened && triggerRef.current) {
-      // Return focus to trigger when menu closes (can't be in MenuContent - it unmounts)
-      triggerRef.current.focus();
+    if (!open) {
+      setPosition(null);
     }
-  }, [open, hasOpened]);
+  }, [open]);
 
-  return <MenuProvider value={value}>{children}</MenuProvider>;
+  return <ContextMenuProvider value={value}>{children}</ContextMenuProvider>;
 };
-MenuRoot.displayName = 'Menu.Root';
+ContextMenuRoot.displayName = 'ContextMenu.Root';
 
 //
-// * MenuTrigger
+// * ContextMenuTrigger
 //
 
-export type MenuTriggerProps = {
+export type ContextMenuTriggerProps = {
   asChild?: boolean;
+  disabled?: boolean;
   className?: string;
   children: ReactNode;
-} & Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'children'>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children'>;
 
-const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
-  ({ asChild, onClick, onKeyDown, className, children, ...props }, ref): ReactElement => {
-    const { baseId, open, setOpen, triggerRef } = useMenu();
-    const triggerId = `${baseId}-trigger`;
-    const menuId = `${baseId}-content`;
+const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
+  ({ asChild, disabled = false, onContextMenu, className, children, ...props }, ref): ReactElement => {
+    const { setOpen, setPosition } = useContextMenu();
 
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
-      onClick?.(e);
-      setOpen(!open);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>): void => {
-      onKeyDown?.(e);
-      if (e.key === 'ArrowDown' && !open) {
+    const handleContextMenu = useCallback(
+      (e: React.MouseEvent<HTMLDivElement>): void => {
+        if (disabled) {
+          return;
+        }
         e.preventDefault();
+        onContextMenu?.(e);
+        setPosition({ x: e.clientX, y: e.clientY });
         setOpen(true);
-      }
-    };
+      },
+      [disabled, setOpen, setPosition, onContextMenu],
+    );
 
-    const Comp = asChild ? Slot : 'button';
+    const Comp = asChild ? Slot : 'div';
 
     return (
       <Comp
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
-        ref={useComposedRefs(ref, triggerRef)}
-        id={triggerId}
-        aria-haspopup='menu'
-        aria-expanded={open}
-        data-active={open}
-        aria-controls={open ? menuId : undefined}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
-        {...(!asChild && { type: 'button' })}
+        ref={ref}
+        data-disabled={disabled || undefined}
+        onContextMenu={handleContextMenu}
+        className={className}
         {...props}
       >
         {children}
@@ -142,20 +132,20 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
     );
   },
 );
-MenuTrigger.displayName = 'Menu.Trigger';
+ContextMenuTrigger.displayName = 'ContextMenu.Trigger';
 
 //
-// * MenuPortal
+// * ContextMenuPortal
 //
 
-export type MenuPortalProps = {
+export type ContextMenuPortalProps = {
   container?: HTMLElement | null;
   forceMount?: boolean;
   children?: ReactNode;
 };
 
-const MenuPortal = ({ container, forceMount, children }: MenuPortalProps): ReactElement | null => {
-  const { open } = useMenu();
+const ContextMenuPortal = ({ container, forceMount, children }: ContextMenuPortalProps): ReactElement | null => {
+  const { open } = useContextMenu();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -168,15 +158,14 @@ const MenuPortal = ({ container, forceMount, children }: MenuPortalProps): React
 
   return createPortal(children, container ?? document.body);
 };
-MenuPortal.displayName = 'Menu.Portal';
+ContextMenuPortal.displayName = 'ContextMenu.Portal';
 
 //
-// * MenuContent
+// * ContextMenuContent
 //
 
-export type MenuContentProps = {
+export type ContextMenuContentProps = {
   forceMount?: boolean;
-  align?: 'start' | 'end';
   loop?: boolean;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
@@ -185,11 +174,10 @@ export type MenuContentProps = {
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
-const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
+const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
   (
     {
       forceMount,
-      align = 'start',
       loop = true,
       onEscapeKeyDown,
       onPointerDownOutside,
@@ -200,15 +188,15 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     },
     ref,
   ): ReactElement | null => {
-    const { baseId, open, setOpen, active, setActive, getItems, isItemDisabled, triggerRef } = useMenu();
+    const { baseId, open, setOpen, active, setActive, getItems, isItemDisabled, position } = useContextMenu();
     const menuId = `${baseId}-content`;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
-    const position = useFloatingPosition({
+
+    const computedPosition = usePointerPosition({
       enabled: open,
-      triggerRef,
+      mousePosition: position,
       contentRef,
-      align,
     });
 
     // Focus menu when it opens and select first selectable item
@@ -245,7 +233,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         if (e.key === 'Tab') {
-          // Close menu and return focus to trigger
+          // Close menu
           setOpen(false);
           return;
         }
@@ -265,7 +253,6 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     useClickOutside({
       enabled: open,
       contentRef,
-      excludeRefs: triggerRef ? [triggerRef] : undefined,
       onPointerDownOutside,
       onInteractOutside,
       onClose: () => setOpen(false),
@@ -291,16 +278,16 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
         tabIndex={-1}
         data-state={open ? 'open' : 'closed'}
         className={cn(
-          'fixed z-40 mt-2 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
+          'fixed z-40 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
           // Animations
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-          !position && 'pointer-events-none opacity-0',
+          !computedPosition && 'pointer-events-none opacity-0',
           className,
         )}
-        style={{ ...position }}
+        style={computedPosition ? { top: computedPosition.top, left: computedPosition.left } : undefined}
         onKeyDown={handleKeyDown}
         {...props}
       >
@@ -309,42 +296,16 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     );
   },
 );
-MenuContent.displayName = 'Menu.Content';
+ContextMenuContent.displayName = 'ContextMenu.Content';
 
 //
-// * MenuItem
+// * ContextMenuItem
 //
 
-/**
- * An interactive item within a dropdown menu.
- *
- * Supports keyboard navigation, hover effects, and the onSelect callback.
- * Automatically closes the menu when selected.
- *
- * @example
- * ```tsx
- * <Menu.Content>
- *   <Menu.Item onSelect={() => console.log('New')}>
- *     New File
- *   </Menu.Item>
- *   <Menu.Item disabled>
- *     Save (disabled)
- *   </Menu.Item>
- *   <Menu.Item asChild>
- *     <a href="/export">Export</a>
- *   </Menu.Item>
- * </Menu.Content>
- * ```
- *
- * @remarks
- * When using `asChild`, do not set the `disabled` prop on the child component.
- * The `Menu.Item`'s `disabled` prop should be the single source of truth.
- * Due to Radix UI Slot's prop merging behavior, child props can override parent props.
- */
-export type MenuItemProps = MenuItemOwnProps;
+export type ContextMenuItemProps = MenuItemOwnProps;
 
-const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>((props, ref): ReactElement => {
-  const { active, setActive, setOpen, registerItem, unregisterItem, getItems, isItemDisabled } = useMenu();
+const ContextMenuItem = forwardRef<HTMLDivElement, ContextMenuItemProps>((props, ref): ReactElement => {
+  const { active, setActive, setOpen, registerItem, unregisterItem, getItems, isItemDisabled } = useContextMenu();
   return (
     <MenuPrimitiveItem
       ref={ref}
@@ -359,50 +320,50 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>((props, ref): ReactEl
     />
   );
 });
-MenuItem.displayName = 'Menu.Item';
+ContextMenuItem.displayName = 'ContextMenu.Item';
 
 //
-// * MenuLabel
+// * ContextMenuLabel
 //
 
-export type MenuLabelProps = MenuPrimitiveLabelProps;
+export type ContextMenuLabelProps = MenuPrimitiveLabelProps;
 
-const MenuLabel = forwardRef<HTMLDivElement, MenuLabelProps>((props, ref): ReactElement => {
+const ContextMenuLabel = forwardRef<HTMLDivElement, ContextMenuLabelProps>((props, ref): ReactElement => {
   return <MenuPrimitiveLabel ref={ref} {...props} />;
 });
-MenuLabel.displayName = 'Menu.Label';
+ContextMenuLabel.displayName = 'ContextMenu.Label';
 
 //
-// * MenuSeparator
+// * ContextMenuSeparator
 //
 
-export type MenuSeparatorProps = MenuPrimitiveSeparatorProps;
+export type ContextMenuSeparatorProps = MenuPrimitiveSeparatorProps;
 
-const MenuSeparator = forwardRef<HTMLDivElement, MenuSeparatorProps>((props, ref): ReactElement => {
+const ContextMenuSeparator = forwardRef<HTMLDivElement, ContextMenuSeparatorProps>((props, ref): ReactElement => {
   return <MenuPrimitiveSeparator ref={ref} {...props} />;
 });
-MenuSeparator.displayName = 'Menu.Separator';
+ContextMenuSeparator.displayName = 'ContextMenu.Separator';
 
 //
-// * MenuRadioGroup
+// * ContextMenuRadioGroup
 //
 
-export type MenuRadioGroupProps = MenuRadioGroupOwnProps;
+export type ContextMenuRadioGroupProps = MenuRadioGroupOwnProps;
 
-const MenuRadioGroup = forwardRef<HTMLDivElement, MenuRadioGroupProps>((props, ref): ReactElement => {
-  const { setOpen } = useMenu();
+const ContextMenuRadioGroup = forwardRef<HTMLDivElement, ContextMenuRadioGroupProps>((props, ref): ReactElement => {
+  const { setOpen } = useContextMenu();
   return <MenuPrimitiveRadioGroup ref={ref} setOpen={setOpen} {...props} />;
 });
-MenuRadioGroup.displayName = 'Menu.RadioGroup';
+ContextMenuRadioGroup.displayName = 'ContextMenu.RadioGroup';
 
 //
-// * MenuRadioItem
+// * ContextMenuRadioItem
 //
 
-export type MenuRadioItemProps = MenuRadioItemOwnProps;
+export type ContextMenuRadioItemProps = MenuRadioItemOwnProps;
 
-const MenuRadioItem = forwardRef<HTMLDivElement, MenuRadioItemProps>((props, ref): ReactElement => {
-  const { active, setActive, registerItem, unregisterItem, getItems, isItemDisabled } = useMenu();
+const ContextMenuRadioItem = forwardRef<HTMLDivElement, ContextMenuRadioItemProps>((props, ref): ReactElement => {
+  const { active, setActive, registerItem, unregisterItem, getItems, isItemDisabled } = useContextMenu();
   return (
     <MenuPrimitiveRadioItem
       ref={ref}
@@ -416,28 +377,30 @@ const MenuRadioItem = forwardRef<HTMLDivElement, MenuRadioItemProps>((props, ref
     />
   );
 });
-MenuRadioItem.displayName = 'Menu.RadioItem';
+ContextMenuRadioItem.displayName = 'ContextMenu.RadioItem';
 
 //
-// * MenuItemIndicator
+// * ContextMenuItemIndicator
 //
 
-export type MenuItemIndicatorProps = MenuPrimitiveItemIndicatorProps;
+export type ContextMenuItemIndicatorProps = MenuPrimitiveItemIndicatorProps;
 
-const MenuItemIndicator = forwardRef<HTMLSpanElement, MenuItemIndicatorProps>((props, ref): ReactElement | null => {
-  return <MenuPrimitiveItemIndicator ref={ref} {...props} />;
-});
-MenuItemIndicator.displayName = 'Menu.ItemIndicator';
+const ContextMenuItemIndicator = forwardRef<HTMLSpanElement, ContextMenuItemIndicatorProps>(
+  (props, ref): ReactElement | null => {
+    return <MenuPrimitiveItemIndicator ref={ref} {...props} />;
+  },
+);
+ContextMenuItemIndicator.displayName = 'ContextMenu.ItemIndicator';
 
-export const Menu = Object.assign(MenuRoot, {
-  Root: MenuRoot,
-  Trigger: MenuTrigger,
-  Portal: MenuPortal,
-  Content: MenuContent,
-  Item: MenuItem,
-  Label: MenuLabel,
-  Separator: MenuSeparator,
-  RadioGroup: MenuRadioGroup,
-  RadioItem: MenuRadioItem,
-  ItemIndicator: MenuItemIndicator,
+export const ContextMenu = Object.assign(ContextMenuRoot, {
+  Root: ContextMenuRoot,
+  Trigger: ContextMenuTrigger,
+  Portal: ContextMenuPortal,
+  Content: ContextMenuContent,
+  Item: ContextMenuItem,
+  Label: ContextMenuLabel,
+  Separator: ContextMenuSeparator,
+  RadioGroup: ContextMenuRadioGroup,
+  RadioItem: ContextMenuRadioItem,
+  ItemIndicator: ContextMenuItemIndicator,
 });
