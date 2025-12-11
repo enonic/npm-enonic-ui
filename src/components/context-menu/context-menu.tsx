@@ -58,6 +58,7 @@ const ContextMenuRoot = ({
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const [active, setActive] = useState<string | undefined>(undefined);
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
+  const [isUsingKeyboard, setIsUsingKeyboard] = useState(false);
   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
   const value: ContextMenuContextValue = useMemo(
@@ -73,14 +74,17 @@ const ContextMenuRoot = ({
       isItemDisabled,
       position,
       setPosition,
+      isUsingKeyboard,
+      setIsUsingKeyboard,
     }),
-    [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, setOpen, position],
+    [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, setOpen, position, isUsingKeyboard],
   );
 
-  // Reset position when menu closes
+  // Reset position and keyboard navigation state when menu closes
   useEffect(() => {
     if (!open) {
       setPosition(null);
+      setIsUsingKeyboard(false);
     }
   }, [open]);
 
@@ -164,6 +168,16 @@ ContextMenuPortal.displayName = 'ContextMenu.Portal';
 // * ContextMenuContent
 //
 
+/**
+ * The component that pops out when the context menu is open.
+ *
+ * @remarks
+ * **Focus-visible behavior**: Since context menus are always opened via pointer
+ * (right-click), focus rings are hidden initially to avoid visual noise. Once the
+ * user presses a navigation key (ArrowUp, ArrowDown, Home, End), focus rings appear
+ * and remain visible until the menu closes. This provides a clean experience for
+ * pointer users while maintaining accessibility for keyboard users.
+ */
 export type ContextMenuContentProps = {
   forceMount?: boolean;
   loop?: boolean;
@@ -188,7 +202,8 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     },
     ref,
   ): ReactElement | null => {
-    const { baseId, open, setOpen, active, setActive, getItems, isItemDisabled, position } = useContextMenu();
+    const { baseId, open, setOpen, active, setActive, getItems, isItemDisabled, position, setIsUsingKeyboard } =
+      useContextMenu();
     const menuId = `${baseId}-content`;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
@@ -245,9 +260,14 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
           return;
         }
 
+        // Enable focus-visible styles when user starts keyboard navigation
+        if (['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
+          setIsUsingKeyboard(true);
+        }
+
         handleNavKeyDown(e);
       },
-      [handleNavKeyDown, setOpen, onEscapeKeyDown],
+      [handleNavKeyDown, setOpen, onEscapeKeyDown, setIsUsingKeyboard],
     );
 
     useClickOutside({
@@ -302,24 +322,35 @@ ContextMenuContent.displayName = 'ContextMenu.Content';
 // * ContextMenuItem
 //
 
+/**
+ * An interactive item within the context menu.
+ *
+ * @remarks
+ * Focus rings are conditionally shown based on keyboard navigation state.
+ * See {@link ContextMenuContentProps} for details on focus-visible behavior.
+ */
 export type ContextMenuItemProps = MenuItemOwnProps;
 
-const ContextMenuItem = forwardRef<HTMLDivElement, ContextMenuItemProps>((props, ref): ReactElement => {
-  const { active, setActive, setOpen, registerItem, unregisterItem, getItems, isItemDisabled } = useContextMenu();
-  return (
-    <MenuPrimitiveItem
-      ref={ref}
-      active={active}
-      setActive={setActive}
-      setOpen={setOpen}
-      registerItem={registerItem}
-      unregisterItem={unregisterItem}
-      getItems={getItems}
-      isItemDisabled={isItemDisabled}
-      {...props}
-    />
-  );
-});
+const ContextMenuItem = forwardRef<HTMLDivElement, ContextMenuItemProps>(
+  ({ className, ...props }, ref): ReactElement => {
+    const { active, setActive, setOpen, registerItem, unregisterItem, getItems, isItemDisabled, isUsingKeyboard } =
+      useContextMenu();
+    return (
+      <MenuPrimitiveItem
+        ref={ref}
+        active={active}
+        setActive={setActive}
+        setOpen={setOpen}
+        registerItem={registerItem}
+        unregisterItem={unregisterItem}
+        getItems={getItems}
+        isItemDisabled={isItemDisabled}
+        className={cn(!isUsingKeyboard && 'focus-visible:ring-0 focus-visible:ring-offset-0', className)}
+        {...props}
+      />
+    );
+  },
+);
 ContextMenuItem.displayName = 'ContextMenu.Item';
 
 //
@@ -360,23 +391,34 @@ ContextMenuRadioGroup.displayName = 'ContextMenu.RadioGroup';
 // * ContextMenuRadioItem
 //
 
+/**
+ * A radio item within the context menu.
+ *
+ * @remarks
+ * Focus rings are conditionally shown based on keyboard navigation state.
+ * See {@link ContextMenuContentProps} for details on focus-visible behavior.
+ */
 export type ContextMenuRadioItemProps = MenuRadioItemOwnProps;
 
-const ContextMenuRadioItem = forwardRef<HTMLDivElement, ContextMenuRadioItemProps>((props, ref): ReactElement => {
-  const { active, setActive, registerItem, unregisterItem, getItems, isItemDisabled } = useContextMenu();
-  return (
-    <MenuPrimitiveRadioItem
-      ref={ref}
-      active={active}
-      setActive={setActive}
-      registerItem={registerItem}
-      unregisterItem={unregisterItem}
-      getItems={getItems}
-      isItemDisabled={isItemDisabled}
-      {...props}
-    />
-  );
-});
+const ContextMenuRadioItem = forwardRef<HTMLDivElement, ContextMenuRadioItemProps>(
+  ({ className, ...props }, ref): ReactElement => {
+    const { active, setActive, registerItem, unregisterItem, getItems, isItemDisabled, isUsingKeyboard } =
+      useContextMenu();
+    return (
+      <MenuPrimitiveRadioItem
+        ref={ref}
+        active={active}
+        setActive={setActive}
+        registerItem={registerItem}
+        unregisterItem={unregisterItem}
+        getItems={getItems}
+        isItemDisabled={isItemDisabled}
+        className={cn(!isUsingKeyboard && 'focus-visible:ring-0 focus-visible:ring-offset-0', className)}
+        {...props}
+      />
+    );
+  },
+);
 ContextMenuRadioItem.displayName = 'ContextMenu.RadioItem';
 
 //

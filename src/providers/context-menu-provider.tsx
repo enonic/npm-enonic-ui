@@ -13,6 +13,16 @@ export type ContextMenuContextValue = {
   // Context menu specific: mouse position instead of triggerRef
   position: { x: number; y: number } | null;
   setPosition: (pos: { x: number; y: number } | null) => void;
+  /**
+   * Tracks whether the user has started keyboard navigation.
+   *
+   * Context menus are always opened via pointer (right-click), so focus-visible
+   * rings are hidden initially. Once the user presses a navigation key (Arrow keys,
+   * Home, End), this becomes `true` and focus rings appear. The state resets to
+   * `false` when the menu closes.
+   */
+  isUsingKeyboard: boolean;
+  setIsUsingKeyboard: (value: boolean) => void;
 };
 
 const ContextMenuContext = createContext<ContextMenuContextValue | undefined>(undefined);
