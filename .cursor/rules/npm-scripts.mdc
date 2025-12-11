@@ -1,85 +1,93 @@
 ---
-description: Rules for running pnpm scripts and understanding the lint/build system
+description: pnpm scripts reference
 globs:
 alwaysApply: true
 ---
 
-# pnpm Scripts Rules
+# pnpm Scripts
 
-## Package Manager
+Use `pnpm`, never `npm` or `yarn`. Use `pnpm dlx` instead of `npx`.
 
-- Always use `pnpm`, never `npm` or `yarn`
-- Use `pnpm dlx` instead of `npx` for one-off commands
+## Verify Changes
 
-## Before Committing Code
-
-Run `pnpm check` to validate all code quality checks pass:
 ```bash
-pnpm check  # typecheck → lint → format:check
+pnpm check:fix   # typecheck + lint:fix + format (recommended)
+pnpm check       # typecheck + lint + format:check (read-only)
 ```
 
-If checks fail, run `pnpm lint:fix` to auto-fix issues.
+## Individual Checks
 
-## Available Scripts
+```bash
+pnpm typecheck      # Both app + node configs
+pnpm typecheck:app  # tsconfig.app.json only
+pnpm typecheck:node # tsconfig.node.json only
+pnpm lint           # Biome + ESLint (read-only)
+pnpm lint:fix       # Biome + ESLint with auto-fix
+pnpm format         # Biome format (writes)
+pnpm format:check   # Biome format (read-only)
+```
 
-### Code Quality (use these to verify changes)
+## Build
 
-- `pnpm check` - Run all checks (typecheck + lint + format)
-- `pnpm typecheck` - TypeScript type checking only
-- `pnpm lint` - Biome + ESLint (read-only)
-- `pnpm lint:fix` - Biome + ESLint with auto-fix
-- `pnpm format` - Format files with Biome
-- `pnpm format:check` - Check formatting without changes
+```bash
+pnpm build           # Clean + build library (JS + CSS)
+pnpm build:ui:lib    # Build JS only
+pnpm build:ui:css    # Build CSS only
+pnpm build:storybook # Build Storybook static
+pnpm build:all       # Build library + Storybook
+pnpm clean           # Remove dist/, coverage/, storybook-static/
+```
 
-### Building
+## Development
 
-- `pnpm build` - Full production build
-- `pnpm build:storybook` - Build Storybook
+```bash
+pnpm dev     # Storybook on port 6006
+pnpm preview # Serve current dir on port 4000
+```
 
-### Development
+## Analysis
 
-- `pnpm dev` - Start Storybook on port 6006
+```bash
+pnpm size    # Check bundle size limits
+pnpm analyze # Build + open bundle visualizer (dist/stats.html)
+```
 
-## Linting System
+## Release
 
-Two tools run in sequence:
+```bash
+pnpm release:dry # Validate publish (dry run)
+```
 
-1. **Biome** (`biome check .`) - Handles:
-   - TypeScript/TSX: lint + format + import sorting + Tailwind class sorting
-   - JSON: lint + format
-   - CSS: format (with Tailwind v4 directives)
+Pre-publish runs: `check → build → size`
 
-2. **ESLint** (`eslint **/*.{ts,tsx}`) - Handles:
-   - React-specific rules
-   - Accessibility (jsx-a11y)
-   - TypeScript rules (explicit-return-type, member-ordering)
+## Testing
 
-## Pre-commit Behavior
+```bash
+pnpm test    # No-op (exit 0)
+pnpm test:ci # No-op (exit 0)
+```
 
-When code is committed, `lint-staged` runs automatically:
-- Pattern: `*.{ts,tsx,json,css}`
-- Action: `biome check --write --unsafe`
+Tests not implemented yet.
 
-This auto-fixes and formats staged files before commit.
+## Linting Pipeline
 
-## CI Checks
+Two tools in sequence:
 
-GitHub Actions runs on push/PR to master:
-1. `pnpm typecheck`
-2. `pnpm lint`
-3. `pnpm format:check`
-4. `pnpm build`
-5. `pnpm size`
+1. **Biome** - TS/TSX lint + format + import sorting + Tailwind class sorting; JSON lint + format; CSS format
+2. **ESLint** - React rules, jsx-a11y accessibility, TypeScript-specific rules
 
-All must pass for CI to succeed.
+## Pre-commit Hook
 
-## When to Use Each Command
+`lint-staged` runs on commit:
+- `*.{ts,tsx}` → Biome check + ESLint fix
+- `*.{json,css}` → Biome check
 
-| Situation | Command |
-|-----------|---------|
-| Verify code before PR | `pnpm check` |
-| Fix lint/format issues | `pnpm lint:fix` |
-| Check types only | `pnpm typecheck` |
-| Format only | `pnpm format` |
-| Build for production | `pnpm build` |
-| Test components visually | `pnpm dev` |
+## CI Pipeline
+
+GitHub Actions on push/PR to master:
+1. typecheck
+2. lint
+3. format:check
+4. build
+5. size
+

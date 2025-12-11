@@ -57,6 +57,7 @@
     "dev": "storybook dev -p 6006",
     "clean": "rm -rf dist coverage reports storybook-static",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check",
+    "check:fix": "pnpm typecheck && pnpm lint:fix && pnpm format",
     "typecheck": "pnpm typecheck:app && pnpm typecheck:node",
     "typecheck:app": "tsc --noEmit --project tsconfig.app.json",
     "typecheck:node": "tsc --noEmit --project tsconfig.node.json",
