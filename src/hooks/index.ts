@@ -10,6 +10,7 @@ export {
   type UseKeyboardNavigationReturn,
   useKeyboardNavigation,
 } from './use-keyboard-navigation';
+export { type PointerPosition, type UsePointerPositionConfig, usePointerPosition } from './use-pointer-position';
 export { type UseRovingTabIndexConfig, type UseRovingTabIndexReturn, useRovingTabIndex } from './use-roving-tabindex';
 export { type UseScrollActiveIntoViewConfig, useScrollActiveIntoView } from './use-scroll-active-into-view';
 export { useScrollLock } from './use-scroll-lock';
