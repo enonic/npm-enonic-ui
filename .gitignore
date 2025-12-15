@@ -6,11 +6,12 @@
 *~
 
 # AI Assistant
-.claude/
+.claude/plans/
 .codex/
 .cursor/commands/
 .cursor/mcp.json
 .mcp.json
+settings.local.json
 
 # Build files
 dist/

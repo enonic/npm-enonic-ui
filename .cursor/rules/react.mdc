@@ -216,6 +216,27 @@ function UserCard({ firstName, lastName }) {
   const fullName = `${firstName} ${lastName}`; // Just derive it
 }
 
+// ❌ DON'T: Early return that blocks re-execution
+function ComboBox({ items }) {
+  const instanceRef = useRef(null);
+  useEffect(() => {
+    if (instanceRef.current) return; // Bug! When items changes, effect exits early
+    instanceRef.current = createInstance();
+    instanceRef.current.setItems(items); // Never called on items change!
+  }, [items]);
+}
+
+// ✅ DO: Separate initialization from updates
+function ComboBox({ items }) {
+  const instanceRef = useRef(null);
+  useEffect(() => {
+    if (!instanceRef.current) {
+      instanceRef.current = createInstance();
+    }
+    instanceRef.current.setItems(items); // Always runs when items changes
+  }, [items]);
+}
+
 // ✅ CORRECT uses of useEffect:
 // External system sync
 useEffect(() => {
