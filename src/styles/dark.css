@@ -31,7 +31,7 @@
     --color-surface-error: var(--color-fbk-danger-surface-dark);
 
     /* Borders */
-    --color-bdr-subtle: var(--color-grey-500);
+    --color-bdr-subtle: var(--color-grey-800);
     --color-bdr-soft: var(--color-grey-800);
     --color-bdr-strong: var(--color-white);
 
