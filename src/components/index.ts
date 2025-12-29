@@ -22,3 +22,4 @@ export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
 export * from './tree-list';
+export * from './tree-list-content';
