@@ -1,7 +1,8 @@
+import { cva } from 'class-variance-authority';
 import { ChevronRight, Loader2, Square, SquareCheck } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
-  Fragment,
+  forwardRef,
   type ReactElement,
   type ReactNode,
   useCallback,
@@ -11,889 +12,614 @@ import {
   useState,
 } from 'react';
 import { IconButton, type IconButtonProps } from '@/components/icon-button';
-import { useControlledState, useControlledStateWithNull, useKeyboardNavigation } from '@/hooks';
+import {
+  useActiveItemFocus,
+  useControlledState,
+  useItemRegistry,
+  useKeyboardNavigation,
+  useRovingTabIndex,
+} from '@/hooks';
 import { usePrefixedId } from '@/providers';
-import { type TreeListContextValue, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
+import { TreeListUIProvider, useTreeListUI } from '@/providers/tree-list-ui-provider';
 import type { LucideIcon } from '@/types';
 import { cn } from '@/utils';
 
-export const LOADING_SUFFIX = '__loading__';
-export const ROOT_PARENT_ID = '__root__';
-
 const calcSpacerWidth = (level: number): number => Math.max(0, 10 + 20 * (level - 1));
 
-function createDefaultTreeItems<TData extends TreeData>(): TreeItems<TData> {
-  return {
-    nodes: {},
-    children: {},
-    hasMore: {},
-  };
-}
+// #region Row Variants
 
-export type TreeData = {
-  id: string;
-  hasChildren: boolean;
-};
+export const treeListRowVariants = cva(
+  [
+    'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 outline-none',
+    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+  ],
+  {
+    variants: {
+      active: {
+        true: 'bg-surface-neutral-hover',
+        false: 'hover:bg-surface-neutral-hover',
+      },
+      selected: {
+        true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
+        false: '',
+      },
+      disabled: {
+        true: 'pointer-events-none opacity-50',
+        false: '',
+      },
+      selectable: {
+        true: 'cursor-pointer',
+        false: '',
+      },
+    },
+    compoundVariants: [
+      {
+        active: true,
+        selected: true,
+        disabled: false,
+        class: 'bg-surface-selected-hover',
+      },
+      {
+        active: true,
+        disabled: false,
+        class: [
+          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
+          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+        ],
+      },
+    ],
+    defaultVariants: {
+      active: false,
+      selected: false,
+      disabled: false,
+      selectable: true,
+    },
+  },
+);
 
-export type TreeItems<TreeData> = {
-  nodes: Record<string, TreeData | undefined>;
-  children: Record<string, string[] | undefined>;
-  hasMore: Record<string, boolean | undefined>;
-};
+// #endregion
 
-export type FlatTreeNode<TData extends TreeData> = {
-  id: string;
-  data: TData;
-  level: number;
-  parentId: string | null;
-  nodeType: 'node' | 'loading' | 'error';
-};
+// #region TreeListRoot
 
-function flattenTree<TData extends TreeData>(
-  items: TreeItems<TData>,
-  expandedSet: ReadonlySet<string>,
-  baseId: string,
-  loadingById: Map<string | null, boolean>,
-  errorById: Map<string | null, Error | string>,
-): FlatTreeNode<TData>[] {
-  const result: FlatTreeNode<TData>[] = [];
+export type TreeListRootProps = {
+  selection?: ReadonlySet<string>;
+  defaultSelection?: ReadonlySet<string>;
+  onSelectionChange?: (selection: ReadonlySet<string>) => void;
+  selectionMode?: 'single' | 'multiple';
+  active?: string;
+  defaultActive?: string;
+  onActiveChange?: (active: string | undefined) => void;
+  loop?: boolean;
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'div'>;
 
-  const rootIds = items.children[ROOT_PARENT_ID] ?? [];
-  const hasMoreRoot = items.hasMore[ROOT_PARENT_ID] ?? false;
+const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
+  (
+    {
+      selection: controlledSelection,
+      defaultSelection,
+      onSelectionChange,
+      selectionMode = 'single',
+      active: controlledActive,
+      defaultActive,
+      onActiveChange,
+      loop = false,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ): ReactElement => {
+    const baseId = usePrefixedId(undefined, 'tree-list');
+    const innerRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const visit = (id: string, level: number, parentId: string | null): void => {
-    const data = items.nodes[id];
+    // Helper to convert between logical IDs and DOM IDs
+    const toDomId = useCallback((id: string) => `${baseId}-item-${id}`, [baseId]);
+    const fromDomId = useCallback((domId: string) => domId.replace(`${baseId}-item-`, ''), [baseId]);
 
-    if (!data) {
-      return;
-    }
+    const [selection, setSelection] = useControlledState<ReadonlySet<string>>(
+      controlledSelection,
+      defaultSelection ?? new Set(),
+      onSelectionChange,
+    );
 
-    const hasMoreChildren = items.hasMore[id] ?? false;
+    // Internal active state uses DOM IDs for compatibility with useItemRegistry
+    const [active, setActiveInternal] = useControlledState<string | undefined>(
+      controlledActive ? toDomId(controlledActive) : undefined,
+      defaultActive ? toDomId(defaultActive) : undefined,
+      domId => onActiveChange?.(domId ? fromDomId(domId) : undefined),
+    );
 
-    result.push({
-      id,
-      data,
-      level,
-      parentId,
-      nodeType: 'node',
+    const setActive = useCallback(
+      (id: string | undefined) => {
+        setActiveInternal(id);
+      },
+      [setActiveInternal],
+    );
+
+    const [isFocused, setFocused] = useState(false);
+
+    const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+
+    const toggleSelection = useCallback(
+      (id: string) => {
+        // Selection uses logical IDs
+        if (isItemDisabled(toDomId(id))) {
+          return;
+        }
+
+        const isSelected = selection.has(id);
+        const newSelection = new Set(selectionMode === 'multiple' ? selection : []);
+
+        if (isSelected) {
+          newSelection.delete(id);
+        } else {
+          newSelection.add(id);
+        }
+
+        setSelection(newSelection);
+      },
+      [selection, selectionMode, isItemDisabled, setSelection, toDomId],
+    );
+
+    const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
+      getItems,
+      isItemDisabled,
+      active,
+      setActive,
+      loop,
+      orientation: 'vertical',
+      onSelect: domId => {
+        setActive(domId);
+        toggleSelection(fromDomId(domId));
+      },
     });
 
-    const isExpanded = expandedSet.has(id);
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>) => {
+        handleNavKeyDown(e);
+      },
+      [handleNavKeyDown],
+    );
 
-    if (isExpanded && data.hasChildren) {
-      const children = items.children[id] ?? [];
-
-      for (const childId of children) {
-        visit(childId, level + 1, id);
-      }
-
-      const hasErrorLoadingChildren = !!errorById.get(id);
-
-      if (hasErrorLoadingChildren) {
-        const errorId = `${id}${LOADING_SUFFIX}error`;
-
-        result.push({
-          id: errorId,
-          data: {
-            id: errorId,
-            hasChildren: false,
-          } as TData,
-          level: level + 1,
-          parentId: id,
-          nodeType: 'error',
-        });
-
+    useEffect(() => {
+      if (!active || !innerRef.current) {
         return;
       }
 
-      const isLoading = loadingById.get(id) === true;
-      const childrenLoaded = Object.hasOwn(items.children, id);
-      const shouldShowLoadingRow =
-        isLoading || // show loading row
-        !childrenLoaded || // expanded for the first time
-        hasMoreChildren; // pagination
-
-      if (shouldShowLoadingRow) {
-        const loadingId = `${id}${LOADING_SUFFIX}${children.length}`;
-
-        result.push({
-          id: loadingId,
-          data: {
-            id: loadingId,
-            hasChildren: false,
-          } as TData,
-          level: level + 1,
-          parentId: id,
-          nodeType: 'loading',
+      // active is already a DOM ID
+      const el = document.getElementById(active);
+      if (el) {
+        el.scrollIntoView({
+          block: 'nearest',
+          behavior: 'auto',
         });
       }
-    }
-  };
+    }, [active]);
 
-  for (const rootId of rootIds) {
-    visit(rootId, 1, null);
-  }
+    const contextValue = useMemo(
+      () => ({
+        baseId,
+        active,
+        setActive,
+        isFocused,
+        selection,
+        toggleSelection,
+        selectionMode,
+        registerItem,
+        unregisterItem,
+        getItems,
+        isItemDisabled,
+        scrollContainerRef,
+      }),
+      [
+        baseId,
+        active,
+        setActive,
+        isFocused,
+        selection,
+        toggleSelection,
+        selectionMode,
+        registerItem,
+        unregisterItem,
+        getItems,
+        isItemDisabled,
+      ],
+    );
 
-  const hasRootLoadingError = !!errorById.get(null);
-  const isRootLoading = loadingById.get(null) === true;
+    return (
+      <TreeListUIProvider value={contextValue}>
+        <div
+          id={baseId}
+          ref={node => {
+            (innerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+            if (typeof ref === 'function') {
+              ref(node);
+            } else if (ref) {
+              ref.current = node;
+            }
+          }}
+          className={cn(
+            // Soft focus ring on container (like Toolbar)
+            'focus-within:ring-2 focus-within:ring-ring/25 focus-within:ring-inset',
+            className,
+          )}
+          role='listbox'
+          aria-activedescendant={active || undefined}
+          aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
+          tabIndex={-1}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          {...props}
+        >
+          {children}
+        </div>
+      </TreeListUIProvider>
+    );
+  },
+);
 
-  if (hasRootLoadingError) {
-    const loadingId = `${baseId}${LOADING_SUFFIX}error`;
-    result.push({
-      id: loadingId,
-      data: {
-        id: loadingId,
-        hasChildren: false,
-      } as TData,
-      level: 1,
-      parentId: null,
-      nodeType: 'error',
-    });
-  } else if (hasMoreRoot || isRootLoading) {
-    const loadingId = `${baseId}${LOADING_SUFFIX}${rootIds.length}`;
-    result.push({
-      id: loadingId,
-      parentId: null,
-      data: {
-        id: loadingId,
-        hasChildren: false,
-      } as TData,
-      level: 1,
-      nodeType: 'loading',
-    });
-  }
+TreeListRoot.displayName = 'TreeList.Root';
 
-  return result;
-}
+// #endregion
 
-export type TreeListProps<TData extends TreeData = TreeData> = {
-  className?: string;
-  fetchChildren: (
-    parentId: string | undefined,
-    offset: number,
-  ) => Promise<{
-    items: TData[];
-    hasMore: boolean;
-  }>;
-  expanded?: ReadonlySet<string>;
-  onExpandedChange?: (expanded: ReadonlySet<string>) => void;
-  selection?: ReadonlySet<string>;
-  onSelectionChange?: (selection: ReadonlySet<string>) => void;
-  selectionMode?: 'single' | 'multiple';
-  active?: string | null;
-  defaultActive?: string;
-  setActive?: (active: string | null | undefined) => void;
-  isItemSelectable?: (item: TData) => boolean;
-  items?: TreeItems<TData>;
-  onItemsChange?: (items: TreeItems<TData>) => void;
-  children?: ReactNode;
-} & ComponentPropsWithoutRef<'div'>;
+// #region TreeListContainer
 
 export type TreeListContainerProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListContainer = ({
-  children,
-  className,
-  ...props
-}: TreeListContainerProps): ReactElement<TreeListContainerProps> => {
-  const { baseId, scrollRootRef } = useTreeList();
+const TreeListContainer = forwardRef<HTMLDivElement, TreeListContainerProps>(
+  ({ children, className, ...props }, ref): ReactElement => {
+    const { baseId, scrollContainerRef } = useTreeListUI();
 
-  return (
-    <div
-      id={`${baseId}-scroll-root`}
-      ref={scrollRootRef}
-      className={cn('relative flex h-full flex-col gap-y-1 overflow-y-auto p-1', className)}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-};
+    return (
+      <div
+        id={`${baseId}-scroll-root`}
+        ref={node => {
+          (scrollContainerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          if (typeof ref === 'function') {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
+        className={cn('relative flex h-full flex-col gap-y-1.5 overflow-y-auto p-1', className)}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
 TreeListContainer.displayName = 'TreeList.Container';
 
-export type DefaultTreeListLoadingRowViewProps<TData extends TreeData> = {
-  item: FlatTreeNode<TData>;
-} & ComponentPropsWithoutRef<'div'>;
+// #endregion
 
-const DefaultTreeListLoadingRowView = <TData extends TreeData>({
-  item,
-  className,
-  children,
-  ...props
-}: DefaultTreeListLoadingRowViewProps<TData>): ReactElement => {
-  return (
-    <div className={cn('flex items-center gap-2 px-2 py-1 text-sm', className)} {...props}>
-      {item.level > 1 && (
-        <span className='spacer' style={{ '--level-indent': `${calcSpacerWidth(item.level)}px` }}>
-          <span className='inline-block w-(--level-indent)' />
-        </span>
-      )}
-      <Loader2 size={14} className='animate-spin' />
-      {children ?? <span>Loading...</span>}
-    </div>
-  );
-};
+// #region TreeListRow
 
-export type TreeListLoadingRowProps<TData extends TreeData> = {
-  item: FlatTreeNode<TData>;
-  renderLoading?: (item: FlatTreeNode<TData>) => ReactNode;
-  children?: ReactNode;
-  intersectionProps?: IntersectionObserverInit;
-} & ComponentPropsWithoutRef<'div'>;
-
-const TreeListLoadingRow = <TData extends TreeData>({
-  item,
-  renderLoading,
-  className,
-  children,
-  intersectionProps,
-  ...props
-}: TreeListLoadingRowProps<TData>): ReactElement => {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const { loadMore, scrollRootRef } = useTreeList<TData>();
-
-  useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      entries => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            observer.unobserve(entry.target);
-            const parentId = item.parentId ?? undefined;
-            void loadMore(parentId);
-          }
-        }
-      },
-      intersectionProps ?? {
-        root: scrollRootRef?.current ?? undefined,
-        rootMargin: '120px',
-      },
-    );
-
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [item.parentId, loadMore, intersectionProps, scrollRootRef]);
-
-  return (
-    <div ref={ref} className={className} {...props}>
-      {renderLoading ? renderLoading(item) : <DefaultTreeListLoadingRowView item={item} />}
-    </div>
-  );
-};
-
-TreeListLoadingRow.displayName = 'TreeList.LoadingRow';
-
-export type TreeListErrorRowProps<TData extends TreeData> = {
-  item: FlatTreeNode<TData>;
-  renderError?: (item: FlatTreeNode<TData>) => ReactNode;
+export type TreeListRowProps = {
+  id: string;
+  disabled?: boolean;
+  selectable?: boolean;
   className?: string;
-  onRetry?: () => void;
+  children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListErrorRow = <TData extends TreeData>({
-  item,
-  onRetry,
-  renderError,
-  className,
-  ...props
-}: TreeListErrorRowProps<TData>): ReactElement => {
-  return (
-    <div
-      tabIndex={-1}
-      role={'button'}
-      className={cn('flex cursor-pointer items-center gap-2 px-2 py-1 text-red-600 text-sm', className)}
-      onClick={onRetry}
-      onKeyDown={(e: React.KeyboardEvent<HTMLElement>) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          onRetry?.();
-        }
-      }}
-      {...props}
-    >
-      {renderError ? (
-        renderError(item)
-      ) : (
-        <>
-          {item.level > 1 && (
-            <span className='spacer' style={{ '--level-indent': `${calcSpacerWidth(item.level)}px` }}>
-              <span className='inline-block w-(--level-indent)' />
-            </span>
-          )}
-          <span>Failed to load. Click to retry.</span>
-        </>
-      )}
-    </div>
-  );
-};
+const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
+  ({ id, disabled = false, selectable = true, className, children, ...props }, ref): ReactElement => {
+    const {
+      selection,
+      selectionMode,
+      toggleSelection,
+      setActive,
+      active,
+      baseId,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
+    } = useTreeListUI();
 
-TreeListErrorRow.displayName = 'TreeList.ErrorRow';
+    const innerRef = useRef<HTMLDivElement>(null);
+    const rowDomId = `${baseId}-item-${id}`;
+    const isSelected = selection.has(id);
+    const isActive = active === rowDomId;
 
-export type TreeListContentProps<TData extends TreeData> = {
-  renderNode: (item: FlatTreeNode<TData>) => ReactNode;
-  renderLoading?: (item: FlatTreeNode<TData>) => ReactNode;
-  renderError?: (item: FlatTreeNode<TData>) => ReactNode;
-};
+    useEffect(() => {
+      registerItem(rowDomId, disabled);
+      return () => unregisterItem(rowDomId);
+    }, [rowDomId, disabled, registerItem, unregisterItem]);
 
-const TreeListContent = <TData extends TreeData>({
-  renderNode,
-  renderLoading,
-  renderError,
-}: TreeListContentProps<TData>): ReactElement => {
-  const { items, loadMore } = useTreeList<TData>();
+    // Use roving tabindex hook to compute tabIndex
+    const { tabIndex } = useRovingTabIndex({
+      id: rowDomId,
+      active,
+      disabled,
+      getItems,
+      isItemDisabled,
+      focusMode: 'roving-tabindex',
+    });
 
-  return (
-    <>
-      {items.map(item => {
-        if (item.nodeType === 'error') {
-          return (
-            <TreeListErrorRow
-              key={item.id}
-              item={item}
-              renderError={renderError}
-              onRetry={() => void loadMore(item.parentId ?? undefined)}
-            />
-          );
-        }
+    // Auto-focus active item when keyboard navigating
+    useActiveItemFocus({
+      ref: innerRef,
+      isActive,
+      disabled,
+      focusMode: 'roving-tabindex',
+      checkFocusWithin: {
+        enabled: true,
+        containerRole: 'listbox',
+      },
+    });
 
-        if (item.nodeType === 'loading') {
-          return <TreeListLoadingRow key={item.id} item={item} renderLoading={renderLoading} />;
-        }
+    return (
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+      <div
+        id={rowDomId}
+        ref={node => {
+          (innerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+          if (typeof ref === 'function') {
+            ref(node);
+          } else if (ref) {
+            ref.current = node;
+          }
+        }}
+        role='option'
+        aria-selected={isSelected ? true : selectionMode === 'multiple' ? false : undefined}
+        aria-disabled={disabled || undefined}
+        data-tone={isSelected ? 'inverse' : undefined}
+        data-active={isActive || undefined}
+        onClick={() => {
+          if (disabled) return;
+          setActive(rowDomId);
+          if (selectable) {
+            toggleSelection(id);
+          }
+        }}
+        className={cn(
+          treeListRowVariants({
+            active: isActive,
+            selected: isSelected,
+            disabled,
+            selectable: selectable && !disabled,
+          }),
+          className,
+        )}
+        tabIndex={tabIndex}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
-        return <Fragment key={item.id}>{renderNode(item)}</Fragment>;
-      })}
-    </>
-  );
-};
+TreeListRow.displayName = 'TreeList.Row';
 
-TreeListContent.displayName = 'TreeList.Content';
+// #endregion
+
+// #region TreeListRowLeft
 
 export type TreeListRowLeftProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowLeft = ({
-  children,
-  className,
-  ...props
-}: TreeListRowLeftProps): ReactElement<TreeListRowLeftProps> => (
-  <div className={cn('flex items-center gap-2.5', className)} {...props}>
-    {children}
-  </div>
+const TreeListRowLeft = forwardRef<HTMLDivElement, TreeListRowLeftProps>(
+  ({ children, className, ...props }, ref): ReactElement => (
+    <div ref={ref} className={cn('flex items-center gap-2.5', className)} {...props}>
+      {children}
+    </div>
+  ),
 );
 
 TreeListRowLeft.displayName = 'TreeList.RowLeft';
+
+// #endregion
+
+// #region TreeListRowRight
 
 export type TreeListRowRightProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowRight = ({
-  children,
-  className,
-  ...props
-}: TreeListRowRightProps): ReactElement<TreeListRowRightProps> => (
-  <div className={cn('flex items-center gap-2.5', className)} {...props}>
-    {children}
-  </div>
+const TreeListRowRight = forwardRef<HTMLDivElement, TreeListRowRightProps>(
+  ({ children, className, ...props }, ref): ReactElement => (
+    <div ref={ref} className={cn('flex items-center gap-2.5', className)} {...props}>
+      {children}
+    </div>
+  ),
 );
 
 TreeListRowRight.displayName = 'TreeList.RowRight';
 
-export type TreeListRowLevelSpacerProps = {
-  level?: number;
-  className?: string;
-} & ComponentPropsWithoutRef<'div'>;
+// #endregion
 
-const TreeListRowLevelSpacer = ({
-  level = 1,
-  className,
-  ...props
-}: TreeListRowLevelSpacerProps): ReactElement<TreeListRowLevelSpacerProps> | null => {
-  if (level === 1) {
-    return null; // no spacer needed for level 1
-  }
-
-  return (
-    <div
-      style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}
-      className={cn('pl-(--level-indent)', className)}
-      {...props}
-    />
-  );
-};
-
-TreeListRowLevelSpacer.displayName = 'TreeList.RowLevelSpacer';
-
-export type TreeListRowExpandControlProps<TData extends TreeData> = {
-  data: FlatTreeNode<TData>;
-  icon?: LucideIcon;
-} & Omit<IconButtonProps, 'icon'>;
-
-const TreeListRowExpandControl = <TData extends TreeData>({
-  data,
-  icon = ChevronRight,
-  className,
-  ...props
-}: TreeListRowExpandControlProps<TData>): ReactElement<TreeListRowExpandControlProps<TData>> => {
-  const { expanded, toggleExpanded, selection, updateActive } = useTreeList<TData>();
-  const isExpanded = expanded?.has(data.id);
-  const isSelected = selection?.has(data.id);
-
-  if (data.nodeType === 'loading' || !data.data.hasChildren) {
-    return <span className='size-5 shrink-0' />;
-  }
-
-  return (
-    <IconButton
-      icon={icon}
-      variant='text'
-      title='Expand'
-      tabIndex={-1}
-      className={cn(
-        'size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent active:text-main',
-        isSelected && 'text-alt hover:text-alt active:text-alt',
-        isExpanded && 'rotate-90',
-        className,
-      )}
-      onClick={e => {
-        toggleExpanded(data.id);
-        updateActive(data.id);
-        e.stopPropagation();
-      }}
-      {...props}
-    />
-  );
-};
-
-TreeListRowExpandControl.displayName = 'TreeList.RowExpandControl';
+// #region TreeListRowContent
 
 export type TreeListRowContentProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowContent = ({
-  className,
-  children,
-  ...props
-}: TreeListRowContentProps): ReactElement<TreeListRowContentProps> => {
-  return (
-    <div className={cn('min-w-0 flex-1', className)} {...props}>
-      {children}
-    </div>
-  );
-};
-
-TreeListRowContent.displayName = 'TreeList.RowContent';
-
-export type TreeListRowSelectionControlProps<TData extends TreeData> = {
-  data: FlatTreeNode<TData>;
-  className?: string;
-} & ComponentPropsWithoutRef<'div'>;
-
-const TreeListRowSelectionControl = <TData extends TreeData>({
-  data,
-  className,
-  ...props
-}: TreeListRowSelectionControlProps<TData>): ReactElement => {
-  const { selection, isItemSelectable } = useTreeList<TData>();
-  const isSelected = selection?.has(data.id);
-
-  if (data.nodeType === 'loading' || !isItemSelectable(data.data)) {
-    return <span className={cn('w-3.5', className)} {...props} />;
-  }
-
-  return (
-    <div className={cn('flex w-3.5 items-center', className)} {...props}>
-      {isSelected ? <SquareCheck /> : <Square />}
-    </div>
-  );
-};
-
-TreeListRowSelectionControl.displayName = 'TreeList.RowSelectionControl';
-
-export type TreeListRowProps<TData extends TreeData> = {
-  item: FlatTreeNode<TData>;
-  children: ReactNode;
-  className?: string;
-} & ComponentPropsWithoutRef<'div'>;
-
-const TreeListRow = <TData extends TreeData>({
-  item,
-  children,
-  className,
-  ...props
-}: TreeListRowProps<TData>): ReactElement => {
-  const {
-    selection,
-    selectionMode,
-    expanded,
-    toggleSelection,
-    isItemSelectable,
-    updateActive,
-    active,
-    baseId,
-    isFocused,
-  } = useTreeList<TData>();
-  const isExpanded = expanded?.has(item.id);
-  const isSelected = selection?.has(item.id);
-  const isSelectable = isItemSelectable(item.data);
-  const isActive = isFocused && active === item.id;
-  const rowDomId = `${baseId}-item-${item.id}`;
-
-  if (item.nodeType === 'loading') {
+const TreeListRowContent = forwardRef<HTMLDivElement, TreeListRowContentProps>(
+  ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <div
-        id={rowDomId}
-        role='none'
-        className={cn('relative z-0 flex items-center gap-2.5 px-2.5 py-1 text-sm text-subtle', className)}
-        {...props}
-      >
+      <div ref={ref} className={cn('min-w-0 flex-1', className)} {...props}>
         {children}
       </div>
     );
-  }
+  },
+);
 
-  return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
-    <div
-      id={rowDomId}
-      role='treeitem'
-      aria-expanded={item.data.hasChildren ? isExpanded : undefined}
-      aria-selected={isSelected ? true : selectionMode === 'multiple' ? false : undefined}
-      aria-level={item.level}
-      data-tone={isSelected ? 'inverse' : undefined}
-      data-active={isActive || undefined}
-      onClick={() => {
-        updateActive(item.id);
-        toggleSelection(item.id);
-      }}
-      className={cn(
-        'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 focus-within:outline-none hover:bg-surface-primary-hover',
-        'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
-        'data-[active=true]:ring-2 data-[active=true]:ring-offset-0',
-        isSelectable && 'cursor-pointer',
-        isSelected
-          ? 'bg-surface-selected text-alt hover:bg-surface-selected-hover data-[active=true]:ring-main'
-          : 'hover:bg-surface-neutral-hover',
-        className,
-      )}
-      tabIndex={undefined}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-};
+TreeListRowContent.displayName = 'TreeList.RowContent';
 
-TreeListRow.displayName = 'TreeList.Row';
+// #endregion
 
-const TreeListRoot = <TData extends TreeData = TreeData>({
-  className,
-  fetchChildren,
-  selection: controlledSelection,
-  expanded: controlledExpanded,
-  onSelectionChange,
-  onExpandedChange,
-  active: controlledActive,
-  defaultActive,
-  setActive,
-  selectionMode = 'single',
-  isItemSelectable = () => true,
-  items: controlledItems,
-  onItemsChange,
-  children,
-  ...props
-}: TreeListProps<TData>): ReactElement => {
-  const baseId = usePrefixedId(undefined, 'tree-list');
+// #region TreeListRowLevelSpacer
 
-  const [selection, setSelection] = useControlledState<ReadonlySet<string>>(
-    controlledSelection,
-    new Set(),
-    onSelectionChange,
-  );
+export type TreeListRowLevelSpacerProps = {
+  level?: number;
+  className?: string;
+} & ComponentPropsWithoutRef<'div'>;
 
-  const [expanded, setExpanded] = useControlledState<ReadonlySet<string>>(
-    controlledExpanded,
-    new Set(),
-    onExpandedChange,
-  );
-
-  const [active, updateActive] = useControlledStateWithNull(controlledActive, defaultActive, setActive);
-  const [isFocused, setFocused] = useState(false);
-  const innerRef = useRef<HTMLDivElement>(null);
-
-  const [items, setItems] = useControlledState<TreeItems<TData>>(
-    controlledItems,
-    createDefaultTreeItems<TData>(),
-    onItemsChange,
-  );
-
-  const [loadingById, setLoadingById] = useState<Map<string | null, boolean>>(() => new Map());
-  const [errorById, setErrorById] = useState<Map<string | null, Error | string>>(() => new Map());
-
-  const loadMore = useCallback(
-    async (parentId?: string) => {
-      if (loadingById.get(parentId ?? null) === true) {
-        return;
-      }
-
-      const key = parentId ?? ROOT_PARENT_ID;
-      const offset = (items.children[parentId ?? ROOT_PARENT_ID] ?? []).length;
-
-      setLoadingById(prev => {
-        const next = new Map(prev);
-        next.set(parentId ?? null, true);
-        return next;
-      });
-
-      setErrorById(prev => {
-        const next = new Map(prev);
-        next.delete(parentId ?? null);
-        return next;
-      });
-
-      try {
-        const { items: newItems, hasMore } = await fetchChildren(parentId, offset);
-
-        setItems(prev => {
-          const nodes = { ...prev.nodes };
-          const children = { ...prev.children };
-          const hasMoreMap = { ...prev.hasMore };
-
-          for (const item of newItems) {
-            nodes[item.id] = item;
-          }
-
-          const prevChildren = children[key] ?? [];
-          const newIds = newItems.map(item => item.id);
-
-          children[key] = offset === 0 ? newIds : [...prevChildren, ...newIds];
-          hasMoreMap[key] = hasMore;
-
-          return { nodes, children, hasMore: hasMoreMap };
-        });
-      } catch (error) {
-        setErrorById(prev => {
-          const next = new Map(prev);
-          next.set(parentId ?? null, error instanceof Error ? error : String(error));
-          return next;
-        });
-      } finally {
-        setLoadingById(prev => {
-          const next = new Map(prev);
-          next.set(parentId ?? null, false);
-          return next;
-        });
-      }
-    },
-    [fetchChildren, items.children, setItems, loadingById],
-  );
-
-  const flattenedItems = useMemo(
-    () => flattenTree<TData>(items, expanded, baseId, loadingById, errorById),
-    [items, expanded, baseId, loadingById, errorById],
-  );
-
-  const toggleSelection = useCallback(
-    (id: string) => {
-      const item = items.nodes[id];
-
-      if (!item || !isItemSelectable(item)) {
-        return;
-      }
-
-      const isSelected = selection.has(id);
-      const newSelection = new Set(selectionMode === 'multiple' ? selection : []);
-
-      if (isSelected) {
-        newSelection.delete(id);
-      } else {
-        newSelection.add(id);
-      }
-
-      setSelection(newSelection);
-    },
-    [selection, selectionMode, isItemSelectable, items, setSelection],
-  );
-
-  const toggleExpanded = useCallback(
-    (id: string) => {
-      if (id.includes(LOADING_SUFFIX)) {
-        return;
-      }
-
-      const isExpanded = expanded.has(id);
-      const newExpanded = new Set(expanded);
-
-      if (isExpanded) {
-        newExpanded.delete(id);
-      } else {
-        newExpanded.add(id);
-      }
-
-      setExpanded(newExpanded);
-    },
-    [expanded, setExpanded],
-  );
-
-  const getNavItems = useCallback(
-    () => flattenedItems.filter(item => item.nodeType !== 'loading').map(item => item.id),
-    [flattenedItems],
-  );
-
-  const isItemDisabled = useCallback((_id: string) => false, []);
-
-  const { handleKeyDown, moveActive } = useKeyboardNavigation({
-    getItems: getNavItems,
-    isItemDisabled,
-    active,
-    setActive: updateActive,
-    loop: false,
-    orientation: 'vertical',
-    onSelect: id => {
-      updateActive(id);
-      toggleSelection(id);
-    },
-  });
-
-  const keyHandler = useCallback(
-    (e: React.KeyboardEvent<HTMLElement>): void => {
-      if (e.key === 'ArrowRight') {
-        const activeNode = active ? flattenedItems.find(item => item.id === active) : null;
-
-        if (activeNode && activeNode.nodeType !== 'loading') {
-          if (activeNode.data.hasChildren) {
-            const isExpanded = expanded.has(activeNode.id);
-
-            if (isExpanded) {
-              moveActive(1);
-            } else {
-              toggleExpanded(activeNode.id);
-            }
-          }
-        }
-
-        return;
-      }
-
-      if (e.key === 'ArrowLeft') {
-        const activeNode = active ? flattenedItems.find(item => item.id === active) : null;
-
-        if (activeNode && activeNode.nodeType !== 'loading') {
-          if (activeNode.data.hasChildren && expanded.has(activeNode.id)) {
-            toggleExpanded(activeNode.id);
-          } else if (activeNode.parentId) {
-            updateActive(activeNode.parentId);
-          }
-        }
-
-        return;
-      }
-
-      handleKeyDown(e);
-    },
-    [active, flattenedItems, expanded, handleKeyDown, moveActive, toggleExpanded, updateActive],
-  );
-
-  useEffect(() => {
-    if (!active || !innerRef.current) {
-      return;
+const TreeListRowLevelSpacer = forwardRef<HTMLDivElement, TreeListRowLevelSpacerProps>(
+  ({ level = 1, className, ...props }, ref): ReactElement | null => {
+    if (level === 1) {
+      return null;
     }
 
-    const el = document.getElementById(`${baseId}-item-${active}`);
-    if (el) {
-      el.scrollIntoView({
-        block: 'nearest',
-        behavior: 'auto',
-      });
-    }
-  }, [active, baseId]);
-
-  const hasAnyNodes = useMemo(() => Object.keys(items.nodes).length > 0, [items.nodes]);
-
-  useEffect(() => {
-    if (!hasAnyNodes) {
-      void loadMore();
-    }
-  }, [hasAnyNodes, loadMore]);
-
-  const scrollRootRef = useRef<HTMLDivElement>(null);
-
-  const contextValue = useMemo<TreeListContextValue<TData>>(
-    () => ({
-      baseId,
-      items: flattenedItems,
-      active,
-      loadMore,
-      selection,
-      expanded,
-      toggleSelection,
-      toggleExpanded,
-      updateActive,
-      selectionMode,
-      isFocused,
-      isItemSelectable,
-      scrollRootRef,
-    }),
-    [
-      baseId,
-      flattenedItems,
-      loadMore,
-      selection,
-      expanded,
-      active,
-      toggleSelection,
-      toggleExpanded,
-      updateActive,
-      selectionMode,
-      isFocused,
-      isItemSelectable,
-    ],
-  );
-
-  return (
-    <TreeListProvider value={contextValue}>
+    return (
       <div
-        id={baseId}
-        ref={innerRef}
-        className={className}
-        role='tree'
-        aria-activedescendant={active ? `${baseId}-item-${active}` : undefined}
-        aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
-        tabIndex={0}
-        onKeyDown={keyHandler}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
+        ref={ref}
+        style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}
+        className={cn('pl-(--level-indent)', className)}
         {...props}
-      >
-        {children}
+      />
+    );
+  },
+);
+
+TreeListRowLevelSpacer.displayName = 'TreeList.RowLevelSpacer';
+
+// #endregion
+
+// #region TreeListRowExpandControl
+
+export type TreeListRowExpandControlProps = {
+  expanded?: boolean;
+  hasChildren?: boolean;
+  onToggle?: () => void;
+  icon?: LucideIcon;
+  selected?: boolean;
+  className?: string;
+} & Omit<IconButtonProps, 'icon' | 'onClick'>;
+
+const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRowExpandControlProps>(
+  (
+    { expanded = false, hasChildren = false, onToggle, icon = ChevronRight, selected = false, className, ...props },
+    ref,
+  ): ReactElement => {
+    if (!hasChildren) {
+      return <span className='size-5 shrink-0' />;
+    }
+
+    return (
+      <IconButton
+        ref={ref}
+        icon={icon}
+        variant='text'
+        title={expanded ? 'Collapse' : 'Expand'}
+        tabIndex={-1}
+        className={cn(
+          'size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent active:text-main',
+          selected && 'text-alt hover:text-alt active:text-alt',
+          expanded && 'rotate-90',
+          className,
+        )}
+        onClick={e => {
+          onToggle?.();
+          e.stopPropagation();
+        }}
+        {...props}
+      />
+    );
+  },
+);
+
+TreeListRowExpandControl.displayName = 'TreeList.RowExpandControl';
+
+// #endregion
+
+// #region TreeListRowSelectionControl
+
+export type TreeListRowSelectionControlProps = {
+  selected?: boolean;
+  selectable?: boolean;
+  className?: string;
+} & ComponentPropsWithoutRef<'div'>;
+
+const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRowSelectionControlProps>(
+  ({ selected = false, selectable = true, className, ...props }, ref): ReactElement => {
+    if (!selectable) {
+      return <div ref={ref} className={cn('w-3.5', className)} {...props} />;
+    }
+
+    return (
+      <div ref={ref} className={cn('flex w-3.5 items-center', className)} {...props}>
+        {selected ? <SquareCheck /> : <Square />}
       </div>
-    </TreeListProvider>
-  );
-};
+    );
+  },
+);
+
+TreeListRowSelectionControl.displayName = 'TreeList.RowSelectionControl';
+
+// #endregion
+
+// #region TreeListRowLoading
+
+export type TreeListRowLoadingProps = {
+  level?: number;
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'div'>;
+
+const TreeListRowLoading = forwardRef<HTMLDivElement, TreeListRowLoadingProps>(
+  ({ level = 1, className, children, ...props }, ref): ReactElement => (
+    <div ref={ref} className={cn('flex items-center gap-2.5 px-2.5 py-1', className)} {...props}>
+      <TreeListRowLevelSpacer level={level} />
+      {children ?? <Loader2 className='size-4 animate-spin text-subtle' />}
+    </div>
+  ),
+);
+
+TreeListRowLoading.displayName = 'TreeList.RowLoading';
+
+// #endregion
+
+// #region TreeListRowPlaceholder
+
+export type TreeListRowPlaceholderProps = {
+  level?: number;
+  className?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'div'>;
+
+const TreeListRowPlaceholder = forwardRef<HTMLDivElement, TreeListRowPlaceholderProps>(
+  ({ level = 1, className, children, ...props }, ref): ReactElement => (
+    <div ref={ref} className={cn('flex items-center gap-2.5 px-2.5 py-1 opacity-50', className)} {...props}>
+      <TreeListRowLevelSpacer level={level} />
+      {children ?? <span className='text-sm text-subtle italic'>Placeholder</span>}
+    </div>
+  ),
+);
+
+TreeListRowPlaceholder.displayName = 'TreeList.RowPlaceholder';
+
+// #endregion
+
+// #region TreeList Export
 
 export const TreeList = Object.assign(TreeListRoot, {
   Root: TreeListRoot,
   Container: TreeListContainer,
-  Content: TreeListContent,
   Row: TreeListRow,
-  LoadingRow: TreeListLoadingRow,
-  DefaultLoadingRowView: DefaultTreeListLoadingRowView,
-  ErrorRow: TreeListErrorRow,
   RowLeft: TreeListRowLeft,
   RowRight: TreeListRowRight,
   RowLevelSpacer: TreeListRowLevelSpacer,
   RowExpandControl: TreeListRowExpandControl,
   RowContent: TreeListRowContent,
   RowSelectionControl: TreeListRowSelectionControl,
+  RowLoading: TreeListRowLoading,
+  RowPlaceholder: TreeListRowPlaceholder,
 });
+
+// #endregion

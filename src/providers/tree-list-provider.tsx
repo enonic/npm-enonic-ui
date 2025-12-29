@@ -1,5 +1,5 @@
 import { createContext, type ReactElement, type ReactNode, type RefObject, useContext } from 'react';
-import type { FlatTreeNode, TreeData } from '@/components/tree-list/tree-list';
+import type { FlatTreeNode, TreeData } from '@/providers/tree-list-content-provider';
 
 export type TreeListContextValue<T extends TreeData = TreeData> = {
   baseId: string;
