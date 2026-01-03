@@ -21,3 +21,9 @@ export {
 } from './use-selector-keyboard';
 export { useSyncValue } from './use-sync-value';
 export { type UseTypeAheadConfig, type UseTypeAheadReturn, useTypeAhead } from './use-type-ahead';
+export {
+  type FlatNodeBase,
+  type UseVirtualizedKeyboardNavigationReturn,
+  useVirtualizedKeyboardNavigation,
+  type VirtualizedKeyboardNavigationConfig,
+} from './use-virtualized-keyboard-navigation';
