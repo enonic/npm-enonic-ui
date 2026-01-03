@@ -73,7 +73,8 @@
         "noExplicitAny": "error",
         "noArrayIndexKey": "warn",
         "noVar": "error",
-        "useIterableCallbackReturn": "warn"
+        "useIterableCallbackReturn": "warn",
+        "noEmptyBlockStatements": "error"
       },
       "nursery": {
         "useSortedClasses": {

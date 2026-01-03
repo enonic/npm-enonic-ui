@@ -737,7 +737,9 @@ const SelectorHiddenSelect = forwardRef<HTMLSelectElement, SelectorHiddenSelectP
         disabled={disabled}
         required={required}
         value={value ?? ''}
-        onChange={() => {}} // No-op, controlled by parent
+        onChange={() => {
+          /* no-op, controlled by parent */
+        }}
         tabIndex={-1}
         aria-hidden='true'
         className={cn(

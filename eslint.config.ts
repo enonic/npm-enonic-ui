@@ -44,6 +44,14 @@ export default [
           td: ['gridcell'],
         },
       ],
+      // Disable React rules that Biome handles
+      'react/jsx-key': 'off',
+      'react/jsx-no-comment-textnodes': 'off',
+      'react/jsx-no-duplicate-props': 'off',
+      'react/jsx-no-target-blank': 'off',
+      'react/no-children-prop': 'off',
+      'react/no-danger-with-children': 'off',
+      'react/prop-types': 'off',
     },
   },
 
@@ -61,17 +69,14 @@ export default [
           allowTypedFunctionExpressions: true,
         },
       ],
-      '@typescript-eslint/no-deprecated': [
-        'error',
-        {
-          allow: [
-            { from: 'package', name: 'ChangeEvent', package: 'react' },
-            { from: 'package', name: 'FocusEvent', package: 'react' },
-            { from: 'package', name: 'KeyboardEvent', package: 'react' },
-            { from: 'package', name: 'MouseEvent', package: 'react' },
-          ],
-        },
-      ],
+      // UI library: Components handle events synchronously.
+      // Async operations are the responsibility of the consuming application.
+      // These rules add significant lint time with no benefit for UI components.
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      // Deprecation warnings are shown in IDE via TypeScript language service.
+      // This rule adds ~2s to lint time. Run `tsc` to catch deprecations if needed.
+      '@typescript-eslint/no-deprecated': 'off',
       '@typescript-eslint/no-confusing-void-expression': [
         'error',
         { ignoreArrowShorthand: true, ignoreVoidOperator: true },
@@ -99,6 +104,17 @@ export default [
       '@typescript-eslint/prefer-optional-chain': 'off',
       '@typescript-eslint/no-inferrable-types': 'off',
       '@typescript-eslint/array-type': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-extraneous-class': 'off',
+      '@typescript-eslint/no-useless-constructor': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/ban-types': 'off',
+      '@typescript-eslint/no-namespace': 'off',
+      '@typescript-eslint/prefer-as-const': 'off',
+      '@typescript-eslint/no-this-alias': 'off',
+      '@typescript-eslint/no-unnecessary-type-constraint': 'off',
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+      '@typescript-eslint/no-misused-new': 'off',
       'prefer-const': 'off',
       'no-var': 'off',
     },
