@@ -156,7 +156,9 @@ function flattenTree<TData extends TreeData>(
   return result;
 }
 
-// #region TreeListContentRoot
+//
+// * TreeListContentRoot
+//
 
 export type TreeListContentProps<TData extends TreeData = TreeData> = {
   className?: string;
@@ -471,9 +473,9 @@ const TreeListContentRoot = <TData extends TreeData = TreeData>({
 
 TreeListContentRoot.displayName = 'TreeListContent.Root';
 
-// #endregion
-
-// #region TreeListContentContainer
+//
+// * TreeListContentContainer
+//
 
 export type TreeListContentContainerProps = {
   children?: ReactNode;
@@ -499,9 +501,9 @@ const TreeListContentContainer = forwardRef<HTMLDivElement, TreeListContentConta
 
 TreeListContentContainer.displayName = 'TreeListContent.Container';
 
-// #endregion
-
-// #region TreeListContentItems
+//
+// * TreeListContentItems
+//
 
 export type TreeListContentItemsProps<TData extends TreeData> = {
   renderNode: (item: FlatTreeNode<TData>) => ReactNode;
@@ -544,9 +546,9 @@ const TreeListContentItems = <TData extends TreeData>({
 
 TreeListContentItems.displayName = 'TreeListContent.Items';
 
-// #endregion
-
-// #region TreeListContentRow
+//
+// * TreeListContentRow
+//
 
 export type TreeListContentRowProps<TData extends TreeData> = {
   item: FlatTreeNode<TData>;
@@ -606,7 +608,8 @@ const TreeListContentRow = <TData extends TreeData>({
       }}
       className={cn(
         'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 focus-within:outline-none hover:bg-surface-primary-hover',
-        'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+        // Click target expansion: -inset-y-{n} where n = gap / 2
+        'after:-inset-y-0.5 after:-z-10 after:pointer-events-auto after:absolute after:inset-x-0 after:rounded-sm after:content-[""]',
         'data-[active=true]:ring-2 data-[active=true]:ring-offset-0',
         isSelectable && 'cursor-pointer',
         isSelected
@@ -624,9 +627,9 @@ const TreeListContentRow = <TData extends TreeData>({
 
 TreeListContentRow.displayName = 'TreeListContent.Row';
 
-// #endregion
-
-// #region TreeListContentLoadingRow
+//
+// * TreeListContentLoadingRow
+//
 
 export type DefaultTreeListContentLoadingRowViewProps<TData extends TreeData> = {
   item: FlatTreeNode<TData>;
@@ -705,9 +708,9 @@ const TreeListContentLoadingRow = <TData extends TreeData>({
 
 TreeListContentLoadingRow.displayName = 'TreeListContent.LoadingRow';
 
-// #endregion
-
-// #region TreeListContentErrorRow
+//
+// * TreeListContentErrorRow
+//
 
 export type TreeListContentErrorRowProps<TData extends TreeData> = {
   item: FlatTreeNode<TData>;
@@ -754,9 +757,9 @@ const TreeListContentErrorRow = <TData extends TreeData>({
 
 TreeListContentErrorRow.displayName = 'TreeListContent.ErrorRow';
 
-// #endregion
-
-// #region TreeListContentRowExpandControl
+//
+// * TreeListContentRowExpandControl
+//
 
 export type TreeListContentRowExpandControlProps<TData extends TreeData> = {
   data: FlatTreeNode<TData>;
@@ -794,9 +797,9 @@ const TreeListContentRowExpandControl = <TData extends TreeData>({
 
 TreeListContentRowExpandControl.displayName = 'TreeListContent.RowExpandControl';
 
-// #endregion
-
-// #region TreeListContentRowSelectionControl
+//
+// * TreeListContentRowSelectionControl
+//
 
 export type TreeListContentRowSelectionControlProps<TData extends TreeData> = {
   data: FlatTreeNode<TData>;
@@ -819,9 +822,9 @@ const TreeListContentRowSelectionControl = <TData extends TreeData>({
 
 TreeListContentRowSelectionControl.displayName = 'TreeListContent.RowSelectionControl';
 
-// #endregion
-
-// #region TreeListContent Export
+//
+// * TreeListContent Export
+//
 
 export const TreeListContent = Object.assign(TreeListContentRoot, {
   Root: TreeListContentRoot,
@@ -838,5 +841,3 @@ export const TreeListContent = Object.assign(TreeListContentRoot, {
   RowContent: TreeList.RowContent,
   RowSelectionControl: TreeListContentRowSelectionControl,
 });
-
-// #endregion

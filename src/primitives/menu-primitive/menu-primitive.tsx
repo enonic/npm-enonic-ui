@@ -38,7 +38,6 @@ export type MenuContextOperations = {
 export const menuItemVariants = cva(
   [
     'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
-    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
   ],
   {
     variants: {
@@ -343,7 +342,6 @@ MenuPrimitiveRadioGroup.displayName = 'MenuPrimitive.RadioGroup';
 export const menuRadioItemVariants = cva(
   [
     'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
-    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
   ],
   {
     variants: {

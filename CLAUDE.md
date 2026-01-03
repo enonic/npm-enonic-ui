@@ -38,6 +38,7 @@ Detailed rules in `.cursor/rules/`:
 - `storybook.mdc` - Story organization
 - `structure.mdc` - File structure
 - `comments.mdc` - Documentation style
+- `patterns.mdc` - UI interaction patterns
 
 ## Skills
 

@@ -1,11 +1,8 @@
-# Create New Component
+---
+description: Create production-ready components with deep research and planning
+---
 
-Deep research and planning before implementation. Creates production-ready components following library patterns.
-
-## Input
-
-- `/new-component ComponentName` - Create component with given name
-- `/new-component ComponentName brief description` - Include description for context
+Create a new component: $ARGUMENTS
 
 ---
 

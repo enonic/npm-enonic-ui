@@ -1,0 +1,38 @@
+---
+description: Common UI interaction patterns and techniques
+globs: src/**/*.tsx
+alwaysApply: false
+---
+
+# UI Patterns
+
+## Click Target Expansion via Pseudo-Element
+
+Extend clickable area to fill gaps between list items using `::after` pseudo-element.
+
+**Pattern:** `'after:inset-x-0 after:-inset-y-{n} after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]'`
+
+**Formula:** `-inset-y-{n}` where `n = gap / 2`
+
+| Container Gap | Item Inset |
+|---------------|------------|
+| `gap-y-1` | `after:-inset-y-0.5` |
+| `gap-y-1.5` | `after:-inset-y-0.75` |
+| `gap-y-2` | `after:-inset-y-1` |
+
+### When NOT to Use
+
+- **Virtualized lists**: Absolute positioning clips overflow
+- **Adjacent items with no gaps**: Pattern not needed (e.g., Menu items)
+- **Horizontal expansion**: Never use `-inset-x-*` (causes overflow)
+
+### Current Usage
+
+| Component | Container Gap | Item Pattern |
+|-----------|---------------|--------------|
+| TreeList.Row | `gap-y-1.5` | `after:-inset-y-0.75` |
+| TreeListContent.Row | `gap-y-1` | `after:-inset-y-0.5` |
+| Listbox Item | `gap-y-1` | `after:-inset-y-0.5` |
+| Selector Item | `gap-y-1` | `after:-inset-y-0.5` |
+| Checkbox (unlabeled) | N/A | `after:-inset-1.75` (standalone touch target) |
+| Menu Items | No gap | Pattern removed |
