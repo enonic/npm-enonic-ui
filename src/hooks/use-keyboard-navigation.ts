@@ -139,8 +139,9 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
         }
 
         // Check if item is not disabled
-        if (!isItemDisabled(items[newIndex])) {
-          setActive(items[newIndex]);
+        const item = items[newIndex];
+        if (item && !isItemDisabled(item)) {
+          setActive(item);
           return;
         }
 

@@ -303,6 +303,11 @@ export type SelectorValueProps = {
   children?: ReactNode | ((value: string) => ReactNode);
 } & Omit<ComponentPropsWithoutRef<'span'>, 'children'>;
 
+/** Type guard for render function children */
+function isRenderFunction(children: SelectorValueProps['children']): children is (value: string) => ReactNode {
+  return typeof children === 'function';
+}
+
 const SelectorValue = forwardRef<HTMLSpanElement, SelectorValueProps>(
   ({ className, placeholder, children, ...props }, ref): ReactElement => {
     const { value } = useSelector();
@@ -310,8 +315,8 @@ const SelectorValue = forwardRef<HTMLSpanElement, SelectorValueProps>(
     // Get display text: render function > static children > raw value
     let displayText: ReactNode = null;
     if (value) {
-      if (typeof children === 'function') {
-        displayText = (children as (value: string) => ReactNode)(value);
+      if (isRenderFunction(children)) {
+        displayText = children(value);
       } else {
         displayText = children ?? value;
       }

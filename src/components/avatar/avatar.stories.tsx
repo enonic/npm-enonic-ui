@@ -9,12 +9,20 @@ type User = {
   alt: string;
 };
 
+const defaultUser: User = {
+  name: 'Mikita Taukachou',
+  avatar: 'https://avatars.githubusercontent.com/u/1847621?v=4',
+  alt: '@edloidas',
+};
+
+const fallbackUser: User = {
+  name: 'Bob Wilson',
+  // No avatar - will use fallback
+  alt: '@bobwilson',
+};
+
 const users: User[] = [
-  {
-    name: 'Mikita Taukachou',
-    avatar: 'https://avatars.githubusercontent.com/u/1847621?v=4',
-    alt: '@edloidas',
-  },
+  defaultUser,
   {
     name: 'John Doe',
     avatar: 'https://i.pravatar.cc/150?img=12',
@@ -25,11 +33,7 @@ const users: User[] = [
     avatar: 'https://i.pravatar.cc/150?img=25',
     alt: '@janesmith',
   },
-  {
-    name: 'Bob Wilson',
-    // No avatar - will use fallback
-    alt: '@bobwilson',
-  },
+  fallbackUser,
   {
     name: 'Alice Brown',
     avatar: 'https://example.com/invalid-image-to-test-fallback.jpg',
@@ -43,11 +47,16 @@ function getInitials(name: string): string {
   }
 
   const words = name.trim().split(/\s+/);
-  if (words.length === 1) {
-    return words[0].charAt(0).toUpperCase();
+  const first = words[0];
+  const second = words[1];
+  if (!first) {
+    return '';
+  }
+  if (!second) {
+    return first.charAt(0).toUpperCase();
   }
 
-  return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+  return (first.charAt(0) + second.charAt(0)).toUpperCase();
 }
 
 export default {
@@ -75,24 +84,21 @@ export const Single: Story = {
     size: 'md',
     shape: 'circle',
   },
-  render: ({ size, shape }) => {
-    const user = users[0];
-    return (
-      <div className='p-4'>
-        <h3 className='mb-3 font-medium text-sm'>User Profile</h3>
-        <div className='flex items-center gap-x-3'>
-          <Avatar size={size} shape={shape}>
-            <Avatar.Image src={user.avatar} alt={user.alt} />
-            <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
-          </Avatar>
-          <div>
-            <p className='font-medium text-sm'>{user.name}</p>
-            <p className='text-subtle text-xs'>Frontend Architect</p>
-          </div>
+  render: ({ size, shape }) => (
+    <div className='p-4'>
+      <h3 className='mb-3 font-medium text-sm'>User Profile</h3>
+      <div className='flex items-center gap-x-3'>
+        <Avatar size={size} shape={shape}>
+          <Avatar.Image src={defaultUser.avatar} alt={defaultUser.alt} />
+          <Avatar.Fallback>{getInitials(defaultUser.name)}</Avatar.Fallback>
+        </Avatar>
+        <div>
+          <p className='font-medium text-sm'>{defaultUser.name}</p>
+          <p className='text-subtle text-xs'>Frontend Architect</p>
         </div>
       </div>
-    );
-  },
+    </div>
+  ),
 };
 
 export const WithFallback: Story = {
@@ -101,24 +107,21 @@ export const WithFallback: Story = {
     size: 'md',
     shape: 'circle',
   },
-  render: ({ size, shape }) => {
-    const user = users[3]; // User without avatar
-    return (
-      <div className='p-4'>
-        <h3 className='mb-3 font-medium text-sm'>No Image - Shows Fallback</h3>
-        <div className='flex items-center gap-x-3'>
-          <Avatar size={size} shape={shape}>
-            <Avatar.Image src={user.avatar} alt={user.alt} />
-            <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
-          </Avatar>
-          <div>
-            <p className='font-medium text-sm'>{user.name}</p>
-            <p className='text-subtle text-xs'>Designer</p>
-          </div>
+  render: ({ size, shape }) => (
+    <div className='p-4'>
+      <h3 className='mb-3 font-medium text-sm'>No Image - Shows Fallback</h3>
+      <div className='flex items-center gap-x-3'>
+        <Avatar size={size} shape={shape}>
+          <Avatar.Image src={fallbackUser.avatar} alt={fallbackUser.alt} />
+          <Avatar.Fallback>{getInitials(fallbackUser.name)}</Avatar.Fallback>
+        </Avatar>
+        <div>
+          <p className='font-medium text-sm'>{fallbackUser.name}</p>
+          <p className='text-subtle text-xs'>Designer</p>
         </div>
       </div>
-    );
-  },
+    </div>
+  ),
 };
 
 export const Multiple: Story = {
@@ -153,37 +156,34 @@ export const Sizes: Story = {
   argTypes: {
     size: { control: false },
   },
-  render: ({ shape }) => {
-    const user = users[0];
-    return (
-      <div className='p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Avatar Sizes</h3>
-        <div className='flex items-center gap-x-4'>
-          <div className='flex flex-col items-center gap-y-2'>
-            <Avatar size='sm' shape={shape}>
-              <Avatar.Image src={user.avatar} alt={user.alt} />
-              <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
-            </Avatar>
-            <span className='text-subtle text-xs'>Small</span>
-          </div>
-          <div className='flex flex-col items-center gap-y-2'>
-            <Avatar size='md' shape={shape}>
-              <Avatar.Image src={user.avatar} alt={user.alt} />
-              <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
-            </Avatar>
-            <span className='text-subtle text-xs'>Medium</span>
-          </div>
-          <div className='flex flex-col items-center gap-y-2'>
-            <Avatar size='lg' shape={shape}>
-              <Avatar.Image src={user.avatar} alt={user.alt} />
-              <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
-            </Avatar>
-            <span className='text-subtle text-xs'>Large</span>
-          </div>
+  render: ({ shape }) => (
+    <div className='p-4'>
+      <h3 className='mb-3 font-medium text-sm'>Avatar Sizes</h3>
+      <div className='flex items-center gap-x-4'>
+        <div className='flex flex-col items-center gap-y-2'>
+          <Avatar size='sm' shape={shape}>
+            <Avatar.Image src={defaultUser.avatar} alt={defaultUser.alt} />
+            <Avatar.Fallback>{getInitials(defaultUser.name)}</Avatar.Fallback>
+          </Avatar>
+          <span className='text-subtle text-xs'>Small</span>
+        </div>
+        <div className='flex flex-col items-center gap-y-2'>
+          <Avatar size='md' shape={shape}>
+            <Avatar.Image src={defaultUser.avatar} alt={defaultUser.alt} />
+            <Avatar.Fallback>{getInitials(defaultUser.name)}</Avatar.Fallback>
+          </Avatar>
+          <span className='text-subtle text-xs'>Medium</span>
+        </div>
+        <div className='flex flex-col items-center gap-y-2'>
+          <Avatar size='lg' shape={shape}>
+            <Avatar.Image src={defaultUser.avatar} alt={defaultUser.alt} />
+            <Avatar.Fallback>{getInitials(defaultUser.name)}</Avatar.Fallback>
+          </Avatar>
+          <span className='text-subtle text-xs'>Large</span>
         </div>
       </div>
-    );
-  },
+    </div>
+  ),
 };
 
 export const Shapes: Story = {
@@ -194,30 +194,27 @@ export const Shapes: Story = {
   argTypes: {
     shape: { control: false },
   },
-  render: ({ size }) => {
-    const user = users[0];
-    return (
-      <div className='p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Avatar Shapes</h3>
-        <div className='flex items-center gap-x-4'>
-          <div className='flex flex-col items-center gap-y-2'>
-            <Avatar size={size} shape='circle'>
-              <Avatar.Image src={user.avatar} alt={user.alt} />
-              <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
-            </Avatar>
-            <span className='text-subtle text-xs'>Circle</span>
-          </div>
-          <div className='flex flex-col items-center gap-y-2'>
-            <Avatar size={size} shape='square'>
-              <Avatar.Image src={user.avatar} alt={user.alt} />
-              <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
-            </Avatar>
-            <span className='text-subtle text-xs'>Square</span>
-          </div>
+  render: ({ size }) => (
+    <div className='p-4'>
+      <h3 className='mb-3 font-medium text-sm'>Avatar Shapes</h3>
+      <div className='flex items-center gap-x-4'>
+        <div className='flex flex-col items-center gap-y-2'>
+          <Avatar size={size} shape='circle'>
+            <Avatar.Image src={defaultUser.avatar} alt={defaultUser.alt} />
+            <Avatar.Fallback>{getInitials(defaultUser.name)}</Avatar.Fallback>
+          </Avatar>
+          <span className='text-subtle text-xs'>Circle</span>
+        </div>
+        <div className='flex flex-col items-center gap-y-2'>
+          <Avatar size={size} shape='square'>
+            <Avatar.Image src={defaultUser.avatar} alt={defaultUser.alt} />
+            <Avatar.Fallback>{getInitials(defaultUser.name)}</Avatar.Fallback>
+          </Avatar>
+          <span className='text-subtle text-xs'>Square</span>
         </div>
       </div>
-    );
-  },
+    </div>
+  ),
 };
 
 export const AvatarGroup: Story = {
@@ -295,16 +292,13 @@ export const WithCustomFallback: Story = {
 
 export const Interactive: Story = {
   name: 'Features / Interactive',
-  render: ({ size, shape }) => {
-    const user = users[0];
-    return (
-      <div className='flex flex-col items-center gap-y-3 p-4'>
-        <h3 className='font-medium text-sm'>Customize Avatar</h3>
-        <Avatar size={size} shape={shape}>
-          <Avatar.Image src={user.avatar} alt={user.alt} />
-          <Avatar.Fallback>{getInitials(user.name)}</Avatar.Fallback>
-        </Avatar>
-      </div>
-    );
-  },
+  render: ({ size, shape }) => (
+    <div className='flex flex-col items-center gap-y-3 p-4'>
+      <h3 className='font-medium text-sm'>Customize Avatar</h3>
+      <Avatar size={size} shape={shape}>
+        <Avatar.Image src={defaultUser.avatar} alt={defaultUser.alt} />
+        <Avatar.Fallback>{getInitials(defaultUser.name)}</Avatar.Fallback>
+      </Avatar>
+    </div>
+  ),
 };

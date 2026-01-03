@@ -1,5 +1,10 @@
 import { type SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 
+/** Type guard to check if action is an updater function */
+function isUpdater<T>(action: SetStateAction<T>): action is (prev: T) => T {
+  return typeof action === 'function';
+}
+
 /**
  * Manages state that can be either controlled or uncontrolled.
  * Follows the React pattern for controlled/uncontrolled state management.
@@ -101,7 +106,7 @@ export function useControlledState<T>(
 
   const setValue = useCallback((action: SetStateAction<T>) => {
     const prevValue = valueRef.current;
-    const nextValue = typeof action === 'function' ? (action as (prev: T) => T)(prevValue) : action;
+    const nextValue = isUpdater(action) ? action(prevValue) : action;
 
     // Update ref immediately for subsequent calls in same batch
     valueRef.current = nextValue;
