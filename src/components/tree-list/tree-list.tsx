@@ -22,7 +22,7 @@ import {
 import { usePrefixedId } from '@/providers';
 import { TreeListUIProvider, useTreeListUI } from '@/providers/tree-list-ui-provider';
 import type { LucideIcon } from '@/types';
-import { cn } from '@/utils';
+import { cn, setRef } from '@/utils';
 
 const calcSpacerWidth = (level: number): number => Math.max(0, 10 + 20 * (level - 1));
 
@@ -237,12 +237,8 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         <div
           id={baseId}
           ref={node => {
-            (innerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-            if (typeof ref === 'function') {
-              ref(node);
-            } else if (ref) {
-              ref.current = node;
-            }
+            setRef(innerRef, node);
+            setRef(ref, node);
           }}
           className={cn(
             // Soft focus ring on container (like Toolbar)
@@ -284,12 +280,8 @@ const TreeListContainer = forwardRef<HTMLDivElement, TreeListContainerProps>(
       <div
         id={`${baseId}-scroll-root`}
         ref={node => {
-          (scrollContainerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-          if (typeof ref === 'function') {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
+          setRef(scrollContainerRef, node);
+          setRef(ref, node);
         }}
         className={cn('relative flex h-full flex-col gap-y-1.5 overflow-y-auto p-1', className)}
         {...props}
@@ -366,12 +358,8 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
       <div
         id={rowDomId}
         ref={node => {
-          (innerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-          if (typeof ref === 'function') {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
+          setRef(innerRef, node);
+          setRef(ref, node);
         }}
         role='option'
         aria-selected={isSelected ? true : selectionMode === 'multiple' ? false : undefined}

@@ -366,7 +366,10 @@ export const OuterNavigation: Story = {
       if (newIndex >= frameworks.length) {
         newIndex = 0;
       }
-      setActive(frameworks[newIndex].id);
+      const item = frameworks[newIndex];
+      if (item) {
+        setActive(item.id);
+      }
     };
 
     return (
@@ -410,22 +413,22 @@ export const ActiveDescendantMode: Story = {
       const activeIndex = active ? frameworks.findIndex(({ id }) => id === active) : -1;
 
       switch (e.key) {
-        case 'ArrowDown':
+        case 'ArrowDown': {
           e.preventDefault();
-          if (activeIndex < frameworks.length - 1) {
-            setActive(frameworks[activeIndex + 1].id);
-          } else {
-            setActive(frameworks[0].id);
+          const next = activeIndex < frameworks.length - 1 ? frameworks[activeIndex + 1] : frameworks[0];
+          if (next) {
+            setActive(next.id);
           }
           break;
-        case 'ArrowUp':
+        }
+        case 'ArrowUp': {
           e.preventDefault();
-          if (activeIndex > 0) {
-            setActive(frameworks[activeIndex - 1].id);
-          } else {
-            setActive(frameworks[frameworks.length - 1].id);
+          const prev = activeIndex > 0 ? frameworks[activeIndex - 1] : frameworks[frameworks.length - 1];
+          if (prev) {
+            setActive(prev.id);
           }
           break;
+        }
         case 'Enter':
         case ' ':
           e.preventDefault();

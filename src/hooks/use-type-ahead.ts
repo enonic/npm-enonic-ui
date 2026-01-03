@@ -141,8 +141,10 @@ export function useTypeAhead(config: UseTypeAheadConfig): UseTypeAheadReturn {
         const nextIndex = (currentIndex + 1) % matchingItems.length;
         const nextId = matchingItems[nextIndex];
 
-        setActive(nextId);
-        onMatch?.(nextId);
+        if (nextId) {
+          setActive(nextId);
+          onMatch?.(nextId);
+        }
       } else {
         // Multi-character search: find first item matching the full string
         const startIndex = active ? items.indexOf(active) : -1;

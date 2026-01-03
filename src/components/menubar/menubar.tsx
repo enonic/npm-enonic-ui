@@ -974,8 +974,10 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
           let nextIndex = (currentIndex + direction + menubarItems.length) % menubarItems.length;
           let attempts = 0;
 
-          while (attempts < menubarItems.length && menubarContext.isItemDisabled(menubarItems[nextIndex])) {
+          let nextItem = menubarItems[nextIndex];
+          while (attempts < menubarItems.length && nextItem && menubarContext.isItemDisabled(nextItem)) {
             nextIndex = (nextIndex + direction + menubarItems.length) % menubarItems.length;
+            nextItem = menubarItems[nextIndex];
             attempts += 1;
           }
 

@@ -184,12 +184,14 @@ export function useSelectorKeyboard(config: UseSelectorKeyboardConfig): UseSelec
 
         // Find nearest non-disabled item
         const searchDirection = delta > 0 ? 1 : -1;
-        while (targetIndex >= 0 && targetIndex < items.length && isItemDisabled(items[targetIndex])) {
+        let targetItem = items[targetIndex];
+        while (targetIndex >= 0 && targetIndex < items.length && targetItem && isItemDisabled(targetItem)) {
           targetIndex += searchDirection;
+          targetItem = items[targetIndex];
         }
 
-        if (targetIndex >= 0 && targetIndex < items.length && !isItemDisabled(items[targetIndex])) {
-          setActive(items[targetIndex]);
+        if (targetIndex >= 0 && targetIndex < items.length && targetItem && !isItemDisabled(targetItem)) {
+          setActive(targetItem);
         }
         return;
       }

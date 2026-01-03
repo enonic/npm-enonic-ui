@@ -72,6 +72,8 @@ const itemToView = (node: FlatTreeNode<ContentData>): ReactNode => {
   );
 };
 
+const statuses: ContentStatus[] = ['online', 'offline', 'scheduled', 'expired'];
+
 const generateItem = (id: string, type: ContentType): ContentData => {
   return {
     id,
@@ -80,7 +82,7 @@ const generateItem = (id: string, type: ContentType): ContentData => {
     hasChildren: type === 'folder',
     name: `${type.charAt(0).toUpperCase() + type.slice(1)} Item`,
     description: `This is a ${type} item.`,
-    status: (['online', 'offline', 'scheduled', 'expired'] as ContentStatus[])[Math.floor(Math.random() * 4)],
+    status: statuses[Math.floor(Math.random() * statuses.length)] ?? 'online',
   };
 };
 
@@ -95,7 +97,7 @@ const generateItems = (
   for (let i = 0; i < batchSize; i++) {
     const index = offset + i;
     const id = parentId ? `${parentId}-${index}` : `${index}`;
-    const type: ContentType = allowedTypes[Math.floor(Math.random() * allowedTypes.length)];
+    const type: ContentType = allowedTypes[Math.floor(Math.random() * allowedTypes.length)] ?? 'file';
 
     newItems.push(generateItem(id, type));
   }
