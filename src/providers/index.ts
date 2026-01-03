@@ -13,3 +13,4 @@ export * from './tab-provider';
 export * from './toast-provider';
 export * from './toggle-group-provider';
 export * from './tree-list-provider';
+export * from './virtualized-tree-list-provider';

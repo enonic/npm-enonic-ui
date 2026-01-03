@@ -1211,7 +1211,11 @@ export type TreeListRowPlaceholderProps = {
 
 export const TreeListRowPlaceholder = forwardRef<HTMLDivElement, TreeListRowPlaceholderProps>(
   ({ level = 1, className, children, ...props }, ref): ReactElement => (
-    <div ref={ref} className={cn('flex items-center gap-2.5 px-2.5 py-1 opacity-50', className)} {...props}>
+    <div
+      ref={ref}
+      className={cn('flex cursor-default items-center gap-2.5 px-2.5 py-1 opacity-50', className)}
+      {...props}
+    >
       <TreeListRowLevelSpacer level={level} />
       {children ?? <span className='text-sm text-subtle italic'>Placeholder</span>}
     </div>
