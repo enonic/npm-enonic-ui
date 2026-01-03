@@ -18,7 +18,9 @@ export default {
 const TREE_ROOT_CLASS = 'h-80 w-100';
 const STYLED_TREE_ROOT_CLASS = 'h-80 w-100 rounded-sm border border-bdr-subtle shadow-sm';
 
-// #region Flat List
+//
+// * Flat List
+//
 
 export const FlatList: Story = {
   name: 'Basics / Flat List',
@@ -58,9 +60,9 @@ export const FlatList: Story = {
   },
 };
 
-// #endregion
-
-// #region Hierarchical Tree Data
+//
+// * Hierarchical Tree Data
+//
 
 type SimpleItem = {
   id: string;
@@ -81,9 +83,9 @@ const simpleItems: SimpleItem[] = [
   { id: '3', label: 'readme.txt', level: 1, hasChildren: false, icon: <File /> },
 ];
 
-// #endregion
-
-// #region Basic Tree
+//
+// * Basic Tree
+//
 
 export const Basic: Story = {
   name: 'Examples / Basic Tree',
@@ -147,9 +149,9 @@ export const Basic: Story = {
   },
 };
 
-// #endregion
-
-// #region Multiple Selection
+//
+// * Multiple Selection
+//
 
 export const MultipleSelection: Story = {
   name: 'Examples / Multiple Selection',
@@ -212,9 +214,9 @@ export const MultipleSelection: Story = {
   },
 };
 
-// #endregion
-
-// #region Disabled Items
+//
+// * Disabled Items
+//
 
 export const WithDisabledItems: Story = {
   name: 'States / Disabled Items',
@@ -252,9 +254,9 @@ export const WithDisabledItems: Story = {
   },
 };
 
-// #endregion
-
-// #region Loading State
+//
+// * Loading State
+//
 
 export const LoadingState: Story = {
   name: 'States / Loading',
@@ -293,9 +295,9 @@ export const LoadingState: Story = {
   },
 };
 
-// #endregion
-
-// #region Placeholder State
+//
+// * Placeholder State
+//
 
 export const PlaceholderState: Story = {
   name: 'States / Placeholder',
@@ -330,9 +332,9 @@ export const PlaceholderState: Story = {
   },
 };
 
-// #endregion
-
-// #region Checkboxes on Right
+//
+// * Checkboxes on Right
+//
 
 export const CheckboxesOnRight: Story = {
   name: 'Examples / Checkboxes on Right',
@@ -372,5 +374,3 @@ export const CheckboxesOnRight: Story = {
     );
   },
 };
-
-// #endregion

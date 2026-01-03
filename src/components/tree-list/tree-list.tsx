@@ -26,12 +26,15 @@ import { cn } from '@/utils';
 
 const calcSpacerWidth = (level: number): number => Math.max(0, 10 + 20 * (level - 1));
 
-// #region Row Variants
+//
+// * Row Variants
+//
 
 export const treeListRowVariants = cva(
   [
     'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 outline-none',
-    'after:-inset-0.5 after:-z-10 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+    // Click target expansion: -inset-y-{n} where n = gap / 2
+    'after:-inset-y-0.75 after:-z-10 after:pointer-events-auto after:absolute after:inset-x-0 after:rounded-sm after:content-[""]',
   ],
   {
     variants: {
@@ -77,9 +80,9 @@ export const treeListRowVariants = cva(
   },
 );
 
-// #endregion
-
-// #region TreeListRoot
+//
+// * TreeListRoot
+//
 
 export type TreeListRootProps = {
   selection?: ReadonlySet<string>;
@@ -264,9 +267,9 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
 TreeListRoot.displayName = 'TreeList.Root';
 
-// #endregion
-
-// #region TreeListContainer
+//
+// * TreeListContainer
+//
 
 export type TreeListContainerProps = {
   children?: ReactNode;
@@ -299,9 +302,9 @@ const TreeListContainer = forwardRef<HTMLDivElement, TreeListContainerProps>(
 
 TreeListContainer.displayName = 'TreeList.Container';
 
-// #endregion
-
-// #region TreeListRow
+//
+// * TreeListRow
+//
 
 export type TreeListRowProps = {
   id: string;
@@ -402,16 +405,16 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
 
 TreeListRow.displayName = 'TreeList.Row';
 
-// #endregion
-
-// #region TreeListRowLeft
+//
+// * TreeListRowLeft
+//
 
 export type TreeListRowLeftProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowLeft = forwardRef<HTMLDivElement, TreeListRowLeftProps>(
+export const TreeListRowLeft = forwardRef<HTMLDivElement, TreeListRowLeftProps>(
   ({ children, className, ...props }, ref): ReactElement => (
     <div ref={ref} className={cn('flex items-center gap-2.5', className)} {...props}>
       {children}
@@ -421,16 +424,16 @@ const TreeListRowLeft = forwardRef<HTMLDivElement, TreeListRowLeftProps>(
 
 TreeListRowLeft.displayName = 'TreeList.RowLeft';
 
-// #endregion
-
-// #region TreeListRowRight
+//
+// * TreeListRowRight
+//
 
 export type TreeListRowRightProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowRight = forwardRef<HTMLDivElement, TreeListRowRightProps>(
+export const TreeListRowRight = forwardRef<HTMLDivElement, TreeListRowRightProps>(
   ({ children, className, ...props }, ref): ReactElement => (
     <div ref={ref} className={cn('flex items-center gap-2.5', className)} {...props}>
       {children}
@@ -440,16 +443,16 @@ const TreeListRowRight = forwardRef<HTMLDivElement, TreeListRowRightProps>(
 
 TreeListRowRight.displayName = 'TreeList.RowRight';
 
-// #endregion
-
-// #region TreeListRowContent
+//
+// * TreeListRowContent
+//
 
 export type TreeListRowContentProps = {
   children?: ReactNode;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowContent = forwardRef<HTMLDivElement, TreeListRowContentProps>(
+export const TreeListRowContent = forwardRef<HTMLDivElement, TreeListRowContentProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
       <div ref={ref} className={cn('min-w-0 flex-1', className)} {...props}>
@@ -461,16 +464,16 @@ const TreeListRowContent = forwardRef<HTMLDivElement, TreeListRowContentProps>(
 
 TreeListRowContent.displayName = 'TreeList.RowContent';
 
-// #endregion
-
-// #region TreeListRowLevelSpacer
+//
+// * TreeListRowLevelSpacer
+//
 
 export type TreeListRowLevelSpacerProps = {
   level?: number;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowLevelSpacer = forwardRef<HTMLDivElement, TreeListRowLevelSpacerProps>(
+export const TreeListRowLevelSpacer = forwardRef<HTMLDivElement, TreeListRowLevelSpacerProps>(
   ({ level = 1, className, ...props }, ref): ReactElement | null => {
     if (level === 1) {
       return null;
@@ -489,9 +492,9 @@ const TreeListRowLevelSpacer = forwardRef<HTMLDivElement, TreeListRowLevelSpacer
 
 TreeListRowLevelSpacer.displayName = 'TreeList.RowLevelSpacer';
 
-// #endregion
-
-// #region TreeListRowExpandControl
+//
+// * TreeListRowExpandControl
+//
 
 export type TreeListRowExpandControlProps = {
   expanded?: boolean;
@@ -502,7 +505,7 @@ export type TreeListRowExpandControlProps = {
   className?: string;
 } & Omit<IconButtonProps, 'icon' | 'onClick'>;
 
-const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRowExpandControlProps>(
+export const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRowExpandControlProps>(
   (
     { expanded = false, hasChildren = false, onToggle, icon = ChevronRight, selected = false, className, ...props },
     ref,
@@ -536,9 +539,9 @@ const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRowExpand
 
 TreeListRowExpandControl.displayName = 'TreeList.RowExpandControl';
 
-// #endregion
-
-// #region TreeListRowSelectionControl
+//
+// * TreeListRowSelectionControl
+//
 
 export type TreeListRowSelectionControlProps = {
   selected?: boolean;
@@ -546,7 +549,7 @@ export type TreeListRowSelectionControlProps = {
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRowSelectionControlProps>(
+export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRowSelectionControlProps>(
   ({ selected = false, selectable = true, className, ...props }, ref): ReactElement => {
     if (!selectable) {
       return <div ref={ref} className={cn('w-3.5', className)} {...props} />;
@@ -562,9 +565,9 @@ const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRowSelect
 
 TreeListRowSelectionControl.displayName = 'TreeList.RowSelectionControl';
 
-// #endregion
-
-// #region TreeListRowLoading
+//
+// * TreeListRowLoading
+//
 
 export type TreeListRowLoadingProps = {
   level?: number;
@@ -572,7 +575,7 @@ export type TreeListRowLoadingProps = {
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowLoading = forwardRef<HTMLDivElement, TreeListRowLoadingProps>(
+export const TreeListRowLoading = forwardRef<HTMLDivElement, TreeListRowLoadingProps>(
   ({ level = 1, className, children, ...props }, ref): ReactElement => (
     <div ref={ref} className={cn('flex items-center gap-2.5 px-2.5 py-1', className)} {...props}>
       <TreeListRowLevelSpacer level={level} />
@@ -583,9 +586,9 @@ const TreeListRowLoading = forwardRef<HTMLDivElement, TreeListRowLoadingProps>(
 
 TreeListRowLoading.displayName = 'TreeList.RowLoading';
 
-// #endregion
-
-// #region TreeListRowPlaceholder
+//
+// * TreeListRowPlaceholder
+//
 
 export type TreeListRowPlaceholderProps = {
   level?: number;
@@ -593,7 +596,7 @@ export type TreeListRowPlaceholderProps = {
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
-const TreeListRowPlaceholder = forwardRef<HTMLDivElement, TreeListRowPlaceholderProps>(
+export const TreeListRowPlaceholder = forwardRef<HTMLDivElement, TreeListRowPlaceholderProps>(
   ({ level = 1, className, children, ...props }, ref): ReactElement => (
     <div ref={ref} className={cn('flex items-center gap-2.5 px-2.5 py-1 opacity-50', className)} {...props}>
       <TreeListRowLevelSpacer level={level} />
@@ -604,9 +607,9 @@ const TreeListRowPlaceholder = forwardRef<HTMLDivElement, TreeListRowPlaceholder
 
 TreeListRowPlaceholder.displayName = 'TreeList.RowPlaceholder';
 
-// #endregion
-
-// #region TreeList Export
+//
+// * TreeList Export
+//
 
 export const TreeList = Object.assign(TreeListRoot, {
   Root: TreeListRoot,
@@ -621,5 +624,3 @@ export const TreeList = Object.assign(TreeListRoot, {
   RowLoading: TreeListRowLoading,
   RowPlaceholder: TreeListRowPlaceholder,
 });
-
-// #endregion
