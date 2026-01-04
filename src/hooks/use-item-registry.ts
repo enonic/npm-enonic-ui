@@ -30,6 +30,12 @@ export type UseItemRegistryReturn = {
    * @returns True if the item is disabled
    */
   isItemDisabled: (id: string) => boolean;
+
+  /**
+   * Version counter that increments when items are registered or unregistered.
+   * Use as a dependency in useEffect to react to item changes.
+   */
+  registryVersion: number;
 };
 
 /**
@@ -66,7 +72,7 @@ export type UseItemRegistryReturn = {
  */
 export function useItemRegistry(): UseItemRegistryReturn {
   const itemsRef = useRef<Map<string, ItemMetadata>>(new Map());
-  const [_registryVersion, setRegistryVersion] = useState(0);
+  const [registryVersion, setRegistryVersion] = useState(0);
 
   const bumpRegistryVersion = useCallback((): void => {
     setRegistryVersion(version => version + 1);
@@ -129,5 +135,6 @@ export function useItemRegistry(): UseItemRegistryReturn {
     unregisterItem,
     getItems,
     isItemDisabled,
+    registryVersion,
   };
 }

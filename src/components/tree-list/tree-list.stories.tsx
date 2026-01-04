@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { File, Folder } from 'lucide-react';
+import { File, Folder, Pencil, Trash2 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
-import { ListItem } from '@/components';
+import { Button, ListItem } from '@/components';
 import { TreeList } from './tree-list';
 
 type Story = StoryObj<typeof TreeList>;
@@ -15,15 +15,21 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta<typeof TreeList>;
 
-const TREE_ROOT_CLASS = 'h-80 w-100';
-const STYLED_TREE_ROOT_CLASS = 'h-80 w-100 rounded-sm border border-bdr-subtle shadow-sm';
+// Container wrapper for consistent layout across stories
+const STORY_CONTAINER_CLASS = 'w-100 space-y-4';
+// TreeList height variants (width handled by container)
+const TREE_HEIGHT_SM = 'h-60'; // 5-8 items
+const TREE_HEIGHT_MD = 'h-70'; // 8-15 items
+const TREE_HEIGHT_LG = 'h-80'; // 15+ items
+// Styled variant with border
+const treeListClass = (height: string): string => `${height} rounded-sm border border-bdr-subtle shadow-sm`;
 
 //
-// * Flat List
+// * Examples
 //
 
 export const FlatList: Story = {
-  name: 'Basics / Flat List',
+  name: 'Examples / Flat List',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
@@ -36,11 +42,11 @@ export const FlatList: Story = {
     ];
 
     return (
-      <div>
-        <div className='mb-4 font-bold'>Flat List</div>
-        <div className='mb-4 text-sm text-subtle'>Simple list without hierarchy or expand controls</div>
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Flat List</div>
+        <div className='text-sm text-subtle'>Simple list without hierarchy or expand controls</div>
         <TreeList
-          className={TREE_ROOT_CLASS}
+          className={treeListClass(TREE_HEIGHT_SM)}
           selection={selection}
           onSelectionChange={setSelection}
           selectionMode='single'
@@ -59,10 +65,6 @@ export const FlatList: Story = {
     );
   },
 };
-
-//
-// * Hierarchical Tree Data
-//
 
 type SimpleItem = {
   id: string;
@@ -83,15 +85,11 @@ const simpleItems: SimpleItem[] = [
   { id: '3', label: 'readme.txt', level: 1, hasChildren: false, icon: <File /> },
 ];
 
-//
-// * Basic Tree
-//
-
 export const Basic: Story = {
   name: 'Examples / Basic Tree',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-    const [expanded, setExpanded] = useState<Set<string>>(new Set(['1', '1-1', '2']));
+    const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set(['1', '1-1', '2']));
 
     const toggleExpanded = (id: string): void => {
       setExpanded(prev => {
@@ -112,23 +110,32 @@ export const Basic: Story = {
     });
 
     return (
-      <div>
-        <div className='mb-4 font-bold'>Basic TreeList - Data-agnostic UI</div>
-        <div className='mb-4 text-sm text-subtle'>
-          Hierarchical tree with expand/collapse. Data management is handled externally.
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Basic TreeList</div>
+        <div className='text-sm text-subtle'>
+          Hierarchical tree with expand/collapse. Data management handled externally.
         </div>
         <TreeList
-          className={STYLED_TREE_ROOT_CLASS}
+          className={treeListClass(TREE_HEIGHT_MD)}
           selection={selection}
           onSelectionChange={setSelection}
           selectionMode='single'
+          expanded={expanded}
+          onExpandedChange={setExpanded}
         >
           <TreeList.Container>
             {visibleItems.map(item => (
-              <TreeList.Row key={item.id} id={item.id}>
+              <TreeList.Row
+                key={item.id}
+                id={item.id}
+                level={item.level}
+                hasChildren={item.hasChildren}
+                expanded={expanded.has(item.id)}
+              >
                 <TreeList.RowLeft>
                   <TreeList.RowLevelSpacer level={item.level} />
                   <TreeList.RowExpandControl
+                    rowId={item.id}
                     expanded={expanded.has(item.id)}
                     hasChildren={item.hasChildren}
                     onToggle={() => toggleExpanded(item.id)}
@@ -148,16 +155,12 @@ export const Basic: Story = {
     );
   },
 };
-
-//
-// * Multiple Selection
-//
 
 export const MultipleSelection: Story = {
   name: 'Examples / Multiple Selection',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-    const [expanded, setExpanded] = useState<Set<string>>(new Set(['1', '2']));
+    const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set(['1', '2']));
 
     const toggleExpanded = (id: string): void => {
       setExpanded(prev => {
@@ -178,22 +181,56 @@ export const MultipleSelection: Story = {
     });
 
     return (
-      <div>
-        <div className='mb-4 font-bold'>Multiple Selection</div>
-        <div className='mb-4 text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Multiple Selection</div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
+          <ul className='space-y-1 text-subtle text-xs'>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Click</kbd> - Select item (replaces selection)
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Ctrl/Cmd+Click</kbd> - Toggle item
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Shift+Click</kbd> - Range select
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Shift+Arrow</kbd> - Extend range
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Ctrl/Cmd+A</kbd> - Select all / Deselect all
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Space</kbd> - Toggle selection
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Escape</kbd> - Clear selection
+            </li>
+          </ul>
+        </div>
         <TreeList
-          className={STYLED_TREE_ROOT_CLASS}
+          className={treeListClass(TREE_HEIGHT_MD)}
           selection={selection}
           onSelectionChange={setSelection}
           selectionMode='multiple'
+          expanded={expanded}
+          onExpandedChange={setExpanded}
         >
           <TreeList.Container>
             {visibleItems.map(item => (
-              <TreeList.Row key={item.id} id={item.id}>
+              <TreeList.Row
+                key={item.id}
+                id={item.id}
+                level={item.level}
+                hasChildren={item.hasChildren}
+                expanded={expanded.has(item.id)}
+              >
                 <TreeList.RowLeft>
-                  <TreeList.RowSelectionControl selected={selection.has(item.id)} />
+                  <TreeList.RowSelectionControl rowId={item.id} />
                   <TreeList.RowLevelSpacer level={item.level} />
                   <TreeList.RowExpandControl
+                    rowId={item.id}
                     expanded={expanded.has(item.id)}
                     hasChildren={item.hasChildren}
                     onToggle={() => toggleExpanded(item.id)}
@@ -209,13 +246,109 @@ export const MultipleSelection: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
+        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+      </div>
+    );
+  },
+};
+
+export const CheckboxesOnRight: Story = {
+  name: 'Examples / Checkboxes on Right',
+  render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+
+    const flatItems = [
+      { id: 'task-1', label: 'Complete documentation' },
+      { id: 'task-2', label: 'Review pull request' },
+      { id: 'task-3', label: 'Fix bug #123' },
+      { id: 'task-4', label: 'Write tests' },
+    ];
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Checkboxes on Right Side</div>
+        <div className='text-sm text-subtle'>Selection controls can be placed on either side</div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_SM)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='multiple'
+        >
+          <TreeList.Container>
+            {flatItems.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                <TreeList.RowContent>
+                  <span className='text-sm'>{item.label}</span>
+                </TreeList.RowContent>
+                <TreeList.RowRight>
+                  <TreeList.RowSelectionControl rowId={item.id} />
+                </TreeList.RowRight>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+      </div>
+    );
+  },
+};
+
+export const ItemActivation: Story = {
+  name: 'Examples / Item Activation',
+  render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [lastActivated, setLastActivated] = useState<string | null>(null);
+
+    const flatItems = [
+      { id: 'doc-1', label: 'Project Proposal.docx' },
+      { id: 'doc-2', label: 'Meeting Notes.md' },
+      { id: 'doc-3', label: 'Budget Report.xlsx' },
+      { id: 'doc-4', label: 'Presentation.pptx' },
+      { id: 'doc-5', label: 'README.txt' },
+    ];
+
+    const getLabel = (id: string): string => flatItems.find(item => item.id === id)?.label ?? id;
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Item Activation</div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-2 font-medium'>Activation triggers:</p>
+          <ul className='space-y-1 text-subtle text-xs'>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Enter</kbd> - Activate focused item
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Double-click</kbd> - Activate clicked item
+            </li>
+          </ul>
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_SM)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          onActivate={id => setLastActivated(id)}
+        >
+          <TreeList.Container>
+            {flatItems.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                <TreeList.RowContent>
+                  <span className='text-sm'>{item.label}</span>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='rounded-sm bg-surface-primary p-2 text-sm'>
+          Activated: <span className='font-medium'>{lastActivated ? getLabel(lastActivated) : 'none'}</span>
+        </div>
       </div>
     );
   },
 };
 
 //
-// * Disabled Items
+// * States
 //
 
 export const WithDisabledItems: Story = {
@@ -225,18 +358,24 @@ export const WithDisabledItems: Story = {
     const disabledIds = new Set(['1-1', '2-1']);
 
     return (
-      <div>
-        <div className='mb-4 font-bold'>Disabled Items</div>
-        <div className='mb-4 text-sm text-subtle'>Items &quot;Work&quot; and &quot;Vacation&quot; are disabled</div>
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Disabled Items</div>
+        <div className='text-sm text-subtle'>Items &quot;Work&quot; and &quot;Vacation&quot; are disabled</div>
         <TreeList
-          className={STYLED_TREE_ROOT_CLASS}
+          className={treeListClass(TREE_HEIGHT_MD)}
           selection={selection}
           onSelectionChange={setSelection}
           selectionMode='single'
         >
           <TreeList.Container>
             {simpleItems.map(item => (
-              <TreeList.Row key={item.id} id={item.id} disabled={disabledIds.has(item.id)}>
+              <TreeList.Row
+                key={item.id}
+                id={item.id}
+                disabled={disabledIds.has(item.id)}
+                level={item.level}
+                hasChildren={item.hasChildren}
+              >
                 <TreeList.RowLeft>
                   <TreeList.RowLevelSpacer level={item.level} />
                 </TreeList.RowLeft>
@@ -254,21 +393,17 @@ export const WithDisabledItems: Story = {
   },
 };
 
-//
-// * Loading State
-//
-
 export const LoadingState: Story = {
   name: 'States / Loading',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
     return (
-      <div>
-        <div className='mb-4 font-bold'>Loading State</div>
-        <div className='mb-4 text-sm text-subtle'>RowLoading shows spinner (customizable via children)</div>
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Loading State</div>
+        <div className='text-sm text-subtle'>RowLoading shows spinner (customizable via children)</div>
         <TreeList
-          className={STYLED_TREE_ROOT_CLASS}
+          className={treeListClass(TREE_HEIGHT_SM)}
           selection={selection}
           onSelectionChange={setSelection}
           selectionMode='single'
@@ -295,21 +430,17 @@ export const LoadingState: Story = {
   },
 };
 
-//
-// * Placeholder State
-//
-
 export const PlaceholderState: Story = {
   name: 'States / Placeholder',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
     return (
-      <div>
-        <div className='mb-4 font-bold'>Placeholder State</div>
-        <div className='mb-4 text-sm text-subtle'>RowPlaceholder for known IDs with unknown data</div>
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Placeholder State</div>
+        <div className='text-sm text-subtle'>RowPlaceholder for known IDs with unknown data</div>
         <TreeList
-          className={STYLED_TREE_ROOT_CLASS}
+          className={treeListClass(TREE_HEIGHT_SM)}
           selection={selection}
           onSelectionChange={setSelection}
           selectionMode='single'
@@ -333,29 +464,177 @@ export const PlaceholderState: Story = {
 };
 
 //
-// * Checkboxes on Right
+// * Navigation
 //
 
-export const CheckboxesOnRight: Story = {
-  name: 'Examples / Checkboxes on Right',
+// Extended tree data with parent references for navigation
+type TreeItem = {
+  id: string;
+  label: string;
+  level: number;
+  parentId: string | undefined;
+  hasChildren: boolean;
+  childIds: string[];
+  icon: ReactNode;
+};
+
+const treeItems: TreeItem[] = [
+  {
+    id: '1',
+    label: 'Documents',
+    level: 1,
+    parentId: undefined,
+    hasChildren: true,
+    childIds: ['1-1', '1-2'],
+    icon: <Folder />,
+  },
+  {
+    id: '1-1',
+    label: 'Work',
+    level: 2,
+    parentId: '1',
+    hasChildren: true,
+    childIds: ['1-1-1', '1-1-2'],
+    icon: <Folder />,
+  },
+  { id: '1-1-1', label: 'Report.pdf', level: 3, parentId: '1-1', hasChildren: false, childIds: [], icon: <File /> },
+  { id: '1-1-2', label: 'Budget.xlsx', level: 3, parentId: '1-1', hasChildren: false, childIds: [], icon: <File /> },
+  { id: '1-2', label: 'Personal', level: 2, parentId: '1', hasChildren: false, childIds: [], icon: <Folder /> },
+  { id: '2', label: 'Pictures', level: 1, parentId: undefined, hasChildren: true, childIds: ['2-1'], icon: <Folder /> },
+  { id: '2-1', label: 'Vacation', level: 2, parentId: '2', hasChildren: false, childIds: [], icon: <Folder /> },
+  { id: '3', label: 'readme.txt', level: 1, parentId: undefined, hasChildren: false, childIds: [], icon: <File /> },
+];
+
+const treeItemsMap = new Map(treeItems.map(item => [item.id, item]));
+
+export const TreeNavigation: Story = {
+  name: 'Navigation / Tree Navigation',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set(['1', '1-1', '2']));
+    const [active, setActive] = useState<string | undefined>(undefined);
+
+    // Callbacks for tree navigation
+    const getParentId = (id: string): string | undefined => treeItemsMap.get(id)?.parentId;
+    const getFirstChildId = (id: string): string | undefined => {
+      const item = treeItemsMap.get(id);
+      return item?.childIds[0];
+    };
+
+    // Filter visible items based on expanded state
+    const visibleItems = treeItems.filter(item => {
+      if (item.level === 1) return true;
+      // Check if all ancestors are expanded
+      let currentId = item.parentId;
+      while (currentId) {
+        if (!expanded.has(currentId)) return false;
+        currentId = treeItemsMap.get(currentId)?.parentId;
+      }
+      return true;
+    });
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Tree Navigation</div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
+          <ul className='space-y-1 text-subtle text-xs'>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Up/Down</kbd> - Navigate items
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Right</kbd> - Expand node / Move to child
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Left</kbd> - Collapse node / Move to parent
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> /{' '}
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Jump to first/last
+            </li>
+          </ul>
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_MD)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          active={active}
+          onActiveChange={setActive}
+          expanded={expanded}
+          onExpandedChange={setExpanded}
+          getParentId={getParentId}
+          getFirstChildId={getFirstChildId}
+        >
+          <TreeList.Container>
+            {visibleItems.map(item => (
+              <TreeList.Row
+                key={item.id}
+                id={item.id}
+                level={item.level}
+                hasChildren={item.hasChildren}
+                expanded={expanded.has(item.id)}
+              >
+                <TreeList.RowLeft>
+                  <TreeList.RowLevelSpacer level={item.level} />
+                  <TreeList.RowExpandControl
+                    rowId={item.id}
+                    expanded={expanded.has(item.id)}
+                    hasChildren={item.hasChildren}
+                    onToggle={() => {
+                      setExpanded(prev => {
+                        const next = new Set(prev);
+                        if (next.has(item.id)) {
+                          next.delete(item.id);
+                        } else {
+                          next.add(item.id);
+                        }
+                        return next;
+                      });
+                    }}
+                    selected={selection.has(item.id)}
+                  />
+                </TreeList.RowLeft>
+                <TreeList.RowContent>
+                  <ListItem className='px-0 py-0'>
+                    <ListItem.DefaultContent icon={item.icon} label={item.label} />
+                  </ListItem>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='text-sm text-subtle'>Active: {active || 'none'}</div>
+      </div>
+    );
+  },
+};
+
+export const NavigationOnly: Story = {
+  name: 'Navigation / No Selection',
+  render: () => {
+    const [active, setActive] = useState<string | undefined>(undefined);
 
     const flatItems = [
-      { id: 'task-1', label: 'Complete documentation' },
-      { id: 'task-2', label: 'Review pull request' },
-      { id: 'task-3', label: 'Fix bug #123' },
-      { id: 'task-4', label: 'Write tests' },
+      { id: 'item-1', label: 'Navigate with Arrow keys' },
+      { id: 'item-2', label: 'Home/End to jump' },
+      { id: 'item-3', label: 'Click to set active' },
+      { id: 'item-4', label: 'No selection in this mode' },
+      { id: 'item-5', label: 'Space/Enter do nothing' },
     ];
 
     return (
-      <div>
-        <div className='mb-4 font-bold'>Checkboxes on Right Side</div>
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Navigation Only</div>
+        <div className='text-sm text-subtle'>
+          With <code className='rounded bg-surface-neutral px-1 font-mono text-xs'>selectionMode=&quot;none&quot;</code>
+          , items can be navigated but not selected.
+        </div>
         <TreeList
-          className={STYLED_TREE_ROOT_CLASS}
-          selection={selection}
-          onSelectionChange={setSelection}
-          selectionMode='multiple'
+          className={treeListClass(TREE_HEIGHT_SM)}
+          selectionMode='none'
+          active={active}
+          onActiveChange={setActive}
         >
           <TreeList.Container>
             {flatItems.map(item => (
@@ -363,9 +642,259 @@ export const CheckboxesOnRight: Story = {
                 <TreeList.RowContent>
                   <span className='text-sm'>{item.label}</span>
                 </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='text-sm text-subtle'>Active: {active || 'none'}</div>
+      </div>
+    );
+  },
+};
+
+// Generate 50 items for page navigation demo
+const longListItems = Array.from({ length: 50 }, (_, i) => ({
+  id: `item-${i + 1}`,
+  label: `Item ${String(i + 1).padStart(2, '0')}`,
+}));
+
+export const PageNavigation: Story = {
+  name: 'Navigation / Page Navigation',
+  render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [active, setActive] = useState<string | undefined>(undefined);
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Page Navigation</div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
+          <ul className='space-y-1 text-subtle text-xs'>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>PageUp</kbd> /{' '}
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>PageDown</kbd> - Jump by page
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> /{' '}
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Jump to first/last
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Up/Down</kbd> - Navigate one item
+            </li>
+          </ul>
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_LG)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          active={active}
+          onActiveChange={setActive}
+        >
+          <TreeList.Container>
+            {longListItems.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                <TreeList.RowContent>
+                  <span className='text-sm'>{item.label}</span>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='text-sm text-subtle'>Active: {active || 'none'} (50 items total)</div>
+      </div>
+    );
+  },
+};
+
+//
+// * Action Mode
+//
+
+type ActionItem = {
+  id: string;
+  label: string;
+  description: string;
+};
+
+const actionItems: ActionItem[] = [
+  { id: 'doc-1', label: 'Project Proposal', description: 'Q4 2024 planning document' },
+  { id: 'doc-2', label: 'Budget Report', description: 'Annual financial summary' },
+  { id: 'doc-3', label: 'Team Notes', description: 'Meeting minutes and action items' },
+  { id: 'doc-4', label: 'Design Specs', description: 'UI component specifications' },
+  { id: 'doc-5', label: 'API Documentation', description: 'REST API reference guide' },
+];
+
+export const ActionMode: Story = {
+  name: 'Navigation / Action Mode (F2)',
+  render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [log, setLog] = useState<string[]>([]);
+
+    const addLog = (msg: string): void => {
+      setLog(prev => [...prev.slice(-4), msg]);
+    };
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Action Mode (F2)</div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
+          <ul className='space-y-1 text-subtle text-xs'>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>F2</kbd> - Enter action mode (focus buttons in row)
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> - Cycle through buttons
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> after last button - Exit action mode
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Escape</kbd> - Exit action mode immediately
+            </li>
+          </ul>
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_MD)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+        >
+          <TreeList.Container>
+            {actionItems.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                <TreeList.RowLeft>
+                  <File className='size-4 text-subtle group-data-[tone=inverse]:text-alt' />
+                </TreeList.RowLeft>
+                <TreeList.RowContent>
+                  <div className='flex flex-col'>
+                    <span className='font-medium text-sm'>{item.label}</span>
+                    <span className='text-subtle text-xs group-data-[tone=inverse]:text-alt'>{item.description}</span>
+                  </div>
+                </TreeList.RowContent>
                 <TreeList.RowRight>
-                  <TreeList.RowSelectionControl selected={selection.has(item.id)} />
+                  <TreeList.Action>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='h-6 gap-1 px-2'
+                      onClick={() => addLog(`Edit: ${item.label}`)}
+                    >
+                      <Pencil className='size-3' />
+                      Edit
+                    </Button>
+                  </TreeList.Action>
+                  <TreeList.Action>
+                    <Button
+                      variant='solid'
+                      size='sm'
+                      className='h-6 gap-1 px-2'
+                      onClick={() => addLog(`Delete: ${item.label}`)}
+                    >
+                      <Trash2 className='size-3' />
+                      Delete
+                    </Button>
+                  </TreeList.Action>
                 </TreeList.RowRight>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='rounded-sm bg-surface-primary p-2'>
+          <div className='mb-1 font-medium text-xs'>Action Log:</div>
+          <pre className='h-20 overflow-auto text-subtle text-xs'>
+            {log.length > 0 ? log.join('\n') : '(no actions yet)'}
+          </pre>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const Invalidation: Story = {
+  name: 'Behavior / Invalidation',
+  render: function Render() {
+    const [items, setItems] = useState(simpleItems);
+    const [active, setActive] = useState<string | undefined>('1-1');
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set(['1-1', '1-2']));
+    const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set(['1', '1-1', '2']));
+
+    const removeItem = (id: string): void => {
+      setItems(prev => prev.filter(item => item.id !== id));
+    };
+
+    const resetItems = (): void => {
+      setItems(simpleItems);
+      setActive('1-1');
+      setSelection(new Set(['1-1', '1-2']));
+      setExpanded(new Set(['1', '1-1', '2']));
+    };
+
+    const visibleItems = items.filter(item => {
+      if (item.level === 1) return true;
+      // Find parent: remove last segment from id
+      const parentId = item.id.substring(0, item.id.lastIndexOf('-'));
+      return expanded.has(parentId);
+    });
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>State Invalidation</div>
+        <div className='text-sm text-subtle'>When items are removed, active/selection state automatically updates</div>
+
+        <div className='flex flex-wrap gap-2'>
+          <Button variant='outline' size='sm' onClick={() => active && removeItem(active)} disabled={!active}>
+            Remove Active
+          </Button>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => {
+              const first = [...selection][0];
+              if (first) removeItem(first);
+            }}
+            disabled={selection.size === 0}
+          >
+            Remove First Selected
+          </Button>
+          <Button variant='outline' size='sm' onClick={resetItems}>
+            Reset
+          </Button>
+        </div>
+
+        <div className='rounded-sm bg-surface-neutral-subtle p-2 text-sm'>
+          <div>
+            <strong>Active:</strong> {active ?? 'null'}
+          </div>
+          <div>
+            <strong>Selected:</strong> {[...selection].join(', ') || 'none'}
+          </div>
+          <div>
+            <strong>Items:</strong> {items.length}
+          </div>
+        </div>
+
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_MD)}
+          active={active}
+          onActiveChange={setActive}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='multiple'
+          expanded={expanded}
+          onExpandedChange={setExpanded}
+        >
+          <TreeList.Container>
+            {visibleItems.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                <TreeList.RowLevelSpacer level={item.level} />
+                {item.hasChildren ? <TreeList.RowExpandControl id={item.id} /> : <div className='size-5' aria-hidden />}
+                <TreeList.RowSelectionControl rowId={item.id} />
+                <TreeList.RowLeft>{item.icon}</TreeList.RowLeft>
+                <TreeList.RowContent>
+                  <span className='text-sm'>{item.label}</span>
+                </TreeList.RowContent>
               </TreeList.Row>
             ))}
           </TreeList.Container>
