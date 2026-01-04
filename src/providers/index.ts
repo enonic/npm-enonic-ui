@@ -12,6 +12,4 @@ export * from './selector-provider';
 export * from './tab-provider';
 export * from './toast-provider';
 export * from './toggle-group-provider';
-export * from './tree-list-content-provider';
 export * from './tree-list-provider';
-export * from './tree-list-ui-provider';
