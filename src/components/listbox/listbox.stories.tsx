@@ -52,6 +52,10 @@ export default {
   },
 } satisfies Meta<ListboxRootProps>;
 
+//
+// * Examples
+//
+
 export const SingleSelection: Story = {
   name: 'Examples / Single Selection',
   args: {
@@ -160,6 +164,10 @@ export const Uncontrolled: Story = {
   ),
 };
 
+//
+// * States
+//
+
 export const Disabled: Story = {
   name: 'States / Disabled',
   args: {
@@ -192,6 +200,10 @@ export const Disabled: Story = {
     );
   },
 };
+
+//
+// * Features
+//
 
 export const WithCheckboxes: Story = {
   name: 'Features / With Checkboxes',
@@ -346,6 +358,10 @@ export const WithCustomGroups: Story = {
     );
   },
 };
+
+//
+// * Behavior
+//
 
 export const OuterNavigation: Story = {
   name: 'Behavior / Navigate from Outside',

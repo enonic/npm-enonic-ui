@@ -17,6 +17,10 @@ export default meta;
 
 type Story = StoryObj<typeof Dialog>;
 
+//
+// * Examples
+//
+
 export const BasicDialog: Story = {
   name: 'Examples / Basic',
   render: () => {
@@ -297,6 +301,10 @@ export const OpenByDefault: Story = {
     );
   },
 };
+
+//
+// * Features
+//
 
 export const CustomHeader: Story = {
   name: 'Features / Custom Header',

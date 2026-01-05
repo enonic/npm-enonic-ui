@@ -78,6 +78,10 @@ export default {
   },
 } satisfies Meta<AvatarRootProps>;
 
+//
+// * Examples
+//
+
 export const Single: Story = {
   name: 'Examples / Single',
   args: {
@@ -147,6 +151,10 @@ export const Multiple: Story = {
     </div>
   ),
 };
+
+//
+// * Features
+//
 
 export const Sizes: Story = {
   name: 'Features / Sizes',

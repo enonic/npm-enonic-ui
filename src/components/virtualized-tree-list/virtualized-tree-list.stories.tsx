@@ -158,11 +158,11 @@ function generateLargeDataset(count: number): FlatNode<TreeNodeData>[] {
 const getIcon = (iconType: 'folder' | 'file'): ReactElement => (iconType === 'folder' ? <Folder /> : <File />);
 
 //
-// * Flat List
+// * Examples
 //
 
 export const FlatList: Story = {
-  name: 'Basics / Flat List',
+  name: 'Examples / Flat List',
   render: () => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
@@ -248,10 +248,6 @@ export const FlatList: Story = {
   },
 };
 
-//
-// * Basic
-//
-
 export const Basic: Story = {
   name: 'Examples / Basic',
   render: () => {
@@ -326,10 +322,6 @@ export const Basic: Story = {
   },
 };
 
-//
-// * Large Dataset
-//
-
 export const LargeDataset: Story = {
   name: 'Examples / Large Dataset',
   render: () => {
@@ -386,8 +378,413 @@ export const LargeDataset: Story = {
   },
 };
 
+export const CheckboxesOnRight: Story = {
+  name: 'Examples / Checkboxes on Right',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [activeId, setActiveId] = useState<string | null>(null);
+
+    const toggleSelection = (id: string): void => {
+      const newSelection = new Set(selection);
+      if (newSelection.has(id)) {
+        newSelection.delete(id);
+      } else {
+        newSelection.add(id);
+      }
+      setSelection(newSelection);
+    };
+
+    const items: FlatNode<TreeNodeData>[] = [
+      {
+        id: 'task-1',
+        data: { label: 'Complete documentation', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'task-2',
+        data: { label: 'Review pull request', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'task-3',
+        data: { label: 'Fix bug #123', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'task-4',
+        data: { label: 'Write tests', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'task-5',
+        data: { label: 'Deploy to staging', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'task-6',
+        data: { label: 'Update dependencies', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'task-7',
+        data: { label: 'Review security audit', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+    ];
+
+    return (
+      <div>
+        <div className='mb-4 font-bold'>Checkboxes on Right Side</div>
+        <div className='mb-4 text-sm text-subtle'>
+          Click checkbox to toggle selection. Click row to set active.
+          <br />
+          Active: {activeId ?? 'none'} | Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}
+        </div>
+        <VirtualizedTreeList
+          items={items}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='multiple'
+          active={activeId}
+          onActiveChange={setActiveId}
+          virtuosoRef={virtuosoRef}
+          aria-label='Task list'
+          className={STYLED_TREE_ROOT_CLASS}
+        >
+          {({ items: nodeItems, getItemProps, containerProps }) => (
+            <Virtuoso<FlatNode<TreeNodeData>>
+              ref={virtuosoRef}
+              data={nodeItems}
+              className='h-full'
+              components={virtuosoComponents}
+              {...containerProps}
+              itemContent={(index, node) => {
+                const itemProps = getItemProps(index, node);
+                return (
+                  <VirtualizedTreeList.Row
+                    {...itemProps}
+                    onClick={e => {
+                      // Focus tree container for keyboard navigation
+                      const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
+                      tree?.focus();
+                      // Only set active, don't change selection
+                      setActiveId(node.id);
+                    }}
+                  >
+                    <VirtualizedTreeList.RowContent>
+                      <span className='text-sm'>{node.data.label}</span>
+                    </VirtualizedTreeList.RowContent>
+                    <VirtualizedTreeList.RowRight>
+                      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+                      <div
+                        onClick={e => {
+                          e.stopPropagation();
+                          toggleSelection(node.id);
+                        }}
+                      >
+                        <VirtualizedTreeList.RowSelectionControl rowId={node.id} selected={itemProps.selected} />
+                      </div>
+                    </VirtualizedTreeList.RowRight>
+                  </VirtualizedTreeList.Row>
+                );
+              }}
+            />
+          )}
+        </VirtualizedTreeList>
+      </div>
+    );
+  },
+};
+
 //
-// * Multiple Selection
+// * States
+//
+
+export const WithLoading: Story = {
+  name: 'States / Loading Items',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+
+    // Mix of loaded items and loading placeholders
+    const items: FlatNode<TreeNodeData | null>[] = [
+      {
+        id: '1',
+        data: { label: 'Documents', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: true,
+        isExpanded: true,
+      },
+      {
+        id: '1-1',
+        data: { label: 'Work', icon: 'folder' },
+        level: 2,
+        parentId: '1',
+        hasChildren: false,
+        isExpanded: false,
+      },
+      { id: '1-2', data: null, level: 2, parentId: '1', hasChildren: false, isExpanded: false, isLoading: true },
+      {
+        id: '2',
+        data: { label: 'Pictures', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: true,
+        isExpanded: true,
+      },
+      { id: '2-1', data: null, level: 2, parentId: '2', hasChildren: false, isExpanded: false, isLoading: true },
+      { id: '2-2', data: null, level: 2, parentId: '2', hasChildren: false, isExpanded: false, isLoading: true },
+      {
+        id: '3',
+        data: { label: 'readme.txt', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+    ];
+
+    return (
+      <div>
+        <div className='mb-4 font-bold'>Loading Items</div>
+        <div className='mb-4 text-sm text-subtle'>Some items are still loading and show a spinner</div>
+        <VirtualizedTreeList
+          items={items}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          virtuosoRef={virtuosoRef}
+          aria-label='File browser with loading'
+          className={STYLED_TREE_ROOT_CLASS}
+        >
+          {({ items: nodeItems, getItemProps, containerProps }) => (
+            <Virtuoso<FlatNode<TreeNodeData | null>>
+              ref={virtuosoRef}
+              data={nodeItems}
+              className='h-full'
+              components={virtuosoComponents}
+              {...containerProps}
+              itemContent={(index, node) => {
+                if (node.isLoading || !node.data) {
+                  return <VirtualizedTreeList.RowLoading level={node.level} />;
+                }
+
+                const itemProps = getItemProps(index, node);
+                const nodeData = node.data;
+                return (
+                  <VirtualizedTreeList.Row {...itemProps}>
+                    <VirtualizedTreeList.RowLeft>
+                      <VirtualizedTreeList.RowLevelSpacer level={node.level} />
+                      <VirtualizedTreeList.RowExpandControl
+                        expanded={node.isExpanded}
+                        hasChildren={node.hasChildren}
+                        selected={itemProps.selected}
+                      />
+                    </VirtualizedTreeList.RowLeft>
+                    <VirtualizedTreeList.RowContent>
+                      <ListItem className='px-0 py-0'>
+                        <ListItem.DefaultContent icon={getIcon(nodeData.icon)} label={nodeData.label} />
+                      </ListItem>
+                    </VirtualizedTreeList.RowContent>
+                  </VirtualizedTreeList.Row>
+                );
+              }}
+            />
+          )}
+        </VirtualizedTreeList>
+      </div>
+    );
+  },
+};
+
+export const WithDisabledItems: Story = {
+  name: 'States / Disabled Items',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const disabledIds = new Set(['1-1', '2-1']);
+
+    const items: FlatNode<TreeNodeData>[] = [
+      {
+        id: '1',
+        data: { label: 'Documents', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: true,
+        isExpanded: true,
+      },
+      {
+        id: '1-1',
+        data: { label: 'Work (disabled)', icon: 'folder' },
+        level: 2,
+        parentId: '1',
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: '1-2',
+        data: { label: 'Personal', icon: 'folder' },
+        level: 2,
+        parentId: '1',
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: '2',
+        data: { label: 'Pictures', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: true,
+        isExpanded: true,
+      },
+      {
+        id: '2-1',
+        data: { label: 'Vacation (disabled)', icon: 'folder' },
+        level: 2,
+        parentId: '2',
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: '3',
+        data: { label: 'readme.txt', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+    ];
+
+    return (
+      <div>
+        <div className='mb-4 font-bold'>Disabled Items</div>
+        <div className='mb-4 text-sm text-subtle'>Items &quot;Work&quot; and &quot;Vacation&quot; are disabled</div>
+        <VirtualizedTreeList
+          items={items}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          virtuosoRef={virtuosoRef}
+          aria-label='File browser with disabled items'
+          className={STYLED_TREE_ROOT_CLASS}
+        >
+          {({ items: nodeItems, getItemProps, containerProps }) => (
+            <Virtuoso<FlatNode<TreeNodeData>>
+              ref={virtuosoRef}
+              data={nodeItems}
+              className='h-full'
+              components={virtuosoComponents}
+              {...containerProps}
+              itemContent={(index, node) => {
+                const isDisabled = disabledIds.has(node.id);
+                const itemProps = getItemProps(index, node);
+                return (
+                  <VirtualizedTreeList.Row {...itemProps} disabled={isDisabled}>
+                    <VirtualizedTreeList.RowLeft>
+                      <VirtualizedTreeList.RowLevelSpacer level={node.level} />
+                    </VirtualizedTreeList.RowLeft>
+                    <VirtualizedTreeList.RowContent>
+                      <ListItem className='px-0 py-0'>
+                        <ListItem.DefaultContent icon={getIcon(node.data.icon)} label={node.data.label} />
+                      </ListItem>
+                    </VirtualizedTreeList.RowContent>
+                  </VirtualizedTreeList.Row>
+                );
+              }}
+            />
+          )}
+        </VirtualizedTreeList>
+      </div>
+    );
+  },
+};
+
+export const PlaceholderState: Story = {
+  name: 'States / Placeholder',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+
+    const items: FlatNode<TreeNodeData | null>[] = [
+      {
+        id: '1',
+        data: { label: 'Real Item', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      { id: '2', data: null, level: 1, parentId: null, hasChildren: false, isExpanded: false },
+      { id: '3', data: null, level: 2, parentId: null, hasChildren: false, isExpanded: false },
+    ];
+
+    return (
+      <div>
+        <div className='mb-4 font-bold'>Placeholder State</div>
+        <div className='mb-4 text-sm text-subtle'>RowPlaceholder for known IDs with unknown data</div>
+        <VirtualizedTreeList
+          items={items}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          virtuosoRef={virtuosoRef}
+          aria-label='File browser with placeholders'
+          className={STYLED_TREE_ROOT_CLASS}
+        >
+          {({ items: nodeItems, getItemProps, containerProps }) => (
+            <Virtuoso<FlatNode<TreeNodeData | null>>
+              ref={virtuosoRef}
+              data={nodeItems}
+              className='h-full'
+              components={virtuosoComponents}
+              {...containerProps}
+              itemContent={(index, node) => {
+                if (!node.data) {
+                  return <VirtualizedTreeList.RowPlaceholder level={node.level} />;
+                }
+
+                const itemProps = getItemProps(index, node);
+                return (
+                  <VirtualizedTreeList.Row {...itemProps}>
+                    <VirtualizedTreeList.RowContent>
+                      <span className='text-sm'>{node.data.label}</span>
+                    </VirtualizedTreeList.RowContent>
+                  </VirtualizedTreeList.Row>
+                );
+              }}
+            />
+          )}
+        </VirtualizedTreeList>
+      </div>
+    );
+  },
+};
+
+//
+// * Features
 //
 
 export const MultipleSelection: Story = {
@@ -465,10 +862,6 @@ export const MultipleSelection: Story = {
     );
   },
 };
-
-//
-// * Checkbox Selection
-//
 
 export const CheckboxSelection: Story = {
   name: 'Features / Checkbox Selection',
@@ -578,7 +971,7 @@ export const CheckboxSelection: Story = {
 };
 
 //
-// * Keyboard Navigation
+// * Behavior
 //
 
 export const KeyboardNavigation: Story = {
@@ -667,283 +1060,6 @@ export const KeyboardNavigation: Story = {
   },
 };
 
-//
-// * Loading State
-//
-
-export const WithLoading: Story = {
-  name: 'States / Loading Items',
-  render: () => {
-    const virtuosoRef = useRef<VirtuosoHandle>(null);
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-
-    // Mix of loaded items and loading placeholders
-    const items: FlatNode<TreeNodeData | null>[] = [
-      {
-        id: '1',
-        data: { label: 'Documents', icon: 'folder' },
-        level: 1,
-        parentId: null,
-        hasChildren: true,
-        isExpanded: true,
-      },
-      {
-        id: '1-1',
-        data: { label: 'Work', icon: 'folder' },
-        level: 2,
-        parentId: '1',
-        hasChildren: false,
-        isExpanded: false,
-      },
-      { id: '1-2', data: null, level: 2, parentId: '1', hasChildren: false, isExpanded: false, isLoading: true },
-      {
-        id: '2',
-        data: { label: 'Pictures', icon: 'folder' },
-        level: 1,
-        parentId: null,
-        hasChildren: true,
-        isExpanded: true,
-      },
-      { id: '2-1', data: null, level: 2, parentId: '2', hasChildren: false, isExpanded: false, isLoading: true },
-      { id: '2-2', data: null, level: 2, parentId: '2', hasChildren: false, isExpanded: false, isLoading: true },
-      {
-        id: '3',
-        data: { label: 'readme.txt', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-    ];
-
-    return (
-      <div>
-        <div className='mb-4 font-bold'>Loading Items</div>
-        <div className='mb-4 text-sm text-subtle'>Some items are still loading and show a spinner</div>
-        <VirtualizedTreeList
-          items={items}
-          selection={selection}
-          onSelectionChange={setSelection}
-          selectionMode='single'
-          virtuosoRef={virtuosoRef}
-          aria-label='File browser with loading'
-          className={STYLED_TREE_ROOT_CLASS}
-        >
-          {({ items: nodeItems, getItemProps, containerProps }) => (
-            <Virtuoso<FlatNode<TreeNodeData | null>>
-              ref={virtuosoRef}
-              data={nodeItems}
-              className='h-full'
-              components={virtuosoComponents}
-              {...containerProps}
-              itemContent={(index, node) => {
-                if (node.isLoading || !node.data) {
-                  return <VirtualizedTreeList.RowLoading level={node.level} />;
-                }
-
-                const itemProps = getItemProps(index, node);
-                const nodeData = node.data;
-                return (
-                  <VirtualizedTreeList.Row {...itemProps}>
-                    <VirtualizedTreeList.RowLeft>
-                      <VirtualizedTreeList.RowLevelSpacer level={node.level} />
-                      <VirtualizedTreeList.RowExpandControl
-                        expanded={node.isExpanded}
-                        hasChildren={node.hasChildren}
-                        selected={itemProps.selected}
-                      />
-                    </VirtualizedTreeList.RowLeft>
-                    <VirtualizedTreeList.RowContent>
-                      <ListItem className='px-0 py-0'>
-                        <ListItem.DefaultContent icon={getIcon(nodeData.icon)} label={nodeData.label} />
-                      </ListItem>
-                    </VirtualizedTreeList.RowContent>
-                  </VirtualizedTreeList.Row>
-                );
-              }}
-            />
-          )}
-        </VirtualizedTreeList>
-      </div>
-    );
-  },
-};
-
-//
-// * Disabled Items
-//
-
-export const WithDisabledItems: Story = {
-  name: 'States / Disabled Items',
-  render: () => {
-    const virtuosoRef = useRef<VirtuosoHandle>(null);
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-    const disabledIds = new Set(['1-1', '2-1']);
-
-    const items: FlatNode<TreeNodeData>[] = [
-      {
-        id: '1',
-        data: { label: 'Documents', icon: 'folder' },
-        level: 1,
-        parentId: null,
-        hasChildren: true,
-        isExpanded: true,
-      },
-      {
-        id: '1-1',
-        data: { label: 'Work (disabled)', icon: 'folder' },
-        level: 2,
-        parentId: '1',
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: '1-2',
-        data: { label: 'Personal', icon: 'folder' },
-        level: 2,
-        parentId: '1',
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: '2',
-        data: { label: 'Pictures', icon: 'folder' },
-        level: 1,
-        parentId: null,
-        hasChildren: true,
-        isExpanded: true,
-      },
-      {
-        id: '2-1',
-        data: { label: 'Vacation (disabled)', icon: 'folder' },
-        level: 2,
-        parentId: '2',
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: '3',
-        data: { label: 'readme.txt', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-    ];
-
-    return (
-      <div>
-        <div className='mb-4 font-bold'>Disabled Items</div>
-        <div className='mb-4 text-sm text-subtle'>Items &quot;Work&quot; and &quot;Vacation&quot; are disabled</div>
-        <VirtualizedTreeList
-          items={items}
-          selection={selection}
-          onSelectionChange={setSelection}
-          selectionMode='single'
-          virtuosoRef={virtuosoRef}
-          aria-label='File browser with disabled items'
-          className={STYLED_TREE_ROOT_CLASS}
-        >
-          {({ items: nodeItems, getItemProps, containerProps }) => (
-            <Virtuoso<FlatNode<TreeNodeData>>
-              ref={virtuosoRef}
-              data={nodeItems}
-              className='h-full'
-              components={virtuosoComponents}
-              {...containerProps}
-              itemContent={(index, node) => {
-                const isDisabled = disabledIds.has(node.id);
-                const itemProps = getItemProps(index, node);
-                return (
-                  <VirtualizedTreeList.Row {...itemProps} disabled={isDisabled}>
-                    <VirtualizedTreeList.RowLeft>
-                      <VirtualizedTreeList.RowLevelSpacer level={node.level} />
-                    </VirtualizedTreeList.RowLeft>
-                    <VirtualizedTreeList.RowContent>
-                      <ListItem className='px-0 py-0'>
-                        <ListItem.DefaultContent icon={getIcon(node.data.icon)} label={node.data.label} />
-                      </ListItem>
-                    </VirtualizedTreeList.RowContent>
-                  </VirtualizedTreeList.Row>
-                );
-              }}
-            />
-          )}
-        </VirtualizedTreeList>
-      </div>
-    );
-  },
-};
-
-//
-// * Placeholder State
-//
-
-export const PlaceholderState: Story = {
-  name: 'States / Placeholder',
-  render: () => {
-    const virtuosoRef = useRef<VirtuosoHandle>(null);
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-
-    const items: FlatNode<TreeNodeData | null>[] = [
-      {
-        id: '1',
-        data: { label: 'Real Item', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      { id: '2', data: null, level: 1, parentId: null, hasChildren: false, isExpanded: false },
-      { id: '3', data: null, level: 2, parentId: null, hasChildren: false, isExpanded: false },
-    ];
-
-    return (
-      <div>
-        <div className='mb-4 font-bold'>Placeholder State</div>
-        <div className='mb-4 text-sm text-subtle'>RowPlaceholder for known IDs with unknown data</div>
-        <VirtualizedTreeList
-          items={items}
-          selection={selection}
-          onSelectionChange={setSelection}
-          selectionMode='single'
-          virtuosoRef={virtuosoRef}
-          aria-label='File browser with placeholders'
-          className={STYLED_TREE_ROOT_CLASS}
-        >
-          {({ items: nodeItems, getItemProps, containerProps }) => (
-            <Virtuoso<FlatNode<TreeNodeData | null>>
-              ref={virtuosoRef}
-              data={nodeItems}
-              className='h-full'
-              components={virtuosoComponents}
-              {...containerProps}
-              itemContent={(index, node) => {
-                if (!node.data) {
-                  return <VirtualizedTreeList.RowPlaceholder level={node.level} />;
-                }
-
-                const itemProps = getItemProps(index, node);
-                return (
-                  <VirtualizedTreeList.Row {...itemProps}>
-                    <VirtualizedTreeList.RowContent>
-                      <span className='text-sm'>{node.data.label}</span>
-                    </VirtualizedTreeList.RowContent>
-                  </VirtualizedTreeList.Row>
-                );
-              }}
-            />
-          )}
-        </VirtualizedTreeList>
-      </div>
-    );
-  },
-};
-
-//
-// * Keyboard Range Selection
-//
-
 export const KeyboardRangeSelection: Story = {
   name: 'Features / Keyboard Range Selection',
   render: () => {
@@ -1027,10 +1143,6 @@ export const KeyboardRangeSelection: Story = {
     );
   },
 };
-
-//
-// * Activation Callback
-//
 
 export const ActivationCallback: Story = {
   name: 'Features / Activation Callback',
@@ -1121,10 +1233,6 @@ export const ActivationCallback: Story = {
   },
 };
 
-//
-// * Navigation Only Mode
-//
-
 export const NavigationOnlyMode: Story = {
   name: 'Features / Navigation Only Mode',
   render: () => {
@@ -1203,10 +1311,6 @@ export const NavigationOnlyMode: Story = {
     );
   },
 };
-
-//
-// * Action Mode (F2)
-//
 
 type ActionItemData = {
   label: string;
@@ -1394,150 +1498,6 @@ export const ActionMode: Story = {
             {log.length > 0 ? log.join('\n') : '(no actions yet)'}
           </pre>
         </div>
-      </div>
-    );
-  },
-};
-
-//
-// * Checkboxes on Right
-//
-
-export const CheckboxesOnRight: Story = {
-  name: 'Examples / Checkboxes on Right',
-  render: () => {
-    const virtuosoRef = useRef<VirtuosoHandle>(null);
-    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
-    const [activeId, setActiveId] = useState<string | null>(null);
-
-    const toggleSelection = (id: string): void => {
-      const newSelection = new Set(selection);
-      if (newSelection.has(id)) {
-        newSelection.delete(id);
-      } else {
-        newSelection.add(id);
-      }
-      setSelection(newSelection);
-    };
-
-    const items: FlatNode<TreeNodeData>[] = [
-      {
-        id: 'task-1',
-        data: { label: 'Complete documentation', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'task-2',
-        data: { label: 'Review pull request', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'task-3',
-        data: { label: 'Fix bug #123', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'task-4',
-        data: { label: 'Write tests', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'task-5',
-        data: { label: 'Deploy to staging', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'task-6',
-        data: { label: 'Update dependencies', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'task-7',
-        data: { label: 'Review security audit', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-    ];
-
-    return (
-      <div>
-        <div className='mb-4 font-bold'>Checkboxes on Right Side</div>
-        <div className='mb-4 text-sm text-subtle'>
-          Click checkbox to toggle selection. Click row to set active.
-          <br />
-          Active: {activeId ?? 'none'} | Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}
-        </div>
-        <VirtualizedTreeList
-          items={items}
-          selection={selection}
-          onSelectionChange={setSelection}
-          selectionMode='multiple'
-          active={activeId}
-          onActiveChange={setActiveId}
-          virtuosoRef={virtuosoRef}
-          aria-label='Task list'
-          className={STYLED_TREE_ROOT_CLASS}
-        >
-          {({ items: nodeItems, getItemProps, containerProps }) => (
-            <Virtuoso<FlatNode<TreeNodeData>>
-              ref={virtuosoRef}
-              data={nodeItems}
-              className='h-full'
-              components={virtuosoComponents}
-              {...containerProps}
-              itemContent={(index, node) => {
-                const itemProps = getItemProps(index, node);
-                return (
-                  <VirtualizedTreeList.Row
-                    {...itemProps}
-                    onClick={e => {
-                      // Focus tree container for keyboard navigation
-                      const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
-                      tree?.focus();
-                      // Only set active, don't change selection
-                      setActiveId(node.id);
-                    }}
-                  >
-                    <VirtualizedTreeList.RowContent>
-                      <span className='text-sm'>{node.data.label}</span>
-                    </VirtualizedTreeList.RowContent>
-                    <VirtualizedTreeList.RowRight>
-                      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-                      <div
-                        onClick={e => {
-                          e.stopPropagation();
-                          toggleSelection(node.id);
-                        }}
-                      >
-                        <VirtualizedTreeList.RowSelectionControl rowId={node.id} selected={itemProps.selected} />
-                      </div>
-                    </VirtualizedTreeList.RowRight>
-                  </VirtualizedTreeList.Row>
-                );
-              }}
-            />
-          )}
-        </VirtualizedTreeList>
       </div>
     );
   },

@@ -464,7 +464,7 @@ export const PlaceholderState: Story = {
 };
 
 //
-// * Navigation
+// * Features
 //
 
 // Extended tree data with parent references for navigation
@@ -508,7 +508,7 @@ const treeItems: TreeItem[] = [
 const treeItemsMap = new Map(treeItems.map(item => [item.id, item]));
 
 export const TreeNavigation: Story = {
-  name: 'Navigation / Tree Navigation',
+  name: 'Features / Tree Navigation',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
     const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set(['1', '1-1', '2']));
@@ -611,7 +611,7 @@ export const TreeNavigation: Story = {
 };
 
 export const NavigationOnly: Story = {
-  name: 'Navigation / No Selection',
+  name: 'Features / Navigation Only Mode',
   render: () => {
     const [active, setActive] = useState<string | undefined>(undefined);
 
@@ -659,7 +659,7 @@ const longListItems = Array.from({ length: 50 }, (_, i) => ({
 }));
 
 export const PageNavigation: Story = {
-  name: 'Navigation / Page Navigation',
+  name: 'Features / Page Navigation',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
     const [active, setActive] = useState<string | undefined>(undefined);
@@ -707,10 +707,6 @@ export const PageNavigation: Story = {
   },
 };
 
-//
-// * Action Mode
-//
-
 type ActionItem = {
   id: string;
   label: string;
@@ -726,7 +722,7 @@ const actionItems: ActionItem[] = [
 ];
 
 export const ActionMode: Story = {
-  name: 'Navigation / Action Mode (F2)',
+  name: 'Features / Action Mode (F2)',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
     const [log, setLog] = useState<string[]>([]);
@@ -811,6 +807,10 @@ export const ActionMode: Story = {
     );
   },
 };
+
+//
+// * Behavior
+//
 
 export const Invalidation: Story = {
   name: 'Behavior / Invalidation',

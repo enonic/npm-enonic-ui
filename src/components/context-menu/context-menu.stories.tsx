@@ -14,6 +14,10 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta<typeof ContextMenu>;
 
+//
+// * Examples
+//
+
 export const Basic: Story = {
   name: 'Examples / Basic',
   render: () => (
@@ -90,6 +94,10 @@ export const WithSections: Story = {
   ),
 };
 
+//
+// * States
+//
+
 export const WithDisabledItems: Story = {
   name: 'States / Disabled Items',
   render: () => (
@@ -126,6 +134,10 @@ export const WithDisabledItems: Story = {
     </div>
   ),
 };
+
+//
+// * Features
+//
 
 export const AsChild: Story = {
   name: 'Features / AsChild Pattern',
@@ -236,7 +248,7 @@ export const Interactive: Story = {
 };
 
 export const RadioItems: Story = {
-  name: 'Radio / Basic',
+  name: 'Features / Radio Items',
   render: () => {
     const [viewMode, setViewMode] = useState('grid');
 
@@ -281,7 +293,7 @@ export const RadioItems: Story = {
 };
 
 export const CloseOnSelect: Story = {
-  name: 'Radio / Close on Select',
+  name: 'Features / Radio Close on Select',
   render: () => {
     const [sortBy, setSortBy] = useState('name');
 

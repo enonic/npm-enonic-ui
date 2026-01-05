@@ -467,6 +467,151 @@ export const WithForm: Story = {
   },
 };
 
+export const Controlled: Story = {
+  name: 'Features / Controlled',
+  render: () => {
+    const [value, setValue] = useState<string | undefined>('banana');
+    const [open, setOpen] = useState(false);
+
+    return (
+      <div className='w-80 space-y-3'>
+        <h3 className='font-medium text-md'>Controlled State</h3>
+        <div className='rounded-sm bg-surface-primary p-3'>
+          <p className='text-sm'>
+            <span className='font-medium'>Value:</span> {value ?? '(none)'}
+          </p>
+          <p className='text-sm'>
+            <span className='font-medium'>Open:</span> {open ? 'true' : 'false'}
+          </p>
+        </div>
+        <div className='flex gap-2'>
+          <button
+            type='button'
+            onClick={() => setValue('cherry')}
+            className='rounded-sm bg-btn-default px-3 py-1.5 text-on-dark text-sm hover:bg-btn-hover'
+          >
+            Set Cherry
+          </button>
+          <button
+            type='button'
+            onClick={() => setValue(undefined)}
+            className='rounded-sm bg-surface-neutral-hover px-3 py-1.5 text-sm hover:bg-surface-neutral-pressed'
+          >
+            Clear
+          </button>
+          <button
+            type='button'
+            onClick={() => setOpen(!open)}
+            className='rounded-sm bg-surface-neutral-hover px-3 py-1.5 text-sm hover:bg-surface-neutral-pressed'
+          >
+            Toggle Open
+          </button>
+        </div>
+        <Selector.Root value={value} onValueChange={setValue} open={open} onOpenChange={setOpen}>
+          <Selector.Trigger>
+            <Selector.Value placeholder='Controlled selector'>{getLabel(fruits)}</Selector.Value>
+            <Selector.Icon />
+          </Selector.Trigger>
+          <Selector.Content>
+            <Selector.Viewport>
+              {fruits.slice(0, 8).map(({ value, label }) => (
+                <Selector.Item key={value} value={value} textValue={label}>
+                  <Selector.ItemText>{label}</Selector.ItemText>
+                  <Selector.ItemIndicator />
+                </Selector.Item>
+              ))}
+            </Selector.Viewport>
+          </Selector.Content>
+        </Selector.Root>
+      </div>
+    );
+  },
+};
+
+type PlaygroundArgs = {
+  disabled: boolean;
+  error: boolean;
+  required: boolean;
+  placeholder: string;
+  defaultOpen: boolean;
+};
+
+export const Interactive: StoryObj<PlaygroundArgs> = {
+  name: 'Features / Interactive',
+  args: {
+    disabled: false,
+    error: false,
+    required: false,
+    placeholder: 'Select a fruit',
+    defaultOpen: false,
+  },
+  argTypes: {
+    disabled: {
+      control: 'boolean',
+      description: 'Disable the selector',
+    },
+    error: {
+      control: 'boolean',
+      description: 'Show error state',
+    },
+    required: {
+      control: 'boolean',
+      description: 'Make selection required',
+    },
+    placeholder: {
+      control: 'text',
+      description: 'Placeholder text',
+    },
+    defaultOpen: {
+      control: 'boolean',
+      description: 'Open dropdown by default',
+    },
+  },
+  render: args => {
+    const { disabled, error, required, placeholder, defaultOpen } = args;
+    const [value, setValue] = useState<string | undefined>();
+
+    return (
+      <div className='w-80 space-y-3'>
+        <header>
+          <h3 className='font-medium text-md'>Playground</h3>
+          <p className='text-sm text-subtle'>Use the controls to configure the selector</p>
+        </header>
+        <div className='rounded-sm bg-surface-primary px-3 py-2'>
+          <p className='text-sm'>
+            <span className='font-medium'>Selected:</span> {value ?? '(none)'}
+          </p>
+        </div>
+        <Selector.Root
+          value={value}
+          onValueChange={setValue}
+          disabled={disabled}
+          error={error}
+          required={required}
+          defaultOpen={defaultOpen}
+        >
+          <Selector.Trigger>
+            <Selector.Value placeholder={placeholder}>{getLabel(fruits)}</Selector.Value>
+            <Selector.Icon />
+          </Selector.Trigger>
+          <Selector.Content>
+            <Selector.Viewport>
+              {fruits.map(({ value, label }) => (
+                <Selector.Item key={value} value={value} textValue={label}>
+                  <Selector.ItemText>{label}</Selector.ItemText>
+                  <Selector.ItemIndicator />
+                </Selector.Item>
+              ))}
+            </Selector.Viewport>
+          </Selector.Content>
+          <Selector.HiddenSelect />
+        </Selector.Root>
+        {error && <p className='text-error text-sm'>Please select a valid option</p>}
+      </div>
+    );
+  },
+};
+
 //
 // Behavior
 //
@@ -563,155 +708,6 @@ export const TypeToSelect: Story = {
             Selected: <span className='font-medium'>{value}</span>
           </p>
         )}
-      </div>
-    );
-  },
-};
-
-export const Controlled: Story = {
-  name: 'Behavior / Controlled',
-  render: () => {
-    const [value, setValue] = useState<string | undefined>('banana');
-    const [open, setOpen] = useState(false);
-
-    return (
-      <div className='w-80 space-y-3'>
-        <h3 className='font-medium text-md'>Controlled State</h3>
-        <div className='rounded-sm bg-surface-primary p-3'>
-          <p className='text-sm'>
-            <span className='font-medium'>Value:</span> {value ?? '(none)'}
-          </p>
-          <p className='text-sm'>
-            <span className='font-medium'>Open:</span> {open ? 'true' : 'false'}
-          </p>
-        </div>
-        <div className='flex gap-2'>
-          <button
-            type='button'
-            onClick={() => setValue('cherry')}
-            className='rounded-sm bg-btn-default px-3 py-1.5 text-on-dark text-sm hover:bg-btn-hover'
-          >
-            Set Cherry
-          </button>
-          <button
-            type='button'
-            onClick={() => setValue(undefined)}
-            className='rounded-sm bg-surface-neutral-hover px-3 py-1.5 text-sm hover:bg-surface-neutral-pressed'
-          >
-            Clear
-          </button>
-          <button
-            type='button'
-            onClick={() => setOpen(!open)}
-            className='rounded-sm bg-surface-neutral-hover px-3 py-1.5 text-sm hover:bg-surface-neutral-pressed'
-          >
-            Toggle Open
-          </button>
-        </div>
-        <Selector.Root value={value} onValueChange={setValue} open={open} onOpenChange={setOpen}>
-          <Selector.Trigger>
-            <Selector.Value placeholder='Controlled selector'>{getLabel(fruits)}</Selector.Value>
-            <Selector.Icon />
-          </Selector.Trigger>
-          <Selector.Content>
-            <Selector.Viewport>
-              {fruits.slice(0, 8).map(({ value, label }) => (
-                <Selector.Item key={value} value={value} textValue={label}>
-                  <Selector.ItemText>{label}</Selector.ItemText>
-                  <Selector.ItemIndicator />
-                </Selector.Item>
-              ))}
-            </Selector.Viewport>
-          </Selector.Content>
-        </Selector.Root>
-      </div>
-    );
-  },
-};
-
-//
-// Interactive Playground
-//
-
-type PlaygroundArgs = {
-  disabled: boolean;
-  error: boolean;
-  required: boolean;
-  placeholder: string;
-  defaultOpen: boolean;
-};
-
-export const Interactive: StoryObj<PlaygroundArgs> = {
-  name: 'Features / Interactive',
-  args: {
-    disabled: false,
-    error: false,
-    required: false,
-    placeholder: 'Select a fruit',
-    defaultOpen: false,
-  },
-  argTypes: {
-    disabled: {
-      control: 'boolean',
-      description: 'Disable the selector',
-    },
-    error: {
-      control: 'boolean',
-      description: 'Show error state',
-    },
-    required: {
-      control: 'boolean',
-      description: 'Make selection required',
-    },
-    placeholder: {
-      control: 'text',
-      description: 'Placeholder text',
-    },
-    defaultOpen: {
-      control: 'boolean',
-      description: 'Open dropdown by default',
-    },
-  },
-  render: args => {
-    const { disabled, error, required, placeholder, defaultOpen } = args;
-    const [value, setValue] = useState<string | undefined>();
-
-    return (
-      <div className='w-80 space-y-3'>
-        <header>
-          <h3 className='font-medium text-md'>Playground</h3>
-          <p className='text-sm text-subtle'>Use the controls to configure the selector</p>
-        </header>
-        <div className='rounded-sm bg-surface-primary px-3 py-2'>
-          <p className='text-sm'>
-            <span className='font-medium'>Selected:</span> {value ?? '(none)'}
-          </p>
-        </div>
-        <Selector.Root
-          value={value}
-          onValueChange={setValue}
-          disabled={disabled}
-          error={error}
-          required={required}
-          defaultOpen={defaultOpen}
-        >
-          <Selector.Trigger>
-            <Selector.Value placeholder={placeholder}>{getLabel(fruits)}</Selector.Value>
-            <Selector.Icon />
-          </Selector.Trigger>
-          <Selector.Content>
-            <Selector.Viewport>
-              {fruits.map(({ value, label }) => (
-                <Selector.Item key={value} value={value} textValue={label}>
-                  <Selector.ItemText>{label}</Selector.ItemText>
-                  <Selector.ItemIndicator />
-                </Selector.Item>
-              ))}
-            </Selector.Viewport>
-          </Selector.Content>
-          <Selector.HiddenSelect />
-        </Selector.Root>
-        {error && <p className='text-error text-sm'>Please select a valid option</p>}
       </div>
     );
   },

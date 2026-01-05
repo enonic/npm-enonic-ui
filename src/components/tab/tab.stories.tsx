@@ -243,6 +243,55 @@ export const Controlled: Story = {
   },
 };
 
+export const Interactive: Story = {
+  name: 'Features / Interactive',
+  args: {
+    activationMode: 'automatic',
+  },
+  render: args => {
+    const [value, setValue] = useState('tab1');
+
+    return (
+      <div className='w-96 space-y-6'>
+        <p className='text-sm text-subtle'>
+          Activation mode: <span className='font-semibold'>{args.activationMode}</span>
+          {args.activationMode === 'manual' && ' (arrow keys move focus, Enter/Space selects)'}
+        </p>
+
+        <div className='rounded-lg border border-border p-6'>
+          <Tab.Root value={value} onValueChange={setValue} activationMode={args.activationMode} className='w-full'>
+            <Tab.List aria-label='Interactive tabs'>
+              <Tab.DefaultTrigger value='tab1' icon={User}>
+                Account
+              </Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='tab2' icon={Settings} error>
+                Settings
+              </Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='tab3' icon={Bell} disabled>
+                Disabled
+              </Tab.DefaultTrigger>
+            </Tab.List>
+            <Tab.Content value='tab1' className='p-4'>
+              <p className='text-sm text-subtle'>Account content</p>
+            </Tab.Content>
+            <Tab.Content value='tab2' className='p-4'>
+              <p className='text-sm text-subtle'>Settings content</p>
+            </Tab.Content>
+            <Tab.Content value='tab3' className='p-4'>
+              <p className='text-sm text-subtle'>Disabled content</p>
+            </Tab.Content>
+          </Tab.Root>
+        </div>
+
+        <p className='text-sm'>
+          <span className='text-subtle'>Selected: </span>
+          <span className='font-semibold'>{value}</span>
+        </p>
+      </div>
+    );
+  },
+};
+
 //
 // * Behavior
 //
@@ -303,57 +352,4 @@ export const KeyboardNavigation: Story = {
       </Tab.Root>
     </div>
   ),
-};
-
-//
-// * Interactive
-//
-
-export const Interactive: Story = {
-  name: 'Features / Interactive',
-  args: {
-    activationMode: 'automatic',
-  },
-  render: args => {
-    const [value, setValue] = useState('tab1');
-
-    return (
-      <div className='w-96 space-y-6'>
-        <p className='text-sm text-subtle'>
-          Activation mode: <span className='font-semibold'>{args.activationMode}</span>
-          {args.activationMode === 'manual' && ' (arrow keys move focus, Enter/Space selects)'}
-        </p>
-
-        <div className='rounded-lg border border-border p-6'>
-          <Tab.Root value={value} onValueChange={setValue} activationMode={args.activationMode} className='w-full'>
-            <Tab.List aria-label='Interactive tabs'>
-              <Tab.DefaultTrigger value='tab1' icon={User}>
-                Account
-              </Tab.DefaultTrigger>
-              <Tab.DefaultTrigger value='tab2' icon={Settings} error>
-                Settings
-              </Tab.DefaultTrigger>
-              <Tab.DefaultTrigger value='tab3' icon={Bell} disabled>
-                Disabled
-              </Tab.DefaultTrigger>
-            </Tab.List>
-            <Tab.Content value='tab1' className='p-4'>
-              <p className='text-sm text-subtle'>Account content</p>
-            </Tab.Content>
-            <Tab.Content value='tab2' className='p-4'>
-              <p className='text-sm text-subtle'>Settings content</p>
-            </Tab.Content>
-            <Tab.Content value='tab3' className='p-4'>
-              <p className='text-sm text-subtle'>Disabled content</p>
-            </Tab.Content>
-          </Tab.Root>
-        </div>
-
-        <p className='text-sm'>
-          <span className='text-subtle'>Selected: </span>
-          <span className='font-semibold'>{value}</span>
-        </p>
-      </div>
-    );
-  },
 };
