@@ -169,7 +169,7 @@
   "packageManager": "pnpm@10.25.0",
   "lint-staged": {
     "*.{ts,tsx}": [
-      "biome check --write --unsafe --no-errors-on-unmatched",
+      "biome check --write --unsafe --formatter-enabled=true --no-errors-on-unmatched",
       "eslint --cache --fix --no-warn-ignored --concurrency auto"
     ],
     "*.{json,css}": [
