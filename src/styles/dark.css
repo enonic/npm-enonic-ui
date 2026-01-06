@@ -7,6 +7,7 @@
     --color-alt: var(--color-white);
     --color-rev: var(--color-black);
     --color-alt-rev: var(--color-black);
+    --color-muted: var(--color-grey-800);
 
     --color-info: var(--color-fbk-info-subtle);
     --color-info-rev: var(--color-fbk-info);
@@ -29,6 +30,7 @@
     --color-surface-warn: var(--color-fbk-warn-surface-dark);
     --color-surface-success: var(--color-fbk-success-surface-dark);
     --color-surface-error: var(--color-fbk-danger-surface-dark);
+    --color-surface-muted: var(--color-grey-500);
 
     /* Borders */
     --color-bdr-subtle: var(--color-grey-800);

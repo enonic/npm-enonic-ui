@@ -247,6 +247,7 @@ export const SemanticColors: Story = {
             { name: 'alt', variable: '--color-alt', description: 'Locked, never changes' },
             { name: 'rev', variable: '--color-rev', description: 'Reversed version' },
             { name: 'alt-rev', variable: '--color-alt-rev', description: 'Locked reversed' },
+            { name: 'muted', variable: '--color-muted', description: 'Non-interactive elements' },
           ]}
         />
 
@@ -292,6 +293,7 @@ export const SemanticColors: Story = {
             { name: 'surface-warn', variable: '--color-surface-warn', description: 'Warning background' },
             { name: 'surface-success', variable: '--color-surface-success', description: 'Success background' },
             { name: 'surface-error', variable: '--color-surface-error', description: 'Error background' },
+            { name: 'surface-muted', variable: '--color-surface-muted', description: 'Inactive background' },
           ]}
         />
 
