@@ -226,9 +226,9 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
         onClick={handleClick}
         className={cn(
           'relative inline-flex h-10 flex-1 items-center justify-center gap-1.5',
-          'min-w-0 overflow-hidden whitespace-nowrap',
-          'py-2.5 text-sm',
-          'text-subtle transition-highlight',
+          'min-w-0 overflow-hidden whitespace-nowrap py-2.5',
+          'text-sm text-subtle transition-highlight',
+          'cursor-pointer',
           'after:absolute after:inset-x-0 after:bottom-0',
           'after:h-px after:bg-bdr-soft after:transition-all',
           'hover:text-default',
