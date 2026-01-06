@@ -15,6 +15,7 @@ export * from './search-field';
 export * from './selectable-list-item';
 export * from './selector';
 export * from './separator';
+export * from './skeleton';
 export * from './tab';
 export * from './toast';
 export * from './toggle';

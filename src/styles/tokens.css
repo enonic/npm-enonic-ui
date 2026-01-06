@@ -14,6 +14,7 @@
   --color-alt: var(--color-alt);
   --color-rev: var(--color-rev);
   --color-alt-rev: var(--color-alt-rev);
+  --color-muted: var(--color-muted);
 
   --color-info: var(--color-info);
   --color-info-rev: var(--color-info-rev);
@@ -36,6 +37,7 @@
   --color-surface-warn: var(--color-surface-warn);
   --color-surface-success: var(--color-surface-success);
   --color-surface-error: var(--color-surface-error);
+  --color-surface-muted: var(--color-surface-muted);
 
   /* Borders */
   --color-bdr-subtle: var(--color-bdr-subtle);
