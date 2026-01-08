@@ -1,3 +1,4 @@
+export { CircleDot, CircleDotIcon } from './circle-dot';
 export { FilledCircleAlert, FilledCircleAlertIcon } from './filled-circle-alert';
 export { FilledCircleCheck, FilledCircleCheckIcon } from './filled-circle-check';
 export { FilledCircleInfo, FilledCircleInfoIcon } from './filled-circle-info';
