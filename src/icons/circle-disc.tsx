@@ -4,9 +4,9 @@ import { cn } from '../utils/cn';
 import { unwrap } from '../utils/unwrap';
 
 /**
- * A circle with a dot inside.
+ * A circle with a disc inside.
  */
-export const CircleDot: LucideIcon = forwardRef<SVGSVGElement, LucideProps>(
+export const CircleDisc: LucideIcon = forwardRef<SVGSVGElement, LucideProps>(
   ({ size = 24, className, ...props }, ref) => (
     <svg
       ref={ref}
@@ -16,18 +16,19 @@ export const CircleDot: LucideIcon = forwardRef<SVGSVGElement, LucideProps>(
       viewBox='0 0 24 24'
       fill='none'
       stroke='currentColor'
-      strokeWidth='3'
+      strokeWidth='2'
       strokeLinecap='round'
       strokeLinejoin='round'
-      className={cn('lucide lucide-circle-dot-icon lucide-circle-dot', unwrap(className))}
+      className={cn('lucide lucide-circle-disc', unwrap(className))}
+      aria-hidden='true'
       {...props}
     >
       <circle cx='12' cy='12' r='10' />
-      <circle cx='12' cy='12' r='4' fill='currentColor' />
+      <circle cx='12' cy='12' r='6' fill='currentColor' />
     </svg>
   ),
 );
-CircleDot.displayName = 'CircleDot';
+CircleDisc.displayName = 'CircleDisc';
 
-/** @alias CircleDot */
-export const CircleDotIcon = CircleDot;
+/** @alias CircleDisc */
+export const CircleDiscIcon = CircleDisc;

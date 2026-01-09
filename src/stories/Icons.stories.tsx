@@ -27,7 +27,7 @@ import {
 import type { ReactElement } from 'react';
 import { ListItem, type ListItemDefaultContentProps } from '@/components/list-item/list-item';
 import {
-  CircleDotIcon,
+  CircleDiscIcon,
   FilledCircleAlertIcon,
   FilledCircleCheckIcon,
   FilledCircleInfoIcon,
@@ -79,7 +79,7 @@ export const CustomIcons: Story = {
         description='Filled circle with check'
       />
       <IconListItem icon={<FilledCircleXIcon />} label='Filled Circle X' description='Filled circle with x' />
-      <IconListItem icon={<CircleDotIcon />} label='Circle Dot' description='Circle with a dot inside' />
+      <IconListItem icon={<CircleDiscIcon />} label='Circle Disc' description='Circle with a disc inside' />
     </div>
   ),
 };
