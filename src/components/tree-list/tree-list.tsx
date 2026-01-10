@@ -22,7 +22,7 @@ import {
 } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { type SelectionMode, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
-import type { LucideIcon } from '@/types';
+import type { ItemInteraction, LucideIcon } from '@/types';
 import { cn, setRef } from '@/utils';
 
 const calcSpacerWidth = (level: number): number => Math.max(0, 10 + 20 * (level - 1));
@@ -103,6 +103,18 @@ export type TreeListRootProps = {
   getFirstChildId?: (id: string) => string | undefined;
   expanded?: ReadonlySet<string>;
   onExpandedChange?: (expanded: ReadonlySet<string>) => void;
+  /**
+   * Controls how users can interact with each item.
+   *
+   * Returns:
+   * - `'full'`: Item can be navigated to and selected (default)
+   * - `'navigate-only'`: Item can receive focus but cannot be selected
+   * - `'none'`: Item is completely non-interactive (skipped in navigation, cannot be selected)
+   *
+   * Default behavior when not provided:
+   * - Uses the `disabled` prop from TreeListRow (disabled = 'none', enabled = 'full')
+   */
+  getItemInteraction?: (id: string) => ItemInteraction;
 } & ComponentPropsWithoutRef<'div'>;
 
 const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
@@ -123,6 +135,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       getFirstChildId,
       expanded: controlledExpanded,
       onExpandedChange,
+      getItemInteraction,
       ...props
     },
     ref,
@@ -171,6 +184,20 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
     const { registerItem, unregisterItem, getItems, isItemDisabled, registryVersion } = useItemRegistry();
 
+    // Interaction helpers
+    const getInteraction = useCallback(
+      (id: string): ItemInteraction => {
+        if (getItemInteraction) return getItemInteraction(id);
+        // Default: check registry's disabled flag
+        return isItemDisabled(toDomId(id)) ? 'none' : 'full';
+      },
+      [getItemInteraction, isItemDisabled, toDomId],
+    );
+
+    const canNavigateById = useCallback((id: string): boolean => getInteraction(id) !== 'none', [getInteraction]);
+
+    const canSelectById = useCallback((id: string): boolean => getInteraction(id) === 'full', [getInteraction]);
+
     //
     // * Selection Methods
     //
@@ -178,7 +205,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
     const toggleSelection = useCallback(
       (id: string) => {
         if (selectionMode === 'none') return;
-        if (isItemDisabled(toDomId(id))) return;
+        if (!canSelectById(id)) return;
 
         const isSelected = selection.has(id);
         const newSelection = new Set(selectionMode === 'multiple' ? selection : []);
@@ -191,16 +218,16 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
         setSelection(newSelection);
       },
-      [selection, selectionMode, isItemDisabled, setSelection, toDomId],
+      [selection, selectionMode, canSelectById, setSelection],
     );
 
     const selectOnly = useCallback(
       (id: string) => {
         if (selectionMode === 'none') return;
-        if (isItemDisabled(toDomId(id))) return;
+        if (!canSelectById(id)) return;
         setSelection(new Set([id]));
       },
-      [selectionMode, isItemDisabled, setSelection, toDomId],
+      [selectionMode, canSelectById, setSelection],
     );
 
     const selectRange = useCallback(
@@ -217,12 +244,12 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
         const rangeIds = items
           .slice(start, end + 1)
-          .filter(domId => !isItemDisabled(domId))
-          .map(domId => fromDomId(domId));
+          .map(domId => fromDomId(domId))
+          .filter(id => canSelectById(id));
 
         setSelection(new Set(rangeIds));
       },
-      [selectionMode, getItems, isItemDisabled, setSelection, toDomId, fromDomId],
+      [selectionMode, getItems, canSelectById, setSelection, toDomId, fromDomId],
     );
 
     const clearSelection = useCallback(() => {
@@ -234,11 +261,11 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       if (selectionMode !== 'multiple') return;
 
       const allIds = getItems()
-        .filter(domId => !isItemDisabled(domId))
-        .map(domId => fromDomId(domId));
+        .map(domId => fromDomId(domId))
+        .filter(id => canSelectById(id));
 
       setSelection(new Set(allIds));
-    }, [selectionMode, getItems, isItemDisabled, setSelection, fromDomId]);
+    }, [selectionMode, getItems, canSelectById, setSelection, fromDomId]);
 
     //
     // * Tree Navigation Helpers
@@ -302,7 +329,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
     // Action mode: enter - focus first interactive element in active row
     const enterActionMode = useCallback(() => {
-      if (!active || isItemDisabled(active)) return;
+      if (!active || !canNavigateById(fromDomId(active))) return;
 
       const rowElement = document.getElementById(active);
       if (!rowElement) return;
@@ -314,7 +341,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         setActionModeRowId(fromDomId(active));
         firstFocusable.focus();
       }
-    }, [active, isItemDisabled, fromDomId]);
+    }, [active, canNavigateById, fromDomId]);
 
     // Action mode: exit - return focus to tree container
     const exitActionMode = useCallback(() => {
@@ -324,7 +351,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
     const { handleKeyDown: handleNavKeyDown, moveActive } = useKeyboardNavigation({
       getItems,
-      isItemDisabled,
+      isItemDisabled: domId => !canNavigateById(fromDomId(domId)),
       active,
       setActive,
       loop,
@@ -369,13 +396,13 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           if (!targetActive) {
             const items = getItems();
             const firstSelected = items.find(domId => selection.has(fromDomId(domId)));
-            targetActive = firstSelected ?? items.find(domId => !isItemDisabled(domId));
+            targetActive = firstSelected ?? items.find(domId => canNavigateById(fromDomId(domId)));
             if (targetActive) {
               setActive(targetActive);
             }
           }
 
-          if (!targetActive || isItemDisabled(targetActive)) return;
+          if (!targetActive || !canNavigateById(fromDomId(targetActive))) return;
 
           // Enter action mode directly (can't rely on enterActionMode due to stale closure)
           const rowElement = document.getElementById(targetActive);
@@ -458,11 +485,11 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
           if (currentIndex === -1) return;
 
-          // Find next non-disabled item
+          // Find next navigable item
           let newIndex = currentIndex + delta;
           while (newIndex >= 0 && newIndex < items.length) {
             const item = items[newIndex];
-            if (item && !isItemDisabled(item)) {
+            if (item && canNavigateById(fromDomId(item))) {
               break;
             }
             newIndex += delta;
@@ -539,8 +566,8 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         if ((e.ctrlKey || e.metaKey) && e.key === 'a' && selectionMode === 'multiple') {
           e.preventDefault();
 
-          const items = getItems().filter(domId => !isItemDisabled(domId));
-          const allSelected = items.every(domId => selection.has(fromDomId(domId)));
+          const selectableItems = getItems().filter(domId => canSelectById(fromDomId(domId)));
+          const allSelected = selectableItems.every(domId => selection.has(fromDomId(domId)));
 
           if (allSelected) {
             clearSelection();
@@ -551,7 +578,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         }
 
         // Handle Enter for activation
-        if (e.key === 'Enter' && active && !isItemDisabled(active)) {
+        if (e.key === 'Enter' && active && canSelectById(fromDomId(active))) {
           e.preventDefault();
           onActivate?.(fromDomId(active));
           return;
@@ -574,7 +601,8 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         selectionMode,
         anchorId,
         getItems,
-        isItemDisabled,
+        canNavigateById,
+        canSelectById,
         selectRange,
         selection,
         clearSelection,
@@ -616,12 +644,12 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         return;
       }
 
-      // Otherwise activate first non-disabled item
-      const firstEnabled = items.find(domId => !isItemDisabled(domId));
+      // Otherwise activate first navigable item
+      const firstEnabled = items.find(domId => canNavigateById(fromDomId(domId)));
       if (firstEnabled) {
         setActive(firstEnabled);
       }
-    }, [active, getItems, selection, fromDomId, setActive, isItemDisabled]);
+    }, [active, getItems, selection, fromDomId, setActive, canNavigateById]);
 
     const contextValue = useMemo(
       () => ({
