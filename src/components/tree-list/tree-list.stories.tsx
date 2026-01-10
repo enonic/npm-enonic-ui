@@ -16,7 +16,7 @@ export default {
 } satisfies Meta<typeof TreeList>;
 
 // Container wrapper for consistent layout across stories
-const STORY_CONTAINER_CLASS = 'w-100 space-y-4';
+const STORY_CONTAINER_CLASS = 'w-120 space-y-4';
 // TreeList height variants (width handled by container)
 const TREE_HEIGHT_SM = 'h-60'; // 5-8 items
 const TREE_HEIGHT_MD = 'h-70'; // 8-15 items
@@ -339,7 +339,7 @@ export const ItemActivation: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='rounded-sm bg-surface-primary p-2 text-sm'>
+        <div className='text-sm text-subtle'>
           Activated: <span className='font-medium'>{lastActivated ? getLabel(lastActivated) : 'none'}</span>
         </div>
       </div>
@@ -360,7 +360,10 @@ export const WithDisabledItems: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Disabled Items</div>
-        <div className='text-sm text-subtle'>Items &quot;Work&quot; and &quot;Vacation&quot; are disabled</div>
+        <div className='text-sm text-subtle'>
+          Items &quot;Work&quot; and &quot;Vacation&quot; are disabled. They are skipped during keyboard navigation and
+          cannot be selected.
+        </div>
         <TreeList
           className={treeListClass(TREE_HEIGHT_MD)}
           selection={selection}
@@ -386,6 +389,80 @@ export const WithDisabledItems: Story = {
                 </TreeList.RowContent>
               </TreeList.Row>
             ))}
+          </TreeList.Container>
+        </TreeList>
+      </div>
+    );
+  },
+};
+
+export const MixedInteraction: Story = {
+  name: 'States / Mixed Interaction',
+  render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const navigateOnlyIds = new Set(['1-1']);
+
+    // Demonstrates all three interaction levels:
+    // - 'none': loading and placeholder items (skipped in navigation) - handled by not rendering TreeList.Row
+    // - 'navigate-only': can focus but cannot select
+    // - 'full': normal interactive items (default for TreeList when disabled=false)
+    const getItemInteraction = (id: string): 'full' | 'navigate-only' =>
+      navigateOnlyIds.has(id) ? 'navigate-only' : 'full';
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Mixed Interaction Levels</div>
+        <div className='text-sm text-subtle'>
+          Shows all interaction levels: loading/placeholder items are skipped, &quot;Work&quot; is focusable but not
+          selectable (<code>&apos;navigate-only&apos;</code>), others are fully interactive.
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_MD)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          getItemInteraction={getItemInteraction}
+        >
+          <TreeList.Container>
+            {simpleItems.slice(0, 3).map(item => (
+              <TreeList.Row
+                key={item.id}
+                id={item.id}
+                disabled={navigateOnlyIds.has(item.id)}
+                level={item.level}
+                hasChildren={item.hasChildren}
+              >
+                <TreeList.RowLeft>
+                  <TreeList.RowLevelSpacer level={item.level} />
+                </TreeList.RowLeft>
+                <TreeList.RowContent>
+                  <ListItem className='px-0 py-0'>
+                    <ListItem.DefaultContent icon={item.icon} label={item.label} />
+                  </ListItem>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+            <TreeList.RowLoading level={2} />
+            {simpleItems.slice(5, 7).map(item => (
+              <TreeList.Row key={item.id} id={item.id} level={item.level} hasChildren={item.hasChildren}>
+                <TreeList.RowLeft>
+                  <TreeList.RowLevelSpacer level={item.level} />
+                </TreeList.RowLeft>
+                <TreeList.RowContent>
+                  <ListItem className='px-0 py-0'>
+                    <ListItem.DefaultContent icon={item.icon} label={item.label} />
+                  </ListItem>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+            <TreeList.RowPlaceholder level={2} />
+            <TreeList.Row id='3' level={1} hasChildren={false}>
+              <TreeList.RowContent>
+                <ListItem className='px-0 py-0'>
+                  <ListItem.DefaultContent icon={<File />} label='readme.txt' />
+                </ListItem>
+              </TreeList.RowContent>
+            </TreeList.Row>
           </TreeList.Container>
         </TreeList>
       </div>

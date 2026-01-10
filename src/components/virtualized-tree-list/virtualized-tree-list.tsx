@@ -31,7 +31,7 @@ import {
 import { useControlledState, useControlledStateWithNull, useVirtualizedKeyboardNavigation } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { useVirtualizedTreeList, VirtualizedTreeListProvider } from '@/providers/virtualized-tree-list-provider';
-import type { LucideIcon } from '@/types';
+import type { ItemInteraction, LucideIcon } from '@/types';
 import { cn } from '@/utils';
 
 //
@@ -72,6 +72,8 @@ export type VirtualizedTreeListItemProps = {
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
   active: boolean;
   selected: boolean;
+  /** Whether the tree container is focused (for keyboard navigation focus ring) */
+  focused: boolean;
 };
 
 /**
@@ -146,6 +148,35 @@ export type VirtualizedTreeListRootProps<TData = unknown> = {
   /** Whether navigation should loop at start/end */
   loop?: boolean;
 
+  /**
+   * Controls how users can interact with each item.
+   *
+   * Returns:
+   * - `'full'`: Item can be navigated to and selected (default)
+   * - `'navigate-only'`: Item can receive focus but cannot be selected
+   * - `'none'`: Item is completely non-interactive (skipped in navigation, cannot be selected)
+   *
+   * Default behavior when not provided:
+   * - `'none'` for loading items (`isLoading === true`)
+   * - `'full'` for all other items
+   *
+   * **Note:** Unlike TreeList, VirtualizedTreeList doesn't track disabled state internally.
+   * To make disabled items non-interactive, you must provide this callback explicitly.
+   *
+   * @example
+   * // Loading/placeholder items non-interactive
+   * getItemInteraction={(node) => node.isLoading || !node.data ? 'none' : 'full'}
+   *
+   * @example
+   * // Disabled items non-interactive
+   * getItemInteraction={(node) => {
+   *   if (node.isLoading || !node.data) return 'none';
+   *   if (disabledIds.has(node.id)) return 'none';
+   *   return 'full';
+   * }}
+   */
+  getItemInteraction?: (node: FlatNode<TData>) => ItemInteraction;
+
   /** Accessible label for the tree */
   'aria-label'?: string;
 
@@ -173,6 +204,7 @@ const VirtualizedTreeListRoot = forwardRef(
       onActivate,
       virtuosoRef,
       loop = false,
+      getItemInteraction,
       'aria-label': ariaLabel,
       className,
       children,
@@ -227,9 +259,33 @@ const VirtualizedTreeListRoot = forwardRef(
       [virtuosoRef],
     );
 
+    // Interaction helpers
+    const getInteraction = useCallback(
+      (node: FlatNode<TData>): ItemInteraction => {
+        if (getItemInteraction) return getItemInteraction(node);
+        // Default: loading items are non-interactive, everything else is full
+        return node.isLoading ? 'none' : 'full';
+      },
+      [getItemInteraction],
+    );
+
+    const canNavigate = useCallback(
+      (node: FlatNode<TData>): boolean => getInteraction(node) !== 'none',
+      [getInteraction],
+    );
+
+    const canSelect = useCallback(
+      (node: FlatNode<TData>): boolean => getInteraction(node) === 'full',
+      [getInteraction],
+    );
+
     const toggleSelection = useCallback(
       (id: string, index: number) => {
         if (selectionMode === 'none') return;
+
+        // Check if item can be selected
+        const item = items[index];
+        if (!item || !canSelect(item)) return;
 
         const newSelection = new Set(selectionMode === 'multiple' ? selection : []);
         const isSelected = selection.has(id);
@@ -247,7 +303,7 @@ const VirtualizedTreeListRoot = forwardRef(
 
         setSelection(newSelection);
       },
-      [selection, selectionMode, setSelection],
+      [selection, selectionMode, setSelection, items, canSelect],
     );
 
     const rangeSelect = useCallback(
@@ -256,11 +312,14 @@ const VirtualizedTreeListRoot = forwardRef(
 
         const start = Math.min(fromIndex, toIndex);
         const end = Math.max(fromIndex, toIndex);
-        const rangeIds = items.slice(start, end + 1).map(item => item.id);
+        const rangeIds = items
+          .slice(start, end + 1)
+          .filter(item => canSelect(item))
+          .map(item => item.id);
 
         setSelection(new Set([...selection, ...rangeIds]));
       },
-      [items, selection, selectionMode, setSelection],
+      [items, selection, selectionMode, setSelection, canSelect],
     );
 
     const getItemIndex = useCallback((id: string): number => items.findIndex(item => item.id === id), [items]);
@@ -348,16 +407,19 @@ const VirtualizedTreeListRoot = forwardRef(
         if (!items.length) return null;
 
         const startIndex = currentIndex ?? (delta > 0 ? -1 : items.length);
-        const newIndex = startIndex + delta;
+        let newIndex = startIndex + delta;
 
         while (newIndex >= 0 && newIndex < items.length) {
-          // All items are enabled in VirtualizedTreeList (no isItemDisabled by default)
-          return newIndex;
+          const item = items[newIndex];
+          if (item && canNavigate(item)) {
+            return newIndex;
+          }
+          newIndex += delta;
         }
 
         return null;
       },
-      [items],
+      [items, canNavigate],
     );
 
     const { handleKeyDown: baseHandleKeyDown } = useVirtualizedKeyboardNavigation({
@@ -369,6 +431,7 @@ const VirtualizedTreeListRoot = forwardRef(
       onCollapse,
       onSelect: (id, index) => toggleSelection(id, index),
       loop,
+      isItemDisabled: node => !canNavigate(node),
     });
 
     const handleKeyDown = useCallback(
@@ -452,11 +515,11 @@ const VirtualizedTreeListRoot = forwardRef(
           return;
         }
 
-        // Handle Enter for activation
+        // Handle Enter for activation (only for selectable items)
         if (e.key === 'Enter' && activeIndex !== null) {
           e.preventDefault();
           const item = items[activeIndex];
-          if (item) {
+          if (item && canSelect(item)) {
             onActivate?.(item.id);
           }
           return;
@@ -481,25 +544,28 @@ const VirtualizedTreeListRoot = forwardRef(
             setActiveIndex(newIndex);
             scrollToIndex(newIndex);
 
-            // Select range from anchor to new position
+            // Select range from anchor to new position (only selectable items)
             const [start, end] = [Math.min(anchor, newIndex), Math.max(anchor, newIndex)];
-            const rangeIds = items.slice(start, end + 1).map(item => item.id);
+            const rangeIds = items
+              .slice(start, end + 1)
+              .filter(item => canSelect(item))
+              .map(item => item.id);
             setSelection(new Set(rangeIds));
           }
           return;
         }
 
-        // Handle Ctrl+A for select all/toggle (multiple mode only)
+        // Handle Ctrl+A for select all/toggle (multiple mode only, only selectable items)
         if ((e.ctrlKey || e.metaKey) && e.key === 'a' && selectionMode === 'multiple') {
           e.preventDefault();
 
-          const allIds = items.map(item => item.id);
-          const allSelected = allIds.every(id => selection.has(id));
+          const selectableIds = items.filter(item => canSelect(item)).map(item => item.id);
+          const allSelected = selectableIds.every(id => selection.has(id));
 
           if (allSelected) {
             setSelection(new Set());
           } else {
-            setSelection(new Set(allIds));
+            setSelection(new Set(selectableIds));
           }
           return;
         }
@@ -521,6 +587,7 @@ const VirtualizedTreeListRoot = forwardRef(
         setActiveIndex,
         selection,
         baseHandleKeyDown,
+        canSelect,
       ],
     );
 
@@ -533,12 +600,19 @@ const VirtualizedTreeListRoot = forwardRef(
           return;
         }
 
+        // Check if item allows navigation
+        const item = items[index];
+        if (!item || !canNavigate(item)) return;
+
         // Focus tree container for keyboard navigation
         const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
         tree?.focus();
 
         // Set this item as active
         setActiveIndex(index);
+
+        // Check if item allows selection
+        if (!canSelect(item)) return;
 
         // Skip selection handling if mode is 'none'
         if (selectionMode === 'none') return;
@@ -560,7 +634,7 @@ const VirtualizedTreeListRoot = forwardRef(
           toggleSelection(id, index);
         }
       },
-      [selectionMode, setActiveIndex, toggleSelection, rangeSelect, setSelection],
+      [selectionMode, setActiveIndex, toggleSelection, rangeSelect, setSelection, items, canNavigate, canSelect],
     );
 
     // Build getItemProps function
@@ -585,9 +659,10 @@ const VirtualizedTreeListRoot = forwardRef(
           onClick: (e: React.MouseEvent<HTMLElement>) => handleRowClick(node.id, index, e),
           active: isActive,
           selected: isSelected,
+          focused: isFocused,
         };
       },
-      [baseId, activeIndex, selection, selectionMode, handleRowClick],
+      [baseId, activeIndex, selection, selectionMode, handleRowClick, isFocused],
     );
 
     // Handle focus: set initial active item if none
@@ -598,18 +673,21 @@ const VirtualizedTreeListRoot = forwardRef(
 
       if (items.length === 0) return;
 
-      // Try to activate first selected item
-      const firstSelectedIndex = items.findIndex(item => selection.has(item.id));
+      // Try to activate first selected item that can be navigated
+      const firstSelectedIndex = items.findIndex(item => selection.has(item.id) && canNavigate(item));
       if (firstSelectedIndex !== -1) {
         setActiveIndex(firstSelectedIndex);
         scrollToIndex(firstSelectedIndex);
         return;
       }
 
-      // Otherwise activate first item
-      setActiveIndex(0);
-      scrollToIndex(0);
-    }, [activeIndex, items, selection, setActiveIndex, scrollToIndex]);
+      // Otherwise activate first navigable item
+      const firstEnabledIndex = items.findIndex(item => canNavigate(item));
+      if (firstEnabledIndex !== -1) {
+        setActiveIndex(firstEnabledIndex);
+        scrollToIndex(firstEnabledIndex);
+      }
+    }, [activeIndex, items, selection, setActiveIndex, scrollToIndex, canNavigate]);
 
     // Container props for Virtuoso
     const containerProps = useMemo(
@@ -720,6 +798,8 @@ export type VirtualizedTreeListRowProps = {
   disabled?: boolean;
   /** Whether this row is selectable */
   selectable?: boolean;
+  /** Whether the tree container is focused (shows focus ring when active) */
+  focused?: boolean;
   /** Additional class names */
   className?: string;
   /** Row content */
@@ -728,7 +808,16 @@ export type VirtualizedTreeListRowProps = {
 
 const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRowProps>(
   (
-    { active = false, selected = false, disabled = false, selectable = true, className, children, ...props },
+    {
+      active = false,
+      selected = false,
+      disabled = false,
+      selectable = true,
+      focused = false,
+      className,
+      children,
+      ...props
+    },
     ref,
   ): ReactElement => {
     return (
@@ -744,6 +833,8 @@ const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRow
             disabled,
             selectable: selectable && !disabled,
           }),
+          // Focus ring for keyboard navigation (mirroring TreeListRow's focus-visible styles)
+          active && focused && !disabled && ['ring-3 ring-ring-offset ring-inset', 'ring-offset-3 ring-offset-ring'],
           className,
         )}
         {...props}
