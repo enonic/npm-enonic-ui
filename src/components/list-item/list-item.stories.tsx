@@ -198,7 +198,7 @@ export const WithIcons: Story = {
           </ListItem.Right>
         </ListItem>
 
-        <ListItem selected style={{ '--color-ring-offset': 'var(--color-surface-selected)' }}>
+        <ListItem selected>
           <ListItem.Left>
             <Checkbox checked={checked2} onCheckedChange={setChecked2} aria-label='Select file' />
           </ListItem.Left>

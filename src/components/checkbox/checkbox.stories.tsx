@@ -198,7 +198,7 @@ export const OnSelectedBackground: Story = {
     const indeterminateBox = useCheckboxState('indeterminate');
 
     return (
-      <div className='space-y-4 p-4' style={{ '--color-ring-offset': 'var(--color-surface-selected)' }}>
+      <div className='space-y-4 p-4'>
         <h3 className='mb-3 font-medium text-sm'>Checkboxes on selected background</h3>
 
         <div className='group rounded bg-surface-selected p-4 text-alt' data-tone='inverse'>

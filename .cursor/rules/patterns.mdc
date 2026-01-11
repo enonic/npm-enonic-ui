@@ -34,5 +34,30 @@ Extend clickable area to fill gaps between list items using `::after` pseudo-ele
 | TreeListContent.Row | `gap-y-1` | `after:-inset-y-0.5` |
 | Listbox Item | `gap-y-1` | `after:-inset-y-0.5` |
 | Selector Item | `gap-y-1` | `after:-inset-y-0.5` |
-| Checkbox (unlabeled) | N/A | `after:-inset-1.75` (standalone touch target) |
+| Checkbox (unlabeled) | N/A | `after:-inset-1` (standalone touch target) |
 | Menu Items | No gap | Pattern removed |
+
+## Focus Ring on Inverse Backgrounds
+
+When a focusable element appears on an inverse/selected background (e.g., inside a menu item with `data-tone="inverse"`), the focus ring colors must be overridden to match the background.
+
+**Pattern:** Override CSS custom properties on the parent with `group-data-[tone=inverse]`:
+
+```tsx
+'group-data-[tone=inverse]:[--color-ring-offset:var(--color-surface-selected)]'
+'group-data-[tone=inverse]:[--color-ring:var(--color-ring-alt)]'
+```
+
+**Why:** The focus ring has a 3px offset (`ring-offset-3`) that creates a visible gap. This gap must match the background color, otherwise it appears as a jarring light stripe on dark backgrounds.
+
+| Variable | Purpose | Inverse Value |
+|----------|---------|---------------|
+| `--color-ring-offset` | Gap between element and ring | `var(--color-surface-selected)` |
+| `--color-ring` | The focus ring itself | `var(--color-ring-alt)` |
+
+### Current Usage
+
+| Component | Context |
+|-----------|---------|
+| Button | Inside tree list rows with `data-tone="inverse"` |
+| Checkbox | Inside menu items with `data-tone="inverse"` |

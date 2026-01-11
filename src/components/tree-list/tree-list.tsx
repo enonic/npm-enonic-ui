@@ -20,7 +20,7 @@ import {
   useKeyboardNavigation,
   useRovingTabIndex,
 } from '@/hooks';
-import { FilledCircleCheck } from '@/icons';
+import { FilledSquareCheck } from '@/icons';
 import { usePrefixedId } from '@/providers';
 import { type SelectionMode, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
 import type { ItemInteraction, LucideIcon } from '@/types';
@@ -1199,7 +1199,7 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
         onClick={handleClick}
         {...props}
       >
-        {isSelected ? <FilledCircleCheck /> : <Square />}
+        {isSelected ? <FilledSquareCheck /> : <Square />}
       </div>
     );
   },

@@ -9,6 +9,8 @@ const buttonVariants = cva(
     'font-semibold text-main',
     'box-border rounded-sm transition-highlight',
     'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+    // Override ring colors for inverse tone to match background
+    'group-data-[tone=inverse]:[--color-ring-offset:var(--color-surface-selected)] group-data-[tone=inverse]:[--color-ring:var(--color-ring-alt)]',
     'active:bg-btn-active active:text-alt data-[active=true]:bg-btn-active data-[active=true]:text-alt',
     'disabled:pointer-events-none disabled:select-none disabled:opacity-30',
     'cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap',
