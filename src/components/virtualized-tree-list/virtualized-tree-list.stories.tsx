@@ -4,6 +4,7 @@ import type React from 'react';
 import { forwardRef, type ReactElement, useMemo, useRef, useState } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import { Button, ListItem } from '@/components';
+import { cn } from '@/utils';
 import { type FlatNode, VirtualizedTreeList } from './virtualized-tree-list';
 
 type Story = StoryObj<typeof VirtualizedTreeList>;
@@ -233,9 +234,9 @@ export const FlatList: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -296,9 +297,9 @@ export const Basic: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -358,9 +359,9 @@ export const LargeDataset: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -480,9 +481,9 @@ export const CheckboxesOnRight: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={nodeItems}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -590,9 +591,9 @@ export const WithLoading: Story = {
             <Virtuoso<FlatNode<TreeNodeData | null>>
               ref={virtuosoRef}
               data={nodeItems}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 if (node.isLoading || !node.data) {
                   return <VirtualizedTreeList.RowLoading level={node.level} />;
@@ -701,9 +702,9 @@ export const WithDisabledItems: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={nodeItems}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const isDisabled = disabledIds.has(node.id);
                 const itemProps = getItemProps(index, node);
@@ -814,9 +815,9 @@ export const MixedInteraction: Story = {
             <Virtuoso<FlatNode<TreeNodeData | null>>
               ref={virtuosoRef}
               data={nodeItems}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 if (node.isLoading) {
                   return <VirtualizedTreeList.RowLoading level={node.level} />;
@@ -884,9 +885,9 @@ export const PlaceholderState: Story = {
             <Virtuoso<FlatNode<TreeNodeData | null>>
               ref={virtuosoRef}
               data={nodeItems}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 if (!node.data) {
                   return <VirtualizedTreeList.RowPlaceholder level={node.level} />;
@@ -953,9 +954,9 @@ export const MultipleSelection: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -1041,9 +1042,9 @@ export const CheckboxSelection: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -1162,9 +1163,9 @@ export const KeyboardNavigation: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -1256,9 +1257,9 @@ export const KeyboardRangeSelection: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -1350,9 +1351,9 @@ export const ActivationCallback: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -1428,9 +1429,9 @@ export const NavigationOnlyMode: Story = {
             <Virtuoso<FlatNode<TreeNodeData>>
               ref={virtuosoRef}
               data={items}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
@@ -1593,9 +1594,9 @@ export const ActionMode: Story = {
             <Virtuoso<FlatNode<ActionItemData>>
               ref={virtuosoRef}
               data={nodeItems}
-              className='h-full'
               components={virtuosoComponents}
               {...containerProps}
+              className={cn('h-full', containerProps.className)}
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (

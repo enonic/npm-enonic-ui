@@ -629,29 +629,6 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       }
     }, [active]);
 
-    // Handle focus: set initial active item if none
-    const handleFocus = useCallback(() => {
-      setFocused(true);
-
-      if (active) return;
-
-      const items = getItems();
-      if (items.length === 0) return;
-
-      // Try to activate first selected item
-      const firstSelected = items.find(domId => selection.has(fromDomId(domId)));
-      if (firstSelected) {
-        setActive(firstSelected);
-        return;
-      }
-
-      // Otherwise activate first navigable item
-      const firstEnabled = items.find(domId => canNavigateById(fromDomId(domId)));
-      if (firstEnabled) {
-        setActive(firstEnabled);
-      }
-    }, [active, getItems, selection, fromDomId, setActive, canNavigateById]);
-
     const contextValue = useMemo(
       () => ({
         baseId,
@@ -719,7 +696,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           }}
           className={cn(
             // Soft focus ring on container (like Toolbar)
-            'focus-within:ring-2 focus-within:ring-ring/25 focus-within:ring-inset',
+            'outline-none focus-within:ring-2 focus-within:ring-ring/25 focus-within:ring-inset',
             className,
           )}
           role='tree'
@@ -727,7 +704,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
           tabIndex={0}
           onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
+          onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           {...props}
         >
