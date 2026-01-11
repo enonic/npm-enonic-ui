@@ -181,7 +181,7 @@ export type VirtualizedTreeListRootProps<TData = unknown> = {
    * - `'none'`: Item is completely non-interactive (skipped in navigation, cannot be selected)
    *
    * Default behavior when not provided:
-   * - `'none'` for loading items (`isLoading === true`)
+   * - `'none'` for loading items (`isLoading === true`) or placeholder items (`data == null`)
    * - `'full'` for all other items
    *
    * **Note:** Unlike TreeList, VirtualizedTreeList doesn't track disabled state internally.
@@ -298,8 +298,8 @@ const VirtualizedTreeListRoot = forwardRef(
     const getInteraction = useCallback(
       (node: FlatNode<TData>): ItemInteraction => {
         if (getItemInteraction) return getItemInteraction(node);
-        // Default: loading items are non-interactive, everything else is full
-        return node.isLoading ? 'none' : 'full';
+        // Default: loading or placeholder items (null/undefined data) are non-interactive
+        return node.isLoading || node.data == null ? 'none' : 'full';
       },
       [getItemInteraction],
     );
