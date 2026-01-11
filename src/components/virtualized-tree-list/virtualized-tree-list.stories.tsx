@@ -27,20 +27,49 @@ const TREE_HEIGHT_LG = 'h-80'; // 15+ items
 // Styled variant with border
 const treeListClass = (height: string): string => `${height} rounded-sm border border-bdr-subtle shadow-sm`;
 
-// Custom Virtuoso components for padding and gap styling
-// Scroller handles padding (List's padding gets overwritten by Virtuoso's dynamic inline styles)
-// Must be defined outside component to prevent remounting on each render
+/**
+ * Custom Virtuoso components for padding and gap styling.
+ *
+ * IMPORTANT: When customizing Virtuoso components, you MUST preserve the `className` prop
+ * by merging it with your custom classes using `cn()` or similar utility.
+ *
+ * The `containerProps` from VirtualizedTreeList includes `className: 'group/tree outline-none'`
+ * which is required for the keyboard focus ring to work. The `group/tree` class enables
+ * CSS-based `:focus-visible` detection - when the Scroller has keyboard focus, descendant
+ * rows with `group-focus-visible/tree:*` classes will show their focus rings.
+ *
+ * If you override className without merging, the focus ring will not appear on keyboard navigation.
+ *
+ * @example
+ * // ✓ Correct - preserves className from containerProps
+ * Scroller: forwardRef(({ className, ...props }, ref) => (
+ *   <div ref={ref} {...props} className={cn('my-custom-class', className)} />
+ * ))
+ *
+ * // ✗ Wrong - overwrites className, breaking focus ring
+ * Scroller: forwardRef((props, ref) => (
+ *   <div ref={ref} {...props} className='my-custom-class' />
+ * ))
+ *
+ * Notes:
+ * - Scroller handles padding (List's padding gets overwritten by Virtuoso's dynamic inline styles)
+ * - Must be defined outside component to prevent remounting on each render
+ */
 const virtuosoComponents = {
-  Scroller: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ style, children, ...props }, ref) => (
-    <div ref={ref} {...props} style={style} className='*:p-1'>
-      {children}
-    </div>
-  )),
-  List: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ style, children, ...props }, ref) => (
-    <div ref={ref} {...props} style={style} className='flex flex-col gap-y-1.5'>
-      {children}
-    </div>
-  )),
+  Scroller: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ style, children, className, ...props }, ref) => (
+      <div ref={ref} {...props} style={style} className={cn('*:p-1', className)}>
+        {children}
+      </div>
+    ),
+  ),
+  List: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ style, children, className, ...props }, ref) => (
+      <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
+        {children}
+      </div>
+    ),
+  ),
 };
 
 //
