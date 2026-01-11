@@ -1,4 +1,4 @@
-import { ChevronRight, Square, SquareCheck } from 'lucide-react';
+import { ChevronRight, Square } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   cloneElement,
@@ -29,6 +29,7 @@ import {
   treeListRowVariants,
 } from '@/components/tree-list/tree-list';
 import { useControlledState, useControlledStateWithNull, useVirtualizedKeyboardNavigation } from '@/hooks';
+import { FilledSquareCheck } from '@/icons';
 import { usePrefixedId } from '@/providers';
 import { useVirtualizedTreeList, VirtualizedTreeListProvider } from '@/providers/virtualized-tree-list-provider';
 import type { ItemInteraction, LucideIcon } from '@/types';
@@ -986,7 +987,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
       onClick={handleClick}
       {...props}
     >
-      {isSelected ? <SquareCheck /> : <Square />}
+      {isSelected ? <FilledSquareCheck /> : <Square />}
     </div>
   );
 });
