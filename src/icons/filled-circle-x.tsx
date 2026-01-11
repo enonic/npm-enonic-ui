@@ -4,8 +4,12 @@ import { cn } from '../utils/cn';
 import { unwrap } from '../utils/unwrap';
 
 /**
- * A filled circle with an X sign inside.
- * Useful for representing error states.
+ * @component
+ * @name FilledCircleX
+ * @description Lucide-compatible SVG icon component. A filled circle with an X mark inside. Useful for representing error states.
+ * @see {@link https://enonic.github.io/npm-enonic-ui/?path=/story/design-icons--custom-icons | Storybook}
+ * @param props - Lucide icon props and any valid SVG attribute
+ * @returns SVG element
  */
 export const FilledCircleX: LucideIcon = forwardRef<SVGSVGElement, LucideProps>(
   ({ size = 24, className, ...props }, ref) => (

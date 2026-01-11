@@ -4,8 +4,12 @@ import { cn } from '../utils/cn';
 import { unwrap } from '../utils/unwrap';
 
 /**
- * A filled circle with a checkmark sign inside.
- * Useful for representing success states.
+ * @component
+ * @name FilledCircleCheck
+ * @description Lucide-compatible SVG icon component. A filled circle with a checkmark inside. Useful for representing success states.
+ * @see {@link https://enonic.github.io/npm-enonic-ui/?path=/story/design-icons--custom-icons | Storybook}
+ * @param props - Lucide icon props and any valid SVG attribute
+ * @returns SVG element
  */
 export const FilledCircleCheck: LucideIcon = forwardRef<SVGSVGElement, LucideProps>(
   ({ size = 24, className, ...props }, ref) => (
