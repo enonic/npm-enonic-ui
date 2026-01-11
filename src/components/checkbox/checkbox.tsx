@@ -1,57 +1,25 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import { Check, Minus, OctagonAlert } from 'lucide-react';
+import { cva } from 'class-variance-authority';
+import { OctagonAlert, Square } from 'lucide-react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 import { useControlledState } from '@/hooks';
+import { FilledSquareCheck, FilledSquareMinus } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 
-const checkboxBoxVariants = cva(
-  [
-    'inline-block',
-    'flex flex-shrink-0 items-center justify-center',
-    'size-3.5',
-    'rounded-xs border-[1.5px]',
-    'bg-transparent',
-    'transition-highlight',
-  ],
-  {
-    variants: {
-      editable: {
-        true: [],
-        false: 'opacity-30',
-      },
-      labeled: {
-        true: '',
-        false:
-          'after:-inset-1.75 after:-z-10 relative z-0 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
-      },
-      state: {
-        default: [
-          'border-main',
-          'peer-checked:border-main peer-checked:bg-main',
-          'peer-indeterminate:border-main peer-indeterminate:bg-main',
-          'group-data-[tone=inverse]:border-alt',
-          'group-data-[tone=inverse]:peer-checked:bg-alt',
-          'group-data-[tone=inverse]:peer-checked:border-alt',
-          'group-data-[tone=inverse]:peer-indeterminate:bg-alt',
-          'group-data-[tone=inverse]:peer-indeterminate:border-alt',
-        ],
-        error: [
-          'border-error',
-          'peer-checked:border-error peer-checked:bg-error',
-          'peer-indeterminate:border-error peer-indeterminate:bg-error',
-        ],
-      },
-    },
-    defaultVariants: {
-      state: 'default',
-      labeled: false,
-      editable: true,
+const checkboxIconWrapperVariants = cva(['inline-flex shrink-0'], {
+  variants: {
+    labeled: {
+      true: '',
+      false:
+        'after:-inset-1 after:-z-10 relative z-0 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
     },
   },
-);
+  defaultVariants: {
+    labeled: false,
+  },
+});
 
-type CheckboxState = NonNullable<VariantProps<typeof checkboxBoxVariants>['state']>;
+type CheckboxState = 'default' | 'error';
 export type CheckboxAlign = 'left' | 'right';
 export type CheckboxChecked = boolean | 'indeterminate';
 
@@ -185,20 +153,32 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             onChange={handleChange}
           />
 
-          <span className={cn(checkboxBoxVariants({ state, editable, labeled }))} aria-hidden='true'>
+          <span className={checkboxIconWrapperVariants({ labeled })} aria-hidden='true'>
             {isIndeterminate ? (
-              <Minus
-                size={10}
-                className={cn('text-rev', !error && 'group-data-[tone=inverse]:text-alt-rev')}
-                strokeWidth={4}
+              <FilledSquareMinus
+                className={cn(
+                  'size-4 transition-highlight',
+                  !editable && 'opacity-30',
+                  state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
+                )}
               />
             ) : isChecked ? (
-              <Check
-                size={10}
-                className={cn('text-rev', !error && 'group-data-[tone=inverse]:text-alt-rev')}
-                strokeWidth={4}
+              <FilledSquareCheck
+                className={cn(
+                  'size-4 transition-highlight',
+                  !editable && 'opacity-30',
+                  state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
+                )}
               />
-            ) : null}
+            ) : (
+              <Square
+                className={cn(
+                  'size-4 transition-highlight',
+                  !editable && 'opacity-30',
+                  state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
+                )}
+              />
+            )}
           </span>
 
           {label && (

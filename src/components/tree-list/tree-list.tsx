@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { ChevronRight, Loader2, Square, SquareCheck } from 'lucide-react';
+import { ChevronRight, Loader2, Square } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   cloneElement,
@@ -20,6 +20,7 @@ import {
   useKeyboardNavigation,
   useRovingTabIndex,
 } from '@/hooks';
+import { FilledCircleCheck } from '@/icons';
 import { usePrefixedId } from '@/providers';
 import { type SelectionMode, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
 import type { ItemInteraction, LucideIcon } from '@/types';
@@ -1198,7 +1199,7 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
         onClick={handleClick}
         {...props}
       >
-        {isSelected ? <SquareCheck /> : <Square />}
+        {isSelected ? <FilledCircleCheck /> : <Square />}
       </div>
     );
   },

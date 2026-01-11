@@ -333,7 +333,7 @@ export const UnlabeledClickArea: Story = {
           <div className='flex items-center gap-4'>
             <div className='flex flex-col items-center gap-1'>
               <div
-                className={`overflow-hidden rounded border border-subtle border-dashed p-0.25 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
+                className={`overflow-hidden rounded border border-subtle border-dashed ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
               >
                 <Checkbox checked={overflow1.checked} onCheckedChange={overflow1.handleChange} />
               </div>
@@ -341,7 +341,7 @@ export const UnlabeledClickArea: Story = {
             </div>
             <div className='flex flex-col items-center gap-1'>
               <div
-                className={`overflow-visible rounded border border-subtle border-dashed p-0.25 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
+                className={`overflow-visible rounded border border-subtle border-dashed ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
               >
                 <Checkbox checked={overflow2.checked} onCheckedChange={overflow2.handleChange} />
               </div>
@@ -361,7 +361,7 @@ export const UnlabeledClickArea: Story = {
           <div className='flex items-center gap-4'>
             <div className='flex flex-col items-center gap-1'>
               <div
-                className={`relative z-10 rounded border border-subtle border-dashed px-1.75 py-1 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
+                className={`relative z-10 rounded border border-subtle border-dashed px-1 py-0.25 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
               >
                 <Checkbox checked={zIndex1.checked} onCheckedChange={zIndex1.handleChange} />
               </div>
@@ -369,7 +369,7 @@ export const UnlabeledClickArea: Story = {
             </div>
             <div className='flex flex-col items-center gap-1'>
               <div
-                className={`isolate rounded border border-subtle border-dashed px-1.75 py-1 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
+                className={`isolate rounded border border-subtle border-dashed px-1 py-0.25 ${showDebug ? '[&_span[aria-hidden]]:after:bg-blue-500/20' : ''}`}
               >
                 <Checkbox checked={zIndex2.checked} onCheckedChange={zIndex2.handleChange} />
               </div>
