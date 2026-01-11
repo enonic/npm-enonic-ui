@@ -75,8 +75,6 @@ export type VirtualizedTreeListItemProps = {
   onDblClick: () => void;
   active: boolean;
   selected: boolean;
-  /** Whether the tree container is focused (for keyboard navigation focus ring) */
-  focused: boolean;
 };
 
 /**
@@ -89,13 +87,35 @@ export type VirtualizedTreeListRenderProps<TData> = {
   getItemProps: (index: number, node: FlatNode<TData>) => VirtualizedTreeListItemProps;
   /** Current active item index */
   activeIndex: number | null;
-  /** Props to spread on the Virtuoso container for keyboard navigation and ARIA */
+  /**
+   * Props to spread on the Virtuoso container for keyboard navigation, ARIA, and focus management.
+   *
+   * IMPORTANT: The `className` includes `group/tree` which is required for keyboard focus rings.
+   * When using custom Virtuoso components, you MUST preserve this className by merging it:
+   *
+   * @example
+   * ```tsx
+   * <Virtuoso
+   *   {...containerProps}
+   *   className={cn('your-classes', containerProps.className)}
+   *   components={{
+   *     Scroller: forwardRef(({ className, ...props }, ref) => (
+   *       <div ref={ref} {...props} className={cn('scroller-styles', className)} />
+   *     )),
+   *   }}
+   * />
+   * ```
+   */
   containerProps: {
     role: 'tree';
     'aria-label'?: string;
     'aria-activedescendant': string | undefined;
     'aria-multiselectable': boolean | undefined;
     tabIndex: 0;
+    /**
+     * Contains `group/tree` class for CSS-based keyboard focus detection.
+     * Must be preserved when customizing Virtuoso's Scroller component.
+     */
     className: string;
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
     onFocus: () => void;
@@ -694,17 +714,23 @@ const VirtualizedTreeListRoot = forwardRef(
           onDblClick: () => onActivate?.(node.id),
           active: isActive,
           selected: isSelected,
-          focused: isFocused,
         };
       },
-      [baseId, activeIndex, selection, selectionMode, handleRowClick, isFocused, onActivate],
+      [baseId, activeIndex, selection, selectionMode, handleRowClick, onActivate],
     );
 
     const handleContainerFocus = useCallback(() => {
       setFocused(true);
     }, []);
 
+    const handleContainerBlur = useCallback(() => {
+      setFocused(false);
+    }, []);
+
     // Container props for Virtuoso
+    // The 'group/tree' class enables CSS-based keyboard focus detection for rows.
+    // When this element has :focus-visible, descendant rows with group-focus-visible/tree:*
+    // classes will show their focus rings. Users must preserve className when customizing Scroller.
     const containerProps = useMemo(
       () => ({
         role: 'tree' as const,
@@ -712,12 +738,12 @@ const VirtualizedTreeListRoot = forwardRef(
         'aria-activedescendant': activeId ? `${baseId}-item-${activeId}` : undefined,
         'aria-multiselectable': selectionMode === 'multiple' ? true : undefined,
         tabIndex: 0 as const,
-        className: 'outline-none',
+        className: 'group/tree outline-none',
         onKeyDown: handleKeyDown,
         onFocus: handleContainerFocus,
-        onBlur: () => setFocused(false),
+        onBlur: handleContainerBlur,
       }),
-      [ariaLabel, activeId, baseId, selectionMode, handleKeyDown, handleContainerFocus],
+      [ariaLabel, activeId, baseId, selectionMode, handleKeyDown, handleContainerFocus, handleContainerBlur],
     );
 
     // Render props
@@ -805,6 +831,23 @@ const VirtualizedTreeListRoot = forwardRef(
 // * VirtualizedTreeListRow
 //
 
+/**
+ * Row component for VirtualizedTreeList.
+ *
+ * Focus Ring Behavior:
+ * The focus ring uses CSS `group-focus-visible/tree` to detect keyboard focus.
+ * This requires the Virtuoso container's Scroller to have the `group/tree` class
+ * (provided via `containerProps.className`). When the Scroller has keyboard focus
+ * (`:focus-visible`), active rows will show their focus rings automatically.
+ *
+ * This approach was chosen over JavaScript state tracking because:
+ * 1. The browser's `:focus-visible` heuristic correctly handles keyboard vs mouse focus
+ * 2. It doesn't require additional state management
+ * 3. It matches TreeList's native behavior (which uses `:focus-visible` directly)
+ *
+ * IMPORTANT: If you customize Virtuoso's Scroller component, you must preserve
+ * the `className` prop by merging it with your custom classes. See containerProps docs.
+ */
 export type VirtualizedTreeListRowProps = {
   /** Whether this row is the active (focused) row */
   active?: boolean;
@@ -814,8 +857,6 @@ export type VirtualizedTreeListRowProps = {
   disabled?: boolean;
   /** Whether this row is selectable */
   selectable?: boolean;
-  /** Whether the tree container is focused (shows focus ring when active) */
-  focused?: boolean;
   /** Additional class names */
   className?: string;
   /** Row content */
@@ -824,16 +865,7 @@ export type VirtualizedTreeListRowProps = {
 
 const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRowProps>(
   (
-    {
-      active = false,
-      selected = false,
-      disabled = false,
-      selectable = true,
-      focused = false,
-      className,
-      children,
-      ...props
-    },
+    { active = false, selected = false, disabled = false, selectable = true, className, children, ...props },
     ref,
   ): ReactElement => {
     return (
@@ -849,8 +881,12 @@ const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRow
             disabled,
             selectable: selectable && !disabled,
           }),
-          // Focus ring for keyboard navigation (mirroring TreeListRow's focus-visible styles)
-          active && focused && !disabled && ['ring-3 ring-ring-offset ring-inset', 'ring-offset-3 ring-offset-ring'],
+          // Focus ring for keyboard navigation (uses CSS group-focus-visible to detect keyboard focus on container)
+          active &&
+            !disabled && [
+              'group-focus-visible/tree:ring-3 group-focus-visible/tree:ring-ring-offset group-focus-visible/tree:ring-inset',
+              'group-focus-visible/tree:ring-offset-3 group-focus-visible/tree:ring-offset-ring',
+            ],
           className,
         )}
         {...props}
