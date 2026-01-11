@@ -889,6 +889,59 @@ export const ActionMode: Story = {
 // * Behavior
 //
 
+export const ClearActiveOnReclick: Story = {
+  name: 'Behavior / Clear Active On Reclick',
+  render: () => {
+    const [active, setActive] = useState<string | undefined>(undefined);
+    const [lastActivated, setLastActivated] = useState<string | undefined>(undefined);
+
+    const flatItems = [
+      { id: 'item-1', label: 'Click to activate' },
+      { id: 'item-2', label: 'Click again to clear' },
+      { id: 'item-3', label: 'Works only when empty selection' },
+      { id: 'item-4', label: 'Double-click not affected' },
+    ];
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Clear Active On Reclick</div>
+        <div className='text-sm text-subtle'>
+          With <code className='rounded bg-surface-neutral px-1 font-mono text-xs'>clearActiveOnReclick=true</code>,
+          single-clicking an already active item when selection is empty will clear the active state.
+        </div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <ul className='space-y-1 text-subtle text-xs'>
+            <li>Click item → becomes active (highlighted)</li>
+            <li>Click same item again → active clears</li>
+            <li>Double-click → still fires onActivate (not affected)</li>
+          </ul>
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_SM)}
+          selectionMode='none'
+          active={active}
+          onActiveChange={setActive}
+          onActivate={setLastActivated}
+          clearActiveOnReclick
+        >
+          <TreeList.Container>
+            {flatItems.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                <TreeList.RowContent>
+                  <span className='text-sm'>{item.label}</span>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='text-sm text-subtle'>
+          Active: {active || 'none'} | Last double-clicked: {lastActivated || 'none'}
+        </div>
+      </div>
+    );
+  },
+};
+
 export const Invalidation: Story = {
   name: 'Behavior / Invalidation',
   render: function Render() {

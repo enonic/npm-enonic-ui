@@ -1652,3 +1652,98 @@ export const ActionMode: Story = {
     );
   },
 };
+
+export const ClearActiveOnReclick: Story = {
+  name: 'Behavior / Clear Active On Reclick',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [lastActivated, setLastActivated] = useState<string | null>(null);
+
+    const flatItems: FlatNode<TreeNodeData>[] = [
+      {
+        id: 'item-1',
+        data: { label: 'Click to activate', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'item-2',
+        data: { label: 'Click again to clear', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'item-3',
+        data: { label: 'Works only when empty selection', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'item-4',
+        data: { label: 'Double-click not affected', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+    ];
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Clear Active On Reclick</div>
+        <div className='text-sm text-subtle'>
+          With <code className='rounded bg-surface-neutral px-1 font-mono text-xs'>clearActiveOnReclick=true</code>,
+          single-clicking an already active item when selection is empty will clear the active state.
+        </div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <ul className='space-y-1 text-subtle text-xs'>
+            <li>Click item → becomes active (highlighted)</li>
+            <li>Click same item again → active clears</li>
+            <li>Double-click → still fires onActivate (not affected)</li>
+          </ul>
+        </div>
+        <VirtualizedTreeList
+          items={flatItems}
+          selectionMode='none'
+          active={activeId}
+          onActiveChange={setActiveId}
+          onActivate={setLastActivated}
+          clearActiveOnReclick
+          virtuosoRef={virtuosoRef}
+          aria-label='Clear active on reclick demo'
+          className={treeListClass(TREE_HEIGHT_SM)}
+        >
+          {({ items, getItemProps, containerProps }) => (
+            <Virtuoso<FlatNode<TreeNodeData>>
+              ref={virtuosoRef}
+              data={items}
+              components={virtuosoComponents}
+              {...containerProps}
+              className={cn('h-full', containerProps.className)}
+              itemContent={(index, node) => {
+                const itemProps = getItemProps(index, node);
+                return (
+                  <VirtualizedTreeList.Row {...itemProps}>
+                    <VirtualizedTreeList.RowContent>
+                      <span className='text-sm'>{node.data.label}</span>
+                    </VirtualizedTreeList.RowContent>
+                  </VirtualizedTreeList.Row>
+                );
+              }}
+            />
+          )}
+        </VirtualizedTreeList>
+        <div className='text-sm text-subtle'>
+          Active: {activeId ?? 'none'} | Last double-clicked: {lastActivated ?? 'none'}
+        </div>
+      </div>
+    );
+  },
+};

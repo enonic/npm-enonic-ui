@@ -71,6 +71,8 @@ export type VirtualizedTreeListItemProps = {
   'aria-expanded': boolean | undefined;
   'aria-level': number;
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
+  /** Double-click handler that triggers onActivate */
+  onDblClick: () => void;
   active: boolean;
   selected: boolean;
   /** Whether the tree container is focused (for keyboard navigation focus ring) */
@@ -179,6 +181,16 @@ export type VirtualizedTreeListRootProps<TData = unknown> = {
    */
   getItemInteraction?: (node: FlatNode<TData>) => ItemInteraction;
 
+  /**
+   * When true, single-clicking the active item while selection is empty
+   * will clear the active state. Double-clicks are not affected.
+   * Default: false.
+   *
+   * This enables "toggle active" behavior where users can deactivate
+   * an item by clicking it again when nothing is selected.
+   */
+  clearActiveOnReclick?: boolean;
+
   /** Accessible label for the tree */
   'aria-label'?: string;
 
@@ -207,6 +219,7 @@ const VirtualizedTreeListRoot = forwardRef(
       virtuosoRef,
       loop = false,
       getItemInteraction,
+      clearActiveOnReclick = false,
       'aria-label': ariaLabel,
       className,
       children,
@@ -610,6 +623,13 @@ const VirtualizedTreeListRoot = forwardRef(
         const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
         tree?.focus();
 
+        // Clear active on reclick: single-click on active item with empty selection clears active
+        // e.detail === 1 ensures we only clear on single clicks, not double-clicks
+        if (clearActiveOnReclick && activeIndex === index && selection.size === 0 && e.detail === 1) {
+          setActiveIndex(null);
+          return;
+        }
+
         // Set this item as active
         setActiveIndex(index);
 
@@ -636,7 +656,19 @@ const VirtualizedTreeListRoot = forwardRef(
           toggleSelection(id, index);
         }
       },
-      [selectionMode, setActiveIndex, toggleSelection, rangeSelect, setSelection, items, canNavigate, canSelect],
+      [
+        selectionMode,
+        setActiveIndex,
+        toggleSelection,
+        rangeSelect,
+        setSelection,
+        items,
+        canNavigate,
+        canSelect,
+        clearActiveOnReclick,
+        activeIndex,
+        selection,
+      ],
     );
 
     // Build getItemProps function
@@ -659,12 +691,13 @@ const VirtualizedTreeListRoot = forwardRef(
           'aria-expanded': node.hasChildren ? node.isExpanded : undefined,
           'aria-level': node.level,
           onClick: (e: React.MouseEvent<HTMLElement>) => handleRowClick(node.id, index, e),
+          onDblClick: () => onActivate?.(node.id),
           active: isActive,
           selected: isSelected,
           focused: isFocused,
         };
       },
-      [baseId, activeIndex, selection, selectionMode, handleRowClick, isFocused],
+      [baseId, activeIndex, selection, selectionMode, handleRowClick, isFocused, onActivate],
     );
 
     const handleContainerFocus = useCallback(() => {
