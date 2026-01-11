@@ -116,6 +116,15 @@ export type TreeListRootProps = {
    * - Uses the `disabled` prop from TreeListRow (disabled = 'none', enabled = 'full')
    */
   getItemInteraction?: (id: string) => ItemInteraction;
+  /**
+   * When true, single-clicking the active item while selection is empty
+   * will clear the active state. Double-clicks are not affected.
+   * Default: false.
+   *
+   * This enables "toggle active" behavior where users can deactivate
+   * an item by clicking it again when nothing is selected.
+   */
+  clearActiveOnReclick?: boolean;
 } & ComponentPropsWithoutRef<'div'>;
 
 const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
@@ -137,6 +146,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       expanded: controlledExpanded,
       onExpandedChange,
       getItemInteraction,
+      clearActiveOnReclick = false,
       ...props
     },
     ref,
@@ -657,6 +667,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         actionModeRowId,
         enterActionMode,
         exitActionMode,
+        clearActiveOnReclick,
       }),
       [
         baseId,
@@ -683,6 +694,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         actionModeRowId,
         enterActionMode,
         exitActionMode,
+        clearActiveOnReclick,
       ],
     );
 
@@ -811,6 +823,7 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
       setAnchorId,
       onActivate,
       actionModeRowId,
+      clearActiveOnReclick,
     } = useTreeList();
 
     const innerRef = useRef<HTMLDivElement>(null);
@@ -857,6 +870,13 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
         // Don't handle clicks on interactive elements (let them handle it themselves)
         const target = e.target as HTMLElement;
         if (target.closest('button, a, input, select, textarea, [role="button"]')) {
+          return;
+        }
+
+        // Clear active on reclick: single-click on active item with empty selection clears active
+        // e.detail === 1 ensures we only clear on single clicks, not double-clicks
+        if (clearActiveOnReclick && isActive && selection.size === 0 && e.detail === 1) {
+          setActive(undefined);
           return;
         }
 
@@ -910,6 +930,8 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
         setAnchorId,
         selection,
         clearSelection,
+        clearActiveOnReclick,
+        isActive,
       ],
     );
 

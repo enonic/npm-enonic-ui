@@ -32,6 +32,8 @@ export type TreeListContextValue = {
   actionModeRowId: string | undefined;
   enterActionMode: () => void;
   exitActionMode: () => void;
+  // Clear active on reclick when selection is empty
+  clearActiveOnReclick: boolean;
 };
 
 const TreeListContext = createContext<TreeListContextValue | undefined>(undefined);
