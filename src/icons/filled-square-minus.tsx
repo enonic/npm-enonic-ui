@@ -4,8 +4,12 @@ import { cn } from '../utils/cn';
 import { unwrap } from '../utils/unwrap';
 
 /**
- * A filled square with a minus sign inside.
- * Useful for representing indeterminate or partial selection states.
+ * @component
+ * @name FilledSquareMinus
+ * @description Lucide-compatible SVG icon component. A filled square with a minus sign inside. Useful for representing indeterminate or partial selection states.
+ * @see {@link https://enonic.github.io/npm-enonic-ui/?path=/story/design-icons--custom-icons | Storybook}
+ * @param props - Lucide icon props and any valid SVG attribute
+ * @returns SVG element
  */
 export const FilledSquareMinus: LucideIcon = forwardRef<SVGSVGElement, LucideProps>(
   ({ size = 24, className, ...props }, ref) => (
