@@ -94,6 +94,7 @@ export type VirtualizedTreeListRenderProps<TData> = {
     'aria-activedescendant': string | undefined;
     'aria-multiselectable': boolean | undefined;
     tabIndex: 0;
+    className: string;
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
     onFocus: () => void;
     onBlur: () => void;
@@ -666,29 +667,9 @@ const VirtualizedTreeListRoot = forwardRef(
       [baseId, activeIndex, selection, selectionMode, handleRowClick, isFocused],
     );
 
-    // Handle focus: set initial active item if none
     const handleContainerFocus = useCallback(() => {
       setFocused(true);
-
-      if (activeIndex !== null) return; // Already have active
-
-      if (items.length === 0) return;
-
-      // Try to activate first selected item that can be navigated
-      const firstSelectedIndex = items.findIndex(item => selection.has(item.id) && canNavigate(item));
-      if (firstSelectedIndex !== -1) {
-        setActiveIndex(firstSelectedIndex);
-        scrollToIndex(firstSelectedIndex);
-        return;
-      }
-
-      // Otherwise activate first navigable item
-      const firstEnabledIndex = items.findIndex(item => canNavigate(item));
-      if (firstEnabledIndex !== -1) {
-        setActiveIndex(firstEnabledIndex);
-        scrollToIndex(firstEnabledIndex);
-      }
-    }, [activeIndex, items, selection, setActiveIndex, scrollToIndex, canNavigate]);
+    }, []);
 
     // Container props for Virtuoso
     const containerProps = useMemo(
@@ -698,6 +679,7 @@ const VirtualizedTreeListRoot = forwardRef(
         'aria-activedescendant': activeId ? `${baseId}-item-${activeId}` : undefined,
         'aria-multiselectable': selectionMode === 'multiple' ? true : undefined,
         tabIndex: 0 as const,
+        className: 'outline-none',
         onKeyDown: handleKeyDown,
         onFocus: handleContainerFocus,
         onBlur: () => setFocused(false),
