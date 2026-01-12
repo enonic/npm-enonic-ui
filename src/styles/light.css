@@ -59,6 +59,9 @@
     /*Links*/
     --color-link-visited: var(--color-purple);
 
+    /*Avatars*/
+    --color-avatar-red: var(--color-avatar-red);
+
     /* Tooltips */
     --color-tooltip: var(--color-black);
     --color-tooltip-foreground: var(--color-white);
