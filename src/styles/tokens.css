@@ -77,6 +77,9 @@
   /* Documentation */
   --color-docs: var(--color-docs);
 
+  /* Avatar */
+  --color-avatar-red: var(--color-avatar-red);
+
   /* SIZINGS */
   --sizing-11\.5: calc(var(--spacing) * 11.5);
 }
