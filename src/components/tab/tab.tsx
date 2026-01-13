@@ -281,7 +281,9 @@ const TabDefaultTrigger = forwardRef<HTMLButtonElement, TabDefaultTriggerProps>(
         {error ? (
           <OctagonAlert className='size-3 shrink-0 text-error' strokeWidth={2.5} />
         ) : count !== undefined ? (
-          <span className='shrink-0 rounded-full bg-surface-primary px-1.5 py-0.5 font-medium text-xs'>{count}</span>
+          <span className='min-w-5 shrink-0 rounded-full bg-surface-primary px-1.5 py-0.5 font-medium text-xs'>
+            {count}
+          </span>
         ) : null}
       </TabTrigger>
     );
