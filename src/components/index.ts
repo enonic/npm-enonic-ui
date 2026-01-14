@@ -16,6 +16,7 @@ export * from './selectable-list-item';
 export * from './selector';
 export * from './separator';
 export * from './skeleton';
+export * from './stepper';
 export * from './tab';
 export * from './toast';
 export * from './toggle';
