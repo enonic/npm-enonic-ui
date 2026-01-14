@@ -1,6 +1,7 @@
 export * from './avatar-provider';
 export * from './combobox-provider';
 export * from './context-menu-provider';
+export * from './date-picker-provider';
 export * from './dialog-provider';
 export * from './id-provider';
 export * from './listbox-provider';

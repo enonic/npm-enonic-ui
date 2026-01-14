@@ -3,6 +3,7 @@ export * from './button';
 export * from './checkbox';
 export * from './combobox';
 export * from './context-menu';
+export * from './date-picker';
 export * from './dialog';
 export * from './icon-button';
 export * from './input';
