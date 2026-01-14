@@ -195,6 +195,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       onPointerDownOutside,
       onInteractOutside,
       className,
+      style,
       children,
       ...props
     },
@@ -281,6 +282,11 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       return null;
     }
 
+    const contentStyle = {
+      ...(position ?? {}),
+      ...((style as React.CSSProperties | undefined) ?? {}),
+    };
+
     return (
       <div
         ref={composedRefs}
@@ -300,7 +306,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
           !position && 'pointer-events-none opacity-0',
           className,
         )}
-        style={{ ...position }}
+        style={contentStyle}
         onKeyDown={handleKeyDown}
         {...props}
       >
