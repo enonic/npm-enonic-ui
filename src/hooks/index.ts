@@ -19,6 +19,7 @@ export {
   type UseSelectorKeyboardReturn,
   useSelectorKeyboard,
 } from './use-selector-keyboard';
+export { type StepNavigationConfig, type UseStepNavigationReturn, useStepNavigation } from './use-step-navigation';
 export { useSyncValue } from './use-sync-value';
 export { type UseTypeAheadConfig, type UseTypeAheadReturn, useTypeAhead } from './use-type-ahead';
 export {
