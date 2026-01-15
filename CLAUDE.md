@@ -42,6 +42,7 @@ Detailed rules in `.cursor/rules/`:
 
 ## Skills
 
+- `new-component` - Create production-ready components with deep research and planning
 - `npm-release` - Release to npm
 - `issue-writer` - Create or modify GitHub issues
 

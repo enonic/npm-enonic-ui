@@ -1,16 +1,40 @@
 ---
+name: new-component
 description: Create production-ready components with deep research and planning
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, Task, AskUserQuestion, mcp__context7__resolve-library-id, mcp__context7__query-docs
 ---
 
-Create a new component: $ARGUMENTS
+# New Component Creator
 
----
+## Purpose
 
-## Phase 1: Context & Research
+Create production-ready UI components following established project conventions through deep research and planning phases.
 
-### Step 1: Read Project Rules
+## When to Use This Skill
 
-Read all relevant rules files to understand project conventions:
+Use this skill when the user asks to:
+
+- Create a new component (e.g., "create a Button component", "add a new Dialog")
+- Build a UI element from scratch
+- Implement a component based on external library patterns (Radix, shadcn)
+
+## Arguments
+
+The skill accepts a component name or description as arguments:
+
+```
+/new-component Dialog
+/new-component TreeView with keyboard navigation
+/new-component Combobox based on Radix patterns
+```
+
+## Workflow
+
+### Phase 1: Context & Research
+
+#### Step 1: Read Project Rules
+
+Read all relevant rules files to understand project conventions. Look for rules in:
 
 ```
 .cursor/rules/react.mdc      - Component patterns, hooks, props
@@ -22,34 +46,26 @@ Read all relevant rules files to understand project conventions:
 .cursor/rules/comments.mdc   - Documentation style
 ```
 
-### Step 2: Fetch External Documentation
+If rules files don't exist, use the standard patterns documented below.
+
+#### Step 2: Fetch External Documentation
 
 **Use Context7 MCP** to fetch current documentation:
 
-```
-1. resolve-library-id for "radix-ui"
-2. get-library-docs with topic: "{ComponentName}"
+1. `mcp__context7__resolve-library-id` for "radix-ui"
+2. `mcp__context7__query-docs` with topic: "{ComponentName}"
 
-Repeat for:
+Repeat for relevant libraries:
 - "base-ui" (headless primitives)
 - "shadcn-ui" (styled patterns)
-```
 
-**Fallback: docs-finder skill**
-
-If Context7 unavailable, use the `docs-finder` skill:
-
-```
-Find documentation for Radix UI {ComponentName} component
-```
-
-**Manual fallback links:**
+**Fallback: Web search** if Context7 unavailable:
 
 - Radix UI: https://www.radix-ui.com/primitives/docs/components
 - Base UI: https://base-ui.com/react/components
 - Shadcn UI: https://ui.shadcn.com/docs/components
 
-### Step 3: Search Existing Components
+#### Step 3: Search Existing Components
 
 Search the codebase for similar patterns:
 
@@ -65,16 +81,15 @@ ls src/providers/
 ```
 
 Identify:
-
 - Existing components with similar interaction patterns
 - Hooks that can be reused
 - Provider patterns for compound components
 
 ---
 
-## Phase 2: Analysis & Planning
+### Phase 2: Analysis & Planning
 
-### Step 1: Summarize Research
+#### Step 1: Summarize Research
 
 Create a brief summary:
 
@@ -92,40 +107,35 @@ Existing Codebase:
 - Provider pattern needed: [yes/no]
 ```
 
-### Step 2: Determine Component Type
+#### Step 2: Determine Component Type
 
 Classify the component:
 
 **Simple Component** (single file):
-
 - Self-contained with no subcomponents
 - Examples: Button, Input, Toggle, Badge
 
 **Compound Component** (multiple parts + provider):
-
 - Has Root/Trigger/Content or similar parts
 - Shares state via context
 - Examples: Dialog, Menu, Combobox, Tabs
 
-### Step 3: Ask User Questions
+#### Step 3: Ask User Questions
 
 Use AskUserQuestion tool to clarify design decisions:
 
 **Questions to ask:**
 
 1. **Component type confirmation**
-
    - Simple component
    - Compound component (with parts like Root, Trigger, Content)
 
 2. **State management** (if applicable)
-
    - Controlled only (value + onChange required)
    - Uncontrolled only (internal state)
    - Both (useControlledState pattern)
 
 3. **Variants** (if applicable)
-
    - Single variant dimension (use cn())
    - Multiple variant dimensions (use cva())
    - No variants
@@ -136,7 +146,7 @@ Use AskUserQuestion tool to clarify design decisions:
    - Type-ahead search
    - None needed
 
-### Step 4: Create Implementation Plan
+#### Step 4: Create Implementation Plan
 
 Document the plan before coding:
 
@@ -162,9 +172,9 @@ Accessibility:
 
 ---
 
-## Phase 3: Implementation
+### Phase 3: Implementation
 
-### Step 1: Create Component File
+#### Step 1: Create Component File
 
 Follow these patterns from the rules:
 
@@ -235,7 +245,7 @@ export const use{ComponentName}Context = (): {ComponentName}ContextValue => {
 };
 ```
 
-### Step 2: Create Index Exports
+#### Step 2: Create Index Exports
 
 ```typescript
 // src/components/{component-name}/index.ts
@@ -243,7 +253,7 @@ export { {ComponentName} } from './{component-name}';
 export type { {ComponentName}Props } from './{component-name}';
 ```
 
-### Step 3: Update Main Barrel
+#### Step 3: Update Main Barrel
 
 Add to `src/components/index.ts`:
 
@@ -251,7 +261,7 @@ Add to `src/components/index.ts`:
 export * from "./{component-name}";
 ```
 
-### Step 4: Verify Implementation
+#### Step 4: Verify Implementation
 
 Run checks:
 
@@ -261,9 +271,9 @@ pnpm check:fix
 
 ---
 
-## Phase 4: Storybook (Last)
+### Phase 4: Storybook (Last)
 
-### Create Stories File
+#### Create Stories File
 
 ```typescript
 // src/components/{component-name}/{component-name}.stories.tsx
@@ -304,7 +314,7 @@ export const Disabled: Story = {
 // * Behavior (if applicable)
 ```
 
-### Story Organization
+#### Story Organization
 
 Follow hierarchical grouping:
 
@@ -353,3 +363,7 @@ Before completing:
 - [ ] `pnpm check:fix` passes
 - [ ] Stories created with Examples group
 - [ ] All variants demonstrated in stories
+
+## Keywords
+
+component, create component, new component, ui component, add component, build component, implement component
