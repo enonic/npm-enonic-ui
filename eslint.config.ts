@@ -52,6 +52,14 @@ export default [
       'react/no-children-prop': 'off',
       'react/no-danger-with-children': 'off',
       'react/prop-types': 'off',
+      // Preact uses onDblClick, React uses onDoubleClick
+      'react/no-unknown-property': [
+        'error',
+        {
+          ignore: ['onDblClick'],
+          requireDataLowercase: true,
+        },
+      ],
     },
   },
 

@@ -42,6 +42,24 @@ Design-token-driven component system that ships **layered assets**—pure styles
 6. **Accessibility First, ARIA Second**
    Components default to semantic elements (`<button>`, `<dialog>`, `<nav>`) and enrich with ARIA roles/states only where semantics fall short, following WAI-ARIA Authoring Practices.
 
+7. **Dual Event Handler Pattern for Cross-Framework Compatibility**
+   Preact and React use different event names for certain DOM events. Most notably, Preact uses `onDblClick` while React uses `onDoubleClick`. Since this library is authored with Preact but consumed by React applications, we attach **both** event handlers to ensure compatibility:
+
+   ```tsx
+   // Pattern used throughout the codebase:
+   onDblClick={handler}
+   {...{ onDoubleClick: handler }}
+   ```
+
+   **Why the spread syntax?** TypeScript's JSX types come from `jsxImportSource: "preact"` in tsconfig, which only defines `onDblClick`. The spread `{...{ onDoubleClick }}` bypasses type checking while still attaching the handler at runtime.
+
+   **Affected events:**
+   - `onDblClick` (Preact) / `onDoubleClick` (React) — double-click
+
+   **ESLint configuration:** The `react/no-unknown-property` rule is configured to ignore `onDblClick` in `eslint.config.ts`.
+
+   _Note: This workaround exists because the library targets React consumers but is authored in Preact for bundle size benefits. A future migration to React authoring (or Preact providing React-compatible types) would eliminate this pattern._
+
 ## Technology Stack
 
 - **Authoring**: TypeScript 5, JSX/TSX
