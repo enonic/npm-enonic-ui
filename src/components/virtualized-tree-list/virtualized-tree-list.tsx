@@ -71,8 +71,13 @@ export type VirtualizedTreeListItemProps = {
   'aria-expanded': boolean | undefined;
   'aria-level': number;
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
-  /** Double-click handler that triggers onActivate */
+  /**
+   * Double-click handler (Preact). Preact uses `onDblClick`, React uses `onDoubleClick`.
+   * Both are provided for cross-framework compatibility. See architecture.md.
+   */
   onDblClick: () => void;
+  /** Double-click handler (React). See `onDblClick` comment above. */
+  onDoubleClick: () => void;
   active: boolean;
   selected: boolean;
 };
@@ -712,6 +717,7 @@ const VirtualizedTreeListRoot = forwardRef(
           'aria-level': node.level,
           onClick: (e: React.MouseEvent<HTMLElement>) => handleRowClick(node.id, index, e),
           onDblClick: () => onActivate?.(node.id),
+          onDoubleClick: () => onActivate?.(node.id),
           active: isActive,
           selected: isSelected,
         };
@@ -984,6 +990,9 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
           className,
         )}
         onClick={handleClick}
+        // Preact/React dual event handler. See architecture.md for details.
+        onDblClick={e => e.stopPropagation()}
+        {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
         {...props}
       />
     );
@@ -1026,17 +1035,39 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
     [rowId, setActiveIndex, toggleSelection, getItemIndex],
   );
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        const index = getItemIndex(rowId);
+        if (index !== -1) {
+          setActiveIndex(index);
+          toggleSelection(rowId, index);
+        }
+      }
+    },
+    [rowId, setActiveIndex, toggleSelection, getItemIndex],
+  );
+
   if (!selectable || selectionMode === 'none') {
-    return <div ref={ref} className={cn('size-4', className)} {...props} />;
+    return <div ref={ref} aria-hidden='true' className={cn('size-4', className)} {...props} />;
   }
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div
       ref={ref}
+      role='checkbox'
+      aria-checked={isSelected}
+      aria-label={isSelected ? 'Deselect row' : 'Select row'}
+      tabIndex={-1}
       className={cn('flex size-4 cursor-pointer items-center', className)}
-      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      // Preact/React dual event handler. See architecture.md for details.
+      onDblClick={e => e.stopPropagation()}
+      {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
       {...props}
+      onClick={handleClick}
     >
       {isSelected ? <FilledSquareCheck /> : <Square />}
     </div>

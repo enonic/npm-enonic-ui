@@ -889,18 +889,74 @@ export const ActionMode: Story = {
 // * Behavior
 //
 
+type ClearActiveTreeItem = {
+  id: string;
+  label: string;
+  level: number;
+  parentId: string | undefined;
+  hasChildren: boolean;
+  icon: ReactNode;
+};
+
+const clearActiveTreeItems: ClearActiveTreeItem[] = [
+  { id: 'projects', label: 'Projects', level: 1, parentId: undefined, hasChildren: true, icon: <Folder /> },
+  { id: 'projects-web', label: 'Web Apps', level: 2, parentId: 'projects', hasChildren: true, icon: <Folder /> },
+  {
+    id: 'projects-web-1',
+    label: 'Dashboard.tsx',
+    level: 3,
+    parentId: 'projects-web',
+    hasChildren: false,
+    icon: <File />,
+  },
+  {
+    id: 'projects-web-2',
+    label: 'Settings.tsx',
+    level: 3,
+    parentId: 'projects-web',
+    hasChildren: false,
+    icon: <File />,
+  },
+  { id: 'projects-mobile', label: 'Mobile App', level: 2, parentId: 'projects', hasChildren: false, icon: <Folder /> },
+  { id: 'docs', label: 'Documentation', level: 1, parentId: undefined, hasChildren: true, icon: <Folder /> },
+  { id: 'docs-readme', label: 'README.md', level: 2, parentId: 'docs', hasChildren: false, icon: <File /> },
+  { id: 'docs-api', label: 'API.md', level: 2, parentId: 'docs', hasChildren: false, icon: <File /> },
+  { id: 'config', label: 'config.json', level: 1, parentId: undefined, hasChildren: false, icon: <File /> },
+  { id: 'package', label: 'package.json', level: 1, parentId: undefined, hasChildren: false, icon: <File /> },
+];
+
+const clearActiveTreeItemsMap = new Map(clearActiveTreeItems.map(item => [item.id, item]));
+
 export const ClearActiveOnReclick: Story = {
   name: 'Behavior / Clear Active On Reclick',
   render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
     const [active, setActive] = useState<string | undefined>(undefined);
     const [lastActivated, setLastActivated] = useState<string | undefined>(undefined);
+    const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set(['projects', 'projects-web', 'docs']));
 
-    const flatItems = [
-      { id: 'item-1', label: 'Click to activate' },
-      { id: 'item-2', label: 'Click again to clear' },
-      { id: 'item-3', label: 'Works only when empty selection' },
-      { id: 'item-4', label: 'Double-click not affected' },
-    ];
+    const toggleExpanded = (id: string): void => {
+      setExpanded(prev => {
+        const next = new Set(prev);
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+        return next;
+      });
+    };
+
+    // Filter visible items based on expanded state
+    const visibleItems = clearActiveTreeItems.filter(item => {
+      if (item.level === 1) return true;
+      let currentId = item.parentId;
+      while (currentId) {
+        if (!expanded.has(currentId)) return false;
+        currentId = clearActiveTreeItemsMap.get(currentId)?.parentId;
+      }
+      return true;
+    });
 
     return (
       <div className={STORY_CONTAINER_CLASS}>
@@ -912,30 +968,57 @@ export const ClearActiveOnReclick: Story = {
         <div className='rounded-sm bg-surface-primary p-3 text-sm'>
           <ul className='space-y-1 text-subtle text-xs'>
             <li>Click item → becomes active (highlighted)</li>
-            <li>Click same item again → active clears</li>
+            <li>Click same item again → active clears (only when selection empty)</li>
+            <li>Click checkbox → toggle selection</li>
             <li>Double-click → still fires onActivate (not affected)</li>
           </ul>
         </div>
         <TreeList
-          className={treeListClass(TREE_HEIGHT_SM)}
-          selectionMode='none'
+          className={treeListClass(TREE_HEIGHT_MD)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='multiple'
           active={active}
           onActiveChange={setActive}
           onActivate={setLastActivated}
+          expanded={expanded}
+          onExpandedChange={setExpanded}
           clearActiveOnReclick
         >
           <TreeList.Container>
-            {flatItems.map(item => (
-              <TreeList.Row key={item.id} id={item.id}>
+            {visibleItems.map(item => (
+              <TreeList.Row
+                key={item.id}
+                id={item.id}
+                level={item.level}
+                hasChildren={item.hasChildren}
+                expanded={expanded.has(item.id)}
+                onClick={() => setActive(item.id)}
+              >
+                <TreeList.RowLeft>
+                  <TreeList.RowSelectionControl rowId={item.id} />
+                  <TreeList.RowLevelSpacer level={item.level} />
+                  <TreeList.RowExpandControl
+                    rowId={item.id}
+                    expanded={expanded.has(item.id)}
+                    hasChildren={item.hasChildren}
+                    onToggle={() => toggleExpanded(item.id)}
+                    selected={selection.has(item.id)}
+                  />
+                </TreeList.RowLeft>
                 <TreeList.RowContent>
-                  <span className='text-sm'>{item.label}</span>
+                  <ListItem className='px-0 py-0'>
+                    <ListItem.DefaultContent icon={item.icon} label={item.label} />
+                  </ListItem>
                 </TreeList.RowContent>
               </TreeList.Row>
             ))}
           </TreeList.Container>
         </TreeList>
         <div className='text-sm text-subtle'>
-          Active: {active || 'none'} | Last double-clicked: {lastActivated || 'none'}
+          <div>Active: {active || 'none'}</div>
+          <div>Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}</div>
+          <div>Double-clicked: {lastActivated || 'none'}</div>
         </div>
       </div>
     );

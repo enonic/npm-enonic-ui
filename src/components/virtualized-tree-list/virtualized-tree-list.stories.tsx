@@ -422,16 +422,6 @@ export const CheckboxesOnRight: Story = {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
     const [activeId, setActiveId] = useState<string | null>(null);
 
-    const toggleSelection = (id: string): void => {
-      const newSelection = new Set(selection);
-      if (newSelection.has(id)) {
-        newSelection.delete(id);
-      } else {
-        newSelection.add(id);
-      }
-      setSelection(newSelection);
-    };
-
     const items: FlatNode<TreeNodeData>[] = [
       {
         id: 'task-1',
@@ -530,15 +520,7 @@ export const CheckboxesOnRight: Story = {
                       <span className='text-sm'>{node.data.label}</span>
                     </VirtualizedTreeList.RowContent>
                     <VirtualizedTreeList.RowRight>
-                      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-                      <div
-                        onClick={e => {
-                          e.stopPropagation();
-                          toggleSelection(node.id);
-                        }}
-                      >
-                        <VirtualizedTreeList.RowSelectionControl rowId={node.id} selected={itemProps.selected} />
-                      </div>
+                      <VirtualizedTreeList.RowSelectionControl rowId={node.id} />
                     </VirtualizedTreeList.RowRight>
                   </VirtualizedTreeList.Row>
                 );
@@ -1036,16 +1018,6 @@ export const CheckboxSelection: Story = {
       });
     };
 
-    const toggleSelection = (id: string): void => {
-      const newSelection = new Set(selection);
-      if (newSelection.has(id)) {
-        newSelection.delete(id);
-      } else {
-        newSelection.add(id);
-      }
-      setSelection(newSelection);
-    };
-
     const flatNodes = useMemo(() => flattenTree(sampleTreeData, expanded), [expanded]);
 
     return (
@@ -1088,15 +1060,7 @@ export const CheckboxSelection: Story = {
                     }}
                   >
                     <VirtualizedTreeList.RowLeft>
-                      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-                      <div
-                        onClick={e => {
-                          e.stopPropagation();
-                          toggleSelection(node.id);
-                        }}
-                      >
-                        <VirtualizedTreeList.RowSelectionControl rowId={node.id} selected={itemProps.selected} />
-                      </div>
+                      <VirtualizedTreeList.RowSelectionControl rowId={node.id} />
                       <VirtualizedTreeList.RowLevelSpacer level={node.level} />
                       <VirtualizedTreeList.RowExpandControl
                         expanded={node.isExpanded}
@@ -1682,47 +1646,59 @@ export const ActionMode: Story = {
   },
 };
 
+const clearActiveTreeData: TreeDataSource[] = [
+  {
+    id: 'projects',
+    label: 'Projects',
+    icon: 'folder',
+    children: [
+      {
+        id: 'projects-web',
+        label: 'Web Apps',
+        icon: 'folder',
+        children: [
+          { id: 'projects-web-1', label: 'Dashboard.tsx', icon: 'file' },
+          { id: 'projects-web-2', label: 'Settings.tsx', icon: 'file' },
+        ],
+      },
+      { id: 'projects-mobile', label: 'Mobile App', icon: 'folder' },
+    ],
+  },
+  {
+    id: 'docs',
+    label: 'Documentation',
+    icon: 'folder',
+    children: [
+      { id: 'docs-readme', label: 'README.md', icon: 'file' },
+      { id: 'docs-api', label: 'API.md', icon: 'file' },
+    ],
+  },
+  { id: 'config', label: 'config.json', icon: 'file' },
+  { id: 'package', label: 'package.json', icon: 'file' },
+];
+
 export const ClearActiveOnReclick: Story = {
   name: 'Behavior / Clear Active On Reclick',
   render: () => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
     const [activeId, setActiveId] = useState<string | null>(null);
     const [lastActivated, setLastActivated] = useState<string | null>(null);
+    const [expanded, setExpanded] = useState<Set<string>>(new Set(['projects', 'projects-web', 'docs']));
 
-    const flatItems: FlatNode<TreeNodeData>[] = [
-      {
-        id: 'item-1',
-        data: { label: 'Click to activate', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'item-2',
-        data: { label: 'Click again to clear', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'item-3',
-        data: { label: 'Works only when empty selection', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-      {
-        id: 'item-4',
-        data: { label: 'Double-click not affected', icon: 'file' },
-        level: 1,
-        parentId: null,
-        hasChildren: false,
-        isExpanded: false,
-      },
-    ];
+    const handleExpand = (id: string): void => {
+      setExpanded(prev => new Set([...prev, id]));
+    };
+
+    const handleCollapse = (id: string): void => {
+      setExpanded(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    };
+
+    const flatNodes = useMemo(() => flattenTree(clearActiveTreeData, expanded), [expanded]);
 
     return (
       <div className={STORY_CONTAINER_CLASS}>
@@ -1734,20 +1710,25 @@ export const ClearActiveOnReclick: Story = {
         <div className='rounded-sm bg-surface-primary p-3 text-sm'>
           <ul className='space-y-1 text-subtle text-xs'>
             <li>Click item → becomes active (highlighted)</li>
-            <li>Click same item again → active clears</li>
+            <li>Click same item again → active clears (only when selection empty)</li>
+            <li>Click checkbox → toggle selection</li>
             <li>Double-click → still fires onActivate (not affected)</li>
           </ul>
         </div>
         <VirtualizedTreeList
-          items={flatItems}
-          selectionMode='none'
+          items={flatNodes}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='multiple'
           active={activeId}
           onActiveChange={setActiveId}
           onActivate={setLastActivated}
+          onExpand={handleExpand}
+          onCollapse={handleCollapse}
           clearActiveOnReclick
           virtuosoRef={virtuosoRef}
           aria-label='Clear active on reclick demo'
-          className={treeListClass(TREE_HEIGHT_SM)}
+          className={treeListClass(TREE_HEIGHT_MD)}
         >
           {({ items, getItemProps, containerProps }) => (
             <Virtuoso<FlatNode<TreeNodeData>>
@@ -1759,9 +1740,28 @@ export const ClearActiveOnReclick: Story = {
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
-                  <VirtualizedTreeList.Row {...itemProps}>
+                  <VirtualizedTreeList.Row
+                    {...itemProps}
+                    onClick={e => {
+                      const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
+                      tree?.focus();
+                      setActiveId(node.id);
+                    }}
+                  >
+                    <VirtualizedTreeList.RowLeft>
+                      <VirtualizedTreeList.RowSelectionControl rowId={node.id} />
+                      <VirtualizedTreeList.RowLevelSpacer level={node.level} />
+                      <VirtualizedTreeList.RowExpandControl
+                        expanded={node.isExpanded}
+                        hasChildren={node.hasChildren}
+                        onToggle={() => (node.isExpanded ? handleCollapse(node.id) : handleExpand(node.id))}
+                        selected={itemProps.selected}
+                      />
+                    </VirtualizedTreeList.RowLeft>
                     <VirtualizedTreeList.RowContent>
-                      <span className='text-sm'>{node.data.label}</span>
+                      <ListItem className='px-0 py-0'>
+                        <ListItem.DefaultContent icon={getIcon(node.data.icon)} label={node.data.label} />
+                      </ListItem>
                     </VirtualizedTreeList.RowContent>
                   </VirtualizedTreeList.Row>
                 );
@@ -1770,7 +1770,9 @@ export const ClearActiveOnReclick: Story = {
           )}
         </VirtualizedTreeList>
         <div className='text-sm text-subtle'>
-          Active: {activeId ?? 'none'} | Last double-clicked: {lastActivated ?? 'none'}
+          <div>Active: {activeId ?? 'none'}</div>
+          <div>Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}</div>
+          <div>Double-clicked: {lastActivated ?? 'none'}</div>
         </div>
       </div>
     );
