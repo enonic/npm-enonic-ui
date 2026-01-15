@@ -104,8 +104,13 @@ export function useItemRegistry(): UseItemRegistryReturn {
     // Sort items by their DOM position to preserve visual order
     // This ensures items maintain their position even after re-registration
     return itemIds.sort((a, b) => {
-      const elementA = document.getElementById(a);
-      const elementB = document.getElementById(b);
+      // Try data-registry-id attribute first (for components where registry ID differs from DOM ID)
+      let elementA: Element | null = document.querySelector(`[data-registry-id="${a}"]`);
+      let elementB: Element | null = document.querySelector(`[data-registry-id="${b}"]`);
+
+      // Fall back to getElementById (for components where registry ID = DOM ID)
+      if (!elementA) elementA = document.getElementById(a);
+      if (!elementB) elementB = document.getElementById(b);
 
       // If either element doesn't exist in DOM, keep original order
       if (!elementA || !elementB) {

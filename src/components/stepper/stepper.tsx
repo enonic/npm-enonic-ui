@@ -126,6 +126,7 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
     <div
       ref={ref}
       id={getPanelId(baseId, value)}
+      data-registry-id={value}
       role='tabpanel'
       aria-labelledby={getButtonId(baseId, value)}
       className={className}
@@ -149,13 +150,15 @@ type StepperDotProps = {
   index: number;
   /** Function to navigate to the related item */
   goTo: (itemId: string) => void;
+  /** Keyboard event handler */
+  onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
   /** If the dot is small */
   small?: boolean;
   /** If the dot is hidden */
   hidden?: boolean;
 };
 const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): ReactElement | null => {
-  const { index, itemId, goTo, small = false, hidden = false } = props;
+  const { index, itemId, goTo, onKeyDown, small = false, hidden = false } = props;
 
   const { baseId, value: selectedValue, getItems, isItemDisabled } = useStepper();
 
@@ -164,15 +167,16 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
       const isSelected = itemId === selectedValue;
 
       return cn(
-        // Container
-        'flex size-5 items-center justify-center transition-[padding] transition-colors duration-500',
-        // Dot
-        'after:size-full after:rounded-full after:ring-[1.5px] after:transition-all after:duration-500',
+        'flex size-5 items-center justify-center',
         'hover:cursor-pointer focus-visible:outline-none',
-        // Conditional
-        small ? 'p-1.25' : 'p-1',
+        'after:size-2.5 after:rounded-full after:ring-[1.5px]',
+        'after:transition-[scale,background-color,box-shadow] after:duration-300 after:ease-in-out',
         hidden && 'hidden',
-        isSelected ? 'p-0.75 after:bg-subtle after:ring-subtle' : 'after:bg-transparent after:ring-bdr-subtle',
+        isSelected
+          ? 'after:scale-120 after:bg-subtle after:ring-1 after:ring-subtle'
+          : small
+            ? 'after:scale-80 after:bg-transparent after:ring-2 after:ring-bdr-subtle'
+            : 'after:scale-100 after:bg-transparent after:ring-bdr-subtle',
         isItemDisabled(itemId) && 'after:opacity-30 hover:cursor-default',
       );
     },
@@ -201,11 +205,10 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
       disabled={isItemDisabled(itemId)}
       className={getClass(itemId)}
       onClick={() => goTo(itemId)}
+      onKeyDown={onKeyDown}
       aria-label={`Go to step ${index + 1}`}
-      aria-hidden={hidden}
       aria-selected={itemId === selectedValue}
       aria-controls={getPanelId(baseId, itemId)}
-      aria-disabled={isItemDisabled(itemId) || undefined}
     />
   );
 });
@@ -247,11 +250,10 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
       ref={ref}
       role='tablist'
       aria-label='Step navigation'
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
+      aria-orientation='horizontal'
       className={cn(
-        'mx-auto flex w-fit items-center justify-center gap-0.75 rounded-md p-2',
-        'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+        'mx-auto flex w-fit items-center justify-center gap-0 rounded-md p-2',
+        'has-focus-visible:ring-3 has-focus-visible:ring-ring has-focus-visible:ring-offset-3 has-focus-visible:ring-offset-ring-offset',
         className,
       )}
       {...restProps}
@@ -264,14 +266,26 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
         let small = false;
 
         if (smallOnEdges && isMaxVisibleSet) {
-          small = index === left.at(0) || index === right.at(-1);
+          const leftmostVisible = left.at(0) ?? mid;
+          const rightmostVisible = right.at(-1) ?? mid;
+
+          const hasHiddenBefore = leftmostVisible > 0;
+          const hasHiddenAfter = rightmostVisible < items.length - 1;
+
+          small = (hasHiddenBefore && index === leftmostVisible) || (hasHiddenAfter && index === rightmostVisible);
         }
 
-        if (smallOnEdges && !isMaxVisibleSet) {
-          small = index === 0 || index === items.length - 1;
-        }
-
-        return <StepperDot key={itemId} itemId={itemId} index={index} goTo={goTo} small={small} hidden={!isVisible} />;
+        return (
+          <StepperDot
+            key={itemId}
+            itemId={itemId}
+            index={index}
+            goTo={goTo}
+            onKeyDown={handleKeyDown}
+            small={small}
+            hidden={!isVisible}
+          />
+        );
       })}
     </div>
   );

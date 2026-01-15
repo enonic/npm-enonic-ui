@@ -13,6 +13,8 @@ export type StepNavigationConfig = {
 export type UseStepNavigationReturn = {
   goToNext: () => void;
   goToPrevious: () => void;
+  goToFirst: () => void;
+  goToLast: () => void;
   goTo: (value: string) => void;
   handleKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
   isFirst: boolean;
@@ -106,6 +108,20 @@ export function useStepNavigation(config: StepNavigationConfig): UseStepNavigati
     }
   }, [currentIndex, items, isItemDisabled, onValueChangeAndFocus]);
 
+  const goToFirst = useCallback((): void => {
+    const firstEnabled = items.find(itemId => !isItemDisabled(itemId));
+    if (firstEnabled != null) {
+      onValueChangeAndFocus(firstEnabled);
+    }
+  }, [items, isItemDisabled, onValueChangeAndFocus]);
+
+  const goToLast = useCallback((): void => {
+    const lastEnabled = [...items].reverse().find(itemId => !isItemDisabled(itemId));
+    if (lastEnabled != null) {
+      onValueChangeAndFocus(lastEnabled);
+    }
+  }, [items, isItemDisabled, onValueChangeAndFocus]);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
       switch (e.key) {
@@ -119,14 +135,26 @@ export function useStepNavigation(config: StepNavigationConfig): UseStepNavigati
           goToNext();
           break;
         }
+        case 'Home': {
+          e.preventDefault();
+          goToFirst();
+          break;
+        }
+        case 'End': {
+          e.preventDefault();
+          goToLast();
+          break;
+        }
       }
     },
-    [goToNext, goToPrevious],
+    [goToNext, goToPrevious, goToFirst, goToLast],
   );
 
   return {
     goToNext,
     goToPrevious,
+    goToFirst,
+    goToLast,
     goTo,
     handleKeyDown,
     isFirst,

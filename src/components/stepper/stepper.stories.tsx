@@ -145,16 +145,18 @@ export const SmallOnEdges: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <ul className='space-y-1 text-sm'>
-          <li>Smaller steps on edges.</li>
-        </ul>
-        <Stepper.Root defaultValue='step1' smallOnEdges className='flex size-96 flex-col gap-4'>
+        <p className='text-sm text-subtle'>Smaller dots on edges.</p>
+        <Stepper.Root defaultValue='step5' smallOnEdges maxVisible={5} className='flex size-96 flex-col gap-4'>
           <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
             <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
             <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
+            <Stepper.Panel value='step6'>Step 6 content</Stepper.Panel>
+            <Stepper.Panel value='step7'>Step 7 content</Stepper.Panel>
+            <Stepper.Panel value='step8'>Step 8 content</Stepper.Panel>
+            <Stepper.Panel value='step9'>Step 9 content</Stepper.Panel>
           </div>
           <Stepper.Dots />
         </Stepper.Root>
@@ -168,9 +170,7 @@ export const Locked: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <ul className='space-y-1 text-sm'>
-          <li>Steps 4 and 5 are locked.</li>
-        </ul>
+        <p className='text-sm text-subtle'>Steps 4 and 5 are locked.</p>
         <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
           <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
@@ -195,12 +195,7 @@ export const MaxVisible: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <ul className='space-y-1 text-sm'>
-          <li>10 steps in total.</li>
-          <li>5 dots visible at a time.</li>
-          <li>Active dot always centered.</li>
-        </ul>
-
+        <p className='text-sm text-subtle'>5 out of 10 dots visible at a time, active dot centered.</p>
         <Stepper.Root defaultValue='step4' maxVisible={5} className='flex size-96 flex-col gap-4'>
           <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
@@ -226,17 +221,7 @@ export const EvenMaxVisible: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <ul className='space-y-1 text-sm'>
-          <li>10 steps in total.</li>
-          <li>6 dots visible at a time.</li>
-          <li>Active dot always centered.</li>
-          <li>
-            If maxVisible prop is even, its impossible to <br />
-            balance dots to the right / left of the central
-            <br /> one evenly, so the right side will have one more dot.
-          </li>
-        </ul>
-
+        <p className='text-sm text-subtle'>6 out of 10 dots visible, right side has one more dot.</p>
         <Stepper.Root defaultValue='step4' maxVisible={6} className='flex size-96 flex-col gap-4'>
           <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
@@ -268,46 +253,36 @@ export const DialogWithStepper: Story = {
 
         <Dialog.Portal>
           <Dialog.Overlay />
-          <Dialog.Content className='w-160 max-w-auto'>
+          <Dialog.Content className='w-120 max-w-auto'>
             <Stepper.Root defaultValue='step1' smallOnEdges maxVisible={5}>
               <Dialog.Body className='flex size-full flex-col gap-4 p-1.5'>
-                <div className='flex flex-col gap-4'>
-                  <ul className='space-y-1 text-sm'>
-                    <li>10 steps in total.</li>
-                    <li>Steps 9 and 10 are locked.</li>
-                    <li>5 dots visible at a time.</li>
-                    <li>Small dots on edges.</li>
-                    <li>Button navigation.</li>
-                  </ul>
-
-                  <div className='flex h-96 w-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
-                    <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
-                    <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
-                    <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
-                    <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
-                    <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
-                    <Stepper.Panel value='step6'>Step 6 content</Stepper.Panel>
-                    <Stepper.Panel value='step7'>Step 7 content</Stepper.Panel>
-                    <Stepper.Panel value='step8'>Step 8 content</Stepper.Panel>
-                    <Stepper.Panel value='step9' locked>
-                      Step 9 content
-                    </Stepper.Panel>
-                    <Stepper.Panel value='step10' locked>
-                      Step 10 content
-                    </Stepper.Panel>
-                  </div>
+                <div className='flex h-48 w-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+                  <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
+                  <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
+                  <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
+                  <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
+                  <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
+                  <Stepper.Panel value='step6'>Step 6 content</Stepper.Panel>
+                  <Stepper.Panel value='step7'>Step 7 content</Stepper.Panel>
+                  <Stepper.Panel value='step8'>Step 8 content</Stepper.Panel>
+                  <Stepper.Panel value='step9' locked>
+                    Step 9 content
+                  </Stepper.Panel>
+                  <Stepper.Panel value='step10' locked>
+                    Step 10 content
+                  </Stepper.Panel>
                 </div>
               </Dialog.Body>
 
-              <Dialog.Footer className='mx-auto mt-5 flex w-fit items-center justify-between p-1.5'>
+              <Dialog.Footer className='flex items-center justify-between p-1.5'>
                 <Stepper.Previous asChild>
-                  <IconButton icon={ChevronLeft} variant='outline' className='rounded-full' />
+                  <Button variant='outline' label='Previous' />
                 </Stepper.Previous>
 
                 <Stepper.Dots />
 
                 <Stepper.Next asChild>
-                  <IconButton icon={ChevronRight} variant='outline' className='rounded-full' />
+                  <Button variant='outline' label='Next' />
                 </Stepper.Next>
               </Dialog.Footer>
             </Stepper.Root>
@@ -323,15 +298,24 @@ export const KeyboardNavigation: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <ul className='space-y-1 text-sm'>
-          <li>
-            <kbd className='rounded bg-surface-neutral-hover px-1'>Tab</kbd> - Enter/exit the steps list
-          </li>
-          <li>
-            <kbd className='rounded bg-surface-neutral-hover px-1'>Arrow Left/Right</kbd> - Move between and select step
-            (if possible)
-          </li>
-        </ul>
+        <div className='w-96 rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
+          <ul className='space-y-1 text-subtle text-xs'>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> - Enter/exit the steps list
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Left/Right</kbd> - Move between and select
+              step
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> - Go to first enabled step
+            </li>
+            <li>
+              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Go to last enabled step
+            </li>
+          </ul>
+        </div>
         <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
           <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
@@ -353,7 +337,18 @@ export const KeyboardNavigation: Story = {
               Step 10 content
             </Stepper.Panel>
           </div>
-          <Stepper.Dots />
+
+          <div className='flex items-center justify-between'>
+            <Stepper.Previous asChild>
+              <IconButton icon={ChevronLeft} variant='outline' className='rounded-full' />
+            </Stepper.Previous>
+
+            <Stepper.Dots />
+
+            <Stepper.Next asChild>
+              <IconButton icon={ChevronRight} variant='outline' className='rounded-full' />
+            </Stepper.Next>
+          </div>
         </Stepper.Root>
       </div>
     );
