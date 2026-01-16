@@ -216,6 +216,26 @@ export type VirtualizedTreeListRootProps<TData = unknown> = {
    */
   clearActiveOnReclick?: boolean;
 
+  /**
+   * When true, selection is preserved even when items are filtered.
+   * Use this when `items` represents a filtered view of a larger dataset.
+   *
+   * When false (default), selection is cleaned up when items change -
+   * selected IDs not present in `items` are removed from selection.
+   *
+   * @default false
+   */
+  preserveFilteredSelection?: boolean;
+
+  /**
+   * When true (default), pressing Escape clears the selection.
+   * Set to false when using inside a Combobox where Escape should
+   * only close the dropdown without clearing selection.
+   *
+   * @default true
+   */
+  clearSelectionOnEscape?: boolean;
+
   /** Accessible label for the tree */
   'aria-label'?: string;
 
@@ -245,6 +265,8 @@ const VirtualizedTreeListRoot = forwardRef(
       loop = false,
       getItemInteraction,
       clearActiveOnReclick = false,
+      preserveFilteredSelection = false,
+      clearSelectionOnEscape = true,
       'aria-label': ariaLabel,
       className,
       children,
@@ -412,22 +434,26 @@ const VirtualizedTreeListRoot = forwardRef(
     useEffect(() => {
       const currentIds = new Set(items.map(item => item.id));
 
-      // Remove selection for items that no longer exist
-      let selectionChanged = false;
-      const validSelection = new Set<string>();
-      for (const id of selection) {
-        if (currentIds.has(id)) {
-          validSelection.add(id);
-        } else {
-          selectionChanged = true;
+      // Skip selection cleanup if preserveFilteredSelection is enabled
+      // This allows selection to persist when items are filtered (but still exist in the data source)
+      if (!preserveFilteredSelection) {
+        // Remove selection for items that no longer exist
+        let selectionChanged = false;
+        const validSelection = new Set<string>();
+        for (const id of selection) {
+          if (currentIds.has(id)) {
+            validSelection.add(id);
+          } else {
+            selectionChanged = true;
+          }
+        }
+
+        if (selectionChanged) {
+          setSelection(validSelection);
         }
       }
 
-      if (selectionChanged) {
-        setSelection(validSelection);
-      }
-
-      // Reset active if it no longer exists
+      // Reset active if it no longer exists (always needed for keyboard navigation)
       if (activeId && !currentIds.has(activeId)) {
         const firstId = items[0]?.id ?? null;
         setActiveId(firstId);
@@ -440,7 +466,7 @@ const VirtualizedTreeListRoot = forwardRef(
           selectionAnchorRef.current = null;
         }
       }
-    }, [items]);
+    }, [items, preserveFilteredSelection]);
 
     const findNextEnabledIndex = useCallback(
       (currentIndex: number | null, delta: number): number | null => {
@@ -544,12 +570,12 @@ const VirtualizedTreeListRoot = forwardRef(
           return;
         }
 
-        // Handle Escape - exit action mode first, then clear selection
+        // Handle Escape - exit action mode first, then optionally clear selection
         if (e.key === 'Escape') {
           e.preventDefault();
           if (actionModeRowId) {
             exitActionMode();
-          } else if (selectionMode !== 'none') {
+          } else if (clearSelectionOnEscape && selectionMode !== 'none') {
             setSelection(new Set());
           }
           return;
@@ -628,6 +654,7 @@ const VirtualizedTreeListRoot = forwardRef(
         selection,
         baseHandleKeyDown,
         canSelect,
+        clearSelectionOnEscape,
       ],
     );
 

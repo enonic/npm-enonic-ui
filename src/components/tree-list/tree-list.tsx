@@ -125,6 +125,14 @@ export type TreeListRootProps = {
    * an item by clicking it again when nothing is selected.
    */
   clearActiveOnReclick?: boolean;
+  /**
+   * When true (default), pressing Escape clears the selection.
+   * Set to false when using inside a Combobox where Escape should
+   * only close the dropdown without clearing selection.
+   *
+   * @default true
+   */
+  clearSelectionOnEscape?: boolean;
 } & ComponentPropsWithoutRef<'div'>;
 
 const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
@@ -147,6 +155,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       onExpandedChange,
       getItemInteraction,
       clearActiveOnReclick = false,
+      clearSelectionOnEscape = true,
       ...props
     },
     ref,
@@ -467,12 +476,12 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           return;
         }
 
-        // Handle Escape - exit action mode first, otherwise clear selection
+        // Handle Escape - exit action mode first, then optionally clear selection
         if (e.key === 'Escape') {
           e.preventDefault();
           if (actionModeRowId) {
             exitActionMode();
-          } else if (selectionMode !== 'none') {
+          } else if (clearSelectionOnEscape && selectionMode !== 'none') {
             clearSelection();
           }
           return;
@@ -621,6 +630,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         onActivate,
         exitActionMode,
         actionModeRowId,
+        clearSelectionOnEscape,
       ],
     );
 

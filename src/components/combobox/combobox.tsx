@@ -541,7 +541,11 @@ const ComboboxSearch = ({ children, className, ...props }: ComboboxSearchProps):
     <SearchField.Root
       value={inputValue}
       onChange={setInputValue}
-      className={cn('w-full pr-0', 'border-0 focus-within:border-0 focus-within:ring-0', className)}
+      className={cn(
+        'w-full pr-0',
+        'border-0 focus-within:border-0 focus-within:ring-0 focus-within:ring-offset-0',
+        className,
+      )}
       {...props}
     >
       {children}
@@ -744,22 +748,37 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
     (e: React.KeyboardEvent<HTMLElement>) => {
       // Ctrl/Cmd + Enter to apply staged selection
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
         if (stagingEnabled) {
-          e.preventDefault();
           applyStagedSelection();
-          // Return focus to input (popup closes after apply)
-          const input = document.getElementById(`${baseId}-input`);
-          input?.focus();
-          return;
+        } else {
+          setOpen(false);
         }
+        // Return focus to input
+        const input = document.getElementById(`${baseId}-input`);
+        input?.focus();
+        return;
       }
 
       // Escape to close combobox and return focus to input
+      // stopPropagation prevents VirtualizedTreeList from clearing selection
       if (e.key === 'Escape') {
         e.preventDefault();
+        e.stopPropagation();
         setOpen(false);
         const input = document.getElementById(`${baseId}-input`);
         input?.focus();
+        return;
+      }
+
+      // Redirect printable characters (except Space) to input for filtering
+      // Space is excluded because it's used for selection in tree controls (ARIA pattern)
+      if (e.key.length === 1 && e.key !== ' ' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const input = document.getElementById(`${baseId}-input`) as HTMLInputElement | null;
+        if (input) {
+          input.focus();
+          // The character will be captured by the now-focused input
+        }
       }
     },
     [setOpen, baseId, stagingEnabled, applyStagedSelection],
