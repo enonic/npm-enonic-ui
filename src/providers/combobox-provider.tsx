@@ -1,5 +1,7 @@
 import { createContext, type ReactElement, type ReactNode, useContext } from 'react';
 
+export type ContentType = 'listbox' | 'tree' | 'auto';
+
 export type ComboboxContextValue = {
   baseId: string;
 
@@ -18,11 +20,25 @@ export type ComboboxContextValue = {
   applyStagedSelection: () => void;
   resetStagedSelection: () => void;
 
-  active?: string;
+  active?: string | null;
+  setActive: (active: string | null | undefined) => void;
   keyHandler: (e: React.KeyboardEvent<HTMLElement>) => void;
 
   disabled?: boolean;
   error?: boolean;
+
+  // Content type for composable pattern (prop, not state)
+  contentType: ContentType;
+
+  // Selection mode and change handler for ListContent
+  selectionMode: 'single' | 'multiple';
+  onSelectionChange: (selection: readonly string[]) => void;
+
+  // Item registry functions for ListContent
+  registerItem: (id: string, disabled?: boolean) => void;
+  unregisterItem: (id: string) => void;
+  getItems: () => string[];
+  isItemDisabled: (id: string) => boolean;
 };
 
 const ComboboxContext = createContext<ComboboxContextValue | undefined>(undefined);

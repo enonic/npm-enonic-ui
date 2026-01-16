@@ -16,7 +16,7 @@ import { IconButton } from '@/components/icon-button/icon-button';
 import { Listbox } from '@/components/listbox';
 import { SearchField } from '@/components/search-field';
 import { useControlledState, useControlledStateWithNull, useItemRegistry, useKeyboardNavigation } from '@/hooks';
-import { type ComboboxContextValue, ComboboxProvider, useCombobox, usePrefixedId } from '@/providers';
+import { type ComboboxContextValue, ComboboxProvider, type ContentType, useCombobox, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
 import { useComposedRefs } from '@/utils/ref';
@@ -55,6 +55,15 @@ export type ComboboxRootProps = {
   setActive?: (active: string | null) => void;
   disabled?: boolean;
   error?: boolean;
+  /**
+   * Content type determines popup content structure and keyboard navigation:
+   * - `'auto'` (default): Wraps with Listbox.Root for backward compatibility
+   * - `'listbox'`: Uses Combobox.ListContent with internal item registry for keyboard navigation
+   * - `'tree'`: Uses Combobox.TreeContent for VirtualizedTreeList/TreeList.
+   *   In tree mode, the internal item registry (`registerItem`, `getItems`, etc.) is unused.
+   *   Consumer must manage `active` state externally and pass it to VirtualizedTreeList.
+   */
+  contentType?: ContentType;
 };
 
 const ComboboxRoot = ({
@@ -75,6 +84,7 @@ const ComboboxRoot = ({
   active: controlledActive,
   defaultActive,
   setActive,
+  contentType = 'auto',
 }: ComboboxRootProps): ReactElement => {
   const baseId = usePrefixedId();
 
@@ -201,6 +211,15 @@ const ComboboxRoot = ({
     },
   });
 
+  // Focus tree container after popup opens (for tree mode)
+  const focusTreeContainer = useCallback(() => {
+    requestAnimationFrame(() => {
+      const tree = document.getElementById(`${baseId}-tree`);
+      const treeContainer = tree?.querySelector<HTMLElement>('[role="tree"]');
+      treeContainer?.focus();
+    });
+  }, [baseId]);
+
   // Wrap keyboard handler with Combobox-specific behavior
   const keyHandler = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
@@ -208,10 +227,31 @@ const ComboboxRoot = ({
         return;
       }
 
+      // Ctrl/Cmd + Enter to apply staged selection
+      // NOTE: Also handled in ComboboxTreeContent for when focus is in tree container
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        if (stagingEnabled) {
+          e.preventDefault();
+          applyStagedSelection();
+          return;
+        }
+      }
+
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         if (!open) {
           e.preventDefault();
           setOpenInternal(true);
+          // For tree mode, also focus tree after it renders
+          if (contentType === 'tree') {
+            focusTreeContainer();
+          }
+          return;
+        }
+        // For tree mode, transfer focus to tree container
+        if (contentType === 'tree') {
+          e.preventDefault();
+          focusTreeContainer();
+          return;
         }
       }
 
@@ -221,10 +261,22 @@ const ComboboxRoot = ({
         return;
       }
 
-      // Delegate to navigation hook for other keys
-      handleNavKeyDown(e);
+      // Only delegate to Listbox navigation in listbox/auto mode
+      if (contentType !== 'tree') {
+        handleNavKeyDown(e);
+      }
     },
-    [disabled, open, setOpenInternal, setOpen, handleNavKeyDown],
+    [
+      disabled,
+      open,
+      setOpenInternal,
+      setOpen,
+      handleNavKeyDown,
+      contentType,
+      focusTreeContainer,
+      stagingEnabled,
+      applyStagedSelection,
+    ],
   );
 
   // Auto-select first item when opening
@@ -245,6 +297,7 @@ const ComboboxRoot = ({
       setInputValue,
       baseId,
       active: activeInternal,
+      setActive: setActiveInternal,
       disabled,
       error,
       closeOnBlur,
@@ -256,6 +309,14 @@ const ComboboxRoot = ({
       hasStagedChanges,
       applyStagedSelection,
       resetStagedSelection,
+      // Composable pattern additions
+      contentType,
+      selectionMode: isMultipleSelection ? 'multiple' : 'single',
+      onSelectionChange: handleSelectionChange,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
     }),
     [
       open,
@@ -265,6 +326,7 @@ const ComboboxRoot = ({
       inputValue,
       setInputValue,
       activeInternal,
+      setActiveInternal,
       baseId,
       disabled,
       error,
@@ -275,9 +337,22 @@ const ComboboxRoot = ({
       hasStagedChanges,
       applyStagedSelection,
       resetStagedSelection,
+      contentType,
+      isMultipleSelection,
+      handleSelectionChange,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
     ],
   );
 
+  // When contentType is 'tree' or 'listbox', content wrapper handles its own structure
+  if (contentType === 'tree' || contentType === 'listbox') {
+    return <ComboboxProvider value={context}>{children}</ComboboxProvider>;
+  }
+
+  // Default 'auto' mode: backward compat with internal Listbox.Root
   return (
     <ComboboxProvider value={context}>
       <Listbox.Root
@@ -417,7 +492,7 @@ export type ComboboxInputProps = {
 const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, ref): ReactElement => {
   const innerRef = useRef<HTMLInputElement>(null);
 
-  const { open, keyHandler, baseId, active, disabled, error } = useCombobox();
+  const { open, keyHandler, baseId, active, disabled, error, contentType } = useCombobox();
 
   useEffect(() => {
     if (open && !disabled) {
@@ -435,9 +510,15 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
       role='combobox'
       aria-autocomplete='list'
       aria-expanded={open}
-      aria-haspopup='listbox'
-      aria-controls={`${baseId}-listbox`}
-      aria-activedescendant={active ? `${baseId}-listbox-option-${active}` : undefined}
+      aria-haspopup={contentType === 'tree' ? 'tree' : 'listbox'}
+      aria-controls={`${baseId}-${contentType === 'tree' ? 'tree' : 'listbox'}`}
+      aria-activedescendant={
+        contentType === 'tree'
+          ? undefined // Tree container manages aria-activedescendant
+          : active
+            ? `${baseId}-listbox-option-${active}`
+            : undefined
+      }
       {...props}
     />
   );
@@ -559,7 +640,7 @@ const ComboboxPopup = ({ children, className, ...props }: ComboboxPopupProps): R
   return (
     <div
       className={cn(
-        'absolute right-0 left-0 z-50 mt-2 rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+        'absolute right-0 left-0 z-50 mt-2 overflow-hidden rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
         className,
       )}
       {...props}
@@ -569,6 +650,131 @@ const ComboboxPopup = ({ children, className, ...props }: ComboboxPopupProps): R
   );
 };
 ComboboxPopup.displayName = 'Combobox.Popup';
+
+//
+// * ListContent
+//
+
+export type ComboboxListContentProps = {
+  children?: ReactNode;
+  className?: string;
+} & ComponentPropsWithoutRef<'div'>;
+
+const ComboboxListContent = ({ children, className, ...props }: ComboboxListContentProps): ReactElement => {
+  const {
+    selection,
+    onSelectionChange,
+    disabled,
+    active,
+    setActive,
+    baseId,
+    keyHandler,
+    registerItem,
+    unregisterItem,
+    getItems,
+    isItemDisabled,
+    selectionMode,
+  } = useCombobox();
+
+  // Convert Set to array for Listbox
+  const selectionArray = useMemo(() => Array.from(selection), [selection]);
+
+  return (
+    <Listbox.Root
+      selectionMode={selectionMode}
+      selection={selectionArray}
+      onSelectionChange={onSelectionChange}
+      disabled={disabled}
+      active={active}
+      focusMode='activedescendant'
+      baseId={baseId}
+      setActive={setActive}
+      keyHandler={keyHandler}
+      registerItem={registerItem}
+      unregisterItem={unregisterItem}
+      getItems={getItems}
+      isItemDisabled={isItemDisabled}
+    >
+      <Listbox.Content className={className} {...props}>
+        {children}
+      </Listbox.Content>
+    </Listbox.Root>
+  );
+};
+ComboboxListContent.displayName = 'Combobox.ListContent';
+
+//
+// * TreeContent
+//
+
+export type ComboboxTreeContentProps = {
+  children?: ReactNode;
+  className?: string;
+} & ComponentPropsWithoutRef<'div'>;
+
+/**
+ * Container for tree content in Combobox popup.
+ *
+ * Unlike ListContent, TreeContent does not provide item management.
+ * Consumers must:
+ * - Manage `active` state externally and pass to VirtualizedTreeList
+ * - Calculate container height (Virtuoso requires explicit height)
+ * - Handle selection via VirtualizedTreeList props
+ *
+ * @example
+ * ```tsx
+ * const [activeId, setActiveId] = useState<string | null>('1');
+ * const treeHeight = useMemo(() => Math.min(items.length * 32 + 8, 240), [items.length]);
+ *
+ * <Combobox.TreeContent style={{ height: treeHeight }}>
+ *   <VirtualizedTreeList
+ *     active={activeId}
+ *     onActiveChange={setActiveId}
+ *     items={items}
+ *     className="h-full"
+ *   />
+ * </Combobox.TreeContent>
+ * ```
+ */
+const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeContentProps): ReactElement => {
+  const { baseId, setOpen, stagingEnabled, applyStagedSelection } = useCombobox();
+
+  // Handle keyboard shortcuts from tree content
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLElement>) => {
+      // Ctrl/Cmd + Enter to apply staged selection
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        if (stagingEnabled) {
+          e.preventDefault();
+          applyStagedSelection();
+          // Return focus to input (popup closes after apply)
+          const input = document.getElementById(`${baseId}-input`);
+          input?.focus();
+          return;
+        }
+      }
+
+      // Escape to close combobox and return focus to input
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setOpen(false);
+        const input = document.getElementById(`${baseId}-input`);
+        input?.focus();
+      }
+    },
+    [setOpen, baseId, stagingEnabled, applyStagedSelection],
+  );
+
+  return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- VirtualizedTreeList inside provides proper role and tabIndex
+    <div id={`${baseId}-tree`} className={cn('outline-none', className)} onKeyDown={handleKeyDown} {...props}>
+      {children}
+    </div>
+  );
+};
+ComboboxTreeContent.displayName = 'Combobox.TreeContent';
+
+export type { ContentType };
 
 export const Combobox = Object.assign(ComboboxRoot, {
   Root: ComboboxRoot,
@@ -580,4 +786,6 @@ export const Combobox = Object.assign(ComboboxRoot, {
   Toggle: ComboboxToggle,
   Apply: ComboboxApply,
   Popup: ComboboxPopup,
+  ListContent: ComboboxListContent,
+  TreeContent: ComboboxTreeContent,
 });
