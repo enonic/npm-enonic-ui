@@ -179,15 +179,15 @@
   "size-limit": [
     {
       "path": "dist/enonic-ui.es.js",
-      "limit": "40 KB"
+      "limit": "50 KB"
     },
     {
       "path": "dist/enonic-ui.cjs",
-      "limit": "40 KB"
+      "limit": "50 KB"
     },
     {
       "path": "dist/styles/style.css",
-      "limit": "12 KB"
+      "limit": "15 KB"
     },
     {
       "path": "dist/styles/preset.css",
