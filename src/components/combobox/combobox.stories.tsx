@@ -1,8 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { useEffect, useState } from 'preact/hooks';
-import { type ReactElement, type RefObject, useRef } from 'react';
+import { File, Folder } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
+import { forwardRef, type ReactElement, type RefObject, useRef } from 'react';
+import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import { Combobox } from '@/components/combobox/combobox';
 import { Listbox } from '@/components/listbox/listbox';
+import { type FlatNode, VirtualizedTreeList } from '@/components/virtualized-tree-list/virtualized-tree-list';
+import { useCombobox } from '@/providers';
+import { cn } from '@/utils';
 
 type Story = StoryObj;
 
@@ -355,7 +360,12 @@ export const Staged: Story = {
 
     return (
       <div className='relative w-80 space-y-3'>
-        <h3 className='font-medium text-md'>Need to confirm selection changes</h3>
+        <header>
+          <h3 className='font-medium text-md'>Need to confirm selection changes</h3>
+          <p className='text-sm text-subtle'>
+            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Enter</kbd>
+          </p>
+        </header>
         <Combobox.Root value={value} onChange={setValue} selectionMode={'staged'} closeOnBlur={false}>
           <Combobox.Content>
             <Combobox.Control>
@@ -401,7 +411,9 @@ export const Staged_Preselected: Story = {
       <div className='relative w-80 space-y-3'>
         <header>
           <h3 className='font-medium text-md'>Confirm selection changes</h3>
-          <p className='text-sm text-subtle'>Some items are preselected, changes require confirmation</p>
+          <p className='text-sm text-subtle'>
+            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Enter</kbd>
+          </p>
         </header>
         <Combobox.Root
           value={value}
@@ -552,6 +564,438 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
           </Combobox.Content>
         </Combobox.Root>
         {error && <p className='text-error text-sm'>There was an error with your selection</p>}
+      </div>
+    );
+  },
+};
+
+//
+// * Tree Content Stories
+//
+
+type TreeNodeData = {
+  label: string;
+  icon: 'folder' | 'file';
+};
+
+type TreeDataSource = {
+  id: string;
+  label: string;
+  icon: 'folder' | 'file';
+  children?: TreeDataSource[];
+};
+
+const sampleTreeData: TreeDataSource[] = [
+  {
+    id: '1',
+    label: 'Documents',
+    icon: 'folder',
+    children: [
+      {
+        id: '1-1',
+        label: 'Work',
+        icon: 'folder',
+        children: [
+          { id: '1-1-1', label: 'Report.pdf', icon: 'file' },
+          { id: '1-1-2', label: 'Budget.xlsx', icon: 'file' },
+          { id: '1-1-3', label: 'Presentation.pptx', icon: 'file' },
+        ],
+      },
+      {
+        id: '1-2',
+        label: 'Personal',
+        icon: 'folder',
+        children: [
+          { id: '1-2-1', label: 'Resume.docx', icon: 'file' },
+          { id: '1-2-2', label: 'CoverLetter.pdf', icon: 'file' },
+        ],
+      },
+    ],
+  },
+  {
+    id: '2',
+    label: 'Pictures',
+    icon: 'folder',
+    children: [
+      {
+        id: '2-1',
+        label: 'Vacation',
+        icon: 'folder',
+        children: [
+          { id: '2-1-1', label: 'Beach.jpg', icon: 'file' },
+          { id: '2-1-2', label: 'Mountain.jpg', icon: 'file' },
+        ],
+      },
+      { id: '2-2', label: 'Profile.png', icon: 'file' },
+    ],
+  },
+  { id: '3', label: 'readme.txt', icon: 'file' },
+];
+
+function flattenTree(
+  nodes: TreeDataSource[],
+  expanded: ReadonlySet<string>,
+  parentId: string | null = null,
+  level = 1,
+): FlatNode<TreeNodeData>[] {
+  const result: FlatNode<TreeNodeData>[] = [];
+
+  for (const node of nodes) {
+    const hasChildren = !!(node.children && node.children.length > 0);
+    const isExpanded = expanded.has(node.id);
+
+    result.push({
+      id: node.id,
+      data: { label: node.label, icon: node.icon },
+      level,
+      parentId,
+      hasChildren,
+      isExpanded,
+    });
+
+    if (hasChildren && isExpanded && node.children) {
+      result.push(...flattenTree(node.children, expanded, node.id, level + 1));
+    }
+  }
+
+  return result;
+}
+
+const getIcon = (iconType: 'folder' | 'file'): ReactElement => (iconType === 'folder' ? <Folder /> : <File />);
+
+const treeVirtuosoComponents = {
+  Scroller: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ style, children, className, ...props }, ref) => (
+      <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
+        {children}
+      </div>
+    ),
+  ),
+  List: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ style, children, className, ...props }, ref) => (
+      <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
+        {children}
+      </div>
+    ),
+  ),
+};
+
+export const TreeContent: Story = {
+  name: 'Features / Tree Content',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [value, setValue] = useState<string | undefined>();
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [expanded, setExpanded] = useState<Set<string>>(new Set(['1', '2']));
+    const [activeId, setActiveId] = useState<string | null>('1'); // First item active by default
+
+    const handleExpand = (id: string): void => {
+      setExpanded(prev => new Set([...prev, id]));
+    };
+
+    const handleCollapse = (id: string): void => {
+      setExpanded(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    };
+
+    const flatNodes = useMemo(() => flattenTree(sampleTreeData, expanded), [expanded]);
+
+    // Filter nodes based on search value
+    const filteredNodes = useMemo(() => {
+      if (!value) return flatNodes;
+      const searchLower = value.toLowerCase();
+      return flatNodes.filter(node => node.data.label.toLowerCase().includes(searchLower));
+    }, [flatNodes, value]);
+
+    // Reset active to first item when filtered list changes and active item is not in list
+    useEffect(() => {
+      const firstNode = filteredNodes[0];
+      if (firstNode) {
+        const activeInList = activeId && filteredNodes.some(node => node.id === activeId);
+        if (!activeInList) {
+          setActiveId(firstNode.id);
+        }
+      }
+    }, [filteredNodes, activeId]);
+
+    // Calculate dynamic height based on visible items
+    // Virtuoso requires explicit height - max-height alone causes 0 height
+    const ROW_HEIGHT = 32; // Row height including gap (py-1.5 + content)
+    const MAX_HEIGHT = 240; // max-h-60 equivalent (15rem = 240px)
+    const GAP = 6; // gap-y-1.5 = 6px
+    const PADDING = 8; // p-1 on scroller = 4px * 2
+
+    const nodesCount = filteredNodes.length;
+    const treeHeight = useMemo(() => {
+      const contentHeight = nodesCount * ROW_HEIGHT + Math.max(nodesCount - 1, 0) * GAP + PADDING;
+      return Math.min(contentHeight, MAX_HEIGHT);
+    }, [nodesCount]);
+
+    return (
+      <div className='relative w-80 space-y-3'>
+        <h3 className='font-medium text-md'>Combobox with Tree Content</h3>
+        <p className='text-sm text-subtle'>Uses VirtualizedTreeList for hierarchical content</p>
+        <Combobox.Root value={value} onChange={setValue} closeOnBlur={false} contentType='tree'>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search files...' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              <Combobox.TreeContent style={{ height: treeHeight }}>
+                <VirtualizedTreeList
+                  items={filteredNodes}
+                  selection={selection}
+                  onSelectionChange={setSelection}
+                  selectionMode='multiple'
+                  active={activeId}
+                  onActiveChange={setActiveId}
+                  onExpand={handleExpand}
+                  onCollapse={handleCollapse}
+                  virtuosoRef={virtuosoRef}
+                  aria-label='File browser'
+                  className='h-full'
+                >
+                  {({ items, getItemProps, containerProps }) => (
+                    <Virtuoso<FlatNode<TreeNodeData>>
+                      ref={virtuosoRef}
+                      data={items}
+                      components={treeVirtuosoComponents}
+                      {...containerProps}
+                      className={cn('h-full', containerProps.className)}
+                      itemContent={(index, node) => {
+                        const itemProps = getItemProps(index, node);
+                        return (
+                          <VirtualizedTreeList.Row {...itemProps}>
+                            <VirtualizedTreeList.RowLeft>
+                              <VirtualizedTreeList.RowLevelSpacer level={node.level} />
+                              <VirtualizedTreeList.RowExpandControl
+                                expanded={node.isExpanded}
+                                hasChildren={node.hasChildren}
+                                onToggle={() => (node.isExpanded ? handleCollapse(node.id) : handleExpand(node.id))}
+                                selected={itemProps.selected}
+                              />
+                            </VirtualizedTreeList.RowLeft>
+                            <VirtualizedTreeList.RowContent>
+                              <div className='flex items-center gap-2'>
+                                <span className='shrink-0 text-subtle group-data-[tone=inverse]:text-alt'>
+                                  {getIcon(node.data.icon)}
+                                </span>
+                                <span className='truncate text-sm'>{node.data.label}</span>
+                              </div>
+                            </VirtualizedTreeList.RowContent>
+                            <VirtualizedTreeList.RowRight>
+                              <VirtualizedTreeList.RowSelectionControl rowId={node.id} />
+                            </VirtualizedTreeList.RowRight>
+                          </VirtualizedTreeList.Row>
+                        );
+                      }}
+                    />
+                  )}
+                </VirtualizedTreeList>
+              </Combobox.TreeContent>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+        <div className='rounded-sm bg-surface-primary px-3 py-2'>
+          <p className='text-sm text-subtle'>
+            <span className='font-semibold'>Selected:</span> {Array.from(selection).join(', ') || '(none)'}
+          </p>
+        </div>
+      </div>
+    );
+  },
+};
+
+// Inner component to connect VirtualizedTreeList with Combobox's staged selection
+const StagedTreeContent = ({
+  items,
+  activeId,
+  onActiveChange,
+  onExpand,
+  onCollapse,
+  virtuosoRef,
+  treeHeight,
+}: {
+  items: FlatNode<TreeNodeData>[];
+  activeId: string | null;
+  onActiveChange: (id: string | null) => void;
+  onExpand: (id: string) => void;
+  onCollapse: (id: string) => void;
+  virtuosoRef: RefObject<VirtuosoHandle>;
+  treeHeight: number;
+}): ReactElement => {
+  const { selection, onSelectionChange } = useCombobox();
+
+  // Convert Set changes to array for Combobox's staged selection
+  const handleTreeSelectionChange = useCallback(
+    (newSelection: ReadonlySet<string>) => {
+      onSelectionChange(Array.from(newSelection));
+    },
+    [onSelectionChange],
+  );
+
+  return (
+    <Combobox.TreeContent style={{ height: treeHeight }}>
+      <VirtualizedTreeList
+        items={items}
+        selection={selection}
+        onSelectionChange={handleTreeSelectionChange}
+        selectionMode='multiple'
+        active={activeId}
+        onActiveChange={onActiveChange}
+        onExpand={onExpand}
+        onCollapse={onCollapse}
+        virtuosoRef={virtuosoRef}
+        aria-label='File browser'
+        className='h-full'
+      >
+        {({ items: visibleItems, getItemProps, containerProps }) => (
+          <Virtuoso<FlatNode<TreeNodeData>>
+            ref={virtuosoRef}
+            data={visibleItems}
+            components={treeVirtuosoComponents}
+            {...containerProps}
+            className={cn('h-full', containerProps.className)}
+            itemContent={(index, node) => {
+              const itemProps = getItemProps(index, node);
+              return (
+                <VirtualizedTreeList.Row {...itemProps}>
+                  <VirtualizedTreeList.RowLeft>
+                    <VirtualizedTreeList.RowLevelSpacer level={node.level} />
+                    <VirtualizedTreeList.RowExpandControl
+                      expanded={node.isExpanded}
+                      hasChildren={node.hasChildren}
+                      onToggle={() => (node.isExpanded ? onCollapse(node.id) : onExpand(node.id))}
+                      selected={itemProps.selected}
+                    />
+                  </VirtualizedTreeList.RowLeft>
+                  <VirtualizedTreeList.RowContent>
+                    <div className='flex items-center gap-2'>
+                      <span className='shrink-0 text-subtle group-data-[tone=inverse]:text-alt'>
+                        {getIcon(node.data.icon)}
+                      </span>
+                      <span className='truncate text-sm'>{node.data.label}</span>
+                    </div>
+                  </VirtualizedTreeList.RowContent>
+                  <VirtualizedTreeList.RowRight>
+                    <VirtualizedTreeList.RowSelectionControl rowId={node.id} />
+                  </VirtualizedTreeList.RowRight>
+                </VirtualizedTreeList.Row>
+              );
+            }}
+          />
+        )}
+      </VirtualizedTreeList>
+    </Combobox.TreeContent>
+  );
+};
+
+export const TreeContent_Staged: Story = {
+  name: 'Features / Tree Content Staged',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [value, setValue] = useState<string | undefined>();
+    const [appliedSelection, setAppliedSelection] = useState<readonly string[]>(['1', '1-1']); // Preselected: Documents, Work
+    const [expanded, setExpanded] = useState<Set<string>>(new Set(['1', '2']));
+    const [activeId, setActiveId] = useState<string | null>('1');
+
+    const handleExpand = (id: string): void => {
+      setExpanded(prev => new Set([...prev, id]));
+    };
+
+    const handleCollapse = (id: string): void => {
+      setExpanded(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    };
+
+    const flatNodes = useMemo(() => flattenTree(sampleTreeData, expanded), [expanded]);
+
+    // Filter nodes based on search value
+    const filteredNodes = useMemo(() => {
+      if (!value) return flatNodes;
+      const searchLower = value.toLowerCase();
+      return flatNodes.filter(node => node.data.label.toLowerCase().includes(searchLower));
+    }, [flatNodes, value]);
+
+    // Reset active to first item when filtered list changes and active item is not in list
+    useEffect(() => {
+      const firstNode = filteredNodes[0];
+      if (firstNode) {
+        const activeInList = activeId && filteredNodes.some(node => node.id === activeId);
+        if (!activeInList) {
+          setActiveId(firstNode.id);
+        }
+      }
+    }, [filteredNodes, activeId]);
+
+    // Calculate dynamic height based on visible items
+    const ROW_HEIGHT = 32;
+    const MAX_HEIGHT = 240;
+    const GAP = 6;
+    const PADDING = 8;
+
+    const nodesCount = filteredNodes.length;
+    const treeHeight = useMemo(() => {
+      const contentHeight = nodesCount * ROW_HEIGHT + Math.max(nodesCount - 1, 0) * GAP + PADDING;
+      return Math.min(contentHeight, MAX_HEIGHT);
+    }, [nodesCount]);
+
+    return (
+      <div className='relative w-80 space-y-3'>
+        <header>
+          <h3 className='font-medium text-md'>Tree with Staged Selection</h3>
+          <p className='text-sm text-subtle'>
+            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Enter</kbd>
+          </p>
+        </header>
+        <Combobox.Root
+          value={value}
+          onChange={setValue}
+          selection={appliedSelection}
+          onSelectionChange={setAppliedSelection}
+          selectionMode='staged'
+          contentType='tree'
+          closeOnBlur={false}
+        >
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search files...' />
+                <Combobox.Apply />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              <StagedTreeContent
+                items={filteredNodes}
+                activeId={activeId}
+                onActiveChange={setActiveId}
+                onExpand={handleExpand}
+                onCollapse={handleCollapse}
+                virtuosoRef={virtuosoRef}
+                treeHeight={treeHeight}
+              />
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+        <div className='rounded-sm bg-surface-primary px-3 py-2'>
+          <p className='text-sm text-subtle'>
+            <span className='font-semibold'>Applied:</span> {appliedSelection.join(', ') || '(none)'}
+          </p>
+        </div>
       </div>
     );
   },

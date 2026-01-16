@@ -306,6 +306,13 @@ const listboxItemVariants = cva(
         activedescendant: '',
       },
     },
+    compoundVariants: [
+      {
+        selected: true,
+        disabled: false,
+        class: 'data-[active=true]:bg-surface-selected-hover',
+      },
+    ],
     defaultVariants: {
       selected: false,
       disabled: false,
