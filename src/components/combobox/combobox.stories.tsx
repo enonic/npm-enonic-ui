@@ -752,6 +752,8 @@ export const TreeContent: Story = {
               <Combobox.TreeContent style={{ height: treeHeight }}>
                 <VirtualizedTreeList
                   items={filteredNodes}
+                  preserveFilteredSelection
+                  clearSelectionOnEscape={false}
                   selection={selection}
                   onSelectionChange={setSelection}
                   selectionMode='multiple'
@@ -846,6 +848,8 @@ const StagedTreeContent = ({
     <Combobox.TreeContent style={{ height: treeHeight }}>
       <VirtualizedTreeList
         items={items}
+        preserveFilteredSelection
+        clearSelectionOnEscape={false}
         selection={selection}
         onSelectionChange={handleTreeSelectionChange}
         selectionMode='multiple'
