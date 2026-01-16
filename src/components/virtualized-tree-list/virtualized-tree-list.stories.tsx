@@ -1740,14 +1740,7 @@ export const ClearActiveOnReclick: Story = {
               itemContent={(index, node) => {
                 const itemProps = getItemProps(index, node);
                 return (
-                  <VirtualizedTreeList.Row
-                    {...itemProps}
-                    onClick={e => {
-                      const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
-                      tree?.focus();
-                      setActiveId(node.id);
-                    }}
-                  >
+                  <VirtualizedTreeList.Row {...itemProps}>
                     <VirtualizedTreeList.RowLeft>
                       <VirtualizedTreeList.RowSelectionControl rowId={node.id} />
                       <VirtualizedTreeList.RowLevelSpacer level={node.level} />
