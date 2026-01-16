@@ -993,7 +993,6 @@ export const ClearActiveOnReclick: Story = {
                 level={item.level}
                 hasChildren={item.hasChildren}
                 expanded={expanded.has(item.id)}
-                onClick={() => setActive(item.id)}
               >
                 <TreeList.RowLeft>
                   <TreeList.RowSelectionControl rowId={item.id} />

@@ -648,15 +648,22 @@ const VirtualizedTreeListRoot = forwardRef(
         const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
         tree?.focus();
 
-        // Clear active on reclick: single-click on active item with empty selection clears active
+        // Clear active on reclick: single-click on active item clears active
         // e.detail === 1 ensures we only clear on single clicks, not double-clicks
-        if (clearActiveOnReclick && activeIndex === index && selection.size === 0 && e.detail === 1) {
+        if (clearActiveOnReclick && activeIndex === index && e.detail === 1) {
           setActiveIndex(null);
           return;
         }
 
+        // Skip setting active on double-click's second event when clearActiveOnReclick is enabled
+        // (the first click already cleared active, don't re-activate on the second)
+        if (clearActiveOnReclick && e.detail > 1) return;
+
         // Set this item as active
         setActiveIndex(index);
+
+        // When clearActiveOnReclick is enabled, row clicks only affect active state
+        if (clearActiveOnReclick) return;
 
         // Check if item allows selection
         if (!canSelect(item)) return;
@@ -692,7 +699,6 @@ const VirtualizedTreeListRoot = forwardRef(
         canSelect,
         clearActiveOnReclick,
         activeIndex,
-        selection,
       ],
     );
 
@@ -1031,6 +1037,9 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
         setActiveIndex(index);
         toggleSelection(rowId, index);
       }
+      // Focus tree container for keyboard navigation
+      const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
+      tree?.focus();
     },
     [rowId, setActiveIndex, toggleSelection, getItemIndex],
   );
