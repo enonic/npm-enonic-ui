@@ -40,7 +40,7 @@ export type ButtonVariantsProps = VariantProps<typeof buttonVariants>;
 export type ButtonVariant = NonNullable<ButtonVariantsProps['variant']>;
 export type ButtonSize = NonNullable<ButtonVariantsProps['size']>;
 export type ButtonIconProps = {
-  iconSize?: number;
+  iconSize?: number | ButtonSize;
   iconStrokeWidth?: number;
 };
 
@@ -53,7 +53,9 @@ export type ButtonProps = {
   ButtonIconProps &
   Omit<ComponentPropsWithoutRef<'button'>, 'disabled'>;
 
-const getIconSize = (size: NonNullable<ButtonSize>): number => {
+const getIconSize = (size: ButtonSize | number): number => {
+  if (typeof size === 'number') return size;
+
   switch (size) {
     case 'sm':
       return 14;
@@ -84,7 +86,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const StartIcon = startIcon;
     const EndIcon = endIcon;
-    const iconSizeValue = iconSize ?? getIconSize(size ?? 'md');
+    const iconSizeValue = getIconSize(iconSize ?? size ?? 'md');
 
     return (
       <button
