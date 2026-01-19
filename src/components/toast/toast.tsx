@@ -141,7 +141,7 @@ const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<Ic
       <IconButton
         ref={ref}
         icon={X}
-        iconSize={24}
+        iconSize='lg'
         iconStrokeWidth={1}
         aria-label='Close notification'
         title='Close notification'
