@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { File, Folder } from 'lucide-react';
+import { File, Folder, ListTree } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { forwardRef, type ReactElement, type RefObject, useRef } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import { Combobox } from '@/components/combobox/combobox';
 import { Listbox } from '@/components/listbox/listbox';
+import { Toggle } from '@/components/toggle';
 import { type FlatNode, VirtualizedTreeList } from '@/components/virtualized-tree-list/virtualized-tree-list';
 import { useCombobox } from '@/providers';
 import { cn } from '@/utils';
@@ -180,6 +181,211 @@ export const Preselected: Story = {
                   </Listbox.Item>
                 ))}
               </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+      </div>
+    );
+  },
+};
+
+const frameworkTreeData: TreeDataSource[] = [
+  {
+    id: 'javascript',
+    label: 'JavaScript',
+    icon: 'folder',
+    children: [
+      { id: 'react', label: 'React', icon: 'file' },
+      { id: 'preact', label: 'Preact', icon: 'file' },
+      { id: 'vue', label: 'Vue', icon: 'file' },
+      { id: 'svelte', label: 'Svelte', icon: 'file' },
+    ],
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    icon: 'folder',
+    children: [
+      { id: 'solid', label: 'Solid', icon: 'file' },
+      { id: 'qwik', label: 'Qwik', icon: 'file' },
+    ],
+  },
+];
+
+const treeVirtuosoComponents = {
+  Scroller: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ style, children, className, ...props }, ref) => (
+      <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
+        {children}
+      </div>
+    ),
+  ),
+  List: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ style, children, className, ...props }, ref) => (
+      <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
+        {children}
+      </div>
+    ),
+  ),
+};
+
+const getIcon = (iconType: 'folder' | 'file'): ReactElement => (iconType === 'folder' ? <Folder /> : <File />);
+
+export const WithLeftToggleButton: Story = {
+  name: 'Examples / Left Toggle Button',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [value, setValue] = useState<string | undefined>();
+    const [isTreeView, setIsTreeView] = useState(false);
+
+    // Tree state
+    const [treeSelection, setTreeSelection] = useState<ReadonlySet<string>>(new Set());
+    const [expanded, setExpanded] = useState<Set<string>>(new Set(['javascript', 'typescript']));
+    const [activeId, setActiveId] = useState<string | null>('javascript');
+
+    const handleExpand = (id: string): void => {
+      setExpanded(prev => new Set([...prev, id]));
+    };
+
+    const handleCollapse = (id: string): void => {
+      setExpanded(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    };
+
+    // List filtering
+    const filteredList = value
+      ? frameworks.filter(
+          f =>
+            f.name.toLowerCase().includes(value.toLowerCase()) ||
+            f.language.toLowerCase().includes(value.toLowerCase()),
+        )
+      : frameworks;
+
+    // Tree filtering
+    const flatNodes = useMemo(() => flattenTree(frameworkTreeData, expanded), [expanded]);
+    const filteredNodes = useMemo(() => {
+      if (!value) return flatNodes;
+      const searchLower = value.toLowerCase();
+      return flatNodes.filter(node => node.data.label.toLowerCase().includes(searchLower));
+    }, [flatNodes, value]);
+
+    // Reset active to first item when filtered list changes
+    useEffect(() => {
+      if (isTreeView) {
+        const firstNode = filteredNodes[0];
+        if (firstNode) {
+          const activeInList = activeId && filteredNodes.some(node => node.id === activeId);
+          if (!activeInList) {
+            setActiveId(firstNode.id);
+          }
+        }
+      }
+    }, [filteredNodes, activeId, isTreeView]);
+
+    // Tree height calculation
+    const ROW_HEIGHT = 32;
+    const MAX_HEIGHT = 240;
+    const GAP = 6;
+    const PADDING = 8;
+    const nodesCount = filteredNodes.length;
+    const treeHeight = useMemo(() => {
+      const contentHeight = nodesCount * ROW_HEIGHT + Math.max(nodesCount - 1, 0) * GAP + PADDING;
+      return Math.min(contentHeight, MAX_HEIGHT);
+    }, [nodesCount]);
+
+    return (
+      <div className='relative w-80 space-y-3'>
+        <h3 className='font-medium text-md'>Toggle Button in Icon Position</h3>
+        <p className='text-sm text-subtle'>
+          View mode: <span className='font-semibold'>{isTreeView ? 'Tree' : 'List'}</span>
+        </p>
+        <Combobox.Root value={value} onChange={setValue} contentType={isTreeView ? 'tree' : 'auto'} closeOnBlur={false}>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search className='pl-0'>
+                <Toggle
+                  startIcon={ListTree}
+                  size='sm'
+                  iconSize='md'
+                  aria-label='Toggle view mode'
+                  pressed={isTreeView}
+                  onPressedChange={() => setIsTreeView(prev => !prev)}
+                  tabIndex={-1}
+                  className={cn(
+                    'ml-1.25 size-9 shrink-0 rounded-[0.1875rem] p-0 text-subtle hover:bg-surface-neutral-hover',
+                    'after:-inset-1.25 after:-z-10 relative z-0 overflow-visible after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+                  )}
+                />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search...' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              {isTreeView ? (
+                <Combobox.TreeContent style={{ height: treeHeight }}>
+                  <VirtualizedTreeList
+                    items={filteredNodes}
+                    preserveFilteredSelection
+                    clearSelectionOnEscape={false}
+                    selection={treeSelection}
+                    onSelectionChange={setTreeSelection}
+                    selectionMode='single'
+                    active={activeId}
+                    onActiveChange={setActiveId}
+                    onExpand={handleExpand}
+                    onCollapse={handleCollapse}
+                    virtuosoRef={virtuosoRef}
+                    aria-label='Framework browser'
+                    className='h-full'
+                  >
+                    {({ items, getItemProps, containerProps }) => (
+                      <Virtuoso<FlatNode<TreeNodeData>>
+                        ref={virtuosoRef}
+                        data={items}
+                        components={treeVirtuosoComponents}
+                        {...containerProps}
+                        className={cn('h-full', containerProps.className)}
+                        itemContent={(index, node) => {
+                          const itemProps = getItemProps(index, node);
+                          return (
+                            <VirtualizedTreeList.Row {...itemProps} selectable={node.data.icon === 'file'}>
+                              <VirtualizedTreeList.RowLeft>
+                                <VirtualizedTreeList.RowLevelSpacer level={node.level} />
+                                <VirtualizedTreeList.RowExpandControl
+                                  expanded={node.isExpanded}
+                                  hasChildren={node.hasChildren}
+                                  onToggle={() => (node.isExpanded ? handleCollapse(node.id) : handleExpand(node.id))}
+                                  selected={itemProps.selected}
+                                />
+                              </VirtualizedTreeList.RowLeft>
+                              <VirtualizedTreeList.RowContent>
+                                <div className='flex items-center gap-2'>
+                                  <span className='shrink-0 text-subtle group-data-[tone=inverse]:text-alt'>
+                                    {getIcon(node.data.icon)}
+                                  </span>
+                                  <span className='truncate text-sm'>{node.data.label}</span>
+                                </div>
+                              </VirtualizedTreeList.RowContent>
+                            </VirtualizedTreeList.Row>
+                          );
+                        }}
+                      />
+                    )}
+                  </VirtualizedTreeList>
+                </Combobox.TreeContent>
+              ) : (
+                <Listbox.Content className='rounded-sm'>
+                  {filteredList.map(({ id, ...rest }) => (
+                    <Listbox.Item key={id} value={id}>
+                      <ListboxItemContent {...rest} />
+                    </Listbox.Item>
+                  ))}
+                </Listbox.Content>
+              )}
             </Combobox.Popup>
           </Combobox.Content>
         </Combobox.Root>
@@ -393,7 +599,7 @@ export const Staged: Story = {
   },
 };
 
-export const Staged_Preselected: Story = {
+export const StagedPreselected: Story = {
   name: 'Features / Staged with Preselected',
   render: () => {
     const [value, setValue] = useState<string | undefined>();
@@ -661,25 +867,6 @@ function flattenTree(
   return result;
 }
 
-const getIcon = (iconType: 'folder' | 'file'): ReactElement => (iconType === 'folder' ? <Folder /> : <File />);
-
-const treeVirtuosoComponents = {
-  Scroller: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-    ({ style, children, className, ...props }, ref) => (
-      <div ref={ref} {...props} style={style} className={cn('rounded-sm *:p-1', className)}>
-        {children}
-      </div>
-    ),
-  ),
-  List: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-    ({ style, children, className, ...props }, ref) => (
-      <div ref={ref} {...props} style={style} className={cn('flex flex-col gap-y-1.5', className)}>
-        {children}
-      </div>
-    ),
-  ),
-};
-
 export const TreeContent: Story = {
   name: 'Features / Tree Content',
   render: () => {
@@ -902,7 +1089,7 @@ const StagedTreeContent = ({
   );
 };
 
-export const TreeContent_Staged: Story = {
+export const TreeContentStaged: Story = {
   name: 'Features / Tree Content Staged',
   render: () => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
