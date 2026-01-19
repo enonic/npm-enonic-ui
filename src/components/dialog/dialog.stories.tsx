@@ -4,7 +4,6 @@ import { useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
 import { Input } from '@/components/input';
-
 import { Dialog } from './dialog';
 
 const meta: Meta<typeof Dialog> = {
@@ -720,6 +719,113 @@ export const AutoFocusInput: Story = {
               <Dialog.Footer>
                 <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
                 <Button variant='solid' onClick={handleSubmit} label='Add Contact' disabled={!name.trim()} />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
+export const StepsDialog: Story = {
+  name: 'Features / Steps',
+  render: () => {
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Dialog defaultStep='step1'>
+          <Dialog.Trigger>
+            <Button variant='solid' label='Open dialog with steps' />
+          </Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='h-160 w-200 max-w-auto'>
+              <Dialog.StepHeader
+                step='step1'
+                helper='Optional helper for first step'
+                title='1. This is the title on first step'
+                description='Optional description for first step'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step2'
+                helper='Optional helper for second step'
+                title='2. This is the title on the second step'
+                description='Optional description for second step'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step3'
+                helper='Optional helper for third step'
+                title='3. This is the title on the third step'
+                description='Optional description for third step'
+                withClose
+              />
+
+              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+                <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
+                <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
+                <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
+              </Dialog.Body>
+
+              <Dialog.Footer className='flex flex-col'>
+                <Dialog.StepIndicator previousLabel='Previous' nextLabel='Next' dots />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
+export const ControlledStepsDialog: Story = {
+  name: 'Features / Controlled steps',
+  render: () => {
+    const [step, setStep] = useState('step1');
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Dialog step={step} onStepChange={setStep}>
+          <Dialog.Trigger>
+            <Button variant='solid' label='Open dialog with steps' />
+          </Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='h-160 w-200 max-w-auto'>
+              <Dialog.StepHeader
+                step='step1'
+                helper='Optional helper for first step'
+                title='1. This is the title on first step'
+                description='Optional description for first step'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step2'
+                helper='Optional helper for second step'
+                title='2. This is the title on the second step'
+                description='Optional description for second step'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step3'
+                helper='Optional helper for third step'
+                title='3. This is the title on the third step'
+                description='Optional description for third step'
+                withClose
+              />
+
+              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+                <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
+                <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
+                <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
+              </Dialog.Body>
+
+              <Dialog.Footer className='flex flex-col gap-5'>
+                <Dialog.StepIndicator previousLabel='Previous' nextLabel='Next' dots />
+                <p className='text-right text-subtle text-xs'>Current step: {step}</p>
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>

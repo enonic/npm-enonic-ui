@@ -15,9 +15,11 @@ import {
 import { createPortal } from 'react-dom';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
-import { usePrefixedId } from '@/providers';
+import { usePrefixedId, useStepper } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { cn, useComposedRefs } from '@/utils';
+import { Button } from '../button';
+import { Stepper } from '../stepper';
 
 //
 // * Dialog
@@ -27,6 +29,9 @@ export type DialogRootProps = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  step?: string;
+  defaultStep?: string;
+  onStepChange?: (step: string) => void;
   children?: ReactNode;
 };
 
@@ -34,6 +39,9 @@ const DialogRoot = ({
   open: controlledOpen,
   defaultOpen = false,
   onOpenChange,
+  step,
+  defaultStep,
+  onStepChange,
   children,
 }: DialogRootProps): ReactElement => {
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
@@ -41,11 +49,22 @@ const DialogRoot = ({
   const defaultDescriptionId = usePrefixedId();
   const [titleId, setTitleId] = useState(defaultTitleId);
   const [descriptionId, setDescriptionId] = useState(defaultDescriptionId);
+  const isUsingStepper = step || defaultStep || onStepChange;
 
   const context = useMemo<DialogContextValue>(
     () => ({ open, setOpen, titleId, descriptionId, setTitleId, setDescriptionId }),
     [open, titleId, descriptionId, setOpen],
   );
+
+  if (isUsingStepper) {
+    return (
+      <DialogProvider value={context}>
+        <Stepper.Root asFragment value={step} defaultValue={defaultStep} onValueChange={onStepChange}>
+          {children}
+        </Stepper.Root>
+      </DialogProvider>
+    );
+  }
 
   return <DialogProvider value={context}>{children}</DialogProvider>;
 };
@@ -490,6 +509,110 @@ const DialogDefaultHeader = forwardRef<HTMLElement, DialogDefaultHeaderProps>(
 );
 DialogDefaultHeader.displayName = 'Dialog.DefaultHeader';
 
+//
+// * DialogStepHeader
+//
+
+export type DialogStepHeaderProps = {
+  step: string;
+  title: string;
+  titleId?: string;
+  description?: string;
+  descriptionId?: string;
+  helper?: string;
+  withClose?: boolean;
+} & ComponentPropsWithoutRef<typeof DialogHeader>;
+
+const DialogStepHeader = forwardRef<HTMLElement, DialogStepHeaderProps>((props, ref): ReactElement | null => {
+  const { step, title, titleId, description, descriptionId, helper, withClose, className, children, ...restProps } =
+    props;
+
+  const { value } = useStepper();
+
+  if (step !== value) return null;
+
+  return (
+    <DialogHeader ref={ref} className={cn(withClose && 'grid-cols-[minmax(0,1fr)_auto]', className)} {...restProps}>
+      {helper && <p className={cn('font-semibold', withClose && 'col-start-1 row-start-1 min-w-0')}>{helper}</p>}
+
+      <DialogTitle
+        id={titleId}
+        className={cn(withClose && 'col-start-1 min-w-0', withClose && helper ? 'row-start-2' : 'row-start-1')}
+      >
+        {title}
+      </DialogTitle>
+
+      {withClose && (
+        <DialogDefaultClose
+          className={cn(
+            'col-start-2 row-start-1 self-start justify-self-end',
+            helper && description ? 'row-span-3' : 'row-span-2',
+          )}
+        />
+      )}
+
+      {description && (
+        <DialogDescription
+          id={descriptionId}
+          className={cn('text-sm text-subtle', withClose && helper ? 'row-start-3' : 'row-start-2')}
+        >
+          {description}
+        </DialogDescription>
+      )}
+
+      {children}
+    </DialogHeader>
+  );
+});
+DialogStepHeader.displayName = 'Dialog.StepHeader';
+
+//
+// * Dialog.StepContent
+//
+
+export type DialogStepContentProps = {
+  step: string;
+  /** Keep content in DOM when inactive */
+  forceMount?: boolean;
+  /** Prevent navigation away from this step */
+  locked?: boolean;
+  children?: ReactNode;
+};
+
+const DialogStepContent = ({ step, forceMount, locked, children }: DialogStepContentProps): ReactElement => {
+  return (
+    <Stepper.Panel value={step} forceMount={forceMount} locked={locked}>
+      {children}
+    </Stepper.Panel>
+  );
+};
+DialogStepContent.displayName = 'Dialog.StepContent';
+
+//
+// * Dialog.StepIndicator
+//
+
+export type DialogStepIndicatorProps = {
+  previousLabel: string;
+  nextLabel: string;
+  dots?: boolean;
+};
+
+const DialogStepIndicator = ({ previousLabel, nextLabel, dots }: DialogStepIndicatorProps): ReactElement => {
+  return (
+    <div className='flex items-center justify-between'>
+      <Stepper.Previous asChild>
+        <Button variant='outline' label={previousLabel} />
+      </Stepper.Previous>
+      {dots && <Stepper.Dots />}
+      <Stepper.Next asChild>
+        <Button variant='outline' label={nextLabel} />
+      </Stepper.Next>
+    </div>
+  );
+};
+DialogStepIndicator.displayName = 'Dialog.StepIndicator';
+
 export const Dialog = Object.assign(DialogRoot, {
   Root: DialogRoot,
   Trigger: DialogTrigger,
@@ -504,4 +627,7 @@ export const Dialog = Object.assign(DialogRoot, {
   Footer: DialogFooter,
   DefaultClose: DialogDefaultClose,
   DefaultHeader: DialogDefaultHeader,
+  StepHeader: DialogStepHeader,
+  StepContent: DialogStepContent,
+  StepIndicator: DialogStepIndicator,
 });
