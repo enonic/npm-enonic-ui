@@ -59,7 +59,7 @@ const DialogRoot = ({
   if (isUsingStepper) {
     return (
       <DialogProvider value={context}>
-        <Stepper.Root value={step} defaultValue={defaultStep} onValueChange={onStepChange}>
+        <Stepper.Root asFragment value={step} defaultValue={defaultStep} onValueChange={onStepChange}>
           {children}
         </Stepper.Root>
       </DialogProvider>
@@ -572,11 +572,19 @@ DialogStepHeader.displayName = 'Dialog.StepHeader';
 
 export type DialogStepContentProps = {
   step: string;
+  /** Keep content in DOM when inactive */
+  forceMount?: boolean;
+  /** Prevent navigation away from this step */
+  locked?: boolean;
   children?: ReactNode;
 };
 
-const DialogStepContent = ({ step, children }: DialogStepContentProps): ReactElement => {
-  return <Stepper.Panel value={step}>{children}</Stepper.Panel>;
+const DialogStepContent = ({ step, forceMount, locked, children }: DialogStepContentProps): ReactElement => {
+  return (
+    <Stepper.Panel value={step} forceMount={forceMount} locked={locked}>
+      {children}
+    </Stepper.Panel>
+  );
 };
 DialogStepContent.displayName = 'Dialog.StepContent';
 

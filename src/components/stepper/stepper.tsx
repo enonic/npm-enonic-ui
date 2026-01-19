@@ -16,6 +16,8 @@ const getButtonId = (baseId: string, itemId: string): string => `${baseId}-tab-$
 //
 
 export type StepperRootProps = {
+  /** Render without wrapper div (for composition with other components) */
+  asFragment?: boolean;
   /** Controlled value */
   value?: string;
   /** Default value for uncontrolled mode */
@@ -32,6 +34,7 @@ export type StepperRootProps = {
 
 const StepperRoot = forwardRef<HTMLDivElement, StepperRootProps>((props, ref): ReactElement => {
   const {
+    asFragment,
     value: controlledValue,
     defaultValue,
     maxVisible,
@@ -81,6 +84,10 @@ const StepperRoot = forwardRef<HTMLDivElement, StepperRootProps>((props, ref): R
       registryVersion,
     ],
   );
+
+  if (asFragment) {
+    return <StepperProvider value={contextValue}>{children}</StepperProvider>;
+  }
 
   return (
     <StepperProvider value={contextValue}>
