@@ -12,6 +12,7 @@ export * from './list-item';
 export * from './listbox';
 export * from './menu';
 export * from './menubar';
+export * from './radio-group';
 export * from './search-field';
 export * from './selectable-list-item';
 export * from './selector';
