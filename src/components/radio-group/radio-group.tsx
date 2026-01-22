@@ -104,6 +104,7 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
     onValueChange: handleValueChange,
     value,
     loop,
+    orientation,
     isItemDisabled,
     registryVersion,
   });
@@ -116,7 +117,7 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
         tabIndex={-1}
         className={cn(
           'group flex gap-2.5 px-2 py-1.25',
-          'focus-within:ring-2 focus-within:ring-ring/25 focus-within:ring-inset focus-visible:outline-none',
+          'focus-visible:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/25 has-[:focus-visible]:ring-inset',
           orientation === 'vertical' ? 'flex-col' : 'flex-row',
           className,
         )}
@@ -214,10 +215,10 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
         aria-disabled={isDisabled}
         className={cn(
           'my-0.75 flex w-fit items-center gap-1 rounded-xs leading-4 transition-highlight',
-          'group-data-[state=error]:focus-within:ring-error',
+          'group-data-[state=error]:focus-visible:ring-error',
           isDisabled
             ? 'pointer-events-none opacity-30'
-            : 'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset hover:cursor-pointer',
+            : 'hover:cursor-pointer focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
           className,
         )}
         onClick={handleClick}

@@ -1,4 +1,5 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
+import { useKeyboardNavigation } from './use-keyboard-navigation';
 
 export type RadioNavigationConfig = {
   baseId: string;
@@ -8,6 +9,7 @@ export type RadioNavigationConfig = {
   onValueChange: (value: string) => void;
   isItemDisabled: (id: string) => boolean;
   loop?: boolean;
+  orientation?: 'horizontal' | 'vertical';
   registryVersion: number;
 };
 
@@ -24,104 +26,31 @@ export function useRadioNavigation(config: RadioNavigationConfig): UseRadioNavig
     onValueChange,
     isItemDisabled,
     loop = false,
-    registryVersion: _registryVersion,
+    orientation = 'vertical',
   } = config;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: registryVersion triggers revalidation;
-  const items = useMemo(() => getItems(), [getItems, _registryVersion]);
-
-  const onValueChangeAndFocus = useCallback(
-    (newValue: string): void => {
+  const setActiveWithFocus = useCallback(
+    (newValue: string | undefined): void => {
+      if (!newValue) return;
       onValueChange(newValue);
 
       if (!getItemId) return;
 
       requestAnimationFrame(() => {
-        const itemElement = document.getElementById(getItemId(baseId, newValue));
-        itemElement?.focus();
+        document.getElementById(getItemId(baseId, newValue))?.focus();
       });
     },
     [baseId, onValueChange, getItemId],
   );
 
-  const currentIndex = value != null ? items.indexOf(value) : -1;
+  const { handleKeyDown } = useKeyboardNavigation({
+    getItems,
+    isItemDisabled,
+    active: value,
+    setActive: setActiveWithFocus,
+    loop,
+    orientation,
+  });
 
-  const goToFirst = useCallback((): void => {
-    const firstEnabled = items.find(id => !isItemDisabled(id));
-    if (firstEnabled) {
-      onValueChangeAndFocus(firstEnabled);
-    }
-  }, [items, isItemDisabled, onValueChangeAndFocus]);
-
-  const goToLast = useCallback((): void => {
-    const lastEnabled = [...items].reverse().find(id => !isItemDisabled(id));
-    if (lastEnabled) {
-      onValueChangeAndFocus(lastEnabled);
-    }
-  }, [items, isItemDisabled, onValueChangeAndFocus]);
-
-  const goToNext = useCallback((): void => {
-    let nextValue = items.filter((item, idx) => idx > currentIndex && !isItemDisabled(item))[0];
-
-    if (loop) {
-      nextValue = nextValue || items.filter((item, idx) => idx < currentIndex && !isItemDisabled(item))[0];
-    }
-
-    if (!nextValue) return;
-
-    onValueChangeAndFocus(nextValue);
-  }, [currentIndex, items, isItemDisabled, onValueChangeAndFocus, loop]);
-
-  const goToPrevious = useCallback((): void => {
-    let prevValue = items.filter((item, idx) => idx < currentIndex && !isItemDisabled(item)).reverse()[0];
-
-    if (loop) {
-      prevValue = prevValue || items.filter((item, idx) => idx > currentIndex && !isItemDisabled(item)).reverse()[0];
-    }
-    if (!prevValue) return;
-
-    onValueChangeAndFocus(prevValue);
-  }, [currentIndex, items, isItemDisabled, onValueChangeAndFocus, loop]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLElement>): void => {
-      switch (e.key) {
-        case 'Home': {
-          e.preventDefault();
-          goToFirst();
-          break;
-        }
-        case 'End': {
-          e.preventDefault();
-          goToLast();
-          break;
-        }
-        case 'ArrowLeft': {
-          e.preventDefault();
-          goToPrevious();
-          break;
-        }
-        case 'ArrowUp': {
-          e.preventDefault();
-          goToPrevious();
-          break;
-        }
-        case 'ArrowRight': {
-          e.preventDefault();
-          goToNext();
-          break;
-        }
-        case 'ArrowDown': {
-          e.preventDefault();
-          goToNext();
-          break;
-        }
-      }
-    },
-    [goToNext, goToPrevious, goToFirst, goToLast],
-  );
-
-  return {
-    handleKeyDown,
-  };
+  return { handleKeyDown };
 }

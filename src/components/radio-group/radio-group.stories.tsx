@@ -161,7 +161,7 @@ export const LoopState: Story = {
   render: () => {
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Radio Group with disabled item</h3>
+        <h3 className='mb-3 font-medium text-sm'>Radio Group with loop navigation</h3>
         <RadioGroup.Root name='loopAccessMode' defaultValue='public' loop>
           <RadioGroup.Item value='public'>
             <RadioGroup.Indicator />
@@ -196,6 +196,42 @@ export const DisabledState: Story = {
           </RadioGroup.Item>
 
           <RadioGroup.Item value='private' disabled>
+            <RadioGroup.Indicator />
+            <span>Private - Only project roles can read content</span>
+          </RadioGroup.Item>
+
+          <RadioGroup.Item value='custom'>
+            <RadioGroup.Indicator />
+            <span>Custom - Selected users can read content</span>
+          </RadioGroup.Item>
+        </RadioGroup.Root>
+      </div>
+    );
+  },
+};
+
+export const RequiredState: Story = {
+  name: 'State / Required',
+  render: () => {
+    const [value, setValue] = useState('');
+
+    return (
+      <div className='space-y-4 p-4'>
+        <h3 className='mb-3 font-medium text-sm'>Required Radio Group</h3>
+        <RadioGroup.Root
+          name='requiredAccessMode'
+          value={value}
+          onValueChange={setValue}
+          required
+          error={!value}
+          errorMessage={!value ? 'Please select an option' : undefined}
+        >
+          <RadioGroup.Item value='public'>
+            <RadioGroup.Indicator />
+            <span>Public - Everyone can read the content</span>
+          </RadioGroup.Item>
+
+          <RadioGroup.Item value='private'>
             <RadioGroup.Indicator />
             <span>Private - Only project roles can read content</span>
           </RadioGroup.Item>
