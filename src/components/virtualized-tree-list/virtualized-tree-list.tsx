@@ -662,7 +662,7 @@ const VirtualizedTreeListRoot = forwardRef(
     const handleRowClick = useCallback(
       (id: string, index: number, e: React.MouseEvent<HTMLElement>) => {
         // Don't handle clicks on interactive elements (let them handle it themselves)
-        const target = e.target as HTMLElement;
+        const target = e.target as Element;
         if (target.closest('button, a, input, select, textarea, [role="button"]')) {
           return;
         }

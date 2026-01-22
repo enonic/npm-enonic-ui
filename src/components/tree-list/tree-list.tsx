@@ -878,7 +878,7 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
         if (disabled) return;
 
         // Don't handle clicks on interactive elements (let them handle it themselves)
-        const target = e.target as HTMLElement;
+        const target = e.target as Element;
         if (target.closest('button, a, input, select, textarea, [role="button"]')) {
           return;
         }
