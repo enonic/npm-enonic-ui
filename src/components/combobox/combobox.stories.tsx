@@ -235,8 +235,23 @@ export const WithLeftToggleButton: Story = {
   name: 'Examples / Left Toggle Button',
   render: () => {
     const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState<string | undefined>();
     const [isTreeView, setIsTreeView] = useState(false);
+
+    useEffect(() => {
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
+    }, []);
+
+    // Keyboard shortcut: Ctrl/Cmd + Shift + V to toggle view mode
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        setIsTreeView(prev => !prev);
+      }
+    }, []);
 
     // Tree state
     const [treeSelection, setTreeSelection] = useState<ReadonlySet<string>>(new Set());
@@ -301,16 +316,18 @@ export const WithLeftToggleButton: Story = {
         <h3 className='font-medium text-md'>Toggle Button in Icon Position</h3>
         <p className='text-sm text-subtle'>
           View mode: <span className='font-semibold'>{isTreeView ? 'Tree' : 'List'}</span>
+          {' · '}
+          <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Shift+V</kbd>
         </p>
         <Combobox.Root value={value} onChange={setValue} contentType={isTreeView ? 'tree' : 'auto'} closeOnBlur={false}>
-          <Combobox.Content>
+          <Combobox.Content onKeyDown={handleKeyDown}>
             <Combobox.Control>
               <Combobox.Search className='pl-0'>
                 <Toggle
                   startIcon={ListTree}
                   size='sm'
                   iconSize='md'
-                  aria-label='Toggle view mode'
+                  aria-label={`Toggle view mode (${isTreeView ? 'Tree' : 'List'} active, ⌘/Ctrl+Shift+V)`}
                   pressed={isTreeView}
                   onPressedChange={() => setIsTreeView(prev => !prev)}
                   tabIndex={-1}
@@ -319,7 +336,7 @@ export const WithLeftToggleButton: Story = {
                     'after:-inset-1.25 after:-z-10 relative z-0 overflow-visible after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
                   )}
                 />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search...' />
+                <Combobox.Input ref={inputRef} placeholder='Search...' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
