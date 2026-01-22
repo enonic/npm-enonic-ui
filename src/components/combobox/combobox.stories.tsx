@@ -1191,3 +1191,71 @@ export const TreeContentStaged: Story = {
     );
   },
 };
+
+export const Portal: Story = {
+  name: 'Features / Portal',
+  render: () => {
+    const [value, setValue] = useState<string | undefined>();
+    const [selection, setSelection] = useState<readonly string[]>([]);
+
+    const filtered = value
+      ? frameworks.filter(
+          f =>
+            f.name.toLowerCase().includes(value.toLowerCase()) ||
+            f.language.toLowerCase().includes(value.toLowerCase()),
+        )
+      : frameworks;
+
+    const selectionDisplay =
+      selection.length > 0 ? selection.map(id => frameworks.find(f => f.id === id)?.name ?? id).join(', ') : '(none)';
+
+    return (
+      <div className='mx-auto max-w-md space-y-6'>
+        <div>
+          <h3 className='font-medium text-md'>Portal Mode</h3>
+          <p className='text-sm text-subtle'>
+            The dropdown renders in <code className='rounded bg-surface-primary px-1 text-xs'>document.body</code>,
+            escaping overflow containers.
+          </p>
+        </div>
+
+        <div
+          className='relative mx-auto h-32 w-80 overflow-hidden rounded-md border border-bdr-subtle border-dashed p-4'
+          style={{ overflow: 'hidden' }}
+        >
+          <p className='mb-2 text-subtle text-xs'>Container with overflow: hidden</p>
+
+          <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
+            <Combobox.Content>
+              <Combobox.Control>
+                <Combobox.Search>
+                  <Combobox.SearchIcon />
+                  <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                  <Combobox.Toggle />
+                </Combobox.Search>
+              </Combobox.Control>
+
+              <Combobox.Portal>
+                <Combobox.Popup>
+                  <Listbox.Content className='rounded-sm'>
+                    {filtered.map(({ id, ...rest }) => (
+                      <Listbox.Item key={id} value={id}>
+                        <ListboxItemContent {...rest} />
+                      </Listbox.Item>
+                    ))}
+                  </Listbox.Content>
+                </Combobox.Popup>
+              </Combobox.Portal>
+            </Combobox.Content>
+          </Combobox.Root>
+        </div>
+
+        <div className='mx-auto w-80 rounded-sm bg-surface-primary px-3 py-2'>
+          <p className='text-sm text-subtle'>
+            <span className='font-semibold'>Selected:</span> {selectionDisplay}
+          </p>
+        </div>
+      </div>
+    );
+  },
+};

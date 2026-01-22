@@ -7,15 +7,24 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { Listbox } from '@/components/listbox';
 import { SearchField } from '@/components/search-field';
-import { useControlledState, useControlledStateWithNull, useItemRegistry, useKeyboardNavigation } from '@/hooks';
+import {
+  useClickOutside,
+  useControlledState,
+  useControlledStateWithNull,
+  useFloatingPosition,
+  useItemRegistry,
+  useKeyboardNavigation,
+} from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, type ContentType, useCombobox, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
@@ -87,6 +96,7 @@ const ComboboxRoot = ({
   contentType = 'auto',
 }: ComboboxRootProps): ReactElement => {
   const baseId = usePrefixedId();
+  const controlRef = useRef<HTMLDivElement>(null);
 
   // Controlled/uncontrolled state using shared hook
   const [open, setOpenInternal] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
@@ -296,6 +306,7 @@ const ComboboxRoot = ({
       inputValue,
       setInputValue,
       baseId,
+      controlRef,
       active: activeInternal,
       setActive: setActiveInternal,
       disabled,
@@ -400,7 +411,13 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
 
         const { relatedTarget } = e;
 
+        // Check if focus moved within the content
         if (relatedTarget instanceof Node && innerRef.current?.contains(relatedTarget)) {
+          return;
+        }
+
+        // Check if focus moved to the portal popup (rendered outside content)
+        if (relatedTarget instanceof Element && relatedTarget.closest('[data-combobox-popup]')) {
           return;
         }
 
@@ -459,10 +476,11 @@ export type ComboboxControlProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 const ComboboxControl = ({ className, children, ...props }: ComboboxControlProps): ReactElement => {
-  const { open, disabled, error } = useCombobox();
+  const { open, disabled, error, controlRef } = useCombobox();
 
   return (
     <div
+      ref={controlRef}
       className={cn(
         comboboxControlVariants({
           error,
@@ -628,6 +646,32 @@ const ComboboxApply = ({ className, label = 'Apply', ...props }: ComboboxApplyPr
 ComboboxApply.displayName = 'Combobox.Apply';
 
 //
+// * Portal
+//
+
+export type ComboboxPortalProps = {
+  container?: HTMLElement | null;
+  forceMount?: boolean;
+  children?: ReactNode;
+};
+
+const ComboboxPortal = ({ container, forceMount, children }: ComboboxPortalProps): ReactElement | null => {
+  const { open } = useCombobox();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || (!forceMount && !open)) {
+    return null;
+  }
+
+  return createPortal(children, container ?? document.body);
+};
+ComboboxPortal.displayName = 'Combobox.Portal';
+
+//
 // * Popup
 //
 
@@ -636,25 +680,75 @@ export type ComboboxPopupProps = {
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
-const ComboboxPopup = ({ children, className, ...props }: ComboboxPopupProps): ReactElement | null => {
-  const { open } = useCombobox();
+const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
+  ({ children, className, style, ...props }, ref): ReactElement | null => {
+    const { open, setOpen, controlRef, closeOnBlur } = useCombobox();
+    const innerRef = useRef<HTMLDivElement>(null);
+    const composedRefs = useComposedRefs(ref, innerRef);
+    const [isPortalMode, setIsPortalMode] = useState(false);
 
-  if (!open) {
-    return null;
-  }
+    // Detect portal mode synchronously before paint to avoid flash
+    useLayoutEffect(() => {
+      if (!open || !innerRef.current) return;
+      const parent = innerRef.current.parentElement;
+      setIsPortalMode(parent === document.body);
+    }, [open]);
 
-  return (
-    <div
-      className={cn(
-        'absolute right-0 left-0 z-50 mt-2 overflow-hidden rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-};
+    // Floating position for portal mode
+    const position = useFloatingPosition({
+      enabled: open && isPortalMode,
+      triggerRef: controlRef,
+      contentRef: innerRef,
+      align: 'start',
+    });
+
+    // Click outside handling for portal mode (blur won't work across portal boundary)
+    useClickOutside({
+      enabled: open && isPortalMode && closeOnBlur,
+      contentRef: innerRef,
+      excludeRefs: controlRef ? [controlRef] : undefined,
+      onClose: () => setOpen(false),
+    });
+
+    if (!open) {
+      return null;
+    }
+
+    // Calculate width from control element for portal mode
+    const portalWidth = isPortalMode && controlRef?.current ? controlRef.current.offsetWidth : undefined;
+
+    // Hide in portal mode until position is calculated
+    const isHidden = isPortalMode && !position;
+
+    const popupStyle: React.CSSProperties = isPortalMode
+      ? {
+          position: 'fixed',
+          top: position ? `${position.top}px` : '0',
+          left: position?.left !== undefined ? `${position.left}px` : undefined,
+          right: position?.right !== undefined ? `${position.right}px` : undefined,
+          width: portalWidth,
+          ...((style as React.CSSProperties | undefined) ?? {}),
+        }
+      : ((style as React.CSSProperties | undefined) ?? {});
+
+    return (
+      <div
+        ref={composedRefs}
+        data-combobox-popup=''
+        className={cn(
+          'z-50 mt-2 overflow-hidden rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+          !isPortalMode && 'absolute right-0 left-0',
+          isHidden && 'pointer-events-none opacity-0',
+          className,
+        )}
+        style={popupStyle}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 ComboboxPopup.displayName = 'Combobox.Popup';
 
 //
@@ -806,6 +900,7 @@ export const Combobox = Object.assign(ComboboxRoot, {
   SearchIcon: ComboboxSearchIcon,
   Toggle: ComboboxToggle,
   Apply: ComboboxApply,
+  Portal: ComboboxPortal,
   Popup: ComboboxPopup,
   ListContent: ComboboxListContent,
   TreeContent: ComboboxTreeContent,
