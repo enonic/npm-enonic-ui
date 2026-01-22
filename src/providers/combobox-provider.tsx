@@ -1,9 +1,10 @@
-import { createContext, type ReactElement, type ReactNode, useContext } from 'react';
+import { createContext, type ReactElement, type ReactNode, type RefObject, useContext } from 'react';
 
 export type ContentType = 'listbox' | 'tree' | 'auto';
 
 export type ComboboxContextValue = {
   baseId: string;
+  controlRef: RefObject<HTMLDivElement> | null;
 
   open: boolean;
   setOpen: (next: boolean) => void;
