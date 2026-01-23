@@ -17,6 +17,7 @@ import { IconButton } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
 import { usePrefixedId, useStepper } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
+import { FocusContainerContext } from '@/providers/focus-container-provider';
 import { cn, useComposedRefs } from '@/utils';
 import { Button } from '../button';
 import { Stepper } from '../stepper';
@@ -197,10 +198,33 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
   ): ReactElement | null => {
     const { open, setOpen, titleId, descriptionId } = useDialog();
     const contentRef = useRef<HTMLDivElement>(null);
+    const [portalContainers, setPortalContainers] = useState<HTMLElement[]>([]);
 
     const composedRef = useComposedRefs(ref, contentRef);
 
+    // Registry for portaled content (e.g., Combobox.Popup) to register with focus trap.
+    // See rules/patterns.mdc — "Focus Trap with Portaled Content"
+    const focusContainerRegistry = useMemo(
+      () => ({
+        register: (element: HTMLElement) =>
+          setPortalContainers(prev => (prev.includes(element) ? prev : [...prev, element])),
+        unregister: (element: HTMLElement) => setPortalContainers(prev => prev.filter(el => el !== element)),
+      }),
+      [],
+    );
+
+    // Compute containers array for focus trap (dialog content + registered portals)
+    const containerElements = useMemo(() => {
+      const result: HTMLElement[] = [];
+      if (contentRef.current) result.push(contentRef.current);
+      result.push(...portalContainers);
+      return result.length > 0 ? result : undefined;
+    }, [portalContainers]);
+
     useScrollLock(open);
+
+    // Create refs from portal containers for click-outside exclusion
+    const excludeRefs = useMemo(() => portalContainers.map(el => ({ current: el })), [portalContainers]);
 
     const handleEscapeKey = useCallback(
       (e: KeyboardEvent): void => {
@@ -225,6 +249,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     useClickOutside({
       enabled: open,
       contentRef,
+      excludeRefs,
       onPointerDownOutside,
       onInteractOutside,
       onClose: () => setOpen(false),
@@ -235,58 +260,61 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     }
 
     return (
-      <FocusTrap
-        active={open}
-        focusTrapOptions={{
-          initialFocus: false,
-          fallbackFocus: () => contentRef.current ?? document.body,
-          escapeDeactivates: false,
-          clickOutsideDeactivates: false,
-          returnFocusOnDeactivate: true,
-          allowOutsideClick: true,
-          preventScroll: false,
-          onActivate: () => {
-            requestAnimationFrame(() => {
-              const event = new Event('openautofocus', { bubbles: true, cancelable: true });
-              onOpenAutoFocus?.(event);
-              if (!event.defaultPrevented && contentRef.current) {
-                contentRef.current.focus();
-              }
-            });
-          },
-          onDeactivate: () => {
-            requestAnimationFrame(() => {
-              const event = new Event('closeautofocus', { bubbles: true, cancelable: true });
-              onCloseAutoFocus?.(event);
-            });
-          },
-        }}
-      >
-        <div className='fixed inset-0 z-40 flex items-center justify-center p-4'>
-          <div
-            ref={composedRef}
-            role='dialog'
-            aria-modal='true'
-            aria-labelledby={titleId}
-            aria-describedby={descriptionId}
-            data-state={open ? 'open' : 'closed'}
-            tabIndex={-1}
-            className={cn(
-              'relative rounded-lg bg-surface-neutral shadow-xl',
-              'flex max-h-[90vh] w-full max-w-lg flex-col gap-10 p-10',
-              'overflow-hidden border border-bdr-subtle outline-none',
-              'focus:outline-none focus:ring-0',
-              'data-[state=closed]:animate-out data-[state=open]:animate-in',
-              'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-              'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-              className,
-            )}
-            {...props}
-          >
-            {children}
+      <FocusContainerContext.Provider value={focusContainerRegistry}>
+        <FocusTrap
+          active={open}
+          containerElements={containerElements}
+          focusTrapOptions={{
+            initialFocus: false,
+            fallbackFocus: () => contentRef.current ?? document.body,
+            escapeDeactivates: false,
+            clickOutsideDeactivates: false,
+            returnFocusOnDeactivate: true,
+            allowOutsideClick: true,
+            preventScroll: false,
+            onActivate: () => {
+              requestAnimationFrame(() => {
+                const event = new Event('openautofocus', { bubbles: true, cancelable: true });
+                onOpenAutoFocus?.(event);
+                if (!event.defaultPrevented && contentRef.current) {
+                  contentRef.current.focus();
+                }
+              });
+            },
+            onDeactivate: () => {
+              requestAnimationFrame(() => {
+                const event = new Event('closeautofocus', { bubbles: true, cancelable: true });
+                onCloseAutoFocus?.(event);
+              });
+            },
+          }}
+        >
+          <div className='fixed inset-0 z-40 flex items-center justify-center p-4'>
+            <div
+              ref={composedRef}
+              role='dialog'
+              aria-modal='true'
+              aria-labelledby={titleId}
+              aria-describedby={descriptionId}
+              data-state={open ? 'open' : 'closed'}
+              tabIndex={-1}
+              className={cn(
+                'relative rounded-lg bg-surface-neutral shadow-xl',
+                'flex max-h-[90vh] w-full max-w-lg flex-col gap-10 p-10',
+                'overflow-hidden border border-bdr-subtle outline-none',
+                'focus:outline-none focus:ring-0',
+                'data-[state=closed]:animate-out data-[state=open]:animate-in',
+                'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+                'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+                className,
+              )}
+              {...props}
+            >
+              {children}
+            </div>
           </div>
-        </div>
-      </FocusTrap>
+        </FocusTrap>
+      </FocusContainerContext.Provider>
     );
   },
 );

@@ -9,6 +9,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -20,6 +21,7 @@ import {
   useFloatingPosition,
   useItemRegistry,
   useKeyboardNavigation,
+  usePortalFocusContainer,
   useRovingTabIndex,
   useScrollActiveIntoView,
 } from '@/hooks';
@@ -913,6 +915,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
     const { getItems: getMenubarItems, setActive: setMenubarActive } = menubarContext;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
+    const [isPortalMode, setIsPortalMode] = useState(false);
 
     // Local item registry for menu items
     const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
@@ -923,6 +926,15 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       contentRef,
       align,
     });
+
+    // Detect portal mode
+    useLayoutEffect(() => {
+      if (!open || !contentRef.current) return;
+      setIsPortalMode(contentRef.current.parentElement === document.body);
+    }, [open]);
+
+    // Register with parent focus trap (e.g., Dialog) when in portal mode
+    usePortalFocusContainer(contentRef, isPortalMode);
 
     // Keyboard navigation for vertical menu items
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
