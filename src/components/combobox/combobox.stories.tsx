@@ -3,7 +3,9 @@ import { File, Folder, ListTree } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { forwardRef, type ReactElement, type RefObject, useRef } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
+import { Button } from '@/components/button';
 import { Combobox } from '@/components/combobox/combobox';
+import { Dialog } from '@/components/dialog/dialog';
 import { Listbox } from '@/components/listbox/listbox';
 import { Toggle } from '@/components/toggle';
 import { type FlatNode, VirtualizedTreeList } from '@/components/virtualized-tree-list/virtualized-tree-list';
@@ -1272,6 +1274,97 @@ export const Portal: Story = {
             <span className='font-semibold'>Selected:</span> {selectionDisplay}
           </p>
         </div>
+      </div>
+    );
+  },
+};
+
+/**
+ * Demonstrates Combobox.Portal inside a Dialog.
+ *
+ * Why Portal is needed: Dialog uses focus trapping (Radix FocusScope). Without Portal,
+ * the popup renders inside Dialog but focus trap doesn't know about it.
+ * Combobox.Portal registers the popup with FocusContainerProvider, extending the trap.
+ *
+ * Test focus behavior:
+ * 1. Open dialog, open combobox dropdown
+ * 2. Tab through items - should cycle within Dialog + Popup
+ * 3. Escape closes popup, focus returns to input
+ * 4. Tab should not escape dialog
+ */
+export const DialogWithPortal: Story = {
+  name: 'Features / Dialog with Portal',
+  render: () => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [value, setValue] = useState<string | undefined>();
+    const [selection, setSelection] = useState<readonly string[]>([]);
+
+    const filtered = value ? frameworks.filter(f => f.name.toLowerCase().includes(value.toLowerCase())) : frameworks;
+
+    // Focus input when dialog opens
+    useEffect(() => {
+      if (dialogOpen) {
+        requestAnimationFrame(() => inputRef.current?.focus());
+      }
+    }, [dialogOpen]);
+
+    return (
+      <div className='space-y-6'>
+        <div>
+          <h3 className='font-medium text-md'>Dialog with Portaled Combobox</h3>
+          <p className='text-sm text-subtle'>
+            Focus trap extends to the portaled popup. Tab cycles through Dialog + Popup.
+          </p>
+        </div>
+
+        <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog.Trigger asChild>
+            <Button label='Open Dialog' />
+          </Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='max-w-md'>
+              <Dialog.DefaultHeader title='Select Framework' withClose />
+
+              <Dialog.Body className='-m-2 p-2'>
+                <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
+                  <Combobox.Content>
+                    <Combobox.Control>
+                      <Combobox.Search>
+                        <Combobox.SearchIcon />
+                        <Combobox.Input ref={inputRef} placeholder='Search...' />
+                        <Combobox.Toggle />
+                      </Combobox.Search>
+                    </Combobox.Control>
+
+                    <Combobox.Portal>
+                      <Combobox.Popup>
+                        <Listbox.Content className='rounded-sm'>
+                          {filtered.map(({ id, ...rest }) => (
+                            <Listbox.Item key={id} value={id}>
+                              <ListboxItemContent {...rest} />
+                            </Listbox.Item>
+                          ))}
+                        </Listbox.Content>
+                      </Combobox.Popup>
+                    </Combobox.Portal>
+                  </Combobox.Content>
+                </Combobox.Root>
+              </Dialog.Body>
+
+              <Dialog.Footer>
+                <Dialog.Close asChild>
+                  <Button variant='outline' label='Cancel' />
+                </Dialog.Close>
+                <Dialog.Close asChild>
+                  <Button label='Confirm' />
+                </Dialog.Close>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       </div>
     );
   },

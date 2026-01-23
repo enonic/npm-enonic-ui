@@ -6,6 +6,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -17,6 +18,7 @@ import {
   useItemRegistry,
   useKeyboardNavigation,
   usePointerPosition,
+  usePortalFocusContainer,
   useScrollActiveIntoView,
 } from '@/hooks';
 import {
@@ -207,12 +209,22 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     const menuId = `${baseId}-content`;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
+    const [isPortalMode, setIsPortalMode] = useState(false);
 
     const computedPosition = usePointerPosition({
       enabled: open,
       mousePosition: position,
       contentRef,
     });
+
+    // Detect portal mode
+    useLayoutEffect(() => {
+      if (!open || !contentRef.current) return;
+      setIsPortalMode(contentRef.current.parentElement === document.body);
+    }, [open]);
+
+    // Register with parent focus trap (e.g., Dialog) when in portal mode
+    usePortalFocusContainer(contentRef, isPortalMode);
 
     // Focus menu when it opens and select first selectable item
     useEffect(() => {

@@ -11,6 +11,7 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -19,7 +20,7 @@ import { createPortal } from 'react-dom';
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
 import { Menu } from '@/components/menu';
-import { useClickOutside, useControlledState, useFloatingPosition } from '@/hooks';
+import { useClickOutside, useControlledState, useFloatingPosition, usePortalFocusContainer } from '@/hooks';
 import { type DatePickerContextValue, DatePickerProvider, useDatePicker, useMenu, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 
@@ -805,10 +806,20 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
     const { baseId, open, setOpen, triggerRef, focusOnCloseRef } = useDatePicker();
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
+    const [isPortalMode, setIsPortalMode] = useState(false);
     const position = useFloatingPosition({ enabled: open, triggerRef, contentRef, align });
     const contentId = `${baseId}-content`;
     const triggerId = `${baseId}-trigger`;
     const labelledBy = triggerRef.current ? triggerId : undefined;
+
+    // Detect portal mode
+    useLayoutEffect(() => {
+      if (!open || !contentRef.current) return;
+      setIsPortalMode(contentRef.current.parentElement === document.body);
+    }, [open]);
+
+    // Register with parent focus trap (e.g., Dialog) when in portal mode
+    usePortalFocusContainer(contentRef, isPortalMode);
 
     useClickOutside({
       enabled: open,

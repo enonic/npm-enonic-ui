@@ -61,3 +61,63 @@ When a focusable element appears on an inverse/selected background (e.g., inside
 |-----------|---------|
 | Button | Inside tree list rows with `data-tone="inverse"` |
 | Checkbox | Inside menu items with `data-tone="inverse"` |
+
+## Focus Trap with Portaled Content
+
+When using components with portals (e.g., `Combobox.Portal`) inside a `Dialog`, the focus trap must be extended to include the portaled content. Otherwise, focus cannot move to elements rendered outside the dialog DOM.
+
+### Problem
+
+- `Dialog.Content` uses `focus-trap-react` to lock focus within the dialog
+- Portaled content (e.g., `Combobox.Popup`) renders in `document.body`
+- Focus trap blocks focus from moving to the portaled popup
+
+### Solution
+
+Use `usePortalFocusContainer` hook — a registration system where portaled components register themselves with the parent focus trap.
+
+**How it works:**
+1. `Dialog.Content` creates a `FocusContainerRegistry` and provides it via `FocusContainerContext`
+2. Portaled popup components call `usePortalFocusContainer` to register with the registry
+3. `Dialog.Content` passes all registered containers to `FocusTrap` via `containerElements` prop
+
+### Implementation Checklist
+
+When adding new components that use portals inside dialogs:
+
+1. **Import the hook:**
+   ```tsx
+   import { usePortalFocusContainer } from '@/hooks';
+   ```
+
+2. **Detect portal mode and register:**
+   ```tsx
+   const contentRef = useRef<HTMLDivElement>(null);
+   const [isPortalMode, setIsPortalMode] = useState(false);
+
+   useLayoutEffect(() => {
+     if (!open || !contentRef.current) return;
+     setIsPortalMode(contentRef.current.parentElement === document.body);
+   }, [open]);
+
+   usePortalFocusContainer(contentRef, isPortalMode);
+   ```
+
+### Current Usage
+
+| Component | Content Element | Registers With Focus Trap |
+|-----------|-----------------|---------------------------|
+| `Combobox.Popup` | Popup container | ✅ Yes |
+| `Menu.Content` | Menu dropdown | ✅ Yes |
+| `ContextMenu.Content` | Context menu | ✅ Yes |
+| `DatePicker.Content` | Calendar popup | ✅ Yes |
+| `Selector.Content` | Dropdown list | ✅ Yes |
+| `Menubar.Content` | Menu dropdown | ✅ Yes |
+| `Dialog.Content` | Dialog itself | Has own trap (provider) |
+| `Tooltip.Content` | Tooltip popup | No (non-interactive) |
+
+### Files
+
+- `src/hooks/use-portal-focus-container.ts` — Reusable hook
+- `src/providers/focus-container-provider.tsx` — Context definition
+- `src/components/dialog/dialog.tsx` — Provider in `DialogContent`

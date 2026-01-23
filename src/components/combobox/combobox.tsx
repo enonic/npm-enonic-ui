@@ -24,6 +24,7 @@ import {
   useFloatingPosition,
   useItemRegistry,
   useKeyboardNavigation,
+  usePortalFocusContainer,
 } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, type ContentType, useCombobox, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
@@ -693,6 +694,11 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       const parent = innerRef.current.parentElement;
       setIsPortalMode(parent === document.body);
     }, [open]);
+
+    // Register with parent focus trap (e.g., Dialog) when in portal mode.
+    // This allows focus to move to the popup even though it's rendered outside the dialog DOM.
+    // See rules/patterns.mdc — "Focus Trap with Portaled Content"
+    usePortalFocusContainer(innerRef, isPortalMode);
 
     // Floating position for portal mode
     const position = useFloatingPosition({
