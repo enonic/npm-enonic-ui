@@ -26,7 +26,7 @@ import { type SelectionMode, TreeListProvider, useTreeList } from '@/providers/t
 import type { ItemInteraction, LucideIcon } from '@/types';
 import { cn, setRef } from '@/utils';
 
-const calcSpacerWidth = (level: number): number => Math.max(0, 10 + 20 * (level - 1));
+const calcSpacerWidth = (level: number, indent: number): number => indent * (level - 1) - 10;
 
 //
 // * Row Variants
@@ -1084,11 +1084,13 @@ TreeListAction.displayName = 'TreeList.Action';
 
 export type TreeListRowLevelSpacerProps = {
   level?: number;
+  /** Indent per level in pixels. Default: 20 */
+  levelIndent?: number;
   className?: string;
 } & ComponentPropsWithoutRef<'div'>;
 
 export const TreeListRowLevelSpacer = forwardRef<HTMLDivElement, TreeListRowLevelSpacerProps>(
-  ({ level = 1, className, ...props }, ref): ReactElement | null => {
+  ({ level = 1, levelIndent = 20, className, ...props }, ref): ReactElement | null => {
     if (level === 1) {
       return null;
     }
@@ -1096,7 +1098,7 @@ export const TreeListRowLevelSpacer = forwardRef<HTMLDivElement, TreeListRowLeve
     return (
       <div
         ref={ref}
-        style={{ '--level-indent': `${calcSpacerWidth(level)}px` }}
+        style={{ '--level-indent': `${calcSpacerWidth(level, levelIndent)}px` }}
         className={cn('pl-(--level-indent)', className)}
         {...props}
       />
@@ -1255,14 +1257,16 @@ TreeListRowSelectionControl.displayName = 'TreeList.RowSelectionControl';
 
 export type TreeListRowLoadingProps = {
   level?: number;
+  /** Indent per level in pixels. Default: 20 */
+  levelIndent?: number;
   className?: string;
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
 export const TreeListRowLoading = forwardRef<HTMLDivElement, TreeListRowLoadingProps>(
-  ({ level = 1, className, children, ...props }, ref): ReactElement => (
+  ({ level = 1, levelIndent, className, children, ...props }, ref): ReactElement => (
     <div ref={ref} className={cn('flex items-center gap-2.5 px-2.5 py-1', className)} {...props}>
-      <TreeListRowLevelSpacer level={level} />
+      <TreeListRowLevelSpacer level={level} levelIndent={levelIndent} />
       {children ?? <Loader2 className='size-4 animate-spin text-subtle' />}
     </div>
   ),
@@ -1276,18 +1280,20 @@ TreeListRowLoading.displayName = 'TreeList.RowLoading';
 
 export type TreeListRowPlaceholderProps = {
   level?: number;
+  /** Indent per level in pixels. Default: 20 */
+  levelIndent?: number;
   className?: string;
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
 export const TreeListRowPlaceholder = forwardRef<HTMLDivElement, TreeListRowPlaceholderProps>(
-  ({ level = 1, className, children, ...props }, ref): ReactElement => (
+  ({ level = 1, levelIndent, className, children, ...props }, ref): ReactElement => (
     <div
       ref={ref}
       className={cn('flex cursor-default items-center gap-2.5 px-2.5 py-1 opacity-50', className)}
       {...props}
     >
-      <TreeListRowLevelSpacer level={level} />
+      <TreeListRowLevelSpacer level={level} levelIndent={levelIndent} />
       {children ?? <span className='text-sm text-subtle italic'>Placeholder</span>}
     </div>
   ),
