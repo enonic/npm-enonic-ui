@@ -110,8 +110,17 @@ const sampleTreeData: TreeDataSource[] = [
         label: 'Personal',
         icon: 'folder',
         children: [
-          { id: '1-2-1', label: 'Resume.docx', icon: 'file' },
-          { id: '1-2-2', label: 'CoverLetter.pdf', icon: 'file' },
+          { id: '1-2-1', label: 'CoverLetter.pdf', icon: 'file' },
+          { id: '1-2-2', label: 'Resume.docx', icon: 'file' },
+          {
+            id: '1-2-3',
+            label: 'Work',
+            icon: 'folder',
+            children: [
+              { id: '1-2-3-1', label: 'Invoice 1.pdf', icon: 'file' },
+              { id: '1-2-3-2', label: 'Invoice 2.pdf', icon: 'file' },
+            ],
+          },
         ],
       },
     ],
