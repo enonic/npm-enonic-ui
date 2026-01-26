@@ -66,6 +66,48 @@ export const FlatList: Story = {
   },
 };
 
+// Generate 500 items for flat list demo
+const flatListLargeItems = Array.from({ length: 500 }, (_, i) => ({
+  id: `item-${i + 1}`,
+  label: `Item ${String(i + 1).padStart(3, '0')}`,
+}));
+
+export const FlatListLarge: Story = {
+  name: 'Examples / Flat List (500 Items)',
+  render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [active, setActive] = useState<string | undefined>(undefined);
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Flat List (500 Items)</div>
+        <div className='text-sm text-subtle'>
+          Large flat list with 500 items. Use PageUp/PageDown for fast navigation.
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_LG)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          active={active}
+          onActiveChange={setActive}
+        >
+          <TreeList.Container>
+            {flatListLargeItems.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                <TreeList.RowContent>
+                  <span className='text-sm'>{item.label}</span>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='text-sm text-subtle'>Active: {active || 'none'} (500 items total)</div>
+      </div>
+    );
+  },
+};
+
 type SimpleItem = {
   id: string;
   label: string;

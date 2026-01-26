@@ -6,7 +6,7 @@ export type StepperContextValue = {
   maxVisible?: number;
   smallOnEdges?: boolean;
   onValueChange: (value: string) => void;
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;

@@ -6,7 +6,7 @@ export type ContextMenuContextValue = {
   setOpen: (open: boolean) => void;
   active: string | undefined;
   setActive: (id: string | undefined) => void;
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;

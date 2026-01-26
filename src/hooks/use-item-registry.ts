@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 
 export type ItemMetadata = {
   disabled: boolean;
+  element: HTMLElement | null;
 };
 
 export type UseItemRegistryReturn = {
@@ -9,8 +10,9 @@ export type UseItemRegistryReturn = {
    * Registers an item with the registry.
    * @param id - Unique identifier for the item
    * @param disabled - Whether the item is disabled
+   * @param element - Optional DOM element reference for efficient sorting
    */
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
 
   /**
    * Unregisters an item from the registry.
@@ -59,8 +61,9 @@ export type UseItemRegistryReturn = {
  *   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
  *
  *   // In child components:
+ *   const itemRef = useRef<HTMLDivElement>(null);
  *   useEffect(() => {
- *     registerItem(id, disabled);
+ *     registerItem(id, disabled, itemRef.current);
  *     return () => unregisterItem(id);
  *   }, [id, disabled]);
  *
@@ -74,15 +77,29 @@ export function useItemRegistry(): UseItemRegistryReturn {
   const itemsRef = useRef<Map<string, ItemMetadata>>(new Map());
   const [registryVersion, setRegistryVersion] = useState(0);
 
+  // Cache for sorted items to avoid re-sorting when version unchanged
+  const sortedCacheRef = useRef<{ version: number; ids: string[] } | null>(null);
+
+  // Pending bump flag for batching multiple registrations into single update
+  const pendingBumpRef = useRef(false);
+
+  // Batched version bump - coalesces multiple registrations into single render
   const bumpRegistryVersion = useCallback((): void => {
-    setRegistryVersion(version => version + 1);
+    if (pendingBumpRef.current) return;
+    pendingBumpRef.current = true;
+    queueMicrotask(() => {
+      pendingBumpRef.current = false;
+      setRegistryVersion(version => version + 1);
+    });
   }, []);
 
   const registerItem = useCallback(
-    (id: string, disabled = false): void => {
-      itemsRef.current.set(id, { disabled });
-      // Always bump version to ensure dependent hooks recalculate
-      // This handles new items, disabled changes, and re-registrations
+    (id: string, disabled = false, element: HTMLElement | null = null): void => {
+      // Skip bump if item exists with same state
+      const existing = itemsRef.current.get(id);
+      if (existing && existing.disabled === disabled && existing.element === element) return;
+
+      itemsRef.current.set(id, { disabled, element });
       bumpRegistryVersion();
     },
     [bumpRegistryVersion],
@@ -99,18 +116,31 @@ export function useItemRegistry(): UseItemRegistryReturn {
   );
 
   const getItems = useCallback((): string[] => {
-    const itemIds = Array.from(itemsRef.current.keys());
+    // Return cached copy if version unchanged
+    if (sortedCacheRef.current?.version === registryVersion) {
+      return [...sortedCacheRef.current.ids];
+    }
+
+    const entries = Array.from(itemsRef.current.entries());
+
+    // Build element map - use stored refs when available, fall back to DOM query
+    const elementMap = new Map<string, Element | null>();
+    for (const [id, meta] of entries) {
+      if (meta.element) {
+        elementMap.set(id, meta.element);
+      } else {
+        // Fallback: DOM query for backwards compatibility
+        const element = document.querySelector(`[data-registry-id="${id}"]`) ?? document.getElementById(id);
+        elementMap.set(id, element);
+      }
+    }
+
+    const itemIds = entries.map(([id]) => id);
 
     // Sort items by their DOM position to preserve visual order
-    // This ensures items maintain their position even after re-registration
-    return itemIds.sort((a, b) => {
-      // Try data-registry-id attribute first (for components where registry ID differs from DOM ID)
-      let elementA: Element | null = document.querySelector(`[data-registry-id="${a}"]`);
-      let elementB: Element | null = document.querySelector(`[data-registry-id="${b}"]`);
-
-      // Fall back to getElementById (for components where registry ID = DOM ID)
-      if (!elementA) elementA = document.getElementById(a);
-      if (!elementB) elementB = document.getElementById(b);
+    const sorted = itemIds.sort((a, b) => {
+      const elementA = elementMap.get(a);
+      const elementB = elementMap.get(b);
 
       // If either element doesn't exist in DOM, keep original order
       if (!elementA || !elementB) {
@@ -129,7 +159,10 @@ export function useItemRegistry(): UseItemRegistryReturn {
 
       return 0; // Same position (shouldn't happen)
     });
-  }, []);
+
+    sortedCacheRef.current = { version: registryVersion, ids: sorted };
+    return [...sorted]; // Return copy to prevent cache mutation
+  }, [registryVersion]);
 
   const isItemDisabled = useCallback((id: string): boolean => {
     return itemsRef.current.get(id)?.disabled ?? false;

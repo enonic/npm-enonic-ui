@@ -568,7 +568,7 @@ const SelectorItem = forwardRef<HTMLDivElement, SelectorItemProps>(
     // This allows HiddenSelect to display options when the dropdown is closed,
     // and SelectorValue to show the correct label without re-rendering items.
     useEffect(() => {
-      registerItem(value, isDisabled);
+      registerItem(value, isDisabled, itemRef.current);
       const text = textValue ?? (typeof children === 'string' ? children : undefined);
       if (text) {
         registerItemText(value, text);

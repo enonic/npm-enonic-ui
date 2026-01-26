@@ -298,7 +298,7 @@ const ToggleGroupItem = forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
     const disabled = itemDisabled ?? groupDisabled ?? false;
 
     useEffect(() => {
-      registerItem(value, disabled);
+      registerItem(value, disabled, itemRef.current);
       return () => unregisterItem(value);
     }, [value, disabled, registerItem, unregisterItem]);
 

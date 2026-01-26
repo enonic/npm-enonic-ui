@@ -5,7 +5,7 @@ export type TabContextValue = {
   value: string | undefined;
   onValueChange: (value: string) => void;
   activationMode: 'automatic' | 'manual';
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;

@@ -293,6 +293,60 @@ export const FlatList: Story = {
   },
 };
 
+export const FlatListLarge: Story = {
+  name: 'Examples / Flat List (1000 Items)',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [activeId, setActiveId] = useState<string | null>(null);
+
+    const flatNodes = useMemo(() => generateLargeDataset(1000), []);
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Flat List (1000 Items)</div>
+        <div className='text-sm text-subtle'>
+          Large flat list with 1000 items. Use PageUp/PageDown for fast navigation.
+        </div>
+        <VirtualizedTreeList
+          items={flatNodes}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='single'
+          active={activeId}
+          onActiveChange={setActiveId}
+          virtuosoRef={virtuosoRef}
+          aria-label='Large flat list'
+          className={treeListClass(TREE_HEIGHT_LG)}
+        >
+          {({ items, getItemProps, containerProps }) => (
+            <Virtuoso<FlatNode<TreeNodeData>>
+              ref={virtuosoRef}
+              data={items}
+              components={virtuosoComponents}
+              {...containerProps}
+              className={cn('h-full', containerProps.className)}
+              itemContent={(index, node) => {
+                const itemProps = getItemProps(index, node);
+                return (
+                  <VirtualizedTreeList.Row {...itemProps}>
+                    <VirtualizedTreeList.RowContent>
+                      <ListItem className='px-0 py-0'>
+                        <ListItem.DefaultContent icon={getIcon(node.data.icon)} label={node.data.label} />
+                      </ListItem>
+                    </VirtualizedTreeList.RowContent>
+                  </VirtualizedTreeList.Row>
+                );
+              }}
+            />
+          )}
+        </VirtualizedTreeList>
+        <div className='text-sm text-subtle'>Active: {activeId ?? 'none'} (1000 items total)</div>
+      </div>
+    );
+  },
+};
+
 export const Basic: Story = {
   name: 'Examples / Basic',
   render: () => {
