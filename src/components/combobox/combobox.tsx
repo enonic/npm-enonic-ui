@@ -741,8 +741,10 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       <div
         ref={composedRefs}
         data-combobox-popup=''
+        data-side={isPortalMode ? position?.side : 'bottom'}
         className={cn(
-          'z-50 mt-2 overflow-hidden rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+          'z-50 overflow-hidden rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
           !isPortalMode && 'absolute right-0 left-0',
           isHidden && 'pointer-events-none opacity-0',
           className,

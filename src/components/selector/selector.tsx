@@ -430,6 +430,8 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
       return null;
     }
 
+    const { side: _side, ...positionStyle } = position ?? { side: 'bottom' };
+
     return createPortal(
       <div
         ref={composedRefs}
@@ -438,8 +440,10 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
         aria-labelledby={`${baseId}-trigger`}
         tabIndex={-1}
         data-state='open'
+        data-side={position?.side}
         className={cn(
-          'fixed z-50 mt-2 flex w-fit min-w-(--trigger-width) flex-col overflow-hidden',
+          'fixed z-50 flex w-fit min-w-(--trigger-width) flex-col overflow-hidden',
+          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -448,7 +452,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
           className,
         )}
         style={{
-          ...position,
+          ...positionStyle,
           '--trigger-width': triggerRef.current ? `${triggerRef.current.offsetWidth}px` : undefined,
         }}
         {...props}

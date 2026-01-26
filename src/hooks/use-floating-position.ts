@@ -6,6 +6,8 @@ export type FloatingPosition = {
   top: number;
   left?: number;
   right?: number;
+  /** Which side the popup is positioned relative to the trigger */
+  side: 'top' | 'bottom';
 };
 
 export type UseFloatingPositionConfig = {
@@ -84,12 +86,14 @@ export function useFloatingPosition({
       let top = triggerRect.bottom;
       let left: number | undefined;
       let right: number | undefined;
+      let side: 'top' | 'bottom' = 'bottom';
 
       // Vertical positioning: flip if overflows bottom
       if (top + contentRect.height > viewportHeight - VIEWPORT_PADDING) {
         const topPosition = triggerRect.top - contentRect.height;
         if (topPosition >= VIEWPORT_PADDING) {
           top = topPosition;
+          side = 'top';
         }
       }
 
@@ -111,7 +115,7 @@ export function useFloatingPosition({
         }
       }
 
-      setPosition({ top, left, right });
+      setPosition({ top, left, right, side });
     };
 
     updatePosition();

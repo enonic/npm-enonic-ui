@@ -294,8 +294,10 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       return null;
     }
 
+    const { side: _side, ...positionStyle } = position ?? { side: 'bottom' };
+
     const contentStyle = {
-      ...(position ?? {}),
+      ...positionStyle,
       ...((style as React.CSSProperties | undefined) ?? {}),
     };
 
@@ -308,8 +310,10 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
         aria-activedescendant={active}
         tabIndex={-1}
         data-state={open ? 'open' : 'closed'}
+        data-side={position?.side}
         className={cn(
-          'fixed z-40 mt-2 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
+          'fixed z-40 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
+          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
           // Animations
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
