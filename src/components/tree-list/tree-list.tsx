@@ -718,7 +718,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           }}
           className={cn(
             // Soft focus ring on container (like Toolbar)
-            'outline-none focus-within:ring-2 focus-within:ring-ring/25 focus-within:ring-inset',
+            'outline-none focus-within:ring-2 focus-within:ring-ring/10 focus-within:ring-inset',
             className,
           )}
           role='tree'

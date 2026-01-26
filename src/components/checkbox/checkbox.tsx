@@ -119,8 +119,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           onClickCapture={onClickCapture}
           onMouseDown={onMouseDown}
           className={cn(
-            'relative my-0.75 flex select-none items-center gap-2 rounded-xs leading-4 transition-highlight',
+            'relative flex select-none items-center gap-2 rounded-xs leading-4 transition-highlight',
             align === 'right' && 'flex-row-reverse justify-end',
+            labeled && 'my-0.75',
             editable && [
               'cursor-pointer',
               'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',

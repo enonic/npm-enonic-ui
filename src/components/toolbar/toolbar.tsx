@@ -242,7 +242,7 @@ const ToolbarContainer = forwardRef<HTMLDivElement, ToolbarContainerProps>(
         className={cn(
           'flex items-center gap-1.5 p-2 transition-highlight',
           // Thinner focus ring compared to menubar
-          'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/25 has-[:focus-visible]:ring-inset',
+          'outline-none has-focus-visible:ring-2 has-focus-visible:ring-ring/10 has-focus-visible:ring-inset',
           orientation === 'vertical' && 'flex-col',
           className,
         )}

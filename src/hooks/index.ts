@@ -3,6 +3,12 @@ export { type UseClickOutsideConfig, useClickOutside } from './use-click-outside
 export { useControlledState } from './use-controlled-state';
 export { useControlledStateWithNull } from './use-controlled-state-with-null';
 export { type FloatingPosition, type UseFloatingPositionConfig, useFloatingPosition } from './use-floating-position';
+export {
+  type ActiveCell,
+  type GridNavigationConfig,
+  type UseGridNavigationReturn,
+  useGridNavigation,
+} from './use-grid-navigation';
 export { type ItemMetadata, type UseItemRegistryReturn, useItemRegistry } from './use-item-registry';
 export { type UseItemTextRegistryReturn, useItemTextRegistry } from './use-item-text-registry';
 export {

@@ -5,6 +5,7 @@ export * from './combobox';
 export * from './context-menu';
 export * from './date-picker';
 export * from './dialog';
+export * from './grid-list';
 export * from './icon-button';
 export * from './input';
 export * from './link';
