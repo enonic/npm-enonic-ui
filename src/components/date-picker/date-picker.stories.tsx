@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { type ChangeEvent, type FormEvent, type KeyboardEvent, useRef, useState } from 'react';
 import { Button } from '@/components/button';
 import { Selector } from '@/components/selector';
+import { TimePicker } from '@/components/time-picker';
 import { usePrefixedId } from '@/providers';
 import { DatePicker } from './date-picker';
 
@@ -32,6 +33,36 @@ const parseISODate = (value: string): Date | null => {
     return null;
   }
   return parsed;
+};
+
+const padZero = (num: number): string => String(num).padStart(2, '0');
+
+const getNowTimeValueUtc = (): string => {
+  const now = new Date();
+  return `${padZero(now.getUTCHours())}:${padZero(now.getUTCMinutes())}Z`;
+};
+
+const formatDisplayTime = (value: string | null, referenceDate: Date | null): string => {
+  if (!value) return '';
+  if (!value.endsWith('Z')) return value;
+
+  const timePart = value.slice(0, -1);
+  const [hourStr, minuteStr] = timePart.split(':');
+  const hour = Number.parseInt(hourStr ?? '0', 10);
+  const minute = Number.parseInt(minuteStr ?? '0', 10);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) return value;
+
+  const date = new Date(referenceDate ?? new Date());
+  date.setUTCHours(hour, minute, 0, 0);
+  return `${padZero(date.getHours())}:${padZero(date.getMinutes())}`;
+};
+
+const formatDateTimeValue = (date: Date | null, time: string | null): string => {
+  if (!date) return '';
+  const dateValue = formatISODate(date);
+  const timeValue = formatDisplayTime(time, date);
+  if (!timeValue) return dateValue;
+  return `${dateValue} ${timeValue}`;
 };
 
 export const Basic: Story = {
@@ -116,13 +147,129 @@ export const DateInput: Story = {
                 onFocus={handleInputFocus}
                 className='h-full w-full flex-1 bg-transparent pr-12 pl-4.5 text-base text-main placeholder:text-subtle focus:outline-none'
               />
-              <DatePicker.Trigger className='-translate-y-1/2 absolute top-1/2 right-0' aria-label='Open date picker' />
+              <DatePicker.Trigger className='-translate-y-1/2 absolute top-1/2 right-1' aria-label='Open date picker' />
             </div>
           </div>
           <DatePicker.Portal>
             <DatePicker.Content className='w-80' align='end' onKeyDown={handleContentKeyDown} />
           </DatePicker.Portal>
         </DatePicker>
+      </div>
+    );
+  },
+};
+
+export const DateTimeInput: Story = {
+  name: 'Examples / Date and Time',
+  render: () => {
+    const inputId = usePrefixedId('datetime-input');
+    const inputRef = useRef<HTMLInputElement>(null);
+    const skipOpenOnFocus = useRef(false);
+    const [open, setOpen] = useState(false);
+    const [valueDate, setValueDate] = useState<Date | null>(() => new Date());
+    const [valueTime, setValueTime] = useState<string | null>(() => getNowTimeValueUtc());
+    const [draftDate, setDraftDate] = useState<Date | null>(valueDate);
+    const [draftTime, setDraftTime] = useState<string | null>(valueTime);
+
+    const handleOpenChange = (nextOpen: boolean): void => {
+      if (nextOpen) {
+        setDraftDate(valueDate);
+        setDraftTime(valueTime);
+      }
+      setOpen(nextOpen);
+    };
+
+    const handleInputFocus = (): void => {
+      if (skipOpenOnFocus.current) {
+        skipOpenOnFocus.current = false;
+        return;
+      }
+      handleOpenChange(true);
+    };
+
+    const handleConfirm = (): void => {
+      setValueDate(draftDate);
+      setValueTime(draftTime);
+      skipOpenOnFocus.current = true;
+      setOpen(false);
+    };
+
+    const handleContentKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+      if (event.key === 'Escape') {
+        skipOpenOnFocus.current = true;
+      }
+    };
+
+    return (
+      <div className='flex w-[360px] flex-col gap-3 p-4'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Combined picker with date selection on top and time selection below.
+        </div>
+        <DatePicker
+          value={draftDate}
+          onValueChange={setDraftDate}
+          open={open}
+          onOpenChange={handleOpenChange}
+          closeOnSelect={false}
+          focusOnCloseRef={inputRef}
+          className='w-[360px]'
+        >
+          <div className='flex flex-col gap-2'>
+            <label htmlFor={inputId} className='block font-semibold text-base text-main'>
+              Schedule
+            </label>
+            <div className='relative flex h-12 w-full items-center overflow-hidden rounded-sm border border-bdr-subtle bg-surface-neutral transition-highlight focus-within:border-bdr-strong focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset'>
+              <input
+                id={inputId}
+                ref={inputRef}
+                type='text'
+                placeholder='YYYY-MM-DD HH:MM'
+                value={formatDateTimeValue(valueDate, valueTime)}
+                readOnly
+                onFocus={handleInputFocus}
+                className='h-full w-full flex-1 bg-transparent pr-12 pl-4.5 text-base text-main placeholder:text-subtle focus:outline-none'
+              />
+              <DatePicker.Trigger
+                className='-translate-y-1/2 absolute top-1/2 right-1'
+                aria-label='Open date and time picker'
+              />
+            </div>
+          </div>
+          <DatePicker.Portal>
+            <DatePicker.Content className='w-[360px]' align='end' onKeyDown={handleContentKeyDown}>
+              <div className='flex flex-col gap-4'>
+                <div className='flex flex-col gap-2'>
+                  <DatePicker.Header />
+                  <div className='flex flex-col gap-2'>
+                    <DatePicker.Weekdays />
+                    <DatePicker.Grid />
+                  </div>
+                </div>
+                <div className='border-bdr-subtle border-t pt-3'>
+                  <div className='flex items-center justify-between gap-3'>
+                    <TimePicker
+                      value={draftTime}
+                      onValueChange={setDraftTime}
+                      referenceDate={draftDate ?? new Date()}
+                      timezone
+                    >
+                      <div className='flex items-center gap-2'>
+                        <TimePicker.HourSelect className='w-20' />
+                        <span className='font-bold text-lg text-main'>:</span>
+                        <TimePicker.MinuteSelect className='w-20' />
+                        <TimePicker.Timezone className='ml-1 text-subtle text-xs' />
+                      </div>
+                    </TimePicker>
+                    <Button size='sm' variant='solid' onClick={handleConfirm}>
+                      OK
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </DatePicker.Content>
+          </DatePicker.Portal>
+        </DatePicker>
+        <div className='text-sm text-subtle'>Selected: {formatDateTimeValue(valueDate, valueTime) || 'None'}</div>
       </div>
     );
   },

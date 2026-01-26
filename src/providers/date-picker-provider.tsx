@@ -1,4 +1,11 @@
-import { createContext, type ReactElement, type ReactNode, type RefObject, useContext } from 'react';
+import {
+  createContext,
+  type KeyboardEventHandler,
+  type ReactElement,
+  type ReactNode,
+  type RefObject,
+  useContext,
+} from 'react';
 
 export type DatePickerContextValue = {
   baseId: string;
@@ -6,6 +13,21 @@ export type DatePickerContextValue = {
   setOpen: (open: boolean) => void;
   triggerRef: RefObject<HTMLButtonElement>;
   focusOnCloseRef?: RefObject<HTMLElement>;
+  monthSelectId: string;
+  yearSelectId: string;
+  prevButtonId: string;
+  nextButtonId: string;
+  headerActive: string | undefined;
+  setHeaderActive: (id: string | undefined) => void;
+  registerHeaderItem: (id: string, disabled?: boolean) => void;
+  unregisterHeaderItem: (id: string) => void;
+  getHeaderItems: () => string[];
+  isHeaderItemDisabled: (id: string) => boolean;
+  handleHeaderKeyDown: KeyboardEventHandler<HTMLElement>;
+  monthSelectOpen: boolean;
+  setMonthSelectOpen: (open: boolean) => void;
+  yearSelectOpen: boolean;
+  setYearSelectOpen: (open: boolean) => void;
   name?: string;
   form?: string;
   value: Date | null;

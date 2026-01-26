@@ -21,6 +21,7 @@ export * from './separator';
 export * from './skeleton';
 export * from './stepper';
 export * from './tab';
+export * from './time-picker';
 export * from './toast';
 export * from './toggle';
 export * from './toggle-group';

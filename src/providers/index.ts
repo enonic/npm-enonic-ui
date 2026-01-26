@@ -15,6 +15,7 @@ export * from './search-field-provider';
 export * from './selector-provider';
 export * from './stepper-provider';
 export * from './tab-provider';
+export * from './time-picker-provider';
 export * from './toast-provider';
 export * from './toggle-group-provider';
 export * from './tree-list-provider';
