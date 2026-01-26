@@ -842,7 +842,7 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
     const isActive = active === rowDomId;
 
     useEffect(() => {
-      registerItem(rowDomId, disabled);
+      registerItem(rowDomId, disabled, innerRef.current);
       return () => unregisterItem(rowDomId);
     }, [rowDomId, disabled, registerItem, unregisterItem]);
 

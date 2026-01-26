@@ -1,11 +1,11 @@
 import { Slot } from '@radix-ui/react-slot';
 import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
-import { forwardRef, useCallback, useEffect, useMemo } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useControlledState, useItemRegistry, useRovingTabIndex } from '@/hooks';
 import { useStepNavigation } from '@/hooks/use-step-navigation';
 import { usePrefixedId } from '@/providers';
 import { type StepperContextValue, StepperProvider, useStepper } from '@/providers/stepper-provider';
-import { cn } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
 import { fixedCountRangeAround } from '@/utils/array';
 
 const getPanelId = (baseId: string, itemId: string): string => `${baseId}-panel-${itemId}`;
@@ -119,9 +119,11 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
   const { value, locked = false, forceMount = false, children, className, ...restProps } = props;
   const { baseId, value: selectedValue, registerItem, unregisterItem } = useStepper();
   const isSelected = selectedValue === value;
+  const panelRef = useRef<HTMLDivElement>(null);
+  const composedRef = useComposedRefs(ref, panelRef);
 
   useEffect(() => {
-    registerItem(value, locked);
+    registerItem(value, locked, panelRef.current);
     return () => unregisterItem(value);
   }, [value, locked, registerItem, unregisterItem]);
 
@@ -131,7 +133,7 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
 
   return (
     <div
-      ref={ref}
+      ref={composedRef}
       id={getPanelId(baseId, value)}
       data-registry-id={value}
       role='tabpanel'

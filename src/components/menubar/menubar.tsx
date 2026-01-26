@@ -46,7 +46,7 @@ import { cn, useComposedRefs } from '@/utils';
 //
 
 type MenubarContentContextValue = {
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
@@ -328,7 +328,7 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
     const composedRefs = useComposedRefs(ref, buttonRef);
 
     useEffect(() => {
-      registerItem(id, disabled);
+      registerItem(id, disabled, buttonRef.current);
       return () => unregisterItem(id);
     }, [id, disabled, registerItem, unregisterItem]);
 
@@ -560,7 +560,7 @@ const MenubarMenu = ({ id: providedId, disabled = false, children }: MenubarMenu
 
   // Register this menu as a menubar item
   useEffect(() => {
-    registerItem(menuId, disabled);
+    registerItem(menuId, disabled, triggerRef.current);
     return () => unregisterItem(menuId);
   }, [menuId, disabled, registerItem, unregisterItem]);
 
@@ -1174,7 +1174,7 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
     const composedRefs = useComposedRefs(ref, itemRef);
 
     useEffect(() => {
-      registerItem(id, disabled);
+      registerItem(id, disabled, itemRef.current);
       return () => unregisterItem(id);
     }, [id, disabled, registerItem, unregisterItem]);
 
@@ -1478,7 +1478,7 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
     const composedRefs = useComposedRefs(ref, itemRef);
 
     useEffect(() => {
-      registerItem(id, disabled);
+      registerItem(id, disabled, itemRef.current);
       return () => unregisterItem(id);
     }, [id, disabled, registerItem, unregisterItem]);
 

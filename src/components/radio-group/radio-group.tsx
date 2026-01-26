@@ -9,11 +9,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
 } from 'react';
 import { useControlledState, useItemRegistry, useRadioNavigation, useRovingTabIndex } from '@/hooks';
 import { CircleDisc } from '@/icons';
 import { type RadioGroupContextValue, RadioGroupProvider, usePrefixedId, useRadioGroup } from '@/providers';
-import { cn } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
 
 const getRadioId = (baseId: string, itemId: string): string => `${baseId}-radio-${itemId}`;
 
@@ -171,9 +172,11 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
   const selectedRadioId = getRadioId(baseId, String(selectedValue));
   const isChecked = selectedValue === value;
   const isDisabled = isItemDisabled(value);
+  const itemRef = useRef<HTMLButtonElement>(null);
+  const composedRef = useComposedRefs(ref, itemRef);
 
   useEffect(() => {
-    registerItem(value, disabled);
+    registerItem(value, disabled, itemRef.current);
     return () => unregisterItem(value);
   }, [value, disabled, registerItem, unregisterItem]);
 
@@ -205,7 +208,7 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
         className='peer sr-only'
       />
       <button
-        ref={ref}
+        ref={composedRef}
         id={id}
         data-registry-id={value}
         role='radio'

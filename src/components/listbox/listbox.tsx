@@ -349,7 +349,7 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
   const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    registerItem(value, isDisabled);
+    registerItem(value, isDisabled, itemRef.current);
     return () => unregisterItem(value);
   }, [value, isDisabled, registerItem, unregisterItem]);
 

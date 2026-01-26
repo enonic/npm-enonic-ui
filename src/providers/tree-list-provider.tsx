@@ -16,7 +16,7 @@ export type TreeListContextValue = {
   selectionMode: SelectionMode;
   anchorId: string | undefined;
   setAnchorId: (id: string | undefined) => void;
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;

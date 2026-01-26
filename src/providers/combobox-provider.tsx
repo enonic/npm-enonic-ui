@@ -36,7 +36,7 @@ export type ComboboxContextValue = {
   onSelectionChange: (selection: readonly string[]) => void;
 
   // Item registry functions for ListContent
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;

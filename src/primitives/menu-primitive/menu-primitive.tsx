@@ -25,7 +25,7 @@ export type MenuContextOperations = {
   active: string | undefined;
   setActive: (id: string | undefined) => void;
   setOpen: (open: boolean) => void;
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
@@ -117,7 +117,7 @@ export const MenuPrimitiveItem = forwardRef<HTMLDivElement, MenuPrimitiveItemPro
     const composedRefs = useComposedRefs(ref, itemRef);
 
     useEffect(() => {
-      registerItem(id, disabled);
+      registerItem(id, disabled, itemRef.current);
       return () => unregisterItem(id);
     }, [id, disabled, registerItem, unregisterItem]);
 
@@ -436,7 +436,7 @@ export const MenuPrimitiveRadioItem = forwardRef<HTMLDivElement, MenuPrimitiveRa
     const composedRefs = useComposedRefs(ref, itemRef);
 
     useEffect(() => {
-      registerItem(id, disabled);
+      registerItem(id, disabled, itemRef.current);
       return () => unregisterItem(id);
     }, [id, disabled, registerItem, unregisterItem]);
 

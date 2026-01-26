@@ -33,7 +33,7 @@ export type ToolbarContextValue = {
   toolbarRef: React.RefObject<HTMLDivElement>;
   active: string | undefined;
   setActive: (id: string | undefined) => void;
-  registerItem: (id: string, disabled?: boolean) => void;
+  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
@@ -315,7 +315,7 @@ const ToolbarItem = forwardRef<HTMLDivElement, ToolbarItemProps>(
 
     useEffect(() => {
       // Register item in DOM order (useEffect runs in render order)
-      registerItem(id, disabled);
+      registerItem(id, disabled, itemRef.current);
       return () => unregisterItem(id);
     }, [id, disabled, registerItem, unregisterItem]);
 

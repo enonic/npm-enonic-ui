@@ -182,7 +182,7 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
     const panelId = `${baseId}-panel-${value}`;
 
     useEffect(() => {
-      registerItem(value, disabled);
+      registerItem(value, disabled, triggerRef.current);
       return () => unregisterItem(value);
     }, [value, disabled, registerItem, unregisterItem]);
 

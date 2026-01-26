@@ -280,7 +280,7 @@ const ToolbarToggleItem = forwardRef<HTMLButtonElement, ToolbarToggleItemProps>(
 
     // Register with Toolbar using ID
     useEffect(() => {
-      registerItem(id, disabled);
+      registerItem(id, disabled, itemRef.current);
       return () => unregisterItem(id);
     }, [id, disabled, registerItem, unregisterItem]);
 
