@@ -118,7 +118,7 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
         tabIndex={-1}
         className={cn(
           'group flex gap-2.5 px-2 py-1.25',
-          'focus-visible:outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/25 has-[:focus-visible]:ring-inset',
+          'outline-none focus-visible:outline-none has-focus-visible:ring-2 has-focus-visible:ring-ring/10 has-focus-visible:ring-inset',
           orientation === 'vertical' ? 'flex-col' : 'flex-row',
           className,
         )}
