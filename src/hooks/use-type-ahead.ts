@@ -125,6 +125,17 @@ export function useTypeAhead(config: UseTypeAheadConfig): UseTypeAheadReturn {
       const isSameChar = newSearch.length > 1 && newSearch.split('').every(c => c === lowerChar);
 
       if (isSameChar) {
+        // Before cycling, check if the full search string matches an item (e.g., "22" should find "22")
+        for (const id of items) {
+          if (isItemDisabled(id)) continue;
+          const text = getItemText(id);
+          if (text?.toLowerCase().startsWith(newSearch)) {
+            setActive(id);
+            onMatch?.(id);
+            return;
+          }
+        }
+
         // Cycling mode: find next item starting with this character
         const matchingItems = items.filter(id => {
           if (isItemDisabled(id)) return false;

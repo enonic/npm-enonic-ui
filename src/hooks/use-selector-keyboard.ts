@@ -44,9 +44,14 @@ export type UseSelectorKeyboardConfig = {
   setOpenInternal: (open: boolean) => void;
 
   /**
-   * Set open state (with focus return handling)
+   * Set open state (no automatic focus return)
    */
   setOpen: (open: boolean) => void;
+
+  /**
+   * Close and return focus to trigger (for Escape key, Tab without selection)
+   */
+  closeWithFocus: () => void;
 
   /**
    * Whether the selector is disabled
@@ -91,7 +96,7 @@ export function useSelectorKeyboard(config: UseSelectorKeyboardConfig): UseSelec
     value,
     open,
     setOpenInternal,
-    setOpen,
+    closeWithFocus,
     disabled,
     onSelect,
   } = config;
@@ -105,7 +110,7 @@ export function useSelectorKeyboard(config: UseSelectorKeyboardConfig): UseSelec
     loop: false,
     orientation: 'vertical',
     onSelect,
-    onEscape: () => setOpen(false),
+    onEscape: closeWithFocus,
   });
 
   // Type-ahead
@@ -163,7 +168,7 @@ export function useSelectorKeyboard(config: UseSelectorKeyboardConfig): UseSelec
         if (active) {
           onSelect(active);
         } else {
-          setOpen(false);
+          closeWithFocus();
         }
         return;
       }
@@ -230,7 +235,7 @@ export function useSelectorKeyboard(config: UseSelectorKeyboardConfig): UseSelec
       getItems,
       isItemDisabled,
       setOpenInternal,
-      setOpen,
+      closeWithFocus,
       setActive,
       onSelect,
       handleTypeAhead,

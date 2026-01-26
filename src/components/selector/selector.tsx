@@ -84,14 +84,17 @@ const SelectorRoot = ({
   // Item text registry for type-ahead
   const { registerItemText, unregisterItemText, getItemText } = useItemTextRegistry();
 
-  // Set open with focus return handling
+  // Close and return focus to trigger (for Escape key, selection)
+  const closeWithFocus = useCallback(() => {
+    setOpenInternal(false);
+    // Use setTimeout to ensure DOM updates before focus
+    setTimeout(() => triggerRef.current?.focus(), 0);
+  }, [setOpenInternal]);
+
+  // Set open state (no automatic focus return - use closeWithFocus when focus return is needed)
   const setOpen = useCallback(
     (next: boolean) => {
       setOpenInternal(next);
-      if (!next) {
-        // Use setTimeout to ensure DOM updates before focus
-        setTimeout(() => triggerRef.current?.focus(), 0);
-      }
     },
     [setOpenInternal],
   );
@@ -100,9 +103,9 @@ const SelectorRoot = ({
   const handleSelect = useCallback(
     (id: string) => {
       setValueInternal(id);
-      setOpen(false);
+      closeWithFocus();
     },
-    [setValueInternal, setOpen],
+    [setValueInternal, closeWithFocus],
   );
 
   // Keyboard handling
@@ -116,6 +119,7 @@ const SelectorRoot = ({
     open,
     setOpenInternal,
     setOpen,
+    closeWithFocus,
     disabled,
     onSelect: handleSelect,
   });

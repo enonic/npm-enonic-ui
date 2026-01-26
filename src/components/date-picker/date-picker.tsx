@@ -17,12 +17,20 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
-import { Menu } from '@/components/menu';
-import { useClickOutside, useControlledState, useFloatingPosition, usePortalFocusContainer } from '@/hooks';
-import { type DatePickerContextValue, DatePickerProvider, useDatePicker, useMenu, usePrefixedId } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
+import { Selector } from '@/components/selector';
+import {
+  useActiveItemFocus,
+  useClickOutside,
+  useControlledState,
+  useFloatingPosition,
+  useItemRegistry,
+  useKeyboardNavigation,
+  usePortalFocusContainer,
+  useRovingTabIndex,
+} from '@/hooks';
+import { type DatePickerContextValue, DatePickerProvider, useDatePicker, usePrefixedId } from '@/providers';
+import { cn, getIsMobile, subscribeToMobileChanges, useComposedRefs } from '@/utils';
 
 const DAYS_IN_WEEK = 7;
 const DEFAULT_WEEK_START = 1;
@@ -221,50 +229,6 @@ const parseInputDate = (value: string): Date | null => {
   if (Number.isNaN(date.getTime())) return null;
   if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
   return date;
-};
-
-const getIsMobile = (): boolean => {
-  if (typeof window === 'undefined') return false;
-
-  const nav = navigator as Navigator & { userAgentData?: { mobile?: boolean } };
-
-  if (typeof nav.userAgentData?.mobile === 'boolean') {
-    return nav.userAgentData.mobile;
-  }
-
-  return window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(max-width: 640px)').matches;
-};
-
-const subscribeMediaQuery = (query: MediaQueryList, listener: () => void): (() => void) => {
-  query.addEventListener('change', listener);
-  return () => query.removeEventListener('change', listener);
-};
-
-type DatePickerMenuActiveSyncProps = {
-  open: boolean;
-  activeId: string;
-};
-
-const DatePickerMenuActiveSync = ({ open, activeId }: DatePickerMenuActiveSyncProps): ReactElement | null => {
-  const { setActive } = useMenu();
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    // Use double rAF to ensure we run after MenuContent's useEffect sets first item as active
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!cancelled) {
-          setActive(activeId);
-        }
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [open, activeId, setActive]);
-
-  return null;
 };
 
 //
@@ -469,42 +433,51 @@ const DatePickerGrid = ({
       aria-activedescendant={activeId}
       aria-colcount={DAYS_IN_WEEK}
       aria-rowcount={weeks.length}
-      className={cn('grid grid-cols-7 place-items-center gap-x-1.5 gap-y-1 outline-none', className)}
+      className={cn(
+        'grid grid-cols-7 place-items-center gap-x-1.5 gap-y-1 rounded-sm outline-none',
+        'focus-visible:ring-2 focus-visible:ring-ring/10 focus-visible:ring-offset-2',
+        className,
+      )}
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
       onBlur={handleBlur}
       {...props}
     >
-      {weeks.map((week, weekIndex) => (
-        <div key={`week-${weekIndex}`} role='row' className='contents'>
-          {week.map(day => {
-            if (!showOutsideDays && day.outside) {
-              return <div key={getDateKey(day.date)} role='gridcell' aria-hidden='true' className='size-7.5' />;
-            }
+      {weeks.map(week => {
+        const firstDay = week[0];
+        if (!firstDay) return null;
 
-            const selected = value != null && isSameDay(value, day.date);
-            const active = isSameDay(activeDate, day.date);
+        return (
+          <div key={`week-${getDateKey(firstDay.date)}`} role='row' className='contents'>
+            {week.map(day => {
+              if (!showOutsideDays && day.outside) {
+                return <div key={getDateKey(day.date)} role='gridcell' aria-hidden='true' className='size-7.5' />;
+              }
 
-            return (
-              <DatePickerDay
-                key={getDateKey(day.date)}
-                id={getDayId(baseId, day.date)}
-                date={day.date}
-                outside={day.outside}
-                disabled={day.disabled}
-                active={active}
-                selected={selected}
-                tabIndex={-1}
-                onPointerMove={() => {
-                  if (!day.disabled) {
-                    setActiveDate(day.date);
-                  }
-                }}
-              />
-            );
-          })}
-        </div>
-      ))}
+              const selected = value != null && isSameDay(value, day.date);
+              const active = isSameDay(activeDate, day.date);
+
+              return (
+                <DatePickerDay
+                  key={getDateKey(day.date)}
+                  id={getDayId(baseId, day.date)}
+                  date={day.date}
+                  outside={day.outside}
+                  disabled={day.disabled}
+                  active={active}
+                  selected={selected}
+                  tabIndex={-1}
+                  onPointerMove={() => {
+                    if (!day.disabled) {
+                      setActiveDate(day.date);
+                    }
+                  }}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 };
@@ -546,85 +519,129 @@ export type DatePickerMonthSelectProps = {
 } & Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'children'>;
 
 const DatePickerMonthSelect = forwardRef<HTMLButtonElement, DatePickerMonthSelectProps>(
-  ({ className, contentClassName, disabled, ...props }, ref): ReactElement => {
-    const { month, setMonth, locale, monthFormat } = useDatePicker();
+  ({ className, contentClassName, disabled, onFocus, onPointerDown, ...props }, ref): ReactElement => {
+    const {
+      month,
+      setMonth,
+      locale,
+      monthFormat,
+      headerActive,
+      setHeaderActive,
+      registerHeaderItem,
+      unregisterHeaderItem,
+      getHeaderItems,
+      isHeaderItemDisabled,
+      monthSelectOpen,
+      setMonthSelectOpen,
+      setYearSelectOpen,
+      monthSelectId,
+    } = useDatePicker();
     const options = useMemo(() => getMonthOptions(locale, monthFormat), [locale, monthFormat]);
-    const [open, setOpen] = useState(false);
-    const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+    const isDisabled = disabled as boolean | undefined;
+    const isActive = headerActive === monthSelectId;
     const triggerRef = useRef<HTMLButtonElement>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, triggerRef);
-    const monthBaseId = usePrefixedId('date-month');
-    const selectedId = `${monthBaseId}-${month.getMonth()}`;
 
-    const updateWidth = useCallback((): void => {
-      if (!triggerRef.current) return;
-      setMenuWidth(triggerRef.current.getBoundingClientRect().width);
-    }, []);
-
-    useEffect(() => {
-      if (typeof window === 'undefined') return;
-      updateWidth();
-      window.addEventListener('resize', updateWidth);
-      return () => window.removeEventListener('resize', updateWidth);
-    }, [updateWidth]);
+    const handleValueChange = useCallback(
+      (value: string) => {
+        setMonth(new Date(month.getFullYear(), Number(value), 1));
+      },
+      [month, setMonth],
+    );
 
     useEffect(() => {
-      if (!open) return;
-      updateWidth();
-      requestAnimationFrame(() => {
-        window.dispatchEvent(new Event('resize'));
-      });
-    }, [open, updateWidth]);
+      registerHeaderItem(monthSelectId, isDisabled);
+      return () => unregisterHeaderItem(monthSelectId);
+    }, [monthSelectId, isDisabled, registerHeaderItem, unregisterHeaderItem]);
 
-    useEffect(() => {
-      if (!open || !contentRef.current) return;
-      requestAnimationFrame(() => {
-        const element = contentRef.current?.querySelector<HTMLElement>(`#${selectedId}`);
-        element?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-      });
-    }, [open, selectedId]);
+    const { tabIndex } = useRovingTabIndex({
+      id: monthSelectId,
+      active: headerActive,
+      disabled: Boolean(isDisabled),
+      getItems: getHeaderItems,
+      isItemDisabled: isHeaderItemDisabled,
+    });
+
+    useActiveItemFocus({
+      ref: triggerRef,
+      isActive,
+      disabled: Boolean(isDisabled),
+    });
+
+    const handleFocus = useCallback(
+      (event: React.FocusEvent<HTMLButtonElement>): void => {
+        onFocus?.(event);
+        if (isDisabled) return;
+        setHeaderActive(monthSelectId);
+        setYearSelectOpen(false);
+      },
+      [onFocus, isDisabled, setHeaderActive, monthSelectId, setYearSelectOpen],
+    );
+
+    const handlePointerDown = useCallback(
+      (event: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerDown']>>[0]): void => {
+        onPointerDown?.(event);
+        if (isDisabled) return;
+        setHeaderActive(monthSelectId);
+        setYearSelectOpen(false);
+      },
+      [onPointerDown, isDisabled, setHeaderActive, monthSelectId, setYearSelectOpen],
+    );
+
+    const handleOpenChange = useCallback(
+      (nextOpen: boolean): void => {
+        setMonthSelectOpen(nextOpen);
+        if (nextOpen) {
+          setHeaderActive(monthSelectId);
+          setYearSelectOpen(false);
+        }
+      },
+      [setMonthSelectOpen, setHeaderActive, monthSelectId, setYearSelectOpen],
+    );
 
     return (
-      <Menu.Root open={open} onOpenChange={setOpen}>
-        <Menu.Trigger asChild>
-          <Button
-            ref={composedRefs}
-            className={cn('w-full justify-between gap-1 border-bdr-subtle px-3 font-normal text-sm', className)}
-            aria-label='Month'
-            endIcon={ChevronDown}
-            variant='outline'
-            size={'md'}
-            disabled={disabled as boolean | undefined}
-            {...props}
-          >
-            {options[month.getMonth()]?.label ?? getMonthLabel(locale, month.getMonth(), monthFormat)}
-          </Button>
-        </Menu.Trigger>
-        <Menu.Content
-          ref={contentRef}
-          align={'end'}
-          className={cn('max-h-60 gap-y-0.5 overflow-auto p-0.5', contentClassName)}
-          style={{ width: menuWidth }}
+      <Selector.Root
+        value={String(month.getMonth())}
+        onValueChange={handleValueChange}
+        disabled={isDisabled}
+        open={monthSelectOpen}
+        onOpenChange={handleOpenChange}
+      >
+        <Selector.Trigger
+          ref={composedRefs}
+          className={cn(
+            'h-10 gap-1 border-bdr-subtle bg-btn-primary px-3 font-normal text-sm hover:bg-btn-primary-hover',
+            className,
+          )}
+          aria-label='Month'
+          tabIndex={tabIndex}
+          data-registry-id={monthSelectId}
+          onFocus={handleFocus}
+          onPointerDown={handlePointerDown}
+          {...props}
         >
-          <DatePickerMenuActiveSync open={open} activeId={selectedId} />
-          {options.map(option => (
-            <Menu.Item
-              key={option.value}
-              id={`${monthBaseId}-${option.value}`}
-              onSelect={() => {
-                setMonth(new Date(month.getFullYear(), option.value, 1));
-              }}
-              className={cn(
-                'px-3 py-2',
-                option.value === month.getMonth() && 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
-              )}
-            >
-              {option.label}
-            </Menu.Item>
-          ))}
-        </Menu.Content>
-      </Menu.Root>
+          <Selector.Value>
+            {() => options[month.getMonth()]?.label ?? getMonthLabel(locale, month.getMonth(), monthFormat)}
+          </Selector.Value>
+          <Selector.Icon>
+            <ChevronDown className='size-5' />
+          </Selector.Icon>
+        </Selector.Trigger>
+        <Selector.Content align='end' className={cn('gap-y-0.5', contentClassName)}>
+          <Selector.Viewport className='max-h-60 gap-y-0.5 p-0.5'>
+            {options.map(option => (
+              <Selector.Item
+                key={option.value}
+                value={String(option.value)}
+                textValue={option.label}
+                className='px-3 py-2'
+              >
+                <Selector.ItemText>{option.label}</Selector.ItemText>
+              </Selector.Item>
+            ))}
+          </Selector.Viewport>
+        </Selector.Content>
+      </Selector.Root>
     );
   },
 );
@@ -641,88 +658,125 @@ export type DatePickerYearSelectProps = {
 } & Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'children'>;
 
 const DatePickerYearSelect = forwardRef<HTMLButtonElement, DatePickerYearSelectProps>(
-  ({ className, contentClassName, disabled, ...props }, ref): ReactElement => {
-    const { month, minYear, maxYear, setMonth } = useDatePicker();
+  ({ className, contentClassName, disabled, onFocus, onPointerDown, ...props }, ref): ReactElement => {
+    const {
+      month,
+      minYear,
+      maxYear,
+      setMonth,
+      headerActive,
+      setHeaderActive,
+      registerHeaderItem,
+      unregisterHeaderItem,
+      getHeaderItems,
+      isHeaderItemDisabled,
+      yearSelectOpen,
+      setYearSelectOpen,
+      setMonthSelectOpen,
+      yearSelectId,
+    } = useDatePicker();
     const years = useMemo(
       () => Array.from({ length: maxYear - minYear + 1 }, (_, index) => minYear + index),
       [minYear, maxYear],
     );
-    const [open, setOpen] = useState(false);
-    const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined);
+    const isDisabled = disabled as boolean | undefined;
+    const isActive = headerActive === yearSelectId;
     const triggerRef = useRef<HTMLButtonElement>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, triggerRef);
-    const yearBaseId = usePrefixedId('date-year');
-    const selectedId = `${yearBaseId}-${month.getFullYear()}`;
 
-    const updateWidth = useCallback((): void => {
-      if (!triggerRef.current) return;
-      setMenuWidth(triggerRef.current.getBoundingClientRect().width);
-    }, []);
-
-    useEffect(() => {
-      if (typeof window === 'undefined') return;
-      updateWidth();
-      window.addEventListener('resize', updateWidth);
-      return () => window.removeEventListener('resize', updateWidth);
-    }, [updateWidth]);
+    const handleValueChange = useCallback(
+      (value: string) => {
+        setMonth(new Date(Number(value), month.getMonth(), 1));
+      },
+      [month, setMonth],
+    );
 
     useEffect(() => {
-      if (!open) return;
-      updateWidth();
-      requestAnimationFrame(() => {
-        window.dispatchEvent(new Event('resize'));
-      });
-    }, [open, updateWidth]);
+      registerHeaderItem(yearSelectId, isDisabled);
+      return () => unregisterHeaderItem(yearSelectId);
+    }, [yearSelectId, isDisabled, registerHeaderItem, unregisterHeaderItem]);
 
-    useEffect(() => {
-      if (!open || !contentRef.current) return;
-      requestAnimationFrame(() => {
-        const element = contentRef.current?.querySelector<HTMLElement>(`#${selectedId}`);
-        element?.scrollIntoView({ block: 'nearest', behavior: 'auto' });
-      });
-    }, [open, selectedId]);
+    const { tabIndex } = useRovingTabIndex({
+      id: yearSelectId,
+      active: headerActive,
+      disabled: Boolean(isDisabled),
+      getItems: getHeaderItems,
+      isItemDisabled: isHeaderItemDisabled,
+    });
+
+    useActiveItemFocus({
+      ref: triggerRef,
+      isActive,
+      disabled: Boolean(isDisabled),
+    });
+
+    const handleFocus = useCallback(
+      (event: React.FocusEvent<HTMLButtonElement>): void => {
+        onFocus?.(event);
+        if (isDisabled) return;
+        setHeaderActive(yearSelectId);
+        setMonthSelectOpen(false);
+      },
+      [onFocus, isDisabled, setHeaderActive, yearSelectId, setMonthSelectOpen],
+    );
+
+    const handlePointerDown = useCallback(
+      (event: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerDown']>>[0]): void => {
+        onPointerDown?.(event);
+        if (isDisabled) return;
+        setHeaderActive(yearSelectId);
+        setMonthSelectOpen(false);
+      },
+      [onPointerDown, isDisabled, setHeaderActive, yearSelectId, setMonthSelectOpen],
+    );
+
+    const handleOpenChange = useCallback(
+      (nextOpen: boolean): void => {
+        setYearSelectOpen(nextOpen);
+        if (nextOpen) {
+          setHeaderActive(yearSelectId);
+          setMonthSelectOpen(false);
+        }
+      },
+      [setYearSelectOpen, setHeaderActive, yearSelectId, setMonthSelectOpen],
+    );
 
     return (
-      <Menu.Root open={open} onOpenChange={setOpen}>
-        <Menu.Trigger asChild>
-          <Button
-            ref={composedRefs}
-            className={cn('w-full justify-between gap-1 border-bdr-subtle px-3 font-normal text-sm', className)}
-            aria-label='Year'
-            endIcon={ChevronDown}
-            variant='outline'
-            size={'md'}
-            disabled={disabled as boolean | undefined}
-            {...props}
-          >
-            {month.getFullYear()}
-          </Button>
-        </Menu.Trigger>
-        <Menu.Content
-          ref={contentRef}
-          align='end'
-          className={cn('max-h-60 gap-y-0.5 overflow-auto p-0.5', contentClassName)}
-          style={{ width: menuWidth }}
+      <Selector.Root
+        value={String(month.getFullYear())}
+        onValueChange={handleValueChange}
+        disabled={isDisabled}
+        open={yearSelectOpen}
+        onOpenChange={handleOpenChange}
+      >
+        <Selector.Trigger
+          ref={composedRefs}
+          className={cn(
+            'h-10 gap-1 border-bdr-subtle bg-btn-primary px-3 font-normal text-sm hover:bg-btn-primary-hover',
+            className,
+          )}
+          aria-label='Year'
+          tabIndex={tabIndex}
+          data-registry-id={yearSelectId}
+          onFocus={handleFocus}
+          onPointerDown={handlePointerDown}
+          {...props}
         >
-          <DatePickerMenuActiveSync open={open} activeId={selectedId} />
-          {years.map(year => (
-            <Menu.Item
-              key={year}
-              id={`${yearBaseId}-${year}`}
-              onSelect={() => {
-                setMonth(new Date(year, month.getMonth(), 1));
-              }}
-              className={cn(
-                'px-3 py-2',
-                year === month.getFullYear() && 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
-              )}
-            >
-              {year}
-            </Menu.Item>
-          ))}
-        </Menu.Content>
-      </Menu.Root>
+          <Selector.Value>{() => month.getFullYear()}</Selector.Value>
+          <Selector.Icon>
+            <ChevronDown className='size-5' />
+          </Selector.Icon>
+        </Selector.Trigger>
+        <Selector.Content align='end' className={cn('gap-y-0.5', contentClassName)}>
+          <Selector.Viewport className='max-h-60 gap-y-0.5 p-0.5'>
+            {years.map(year => (
+              <Selector.Item key={year} value={String(year)} textValue={String(year)} className='px-3 py-2'>
+                <Selector.ItemText>{year}</Selector.ItemText>
+              </Selector.Item>
+            ))}
+          </Selector.Viewport>
+        </Selector.Content>
+      </Selector.Root>
     );
   },
 );
@@ -743,10 +797,28 @@ const DatePickerHeader = ({
   className,
   ...props
 }: DatePickerHeaderProps): ReactElement => {
-  const { month, minYear, maxYear, setMonth, showNavigation } = useDatePicker();
+  const {
+    month,
+    minYear,
+    maxYear,
+    setMonth,
+    showNavigation,
+    headerActive,
+    setHeaderActive,
+    registerHeaderItem,
+    unregisterHeaderItem,
+    getHeaderItems,
+    isHeaderItemDisabled,
+    setMonthSelectOpen,
+    setYearSelectOpen,
+    prevButtonId,
+    nextButtonId,
+  } = useDatePicker();
   const canGoPrev = month.getFullYear() > minYear || (month.getFullYear() === minYear && month.getMonth() > 0);
   const canGoNext = month.getFullYear() < maxYear || (month.getFullYear() === maxYear && month.getMonth() < 11);
   const shouldShowNavigation = showNavigationProp ?? showNavigation;
+  const prevButtonRef = useRef<HTMLButtonElement>(null);
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   const handlePrev = (): void => {
     if (!canGoPrev) return;
@@ -758,15 +830,106 @@ const DatePickerHeader = ({
     setMonth(addMonths(month, 1));
   };
 
+  useEffect(() => {
+    if (!shouldShowNavigation) return;
+    registerHeaderItem(prevButtonId, !canGoPrev);
+    registerHeaderItem(nextButtonId, !canGoNext);
+    return () => {
+      unregisterHeaderItem(prevButtonId);
+      unregisterHeaderItem(nextButtonId);
+    };
+  }, [
+    shouldShowNavigation,
+    registerHeaderItem,
+    unregisterHeaderItem,
+    prevButtonId,
+    nextButtonId,
+    canGoPrev,
+    canGoNext,
+  ]);
+
+  const { tabIndex: prevTabIndex } = useRovingTabIndex({
+    id: prevButtonId,
+    active: headerActive,
+    disabled: !canGoPrev,
+    getItems: getHeaderItems,
+    isItemDisabled: isHeaderItemDisabled,
+  });
+
+  const { tabIndex: nextTabIndex } = useRovingTabIndex({
+    id: nextButtonId,
+    active: headerActive,
+    disabled: !canGoNext,
+    getItems: getHeaderItems,
+    isItemDisabled: isHeaderItemDisabled,
+  });
+
+  useActiveItemFocus({
+    ref: prevButtonRef,
+    isActive: headerActive === prevButtonId,
+    disabled: !canGoPrev,
+  });
+
+  useActiveItemFocus({
+    ref: nextButtonRef,
+    isActive: headerActive === nextButtonId,
+    disabled: !canGoNext,
+  });
+
+  const handlePrevFocus = useCallback(
+    (_event: React.FocusEvent<HTMLButtonElement>): void => {
+      if (!shouldShowNavigation || !canGoPrev) return;
+      setHeaderActive(prevButtonId);
+      setMonthSelectOpen(false);
+      setYearSelectOpen(false);
+    },
+    [shouldShowNavigation, canGoPrev, setHeaderActive, prevButtonId, setMonthSelectOpen, setYearSelectOpen],
+  );
+
+  const handleNextFocus = useCallback(
+    (_event: React.FocusEvent<HTMLButtonElement>): void => {
+      if (!shouldShowNavigation || !canGoNext) return;
+      setHeaderActive(nextButtonId);
+      setMonthSelectOpen(false);
+      setYearSelectOpen(false);
+    },
+    [shouldShowNavigation, canGoNext, setHeaderActive, nextButtonId, setMonthSelectOpen, setYearSelectOpen],
+  );
+
+  const handlePrevPointerDown = useCallback(
+    (_event: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerDown']>>[0]): void => {
+      if (!shouldShowNavigation || !canGoPrev) return;
+      setHeaderActive(prevButtonId);
+      setMonthSelectOpen(false);
+      setYearSelectOpen(false);
+    },
+    [shouldShowNavigation, canGoPrev, setHeaderActive, prevButtonId, setMonthSelectOpen, setYearSelectOpen],
+  );
+
+  const handleNextPointerDown = useCallback(
+    (_event: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerDown']>>[0]): void => {
+      if (!shouldShowNavigation || !canGoNext) return;
+      setHeaderActive(nextButtonId);
+      setMonthSelectOpen(false);
+      setYearSelectOpen(false);
+    },
+    [shouldShowNavigation, canGoNext, setHeaderActive, nextButtonId, setMonthSelectOpen, setYearSelectOpen],
+  );
+
   return (
     <div className={cn('flex items-center gap-2', className)} {...props}>
       {shouldShowNavigation ? (
         <IconButton
+          ref={prevButtonRef}
+          tabIndex={prevTabIndex}
+          data-registry-id={prevButtonId}
           icon={ChevronLeft}
           variant='text'
           size='md'
           title='Previous month'
           onClick={handlePrev}
+          onFocus={handlePrevFocus}
+          onPointerDown={handlePrevPointerDown}
           disabled={!canGoPrev}
         />
       ) : null}
@@ -776,11 +939,16 @@ const DatePickerHeader = ({
       </div>
       {shouldShowNavigation ? (
         <IconButton
+          ref={nextButtonRef}
+          tabIndex={nextTabIndex}
+          data-registry-id={nextButtonId}
           icon={ChevronRight}
           variant='text'
           size='md'
           title='Next month'
           onClick={handleNext}
+          onFocus={handleNextFocus}
+          onPointerDown={handleNextPointerDown}
           disabled={!canGoNext}
         />
       ) : null}
@@ -803,7 +971,20 @@ export type DatePickerContentProps = {
 
 const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
   ({ align = 'start', forceMount, className, children, onKeyDown, ...props }, ref): ReactElement | null => {
-    const { baseId, open, setOpen, triggerRef, focusOnCloseRef } = useDatePicker();
+    const {
+      baseId,
+      open,
+      setOpen,
+      triggerRef,
+      focusOnCloseRef,
+      handleHeaderKeyDown,
+      monthSelectId,
+      yearSelectId,
+      prevButtonId,
+      nextButtonId,
+      setMonthSelectOpen,
+      setYearSelectOpen,
+    } = useDatePicker();
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
     const [isPortalMode, setIsPortalMode] = useState(false);
@@ -847,7 +1028,17 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
           const focusTarget = focusOnCloseRef?.current ?? triggerRef.current;
           focusTarget?.focus();
         });
+        return;
       }
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      const target = event.target as HTMLElement | null;
+      const headerItem = target?.closest(
+        `[data-registry-id="${prevButtonId}"], [data-registry-id="${monthSelectId}"], [data-registry-id="${yearSelectId}"], [data-registry-id="${nextButtonId}"]`,
+      );
+      if (!headerItem) return;
+      setMonthSelectOpen(false);
+      setYearSelectOpen(false);
+      handleHeaderKeyDown(event);
     };
 
     if (!forceMount && !open) {
@@ -1141,10 +1332,15 @@ const DatePickerRoot = ({
   nativeInputProps,
   className,
   children,
+  onKeyDown,
   ...props
 }: DatePickerRootProps): ReactElement => {
   const baseId = usePrefixedId();
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const monthSelectId = `${baseId}-month-select`;
+  const yearSelectId = `${baseId}-year-select`;
+  const prevButtonId = `${baseId}-prev-button`;
+  const nextButtonId = `${baseId}-next-button`;
   const [rangeStart, rangeEnd] = resolveYearRange(minYear, maxYear);
   const [value, setValue] = useControlledState<Date | null>(controlledValue, defaultValue ?? null, onValueChange);
   const initialMonth = clampMonthToRange(startOfMonth(defaultMonth ?? value ?? new Date()), rangeStart, rangeEnd);
@@ -1153,12 +1349,33 @@ const DatePickerRoot = ({
   const clampedMonth = clampMonthToRange(month, rangeStart, rangeEnd);
   const [open, setOpen] = useControlledState<boolean>(controlledOpen, defaultOpen, onOpenChange);
   const resolvedWeekStartsOn = useMemo(() => resolveWeekStartsOn(weekStartsOn, locale), [weekStartsOn, locale]);
+  const [monthSelectOpen, setMonthSelectOpen] = useState(false);
+  const [yearSelectOpen, setYearSelectOpen] = useState(false);
+  const [headerActive, setHeaderActive] = useState<string | undefined>(undefined);
+  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+
+  const { handleKeyDown: handleHeaderKeyDown } = useKeyboardNavigation({
+    getItems,
+    isItemDisabled,
+    active: headerActive,
+    setActive: setHeaderActive,
+    loop: true,
+    orientation: 'horizontal',
+  });
 
   useEffect(() => {
     if (!isMonthControlled && value) {
       setMonth(clampMonthToRange(startOfMonth(value), rangeStart, rangeEnd));
     }
   }, [isMonthControlled, value, rangeStart, rangeEnd, setMonth]);
+
+  useEffect(() => {
+    if (!open) {
+      setMonthSelectOpen(false);
+      setYearSelectOpen(false);
+      setHeaderActive(undefined);
+    }
+  }, [open]);
 
   const isDateDisabled = useCallback(
     (date: Date) => date.getFullYear() < rangeStart || date.getFullYear() > rangeEnd,
@@ -1185,24 +1402,7 @@ const DatePickerRoot = ({
 
   const [isMobile, setIsMobile] = useState(getIsMobile);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const pointerQuery = window.matchMedia('(pointer: coarse)');
-    const widthQuery = window.matchMedia('(max-width: 640px)');
-    const update = (): void => {
-      setIsMobile(pointerQuery.matches || widthQuery.matches);
-    };
-
-    update();
-
-    const unsubscribePointer = subscribeMediaQuery(pointerQuery, update);
-    const unsubscribeWidth = subscribeMediaQuery(widthQuery, update);
-
-    return () => {
-      unsubscribePointer();
-      unsubscribeWidth();
-    };
-  }, []);
+  useEffect(() => subscribeToMobileChanges(setIsMobile), []);
 
   const shouldUseNative = native ?? isMobile;
 
@@ -1213,6 +1413,21 @@ const DatePickerRoot = ({
       setOpen,
       triggerRef,
       focusOnCloseRef,
+      monthSelectId,
+      yearSelectId,
+      prevButtonId,
+      nextButtonId,
+      headerActive,
+      setHeaderActive,
+      registerHeaderItem: registerItem,
+      unregisterHeaderItem: unregisterItem,
+      getHeaderItems: getItems,
+      isHeaderItemDisabled: isItemDisabled,
+      handleHeaderKeyDown,
+      monthSelectOpen,
+      setMonthSelectOpen,
+      yearSelectOpen,
+      setYearSelectOpen,
       name,
       form,
       value,
@@ -1249,7 +1464,36 @@ const DatePickerRoot = ({
       name,
       form,
       focusOnCloseRef,
+      monthSelectId,
+      yearSelectId,
+      prevButtonId,
+      nextButtonId,
+      headerActive,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
+      handleHeaderKeyDown,
+      monthSelectOpen,
+      yearSelectOpen,
     ],
+  );
+
+  const handleInlineKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>): void => {
+      onKeyDown?.(event);
+      if (event.defaultPrevented) return;
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      const target = event.target as HTMLElement | null;
+      const headerItem = target?.closest(
+        `[data-registry-id="${prevButtonId}"], [data-registry-id="${monthSelectId}"], [data-registry-id="${yearSelectId}"], [data-registry-id="${nextButtonId}"]`,
+      );
+      if (!headerItem) return;
+      setMonthSelectOpen(false);
+      setYearSelectOpen(false);
+      handleHeaderKeyDown(event);
+    },
+    [onKeyDown, handleHeaderKeyDown, prevButtonId, monthSelectId, yearSelectId, nextButtonId],
   );
 
   const content = children ?? (
@@ -1266,12 +1510,14 @@ const DatePickerRoot = ({
 
   return (
     <DatePickerProvider value={contextValue}>
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className={
           children
             ? className
             : cn('flex w-fit flex-col gap-3 rounded-sm border border-bdr-subtle bg-surface-neutral p-3', className)
         }
+        onKeyDown={shouldUseNative ? onKeyDown : handleInlineKeyDown}
         {...props}
       >
         {shouldUseNative ? <DatePickerNativeInput {...nativeInputProps} required={inputRequired} /> : content}
