@@ -250,8 +250,8 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-listbox`}
         className={cn(
-          'flex shrink-0 grow basis-0 flex-col items-start gap-y-1 p-1',
-          'max-h-100 overflow-y-auto',
+          'flex flex-col items-start gap-y-1 p-1',
+          'overflow-y-auto',
           'outline-none',
           'transition-highlight',
           disabled && 'pointer-events-none select-none opacity-30',
