@@ -10,6 +10,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
+import { useActiveItemFocus } from '@/hooks/use-active-item-focus';
 import { useControlledState } from '@/hooks/use-controlled-state';
 import { type ActiveCell, useGridNavigation } from '@/hooks/use-grid-navigation';
 import {
@@ -264,47 +265,17 @@ export type GridListContentProps = {
 const GridListContent = forwardRef<HTMLDivElement, GridListContentProps>(
   ({ label, labelledBy, className, children, ...props }, ref): ReactElement => {
     const innerRef = useRef<HTMLDivElement>(null);
-    const {
-      baseId,
-      disabled,
-      handleKeyDown,
-      activeCell,
-      getRows,
-      getCellCount,
-      isCellDisabled,
-      isCellInteractive,
-      setActiveCell,
-    } = useGridList();
-
-    // Initialize active cell when grid receives focus
-    const handleFocus = useCallback(
-      (e: React.FocusEvent<HTMLDivElement>) => {
-        // Only initialize if focus came from outside the grid
-        if (e.target === e.currentTarget && !activeCell && !disabled) {
-          const rows = getRows();
-          for (const rowId of rows) {
-            const cellCount = getCellCount(rowId);
-            for (let col = 0; col < cellCount; col++) {
-              if (!isCellDisabled(rowId, col) && isCellInteractive(rowId, col)) {
-                setActiveCell({ row: rowId, col });
-                return;
-              }
-            }
-          }
-        }
-      },
-      [activeCell, disabled, getRows, getCellCount, isCellDisabled, isCellInteractive, setActiveCell],
-    );
+    const { baseId, disabled, handleKeyDown } = useGridList();
 
     return (
-      // ARIA grid pattern with single tabstop entry point
+      // Grid uses roving tabindex pattern - cells provide focusability, not container
       // eslint-disable-next-line jsx-a11y/interactive-supports-focus
       <div
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-grid`}
         className={cn(
           'flex flex-col outline-none',
-          'outline-none has-focus-visible:ring-2 has-focus-visible:ring-ring/10 has-focus-visible:ring-inset',
+          'outline-none focus-within:ring-2 focus-within:ring-ring/10 focus-within:ring-inset',
           disabled && 'pointer-events-none select-none opacity-30',
           className,
         )}
@@ -312,9 +283,7 @@ const GridListContent = forwardRef<HTMLDivElement, GridListContentProps>(
         aria-label={label}
         aria-labelledby={labelledBy}
         aria-disabled={disabled || undefined}
-        tabIndex={disabled ? undefined : 0}
         onKeyDown={handleKeyDown}
-        onFocus={handleFocus}
         {...props}
       >
         {children}
@@ -407,7 +376,17 @@ const GridListCell = forwardRef<HTMLDivElement, GridListCellProps>(
   ({ disabled = false, interactive = true, className, children, ...props }, ref): ReactElement => {
     const cellRef = useRef<HTMLDivElement>(null);
     const { rowId, disabled: rowDisabled, getNextCellIndex } = useGridListRow();
-    const { baseId, activeCell, registerCell, unregisterCell } = useGridList();
+    const {
+      baseId,
+      activeCell,
+      setActiveCell,
+      getRows,
+      getCellCount,
+      isCellDisabled,
+      isCellInteractive,
+      registerCell,
+      unregisterCell,
+    } = useGridList();
 
     // Auto-assign column index
     const colIndexRef = useRef<number>(-1);
@@ -424,15 +403,62 @@ const GridListCell = forwardRef<HTMLDivElement, GridListCellProps>(
       return () => unregisterCell(rowId, colIndex);
     }, [rowId, colIndex, isDisabled, interactive, registerCell, unregisterCell]);
 
-    // Auto-focus when becoming active
-    useEffect(() => {
-      if (isActive && cellRef.current) {
-        // Focus the cell itself for keyboard navigation
-        cellRef.current.focus({ preventScroll: true });
-        // Scroll into view if needed
-        cellRef.current.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    // Determine if this cell should be the tab entry point (roving tabindex)
+    const shouldBeFocusable = useMemo(() => {
+      // Active cell is always focusable
+      if (isActive) return true;
+
+      // Non-interactive or disabled cells are never the entry point
+      if (!interactive || isDisabled) return false;
+
+      // If there's an active cell, only it should be focusable
+      if (activeCell != null) return false;
+
+      // No active cell - first interactive non-disabled cell is focusable
+      const rows = getRows();
+      for (const currentRowId of rows) {
+        const cellCount = getCellCount(currentRowId);
+        for (let col = 0; col < cellCount; col++) {
+          if (!isCellDisabled(currentRowId, col) && isCellInteractive(currentRowId, col)) {
+            // This is the first focusable cell - check if it's us
+            return currentRowId === rowId && col === colIndex;
+          }
+        }
       }
-    }, [isActive]);
+
+      // Fallback: No cells registered yet (initial render before effects run).
+      // This cell is focusable if interactive and not disabled (already checked above).
+      return true;
+    }, [
+      isActive,
+      activeCell,
+      interactive,
+      isDisabled,
+      getRows,
+      getCellCount,
+      isCellDisabled,
+      isCellInteractive,
+      rowId,
+      colIndex,
+    ]);
+
+    // Set activeCell when this cell receives focus
+    const handleFocus = useCallback(() => {
+      if (!isDisabled && interactive) {
+        setActiveCell({ row: rowId, col: colIndex });
+      }
+    }, [isDisabled, interactive, setActiveCell, rowId, colIndex]);
+
+    // Auto-focus active cell during keyboard navigation
+    useActiveItemFocus({
+      ref: cellRef,
+      isActive,
+      disabled: isDisabled,
+      checkFocusWithin: {
+        enabled: true,
+        containerRole: 'grid',
+      },
+    });
 
     return (
       <div
@@ -446,9 +472,10 @@ const GridListCell = forwardRef<HTMLDivElement, GridListCellProps>(
           className,
         )}
         role='gridcell'
-        tabIndex={isActive ? 0 : -1}
+        tabIndex={shouldBeFocusable ? 0 : -1}
         aria-disabled={isDisabled || undefined}
         data-active={isActive || undefined}
+        onFocus={handleFocus}
         {...props}
       >
         {children}
