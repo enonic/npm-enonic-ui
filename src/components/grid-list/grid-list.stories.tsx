@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Edit2, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useState } from 'preact/hooks';
+import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
 import { GridList, type GridListProps } from '@/components/grid-list/grid-list';
 import { IconButton } from '@/components/icon-button';
@@ -188,6 +189,104 @@ export const DisabledGrid: Story = {
 //
 // * Behavior
 //
+
+type Task = {
+  id: string;
+  name: string;
+};
+
+const tasks: Task[] = [
+  { id: 'task-1', name: 'Review pull requests' },
+  { id: 'task-2', name: 'Update documentation' },
+  { id: 'task-3', name: 'Fix navigation bug' },
+  { id: 'task-4', name: 'Write unit tests' },
+  { id: 'task-5', name: 'Refactor auth module' },
+  { id: 'task-6', name: 'Deploy to staging' },
+  { id: 'task-7', name: 'Code review meeting' },
+];
+
+export const DynamicRows: Story = {
+  name: 'Behavior / Dynamic Rows',
+  args: {
+    disabled: false,
+    loop: false,
+  },
+  render: ({ disabled, loop }) => {
+    const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set(['task-1', 'task-2', 'task-3', 'task-4']));
+
+    const MIN_TASKS = 2;
+    const MAX_TASKS = 7;
+
+    const visibleTasks = tasks.filter(task => visibleIds.has(task.id));
+
+    const addTask = (): void => {
+      if (visibleIds.size >= MAX_TASKS) return;
+      const hiddenTask = tasks.find(task => !visibleIds.has(task.id));
+      if (hiddenTask) {
+        setVisibleIds(prev => new Set([...prev, hiddenTask.id]));
+      }
+    };
+
+    const removeTask = (): void => {
+      if (visibleIds.size <= MIN_TASKS) return;
+      const middleIndex = Math.floor(visibleTasks.length / 2);
+      const taskToRemove = visibleTasks[middleIndex];
+      if (taskToRemove) {
+        setVisibleIds(prev => {
+          const next = new Set(prev);
+          next.delete(taskToRemove.id);
+          return next;
+        });
+      }
+    };
+
+    return (
+      <div className='w-96 p-4'>
+        <h3 className='mb-3 font-medium text-sm'>Task List</h3>
+        <div className='mb-3 flex gap-2'>
+          <Button size='sm' variant='filled' onClick={addTask} disabled={visibleIds.size >= MAX_TASKS}>
+            Add Task
+          </Button>
+          <Button size='sm' variant='filled' onClick={removeTask} disabled={visibleIds.size <= MIN_TASKS}>
+            Remove Task
+          </Button>
+        </div>
+
+        <GridList label='Task list' className='gap-1.5 rounded-xl p-2' disabled={disabled} loop={loop}>
+          {visibleTasks.map(task => (
+            <GridList.Row key={task.id} id={task.id} className='flex gap-2.5'>
+              <GridList.Cell className='flex-1 self-stretch'>
+                <GridList.Action>
+                  <button
+                    type='button'
+                    className='cursor-pointer text-left font-medium text-sm hover:underline focus:outline-none'
+                    onClick={() => alert(`Open: ${task.name}`)}
+                  >
+                    {task.name}
+                  </button>
+                </GridList.Action>
+              </GridList.Cell>
+              <GridList.Cell>
+                <GridList.Action>
+                  <IconButton icon={Edit2} size='sm' variant='text' onClick={() => alert(`Edit: ${task.name}`)} />
+                </GridList.Action>
+              </GridList.Cell>
+              <GridList.Cell>
+                <GridList.Action>
+                  <IconButton icon={Trash2} size='sm' variant='text' onClick={() => alert(`Delete: ${task.name}`)} />
+                </GridList.Action>
+              </GridList.Cell>
+            </GridList.Row>
+          ))}
+        </GridList>
+
+        <p className='mt-3 text-sm text-subtle'>
+          {visibleIds.size} of {MAX_TASKS} tasks shown. Active item is updated, when previous item removed.
+        </p>
+      </div>
+    );
+  },
+};
 
 export const KeyboardNavigation: Story = {
   name: 'Behavior / Keyboard Navigation',

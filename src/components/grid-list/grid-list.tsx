@@ -9,6 +9,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { useActiveItemFocus } from '@/hooks/use-active-item-focus';
 import { useControlledState } from '@/hooks/use-controlled-state';
@@ -101,6 +102,12 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
       onActiveCellChange,
     );
 
+    const [registryVersion, setRegistryVersion] = useState(0);
+
+    const bumpRegistryVersion = useCallback((): void => {
+      setRegistryVersion(v => v + 1);
+    }, []);
+
     const setActiveCell = useCallback(
       (cell: ActiveCell | undefined) => {
         setActiveCellInternal(cell);
@@ -118,15 +125,19 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
       rowsRef.current.set(id, { disabled: rowDisabled, element });
     }, []);
 
-    const unregisterRow = useCallback((id: string): void => {
-      rowsRef.current.delete(id);
-      // Clean up cells for this row
-      for (const key of cellsRef.current.keys()) {
-        if (key.startsWith(`${id}:`)) {
-          cellsRef.current.delete(key);
+    const unregisterRow = useCallback(
+      (id: string): void => {
+        rowsRef.current.delete(id);
+        // Clean up cells for this row
+        for (const key of cellsRef.current.keys()) {
+          if (key.startsWith(`${id}:`)) {
+            cellsRef.current.delete(key);
+          }
         }
-      }
-    }, []);
+        bumpRegistryVersion();
+      },
+      [bumpRegistryVersion],
+    );
 
     const getRows = useCallback((): string[] => {
       const entries = Array.from(rowsRef.current.entries());
@@ -232,6 +243,24 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
       loop,
       onActivate: handleActivate,
     });
+
+    // State invalidation when rows change (e.g., removed dynamically)
+    // biome-ignore lint/correctness/useExhaustiveDependencies: registryVersion triggers revalidation
+    useEffect(() => {
+      if (!activeCell) return;
+
+      // Check if active row still exists
+      if (!rowsRef.current.has(activeCell.row)) {
+        setActiveCell(undefined);
+        return;
+      }
+
+      // Check if active cell still exists
+      const cellKey = `${activeCell.row}:${activeCell.col}`;
+      if (!cellsRef.current.has(cellKey)) {
+        setActiveCell(undefined);
+      }
+    }, [registryVersion]);
 
     const contextValue = useMemo<GridListContextValue>(
       () => ({
