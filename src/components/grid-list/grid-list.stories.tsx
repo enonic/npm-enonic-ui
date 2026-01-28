@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Edit2, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useState } from 'preact/hooks';
 import { Checkbox } from '@/components/checkbox';
-import { GridList, type GridListRootProps } from '@/components/grid-list/grid-list';
+import { GridList, type GridListProps } from '@/components/grid-list/grid-list';
 import { IconButton } from '@/components/icon-button';
 
-type Story = StoryObj<GridListRootProps>;
+type Story = StoryObj<GridListProps>;
 
 type Project = {
   id: string;
@@ -42,7 +42,7 @@ export default {
       description: 'Enable looping navigation at boundaries',
     },
   },
-} satisfies Meta<GridListRootProps>;
+} satisfies Meta<GridListProps>;
 
 //
 // * Examples
@@ -58,39 +58,37 @@ export const Basic: Story = {
     return (
       <div className='w-96 p-4'>
         <h3 className='mb-3 font-medium text-sm'>Project List</h3>
-        <GridList disabled={disabled} loop={loop}>
-          <GridList.Content label='Project list' className='gap-1.5 rounded-xl p-2'>
-            {projects.map(project => (
-              <GridList.Row key={project.id} id={project.id} className='flex gap-2.5'>
-                <GridList.Cell className='flex-1 self-stretch'>
-                  <GridList.Action>
-                    <button
-                      type='button'
-                      className='cursor-pointer text-left font-medium text-sm hover:underline focus:outline-none'
-                      onClick={() => alert(`Open: ${project.name}`)}
-                    >
-                      {project.name}
-                    </button>
-                  </GridList.Action>
-                </GridList.Cell>
-                <GridList.Cell interactive={false}>
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${statusColors[project.status]}`}>
-                    {project.status}
-                  </span>
-                </GridList.Cell>
-                <GridList.Cell>
-                  <GridList.Action>
-                    <IconButton
-                      icon={MoreHorizontal}
-                      size='sm'
-                      variant='text'
-                      onClick={() => alert(`Menu for: ${project.name}`)}
-                    />
-                  </GridList.Action>
-                </GridList.Cell>
-              </GridList.Row>
-            ))}
-          </GridList.Content>
+        <GridList label='Project list' className='gap-1.5 rounded-xl p-2' disabled={disabled} loop={loop}>
+          {projects.map(project => (
+            <GridList.Row key={project.id} id={project.id} className='flex gap-2.5'>
+              <GridList.Cell className='flex-1 self-stretch'>
+                <GridList.Action>
+                  <button
+                    type='button'
+                    className='cursor-pointer text-left font-medium text-sm hover:underline focus:outline-none'
+                    onClick={() => alert(`Open: ${project.name}`)}
+                  >
+                    {project.name}
+                  </button>
+                </GridList.Action>
+              </GridList.Cell>
+              <GridList.Cell interactive={false}>
+                <span className={`rounded-full px-2 py-0.5 text-xs ${statusColors[project.status]}`}>
+                  {project.status}
+                </span>
+              </GridList.Cell>
+              <GridList.Cell>
+                <GridList.Action>
+                  <IconButton
+                    icon={MoreHorizontal}
+                    size='sm'
+                    variant='text'
+                    onClick={() => alert(`Menu for: ${project.name}`)}
+                  />
+                </GridList.Action>
+              </GridList.Cell>
+            </GridList.Row>
+          ))}
         </GridList>
         <p className='mt-3 text-sm text-subtle'>Tab into the list, then use arrow keys to navigate.</p>
       </div>
@@ -112,44 +110,42 @@ export const DisabledRow: Story = {
     return (
       <div className='w-96 p-4'>
         <h3 className='mb-3 font-medium text-sm'>Middle row disabled</h3>
-        <GridList disabled={disabled} loop={loop}>
-          <GridList.Content label='Project list with disabled row' className='gap-1.5 rounded-xl p-2'>
-            {projects.slice(0, 3).map(project => (
-              <GridList.Row
-                key={project.id}
-                id={project.id}
-                disabled={project.id === 'proj-2'}
-                className='flex gap-2.5'
-              >
-                <GridList.Cell className='flex-1 self-stretch'>
-                  <GridList.Action>
-                    <button
-                      type='button'
-                      className='cursor-pointer text-left font-medium text-sm hover:underline focus:outline-none'
-                      onClick={() => alert(`Open: ${project.name}`)}
-                    >
-                      {project.name}
-                    </button>
-                  </GridList.Action>
-                </GridList.Cell>
-                <GridList.Cell interactive={false}>
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${statusColors[project.status]}`}>
-                    {project.status}
-                  </span>
-                </GridList.Cell>
-                <GridList.Cell>
-                  <GridList.Action>
-                    <IconButton
-                      icon={MoreHorizontal}
-                      size='sm'
-                      variant='text'
-                      onClick={() => alert(`Menu for: ${project.name}`)}
-                    />
-                  </GridList.Action>
-                </GridList.Cell>
-              </GridList.Row>
-            ))}
-          </GridList.Content>
+        <GridList
+          label='Project list with disabled row'
+          className='gap-1.5 rounded-xl p-2'
+          disabled={disabled}
+          loop={loop}
+        >
+          {projects.slice(0, 3).map(project => (
+            <GridList.Row key={project.id} id={project.id} disabled={project.id === 'proj-2'} className='flex gap-2.5'>
+              <GridList.Cell className='flex-1 self-stretch'>
+                <GridList.Action>
+                  <button
+                    type='button'
+                    className='cursor-pointer text-left font-medium text-sm hover:underline focus:outline-none'
+                    onClick={() => alert(`Open: ${project.name}`)}
+                  >
+                    {project.name}
+                  </button>
+                </GridList.Action>
+              </GridList.Cell>
+              <GridList.Cell interactive={false}>
+                <span className={`rounded-full px-2 py-0.5 text-xs ${statusColors[project.status]}`}>
+                  {project.status}
+                </span>
+              </GridList.Cell>
+              <GridList.Cell>
+                <GridList.Action>
+                  <IconButton
+                    icon={MoreHorizontal}
+                    size='sm'
+                    variant='text'
+                    onClick={() => alert(`Menu for: ${project.name}`)}
+                  />
+                </GridList.Action>
+              </GridList.Cell>
+            </GridList.Row>
+          ))}
         </GridList>
         <p className='mt-3 text-sm text-subtle'>Middle row is disabled and skipped during navigation.</p>
       </div>
@@ -170,21 +166,19 @@ export const DisabledGrid: Story = {
     return (
       <div className='w-96 p-4'>
         <h3 className='mb-3 font-medium text-sm'>Entire grid disabled</h3>
-        <GridList disabled={disabled} loop={loop}>
-          <GridList.Content label='Disabled project list' className='gap-1.5 rounded-xl p-2'>
-            {projects.slice(0, 3).map(project => (
-              <GridList.Row key={project.id} id={project.id} className='flex gap-2.5'>
-                <GridList.Cell interactive={false} className='flex-1'>
-                  <span className='font-medium text-sm'>{project.name}</span>
-                </GridList.Cell>
-                <GridList.Cell interactive={false}>
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${statusColors[project.status]}`}>
-                    {project.status}
-                  </span>
-                </GridList.Cell>
-              </GridList.Row>
-            ))}
-          </GridList.Content>
+        <GridList label='Disabled project list' className='gap-1.5 rounded-xl p-2' disabled={disabled} loop={loop}>
+          {projects.slice(0, 3).map(project => (
+            <GridList.Row key={project.id} id={project.id} className='flex gap-2.5'>
+              <GridList.Cell interactive={false} className='flex-1'>
+                <span className='font-medium text-sm'>{project.name}</span>
+              </GridList.Cell>
+              <GridList.Cell interactive={false}>
+                <span className={`rounded-full px-2 py-0.5 text-xs ${statusColors[project.status]}`}>
+                  {project.status}
+                </span>
+              </GridList.Cell>
+            </GridList.Row>
+          ))}
         </GridList>
       </div>
     );
@@ -207,61 +201,59 @@ export const KeyboardNavigation: Story = {
     return (
       <div className='w-110 p-4'>
         <h3 className='mb-3 font-medium text-sm'>Keyboard Navigation Demo</h3>
-        <GridList disabled={disabled} loop={loop}>
-          <GridList.Content label='Keyboard navigation demo' className='gap-1.5 rounded-xl p-2'>
-            {projects.map(project => (
-              <GridList.Row
-                key={project.id}
-                id={project.id}
-                disabled={project.id === 'proj-2'}
-                className='flex h-9 gap-2.5'
-              >
-                <GridList.Cell disabled={project.id === 'proj-4'}>
-                  <GridList.Action>
-                    <Checkbox
-                      disabled={project.id === 'proj-4'}
-                      onCheckedChange={() => setLastAction(`Toggle checkbox: ${project.name}`)}
-                    />
-                  </GridList.Action>
-                </GridList.Cell>
-                <GridList.Cell className='flex-1 self-stretch'>
-                  <GridList.Action>
-                    <button
-                      type='button'
-                      className='text-left font-medium text-sm hover:underline focus:outline-none'
-                      onClick={() => setLastAction(`Open: ${project.name}`)}
-                    >
-                      {project.name}
-                    </button>
-                  </GridList.Action>
-                </GridList.Cell>
-                {project.id !== 'proj-3' && (
-                  <>
-                    <GridList.Cell>
-                      <GridList.Action>
-                        <IconButton
-                          icon={Edit2}
-                          size='sm'
-                          variant='text'
-                          onClick={() => setLastAction(`Edit: ${project.name}`)}
-                        />
-                      </GridList.Action>
-                    </GridList.Cell>
-                    <GridList.Cell>
-                      <GridList.Action>
-                        <IconButton
-                          icon={Trash2}
-                          size='sm'
-                          variant='text'
-                          onClick={() => setLastAction(`Delete: ${project.name}`)}
-                        />
-                      </GridList.Action>
-                    </GridList.Cell>
-                  </>
-                )}
-              </GridList.Row>
-            ))}
-          </GridList.Content>
+        <GridList label='Keyboard navigation demo' className='gap-1.5 rounded-xl p-2' disabled={disabled} loop={loop}>
+          {projects.map(project => (
+            <GridList.Row
+              key={project.id}
+              id={project.id}
+              disabled={project.id === 'proj-2'}
+              className='flex h-9 gap-2.5'
+            >
+              <GridList.Cell disabled={project.id === 'proj-4'}>
+                <GridList.Action>
+                  <Checkbox
+                    disabled={project.id === 'proj-4'}
+                    onCheckedChange={() => setLastAction(`Toggle checkbox: ${project.name}`)}
+                  />
+                </GridList.Action>
+              </GridList.Cell>
+              <GridList.Cell className='flex-1 self-stretch'>
+                <GridList.Action>
+                  <button
+                    type='button'
+                    className='text-left font-medium text-sm hover:underline focus:outline-none'
+                    onClick={() => setLastAction(`Open: ${project.name}`)}
+                  >
+                    {project.name}
+                  </button>
+                </GridList.Action>
+              </GridList.Cell>
+              {project.id !== 'proj-3' && (
+                <>
+                  <GridList.Cell>
+                    <GridList.Action>
+                      <IconButton
+                        icon={Edit2}
+                        size='sm'
+                        variant='text'
+                        onClick={() => setLastAction(`Edit: ${project.name}`)}
+                      />
+                    </GridList.Action>
+                  </GridList.Cell>
+                  <GridList.Cell>
+                    <GridList.Action>
+                      <IconButton
+                        icon={Trash2}
+                        size='sm'
+                        variant='text'
+                        onClick={() => setLastAction(`Delete: ${project.name}`)}
+                      />
+                    </GridList.Action>
+                  </GridList.Cell>
+                </>
+              )}
+            </GridList.Row>
+          ))}
         </GridList>
 
         <p className='mt-4 text-sm text-subtle'>Last action: {lastAction || 'None'}</p>

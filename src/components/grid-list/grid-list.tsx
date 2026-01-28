@@ -34,7 +34,7 @@ type CellMetadata = {
   element: HTMLElement | null;
 };
 
-export type GridListRootProps = {
+export type GridListProps = {
   baseId?: string;
   /**
    * Controlled active cell (use `undefined` for no active cell, omit for uncontrolled)
@@ -57,199 +57,6 @@ export type GridListRootProps = {
    * @default false
    */
   loop?: boolean;
-  children?: ReactNode;
-};
-
-const GridListRoot = ({
-  baseId,
-  activeCell: controlledActiveCell,
-  defaultActiveCell,
-  onActiveCellChange,
-  disabled = false,
-  loop = false,
-  children,
-}: GridListRootProps): ReactElement => {
-  const prefixedId = usePrefixedId();
-  const gridBaseId = baseId ?? prefixedId;
-
-  const [activeCell, setActiveCellInternal] = useControlledState(
-    controlledActiveCell,
-    defaultActiveCell,
-    onActiveCellChange,
-  );
-
-  const setActiveCell = useCallback(
-    (cell: ActiveCell | undefined) => {
-      setActiveCellInternal(cell);
-    },
-    [setActiveCellInternal],
-  );
-
-  // Row registry
-  const rowsRef = useRef<Map<string, RowMetadata>>(new Map());
-
-  // Cell registry - keyed by `${rowId}:${colIndex}`
-  const cellsRef = useRef<Map<string, CellMetadata>>(new Map());
-
-  const registerRow = useCallback((id: string, rowDisabled = false, element: HTMLElement | null = null): void => {
-    rowsRef.current.set(id, { disabled: rowDisabled, element });
-  }, []);
-
-  const unregisterRow = useCallback((id: string): void => {
-    rowsRef.current.delete(id);
-    // Clean up cells for this row
-    for (const key of cellsRef.current.keys()) {
-      if (key.startsWith(`${id}:`)) {
-        cellsRef.current.delete(key);
-      }
-    }
-  }, []);
-
-  const getRows = useCallback((): string[] => {
-    const entries = Array.from(rowsRef.current.entries());
-
-    // Build element map for sorting
-    const elementMap = new Map<string, Element | null>();
-    for (const [id, meta] of entries) {
-      if (meta.element) {
-        elementMap.set(id, meta.element);
-      } else {
-        const element = document.getElementById(`${gridBaseId}-row-${id}`);
-        elementMap.set(id, element);
-      }
-    }
-
-    // Sort by DOM position
-    return entries
-      .map(([id]) => id)
-      .sort((a, b) => {
-        const elementA = elementMap.get(a);
-        const elementB = elementMap.get(b);
-
-        if (!elementA || !elementB) return 0;
-
-        const position = elementA.compareDocumentPosition(elementB);
-
-        if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
-        if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1;
-
-        return 0;
-      });
-  }, [gridBaseId]);
-
-  const isRowDisabled = useCallback((id: string): boolean => {
-    return rowsRef.current.get(id)?.disabled ?? false;
-  }, []);
-
-  const registerCell = useCallback(
-    (
-      rowId: string,
-      colIndex: number,
-      cellDisabled = false,
-      interactive = true,
-      element: HTMLElement | null = null,
-    ): void => {
-      cellsRef.current.set(`${rowId}:${colIndex}`, { disabled: cellDisabled, interactive, element });
-    },
-    [],
-  );
-
-  const unregisterCell = useCallback((rowId: string, colIndex: number): void => {
-    cellsRef.current.delete(`${rowId}:${colIndex}`);
-  }, []);
-
-  const getCellCount = useCallback((rowId: string): number => {
-    let count = 0;
-    for (const key of cellsRef.current.keys()) {
-      if (key.startsWith(`${rowId}:`)) {
-        count++;
-      }
-    }
-    return count;
-  }, []);
-
-  const isCellDisabled = useCallback(
-    (rowId: string, colIndex: number): boolean => {
-      // If row is disabled, all cells are disabled
-      if (isRowDisabled(rowId)) return true;
-      return cellsRef.current.get(`${rowId}:${colIndex}`)?.disabled ?? false;
-    },
-    [isRowDisabled],
-  );
-
-  const isCellInteractive = useCallback((rowId: string, colIndex: number): boolean => {
-    return cellsRef.current.get(`${rowId}:${colIndex}`)?.interactive ?? true;
-  }, []);
-
-  // Activation handler - clicks the first interactive element in the cell
-  const handleActivate = useCallback(
-    (rowId: string, colIndex: number): void => {
-      const cell = document.getElementById(`${gridBaseId}-cell-${rowId}-${colIndex}`);
-      if (!cell) return;
-
-      const focusable = cell.querySelector<HTMLElement>(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      );
-
-      if (focusable) {
-        focusable.click();
-      }
-    },
-    [gridBaseId],
-  );
-
-  const { handleKeyDown } = useGridNavigation({
-    getRows,
-    getCellCount,
-    isRowDisabled,
-    isCellDisabled,
-    isCellInteractive,
-    activeCell,
-    setActiveCell,
-    loop,
-    onActivate: handleActivate,
-  });
-
-  const contextValue = useMemo<GridListContextValue>(
-    () => ({
-      baseId: gridBaseId,
-      activeCell,
-      setActiveCell,
-      disabled,
-      registerRow,
-      unregisterRow,
-      getRows,
-      isRowDisabled,
-      getCellCount,
-      isCellDisabled,
-      isCellInteractive,
-      handleKeyDown,
-      registerCell,
-      unregisterCell,
-    }),
-    [
-      gridBaseId,
-      activeCell,
-      setActiveCell,
-      disabled,
-      registerRow,
-      unregisterRow,
-      getRows,
-      isRowDisabled,
-      getCellCount,
-      isCellDisabled,
-      isCellInteractive,
-      handleKeyDown,
-      registerCell,
-      unregisterCell,
-    ],
-  );
-
-  return <GridListProvider value={contextValue}>{children}</GridListProvider>;
-};
-GridListRoot.displayName = 'GridListRoot';
-
-export type GridListContentProps = {
   /**
    * Accessible label for the grid
    */
@@ -258,40 +65,237 @@ export type GridListContentProps = {
    * ID of element that labels this grid (alternative to label)
    */
   labelledBy?: string;
+  /**
+   * ID of element that describes this grid (for additional context)
+   */
+  describedBy?: string;
   className?: string;
   children?: ReactNode;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'role'>;
 
-const GridListContent = forwardRef<HTMLDivElement, GridListContentProps>(
-  ({ label, labelledBy, className, children, ...props }, ref): ReactElement => {
+const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
+  (
+    {
+      baseId,
+      activeCell: controlledActiveCell,
+      defaultActiveCell,
+      onActiveCellChange,
+      disabled = false,
+      loop = false,
+      label,
+      labelledBy,
+      describedBy,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ): ReactElement => {
     const innerRef = useRef<HTMLDivElement>(null);
-    const { baseId, disabled, handleKeyDown } = useGridList();
+    const prefixedId = usePrefixedId();
+    const gridBaseId = baseId ?? prefixedId;
+
+    const [activeCell, setActiveCellInternal] = useControlledState(
+      controlledActiveCell,
+      defaultActiveCell,
+      onActiveCellChange,
+    );
+
+    const setActiveCell = useCallback(
+      (cell: ActiveCell | undefined) => {
+        setActiveCellInternal(cell);
+      },
+      [setActiveCellInternal],
+    );
+
+    // Row registry
+    const rowsRef = useRef<Map<string, RowMetadata>>(new Map());
+
+    // Cell registry - keyed by `${rowId}:${colIndex}`
+    const cellsRef = useRef<Map<string, CellMetadata>>(new Map());
+
+    const registerRow = useCallback((id: string, rowDisabled = false, element: HTMLElement | null = null): void => {
+      rowsRef.current.set(id, { disabled: rowDisabled, element });
+    }, []);
+
+    const unregisterRow = useCallback((id: string): void => {
+      rowsRef.current.delete(id);
+      // Clean up cells for this row
+      for (const key of cellsRef.current.keys()) {
+        if (key.startsWith(`${id}:`)) {
+          cellsRef.current.delete(key);
+        }
+      }
+    }, []);
+
+    const getRows = useCallback((): string[] => {
+      const entries = Array.from(rowsRef.current.entries());
+
+      // Build element map for sorting
+      const elementMap = new Map<string, Element | null>();
+      for (const [id, meta] of entries) {
+        if (meta.element) {
+          elementMap.set(id, meta.element);
+        } else {
+          const element = document.getElementById(`${gridBaseId}-row-${id}`);
+          elementMap.set(id, element);
+        }
+      }
+
+      // Sort by DOM position
+      return entries
+        .map(([id]) => id)
+        .sort((a, b) => {
+          const elementA = elementMap.get(a);
+          const elementB = elementMap.get(b);
+
+          if (!elementA || !elementB) return 0;
+
+          const position = elementA.compareDocumentPosition(elementB);
+
+          if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+          if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+
+          return 0;
+        });
+    }, [gridBaseId]);
+
+    const isRowDisabled = useCallback((id: string): boolean => {
+      return rowsRef.current.get(id)?.disabled ?? false;
+    }, []);
+
+    const registerCell = useCallback(
+      (
+        rowId: string,
+        colIndex: number,
+        cellDisabled = false,
+        interactive = true,
+        element: HTMLElement | null = null,
+      ): void => {
+        cellsRef.current.set(`${rowId}:${colIndex}`, { disabled: cellDisabled, interactive, element });
+      },
+      [],
+    );
+
+    const unregisterCell = useCallback((rowId: string, colIndex: number): void => {
+      cellsRef.current.delete(`${rowId}:${colIndex}`);
+    }, []);
+
+    const getCellCount = useCallback((rowId: string): number => {
+      let count = 0;
+      for (const key of cellsRef.current.keys()) {
+        if (key.startsWith(`${rowId}:`)) {
+          count++;
+        }
+      }
+      return count;
+    }, []);
+
+    const isCellDisabled = useCallback(
+      (rowId: string, colIndex: number): boolean => {
+        // If row is disabled, all cells are disabled
+        if (isRowDisabled(rowId)) return true;
+        return cellsRef.current.get(`${rowId}:${colIndex}`)?.disabled ?? false;
+      },
+      [isRowDisabled],
+    );
+
+    const isCellInteractive = useCallback((rowId: string, colIndex: number): boolean => {
+      return cellsRef.current.get(`${rowId}:${colIndex}`)?.interactive ?? true;
+    }, []);
+
+    // Activation handler - clicks the first interactive element in the cell
+    const handleActivate = useCallback(
+      (rowId: string, colIndex: number): void => {
+        const cell = document.getElementById(`${gridBaseId}-cell-${rowId}-${colIndex}`);
+        if (!cell) return;
+
+        const focusable = cell.querySelector<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+
+        if (focusable) {
+          focusable.click();
+        }
+      },
+      [gridBaseId],
+    );
+
+    const { handleKeyDown } = useGridNavigation({
+      getRows,
+      getCellCount,
+      isRowDisabled,
+      isCellDisabled,
+      isCellInteractive,
+      activeCell,
+      setActiveCell,
+      loop,
+      onActivate: handleActivate,
+    });
+
+    const contextValue = useMemo<GridListContextValue>(
+      () => ({
+        baseId: gridBaseId,
+        activeCell,
+        setActiveCell,
+        disabled,
+        registerRow,
+        unregisterRow,
+        getRows,
+        isRowDisabled,
+        getCellCount,
+        isCellDisabled,
+        isCellInteractive,
+        handleKeyDown,
+        registerCell,
+        unregisterCell,
+      }),
+      [
+        gridBaseId,
+        activeCell,
+        setActiveCell,
+        disabled,
+        registerRow,
+        unregisterRow,
+        getRows,
+        isRowDisabled,
+        getCellCount,
+        isCellDisabled,
+        isCellInteractive,
+        handleKeyDown,
+        registerCell,
+        unregisterCell,
+      ],
+    );
 
     return (
-      // Grid uses roving tabindex pattern - cells provide focusability, not container
-      // eslint-disable-next-line jsx-a11y/interactive-supports-focus
-      <div
-        ref={useComposedRefs(ref, innerRef)}
-        id={`${baseId}-grid`}
-        className={cn(
-          'flex flex-col outline-none',
-          'outline-none focus-within:ring-2 focus-within:ring-ring/10 focus-within:ring-inset',
-          disabled && 'pointer-events-none select-none opacity-30',
-          className,
-        )}
-        role='grid'
-        aria-label={label}
-        aria-labelledby={labelledBy}
-        aria-disabled={disabled || undefined}
-        onKeyDown={handleKeyDown}
-        {...props}
-      >
-        {children}
-      </div>
+      <GridListProvider value={contextValue}>
+        {/* Grid uses roving tabindex pattern - cells provide focusability, not container */}
+        {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
+        <div
+          ref={useComposedRefs(ref, innerRef)}
+          id={`${gridBaseId}-grid`}
+          className={cn(
+            'flex flex-col outline-none',
+            'outline-none focus-within:ring-2 focus-within:ring-ring/10 focus-within:ring-inset',
+            disabled && 'pointer-events-none select-none opacity-30',
+            className,
+          )}
+          role='grid'
+          aria-label={label}
+          aria-labelledby={labelledBy}
+          aria-describedby={describedBy}
+          aria-disabled={disabled || undefined}
+          onKeyDown={handleKeyDown}
+          {...props}
+        >
+          {children}
+        </div>
+      </GridListProvider>
     );
   },
 );
-GridListContent.displayName = 'GridListContent';
+GridListRoot.displayName = 'GridList';
 
 export type GridListRowProps = {
   /**
@@ -507,7 +511,6 @@ GridListAction.displayName = 'GridListAction';
 
 export const GridList = Object.assign(GridListRoot, {
   Root: GridListRoot,
-  Content: GridListContent,
   Row: GridListRow,
   Cell: GridListCell,
   Action: GridListAction,
