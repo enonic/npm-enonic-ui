@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { BadgeInfo } from 'lucide-react';
 import { useCallback, useState } from 'preact/hooks';
 import type { ReactElement } from 'react';
 
@@ -123,10 +124,11 @@ const PageHeader = ({ title, subtitle, note }: { title: string; subtitle: string
       </div>
     </div>
     {note && (
-      <div className='relative overflow-hidden rounded-lg border-main border-l-4 bg-surface-primary p-5'>
-        <div className='-translate-y-16 absolute top-0 right-0 size-32 translate-x-16 rounded-full bg-main/5' />
+      <div className='relative overflow-hidden rounded-lg bg-surface-primary p-5'>
+        <div className='-translate-y-16 absolute top-0 right-0 size-32 translate-x-16 rounded-full bg-info/10' />
         <div className='relative flex gap-3'>
-          <div className='shrink-0 text-2xl'>💡</div>
+          {/* <div className='shrink-0 text-2xl'>💡</div> */}
+          <BadgeInfo className='size-6 shrink-0 text-info' />
           <div>
             <div className='mb-1 font-bold text-main text-sm uppercase tracking-wider'>Important Note</div>
             <p className='text-sm text-subtle leading-relaxed'>{note}</p>

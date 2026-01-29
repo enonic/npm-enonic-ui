@@ -301,6 +301,115 @@ export const OpenByDefault: Story = {
   },
 };
 
+export const NestedConfirmation: Story = {
+  name: 'Examples / Nested Confirmation',
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [formData, setFormData] = useState({ name: '', email: '' });
+    const [savedData, setSavedData] = useState({ name: '', email: '' });
+
+    const isDirty = formData.name !== savedData.name || formData.email !== savedData.email;
+
+    const requestClose = (): void => {
+      if (confirmOpen) return;
+      if (isDirty) {
+        setConfirmOpen(true);
+        return;
+      }
+      setOpen(false);
+    };
+
+    const handleOpenChange = (nextOpen: boolean): void => {
+      if (nextOpen) {
+        setOpen(true);
+        return;
+      }
+      requestClose();
+    };
+
+    const handleDiscard = (): void => {
+      setConfirmOpen(false);
+      setOpen(false);
+      setFormData(savedData);
+    };
+
+    const handleSave = (): void => {
+      setSavedData(formData);
+      setOpen(false);
+    };
+
+    return (
+      <div className='space-y-4'>
+        <Button variant='solid' onClick={() => setOpen(true)} label='Edit Profile' startIcon={User} />
+
+        {/* Main Dialog */}
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120'>
+              <Dialog.DefaultHeader
+                title='Edit Profile'
+                description='Make changes to your profile here'
+                withClose={false}
+              />
+
+              <Dialog.Body className='-m-2 space-y-4 p-2'>
+                <Input
+                  label='Name'
+                  value={formData.name}
+                  onChange={e => setFormData(prev => ({ ...prev, name: e.currentTarget.value }))}
+                  placeholder='Enter your name'
+                />
+                <Input
+                  label='Email'
+                  type='email'
+                  value={formData.email}
+                  onChange={e => setFormData(prev => ({ ...prev, email: e.currentTarget.value }))}
+                  placeholder='Enter your email'
+                />
+                {isDirty && (
+                  <p className='pt-1 text-subtle text-xs'>
+                    <TriangleAlert className='mr-1 inline size-3' />
+                    You have unsaved changes
+                  </p>
+                )}
+              </Dialog.Body>
+
+              <Dialog.Footer>
+                <Button variant='outline' onClick={requestClose} label='Cancel' />
+                <Button variant='solid' onClick={handleSave} label='Save Changes' />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+
+        {/* Confirmation Dialog - renders on top due to DOM order */}
+        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className='z-40 bg-transparent' />
+            <Dialog.Content className='w-96'>
+              <Dialog.Body className='py-2'>
+                <h2 className='font-semibold text-lg'>Discard changes?</h2>
+                <p className='mt-2 text-sm text-subtle'>You have unsaved changes that will be lost.</p>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Button variant='outline' onClick={() => setConfirmOpen(false)} label='Keep Editing' />
+                <Button
+                  className='border-error bg-error text-alt hover:bg-error/90 active:bg-error/80'
+                  variant='solid'
+                  onClick={handleDiscard}
+                  label='Discard'
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
 //
 // * Features
 //
