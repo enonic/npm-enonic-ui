@@ -6,27 +6,27 @@ export type FloatingPosition = {
   top: number;
   left?: number;
   right?: number;
-  /** Which side the popup is positioned relative to the trigger */
+  /** Which side the popup is positioned relative to the anchor */
   side: 'top' | 'bottom';
 };
 
 export type UseFloatingPositionConfig = {
   /** Whether the floating element is open/visible */
   enabled: boolean;
-  /** Reference to the trigger element */
-  triggerRef: RefObject<HTMLElement> | null;
+  /** Reference to the anchor element to position relative to */
+  anchorRef: RefObject<HTMLElement> | null;
   /** Reference to the floating content element */
   contentRef: RefObject<HTMLElement> | null;
-  /** Horizontal alignment relative to trigger */
+  /** Horizontal alignment relative to anchor */
   align?: 'start' | 'end';
 };
 
 /**
- * Calculates optimal position for floating elements (menus, dropdowns) relative to a trigger,
+ * Calculates optimal position for floating elements (menus, dropdowns) relative to an anchor,
  * with automatic viewport collision detection and flip behavior.
  *
  * This hook handles:
- * - Positioning below trigger with configurable alignment
+ * - Positioning below anchor with configurable alignment
  * - Vertical flipping when overflowing bottom edge
  * - Horizontal adjustment to stay within viewport bounds
  * - Automatic repositioning on window resize and scroll
@@ -37,11 +37,11 @@ export type UseFloatingPositionConfig = {
  * @example
  * ```tsx
  * function Menu() {
- *   const triggerRef = useRef<HTMLButtonElement>(null);
+ *   const anchorRef = useRef<HTMLButtonElement>(null);
  *   const contentRef = useRef<HTMLDivElement>(null);
  *   const position = useFloatingPosition({
  *     enabled: open,
- *     triggerRef,
+ *     anchorRef,
  *     contentRef,
  *     align: 'start'
  *   });
@@ -64,33 +64,33 @@ export type UseFloatingPositionConfig = {
  */
 export function useFloatingPosition({
   enabled,
-  triggerRef,
+  anchorRef,
   contentRef,
   align = 'start',
 }: UseFloatingPositionConfig): FloatingPosition | null {
   const [position, setPosition] = useState<FloatingPosition | null>(null);
 
   useEffect(() => {
-    if (!enabled || !triggerRef?.current || !contentRef?.current) {
+    if (!enabled || !anchorRef?.current || !contentRef?.current) {
       return;
     }
 
     const updatePosition = (): void => {
-      if (!triggerRef.current || !contentRef.current) return;
+      if (!anchorRef.current || !contentRef.current) return;
 
-      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const anchorRect = anchorRef.current.getBoundingClientRect();
       const contentRect = contentRef.current.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      let top = triggerRect.bottom;
+      let top = anchorRect.bottom;
       let left: number | undefined;
       let right: number | undefined;
       let side: 'top' | 'bottom' = 'bottom';
 
       // Vertical positioning: flip if overflows bottom
       if (top + contentRect.height > viewportHeight - VIEWPORT_PADDING) {
-        const topPosition = triggerRect.top - contentRect.height;
+        const topPosition = anchorRect.top - contentRect.height;
         if (topPosition >= VIEWPORT_PADDING) {
           top = topPosition;
           side = 'top';
@@ -99,19 +99,19 @@ export function useFloatingPosition({
 
       // Horizontal positioning based on align
       if (align === 'start') {
-        left = triggerRect.left;
+        left = anchorRect.left;
         // Flip to right if overflows
         if (left + contentRect.width > viewportWidth - VIEWPORT_PADDING) {
           left = undefined;
-          right = viewportWidth - triggerRect.right;
+          right = viewportWidth - anchorRect.right;
         }
       } else {
         // align === 'end'
-        right = viewportWidth - triggerRect.right;
+        right = viewportWidth - anchorRect.right;
         // Flip to left if overflows
-        if (triggerRect.right - contentRect.width < VIEWPORT_PADDING) {
+        if (anchorRect.right - contentRect.width < VIEWPORT_PADDING) {
           right = undefined;
-          left = triggerRect.left;
+          left = anchorRect.left;
         }
       }
 
@@ -127,7 +127,7 @@ export function useFloatingPosition({
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
     };
-  }, [enabled, align, triggerRef, contentRef]);
+  }, [enabled, align, anchorRef, contentRef]);
 
   return position;
 }

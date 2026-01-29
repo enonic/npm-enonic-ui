@@ -3,6 +3,7 @@ import { Calendar as CalendarIcon, ChevronDown, ChevronLeft, ChevronRight } from
 import {
   type ChangeEvent,
   type ComponentPropsWithoutRef,
+  type CSSProperties,
   type FocusEvent,
   forwardRef,
   type MouseEvent,
@@ -627,7 +628,7 @@ const DatePickerMonthSelect = forwardRef<HTMLButtonElement, DatePickerMonthSelec
             <ChevronDown className='size-5' />
           </Selector.Icon>
         </Selector.Trigger>
-        <Selector.Content align='end' className={cn('gap-y-0.5', contentClassName)}>
+        <Selector.Content align='end' portal={false} className={cn('gap-y-0.5', contentClassName)}>
           <Selector.Viewport className='max-h-60 gap-y-0.5 p-0.5'>
             {options.map(option => (
               <Selector.Item
@@ -767,7 +768,7 @@ const DatePickerYearSelect = forwardRef<HTMLButtonElement, DatePickerYearSelectP
             <ChevronDown className='size-5' />
           </Selector.Icon>
         </Selector.Trigger>
-        <Selector.Content align='end' className={cn('gap-y-0.5', contentClassName)}>
+        <Selector.Content align='end' portal={false} className={cn('gap-y-0.5', contentClassName)}>
           <Selector.Viewport className='max-h-60 gap-y-0.5 p-0.5'>
             {years.map(year => (
               <Selector.Item key={year} value={String(year)} textValue={String(year)} className='px-3 py-2'>
@@ -964,13 +965,15 @@ DatePickerHeader.displayName = 'DatePicker.Header';
 
 export type DatePickerContentProps = {
   align?: 'start' | 'end';
+  /** Optional reference to an anchor element for positioning (defaults to trigger) */
+  anchorRef?: RefObject<HTMLElement>;
   forceMount?: boolean;
   className?: string;
   children?: ReactNode;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children'>;
 
 const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
-  ({ align = 'start', forceMount, className, children, onKeyDown, ...props }, ref): ReactElement | null => {
+  ({ align = 'start', anchorRef, forceMount, className, children, onKeyDown, ...props }, ref): ReactElement | null => {
     const {
       baseId,
       open,
@@ -988,7 +991,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
     const [isPortalMode, setIsPortalMode] = useState(false);
-    const position = useFloatingPosition({ enabled: open, triggerRef, contentRef, align });
+    const position = useFloatingPosition({ enabled: open, anchorRef: anchorRef ?? triggerRef, contentRef, align });
     const contentId = `${baseId}-content`;
     const triggerId = `${baseId}-trigger`;
     const labelledBy = triggerRef.current ? triggerId : undefined;
@@ -1055,6 +1058,9 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
       </>
     );
 
+    const { side, top, left, right } = position ?? { side: 'bottom' };
+    const positionStyle: Pick<CSSProperties, 'top' | 'left' | 'right'> = { top, left, right };
+
     return (
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
@@ -1064,8 +1070,10 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
         aria-label='Date picker'
         aria-labelledby={labelledBy}
         data-state={open ? 'open' : 'closed'}
+        data-side={side}
         className={cn(
-          'fixed z-40 mt-2 flex w-fit flex-col gap-4 rounded-sm border border-bdr-subtle bg-surface-neutral p-5',
+          'fixed z-40 flex w-fit flex-col gap-4 rounded-sm border border-bdr-subtle bg-surface-neutral p-5',
+          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
           'shadow-lg outline-none',
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -1073,7 +1081,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
           !position && 'pointer-events-none opacity-0',
           className,
         )}
-        style={{ ...position }}
+        style={{ ...positionStyle }}
         onKeyDown={handleKeyDown}
         {...props}
       >
@@ -1295,7 +1303,6 @@ export type DatePickerRootProps = {
   showOutsideDays?: boolean;
   showNavigation?: boolean;
   monthFormat?: 'short' | 'long';
-  required?: boolean;
   name?: string;
   form?: string;
   locale?: Intl.LocalesArgument;
@@ -1323,7 +1330,6 @@ const DatePickerRoot = ({
   showOutsideDays = true,
   showNavigation = true,
   monthFormat = 'short',
-  required,
   name,
   form,
   locale,
@@ -1506,8 +1512,6 @@ const DatePickerRoot = ({
     </>
   );
 
-  const inputRequired = required ?? nativeInputProps?.required;
-
   return (
     <DatePickerProvider value={contextValue}>
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
@@ -1520,7 +1524,7 @@ const DatePickerRoot = ({
         onKeyDown={shouldUseNative ? onKeyDown : handleInlineKeyDown}
         {...props}
       >
-        {shouldUseNative ? <DatePickerNativeInput {...nativeInputProps} required={inputRequired} /> : content}
+        {shouldUseNative ? <DatePickerNativeInput {...nativeInputProps} /> : content}
       </div>
     </DatePickerProvider>
   );

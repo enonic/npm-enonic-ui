@@ -703,7 +703,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     // Floating position for portal mode
     const position = useFloatingPosition({
       enabled: open && isPortalMode,
-      triggerRef: controlRef,
+      anchorRef: controlRef,
       contentRef: innerRef,
       align: 'start',
     });

@@ -378,6 +378,8 @@ export type SelectorContentProps = {
   className?: string;
   children?: ReactNode;
   align?: 'start' | 'end';
+  /** Whether to render in a portal to document.body. Defaults to true. Set to false when used inside another portaled component (e.g., DatePicker/TimePicker inside Dialog). */
+  portal?: boolean;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
   onInteractOutside?: (event: Event) => void;
@@ -385,7 +387,16 @@ export type SelectorContentProps = {
 
 const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
   (
-    { className, children, align = 'start', onEscapeKeyDown, onPointerDownOutside, onInteractOutside, ...props },
+    {
+      className,
+      children,
+      align = 'start',
+      portal = true,
+      onEscapeKeyDown,
+      onPointerDownOutside,
+      onInteractOutside,
+      ...props
+    },
     ref,
   ): ReactElement | null => {
     const { baseId, open, setOpen, active, triggerRef } = useSelector();
@@ -396,7 +407,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
 
     const position = useFloatingPosition({
       enabled: open,
-      triggerRef,
+      anchorRef: triggerRef,
       contentRef,
       align,
     });
@@ -405,14 +416,14 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
       setMounted(true);
     }, []);
 
-    // Detect portal mode
+    // Detect portal mode (only when portal prop is true)
     useLayoutEffect(() => {
-      if (!open || !contentRef.current) return;
+      if (!portal || !open || !contentRef.current) return;
       setIsPortalMode(contentRef.current.parentElement === document.body);
-    }, [open]);
+    }, [portal, open]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
-    usePortalFocusContainer(contentRef, isPortalMode);
+    usePortalFocusContainer(contentRef, portal && isPortalMode);
 
     useClickOutside({
       enabled: open,
@@ -436,7 +447,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
 
     const { side: _side, ...positionStyle } = position ?? { side: 'bottom' };
 
-    return createPortal(
+    const content = (
       <div
         ref={composedRefs}
         id={`${baseId}-content`}
@@ -462,9 +473,10 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
         {...props}
       >
         {children}
-      </div>,
-      document.body,
+      </div>
     );
+
+    return portal ? createPortal(content, document.body) : content;
   },
 );
 SelectorContent.displayName = 'Selector.Content';
