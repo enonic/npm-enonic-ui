@@ -922,7 +922,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
     const [active, setActive] = useState<string | undefined>(undefined);
     const position = useFloatingPosition({
       enabled: open,
-      triggerRef: triggerRef as React.RefObject<HTMLElement>,
+      anchorRef: triggerRef as React.RefObject<HTMLElement>,
       contentRef,
       align,
     });

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { type FormEvent, useState } from 'react';
+import { type ChangeEvent, type FormEvent, useRef, useState } from 'react';
 import { Button } from '@/components/button';
+import { Dialog } from '@/components/dialog';
+import { Input } from '@/components/input';
 import { TimePicker } from './time-picker';
 
 export default {
@@ -130,6 +132,139 @@ export const SideBySide: Story = {
             <div className='text-subtle text-xs'>Value: {utcValue}</div>
           </div>
         </div>
+      </div>
+    );
+  },
+};
+
+const parseTime = (value: string): string | null => {
+  if (!value) return null;
+  const [hourStr, minuteStr] = value.split(':');
+  const hour = Number.parseInt(hourStr ?? '', 10);
+  const minute = Number.parseInt(minuteStr ?? '', 10);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+  return `${padZero(hour)}:${padZero(minute)}`;
+};
+
+export const TimeInput: Story = {
+  name: 'Examples / Time Input',
+  render: () => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const inputWrapperRef = useRef<HTMLDivElement>(null);
+    const [value, setValue] = useState<string | null>('14:30');
+    const [inputValue, setInputValue] = useState('14:30');
+    const [open, setOpen] = useState(false);
+
+    const handleTimeChange = (nextValue: string | null): void => {
+      setValue(nextValue);
+      setInputValue(nextValue ?? '');
+    };
+
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+      const nextValue = event.currentTarget.value;
+      setInputValue(nextValue);
+      const parsed = parseTime(nextValue);
+      if (parsed || nextValue === '') {
+        setValue(parsed);
+      }
+    };
+
+    return (
+      <div className='flex w-80 flex-col gap-3 p-4'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Type a time or use the icon; the input and picker stay in sync. Press Escape to close the picker and return
+          focus to the input.
+        </div>
+        <TimePicker value={value} onValueChange={handleTimeChange} open={open} onOpenChange={setOpen}>
+          <div ref={inputWrapperRef}>
+            <Input
+              ref={inputRef}
+              label='Meeting time'
+              placeholder='HH:MM'
+              value={inputValue}
+              onChange={handleInputChange}
+              endAddon={<TimePicker.Trigger className='size-8 bg-transparent' aria-label='Open time picker' />}
+            />
+          </div>
+          <TimePicker.Content anchorRef={inputWrapperRef} align='start' />
+        </TimePicker>
+      </div>
+    );
+  },
+};
+
+export const TimeInputInDialog: Story = {
+  name: 'Examples / Time Input in Dialog',
+  render: () => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const inputWrapperRef = useRef<HTMLDivElement>(null);
+    const [value, setValue] = useState<string | null>('14:30');
+    const [inputValue, setInputValue] = useState('14:30');
+    const [pickerOpen, setPickerOpen] = useState(false);
+
+    const handleTimeChange = (nextValue: string | null): void => {
+      setValue(nextValue);
+      setInputValue(nextValue ?? '');
+    };
+
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+      const nextValue = event.currentTarget.value;
+      setInputValue(nextValue);
+      const parsed = parseTime(nextValue);
+      if (parsed || nextValue === '') {
+        setValue(parsed);
+      }
+    };
+
+    return (
+      <div className='flex flex-col items-center gap-3 p-4'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Time picker inside a dialog. The popup is portaled to the body but works correctly with the dialog&apos;s
+          focus trap.
+        </div>
+        <Dialog>
+          <Dialog.Trigger asChild>
+            <Button variant='outline'>Open Dialog</Button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-96'>
+              <Dialog.Header>
+                <Dialog.Title>Select a Time</Dialog.Title>
+                <Dialog.Close />
+              </Dialog.Header>
+              <Dialog.Body className='-mx-1.5 px-1.5 pb-2'>
+                <TimePicker
+                  value={value}
+                  onValueChange={handleTimeChange}
+                  open={pickerOpen}
+                  onOpenChange={setPickerOpen}
+                >
+                  <div ref={inputWrapperRef}>
+                    <Input
+                      ref={inputRef}
+                      label='Meeting time'
+                      placeholder='HH:MM'
+                      value={inputValue}
+                      onChange={handleInputChange}
+                      endAddon={<TimePicker.Trigger className='size-8 bg-transparent' aria-label='Open time picker' />}
+                    />
+                  </div>
+                  <TimePicker.Content anchorRef={inputWrapperRef} align='start' />
+                </TimePicker>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.Close asChild>
+                  <Button variant='outline'>Cancel</Button>
+                </Dialog.Close>
+                <Dialog.Close asChild>
+                  <Button variant='solid'>Confirm</Button>
+                </Dialog.Close>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
       </div>
     );
   },

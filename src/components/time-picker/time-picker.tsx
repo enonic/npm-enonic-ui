@@ -9,6 +9,7 @@ import {
   type MouseEvent,
   type ReactElement,
   type ReactNode,
+  type RefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -220,7 +221,7 @@ const TimePickerHourSelect = forwardRef<HTMLButtonElement, TimePickerHourSelectP
             <ChevronDown className='size-5' />
           </Selector.Icon>
         </Selector.Trigger>
-        <Selector.Content align='end' className={cn('gap-y-0.5', contentClassName)}>
+        <Selector.Content align='end' portal={false} className={cn('gap-y-0.5', contentClassName)}>
           <Selector.Viewport className='max-h-60 gap-y-0.5 p-0.5'>
             {hours.map(h => (
               <Selector.Item key={h} value={String(h)} textValue={padZero(h)} className='px-3 py-2'>
@@ -343,7 +344,7 @@ const TimePickerMinuteSelect = forwardRef<HTMLButtonElement, TimePickerMinuteSel
             <ChevronDown className='size-5' />
           </Selector.Icon>
         </Selector.Trigger>
-        <Selector.Content align='end' className={cn('gap-y-0.5', contentClassName)}>
+        <Selector.Content align='end' portal={false} className={cn('gap-y-0.5', contentClassName)}>
           <Selector.Viewport className='max-h-60 gap-y-0.5 p-0.5'>
             {minutes.map(m => (
               <Selector.Item key={m} value={String(m)} textValue={padZero(m)} className='px-3 py-2'>
@@ -552,12 +553,14 @@ TimePickerTrigger.displayName = 'TimePicker.Trigger';
 
 export type TimePickerContentProps = {
   align?: 'start' | 'end';
+  /** Optional reference to an anchor element for positioning (defaults to trigger) */
+  anchorRef?: RefObject<HTMLElement>;
   className?: string;
   children?: ReactNode;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children'>;
 
 const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
-  ({ align = 'start', className, children, onKeyDown, ...props }, ref): ReactElement | null => {
+  ({ align = 'start', anchorRef, className, children, onKeyDown, ...props }, ref): ReactElement | null => {
     const {
       baseId,
       open,
@@ -582,7 +585,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
 
     const position = useFloatingPosition({
       enabled: open,
-      triggerRef,
+      anchorRef: anchorRef ?? triggerRef,
       contentRef,
       align,
     });
@@ -688,9 +691,11 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
         id={contentId}
         role='dialog'
         aria-modal='false'
+        data-side={position?.side}
         onKeyDown={handleKeyDown}
         className={cn(
-          'fixed mt-2 flex w-fit items-center gap-1.5 rounded-sm border border-bdr-subtle bg-surface-neutral p-3 shadow-md',
+          'fixed flex w-fit items-center gap-1.5 rounded-sm border border-bdr-subtle bg-surface-neutral p-3 shadow-md',
+          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
           className,
         )}
         style={{
@@ -728,8 +733,6 @@ export type TimePickerRootProps = {
   native?: boolean;
   /** Props passed to the native input when native mode is active. */
   nativeInputProps?: TimePickerNativeInputProps;
-  /** Mark the input as required. */
-  required?: boolean;
   /** Mark the input as invalid for accessibility. */
   invalid?: boolean;
   className?: string;
@@ -749,7 +752,6 @@ const TimePickerRoot = ({
   form,
   native,
   nativeInputProps,
-  required,
   invalid,
   className,
   children,
@@ -949,8 +951,6 @@ const TimePickerRoot = ({
     </>
   );
 
-  const inputRequired = required ?? nativeInputProps?.required;
-
   return (
     <TimePickerProvider value={contextValue}>
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
@@ -963,7 +963,7 @@ const TimePickerRoot = ({
         onKeyDown={shouldUseNative ? onKeyDown : handleInlineKeyDown}
         {...props}
       >
-        {shouldUseNative ? <TimePickerNativeInput {...nativeInputProps} required={inputRequired} /> : content}
+        {shouldUseNative ? <TimePickerNativeInput {...nativeInputProps} /> : content}
       </div>
     </TimePickerProvider>
   );

@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { type ChangeEvent, type FormEvent, type KeyboardEvent, useRef, useState } from 'react';
+import { type ChangeEvent, type FormEvent, useRef, useState } from 'react';
 import { Button } from '@/components/button';
+import { Dialog } from '@/components/dialog';
+import { Input } from '@/components/input';
 import { Selector } from '@/components/selector';
 import { TimePicker } from '@/components/time-picker';
-import { usePrefixedId } from '@/providers';
 import { DatePicker } from './date-picker';
 
 export default {
@@ -83,9 +84,8 @@ export const Basic: Story = {
 export const DateInput: Story = {
   name: 'Examples / Date Input',
   render: () => {
-    const inputId = usePrefixedId('date-input');
     const inputRef = useRef<HTMLInputElement>(null);
-    const skipOpenOnFocus = useRef(false);
+    const inputWrapperRef = useRef<HTMLDivElement>(null);
     const [value, setValue] = useState<Date | null>(null);
     const [inputValue, setInputValue] = useState('');
     const [open, setOpen] = useState(false);
@@ -104,25 +104,11 @@ export const DateInput: Story = {
       }
     };
 
-    const handleInputFocus = (): void => {
-      if (skipOpenOnFocus.current) {
-        skipOpenOnFocus.current = false;
-        return;
-      }
-      setOpen(true);
-    };
-
-    const handleContentKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-      if (event.key === 'Escape') {
-        skipOpenOnFocus.current = true;
-      }
-    };
-
     return (
       <div className='flex w-80 flex-col gap-3 p-4'>
         <div className='max-w-120 text-sm text-subtle'>
-          Focus the input to open the picker. Type a date or use the icon; the input and picker stay in sync. Press
-          Escape to close the picker and return focus to the input.
+          Type a date or use the icon; the input and picker stay in sync. Press Escape to close the picker and return
+          focus to the input.
         </div>
         <DatePicker
           value={value}
@@ -132,28 +118,101 @@ export const DateInput: Story = {
           focusOnCloseRef={inputRef}
           className='w-80'
         >
-          <div className='flex flex-col gap-2'>
-            <label htmlFor={inputId} className='block font-semibold text-base text-main'>
-              Due date
-            </label>
-            <div className='relative flex h-12 w-full items-center overflow-hidden rounded-sm border border-bdr-subtle bg-surface-neutral transition-highlight focus-within:border-bdr-strong focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset'>
-              <input
-                id={inputId}
-                ref={inputRef}
-                type='text'
-                placeholder='YYYY-MM-DD'
-                value={inputValue}
-                onChange={handleInputChange}
-                onFocus={handleInputFocus}
-                className='h-full w-full flex-1 bg-transparent pr-12 pl-4.5 text-base text-main placeholder:text-subtle focus:outline-none'
-              />
-              <DatePicker.Trigger className='-translate-y-1/2 absolute top-1/2 right-1' aria-label='Open date picker' />
-            </div>
+          <div ref={inputWrapperRef}>
+            <Input
+              ref={inputRef}
+              label='Due date'
+              placeholder='YYYY-MM-DD'
+              value={inputValue}
+              onChange={handleInputChange}
+              endAddon={<DatePicker.Trigger className='size-8 bg-transparent' aria-label='Open date picker' />}
+            />
           </div>
           <DatePicker.Portal>
-            <DatePicker.Content className='w-80' align='end' onKeyDown={handleContentKeyDown} />
+            <DatePicker.Content className='w-80' anchorRef={inputWrapperRef} align='start' />
           </DatePicker.Portal>
         </DatePicker>
+      </div>
+    );
+  },
+};
+
+export const DateInputInDialog: Story = {
+  name: 'Examples / Date Input in Dialog',
+  render: () => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const inputWrapperRef = useRef<HTMLDivElement>(null);
+    const [value, setValue] = useState<Date | null>(null);
+    const [inputValue, setInputValue] = useState('');
+    const [pickerOpen, setPickerOpen] = useState(false);
+
+    const handleDateChange = (nextValue: Date | null): void => {
+      setValue(nextValue);
+      setInputValue(formatISODate(nextValue));
+    };
+
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+      const nextValue = event.currentTarget.value;
+      setInputValue(nextValue);
+      const parsed = parseISODate(nextValue);
+      if (parsed || nextValue === '') {
+        setValue(parsed);
+      }
+    };
+
+    return (
+      <div className='flex flex-col items-center gap-3 p-4'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Date picker inside a dialog. The calendar popup is portaled to the body but works correctly with the
+          dialog&apos;s focus trap.
+        </div>
+        <Dialog>
+          <Dialog.Trigger asChild>
+            <Button variant='outline'>Open Dialog</Button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-112'>
+              <Dialog.Header>
+                <Dialog.Title>Select a Date</Dialog.Title>
+                <Dialog.Close />
+              </Dialog.Header>
+              <Dialog.Body className='-mx-1.5 px-1.5 pb-2'>
+                <DatePicker
+                  value={value}
+                  onValueChange={handleDateChange}
+                  open={pickerOpen}
+                  onOpenChange={setPickerOpen}
+                  focusOnCloseRef={inputRef}
+                  className='w-full'
+                >
+                  <div ref={inputWrapperRef}>
+                    <Input
+                      className={'w-full'}
+                      ref={inputRef}
+                      label='Due date'
+                      placeholder='YYYY-MM-DD'
+                      value={inputValue}
+                      onChange={handleInputChange}
+                      endAddon={
+                        <DatePicker.Trigger className={'size-8 bg-transparent'} aria-label='Open date picker' />
+                      }
+                    />
+                  </div>
+                  <DatePicker.Content anchorRef={inputWrapperRef} align='start' />
+                </DatePicker>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.Close asChild>
+                  <Button variant='outline'>Cancel</Button>
+                </Dialog.Close>
+                <Dialog.Close asChild>
+                  <Button variant='solid'>Confirm</Button>
+                </Dialog.Close>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
       </div>
     );
   },
@@ -162,12 +221,12 @@ export const DateInput: Story = {
 export const DateTimeInput: Story = {
   name: 'Examples / Date and Time',
   render: () => {
-    const inputId = usePrefixedId('datetime-input');
     const inputRef = useRef<HTMLInputElement>(null);
-    const skipOpenOnFocus = useRef(false);
+    const inputWrapperRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
     const [valueDate, setValueDate] = useState<Date | null>(() => new Date());
     const [valueTime, setValueTime] = useState<string | null>(() => getNowTimeValueUtc());
+    const [inputValue, setInputValue] = useState(() => formatDateTimeValue(new Date(), getNowTimeValueUtc()));
     const [draftDate, setDraftDate] = useState<Date | null>(valueDate);
     const [draftTime, setDraftTime] = useState<string | null>(valueTime);
 
@@ -179,24 +238,33 @@ export const DateTimeInput: Story = {
       setOpen(nextOpen);
     };
 
-    const handleInputFocus = (): void => {
-      if (skipOpenOnFocus.current) {
-        skipOpenOnFocus.current = false;
-        return;
-      }
-      handleOpenChange(true);
-    };
-
     const handleConfirm = (): void => {
       setValueDate(draftDate);
       setValueTime(draftTime);
-      skipOpenOnFocus.current = true;
+      setInputValue(formatDateTimeValue(draftDate, draftTime));
       setOpen(false);
     };
 
-    const handleContentKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-      if (event.key === 'Escape') {
-        skipOpenOnFocus.current = true;
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+      const nextValue = event.currentTarget.value;
+      setInputValue(nextValue);
+      const [datePart, timePart] = nextValue.split(' ');
+      const parsedDate = parseISODate(datePart ?? '');
+      if (parsedDate || !datePart) {
+        setValueDate(parsedDate);
+        setDraftDate(parsedDate);
+      }
+      if (timePart) {
+        const [hStr, mStr] = timePart.split(':');
+        const h = Number.parseInt(hStr ?? '', 10);
+        const m = Number.parseInt(mStr ?? '', 10);
+        if (Number.isInteger(h) && Number.isInteger(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+          const date = new Date();
+          date.setHours(h, m, 0, 0);
+          const utcTime = `${padZero(date.getUTCHours())}:${padZero(date.getUTCMinutes())}Z`;
+          setValueTime(utcTime);
+          setDraftTime(utcTime);
+        }
       }
     };
 
@@ -214,29 +282,18 @@ export const DateTimeInput: Story = {
           focusOnCloseRef={inputRef}
           className='w-[360px]'
         >
-          <div className='flex flex-col gap-2'>
-            <label htmlFor={inputId} className='block font-semibold text-base text-main'>
-              Schedule
-            </label>
-            <div className='relative flex h-12 w-full items-center overflow-hidden rounded-sm border border-bdr-subtle bg-surface-neutral transition-highlight focus-within:border-bdr-strong focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset'>
-              <input
-                id={inputId}
-                ref={inputRef}
-                type='text'
-                placeholder='YYYY-MM-DD HH:MM'
-                value={formatDateTimeValue(valueDate, valueTime)}
-                readOnly
-                onFocus={handleInputFocus}
-                className='h-full w-full flex-1 bg-transparent pr-12 pl-4.5 text-base text-main placeholder:text-subtle focus:outline-none'
-              />
-              <DatePicker.Trigger
-                className='-translate-y-1/2 absolute top-1/2 right-1'
-                aria-label='Open date and time picker'
-              />
-            </div>
+          <div ref={inputWrapperRef}>
+            <Input
+              ref={inputRef}
+              label='Schedule'
+              placeholder='YYYY-MM-DD HH:MM'
+              value={inputValue}
+              onChange={handleInputChange}
+              endAddon={<DatePicker.Trigger className='size-8 bg-transparent' aria-label='Open date and time picker' />}
+            />
           </div>
           <DatePicker.Portal>
-            <DatePicker.Content className='w-[360px]' align='end' onKeyDown={handleContentKeyDown}>
+            <DatePicker.Content className='w-[360px]' anchorRef={inputWrapperRef} align='start'>
               <div className='flex flex-col gap-4'>
                 <div className='flex flex-col gap-2'>
                   <DatePicker.Header />
@@ -270,6 +327,334 @@ export const DateTimeInput: Story = {
           </DatePicker.Portal>
         </DatePicker>
         <div className='text-sm text-subtle'>Selected: {formatDateTimeValue(valueDate, valueTime) || 'None'}</div>
+      </div>
+    );
+  },
+};
+
+export const DateTimeInDialog: Story = {
+  name: 'Examples / Date and Time in Dialog',
+  render: () => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const inputWrapperRef = useRef<HTMLDivElement>(null);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [valueDate, setValueDate] = useState<Date | null>(() => new Date());
+    const [valueTime, setValueTime] = useState<string | null>(() => getNowTimeValueUtc());
+    const [inputValue, setInputValue] = useState(() => formatDateTimeValue(new Date(), getNowTimeValueUtc()));
+    const [draftDate, setDraftDate] = useState<Date | null>(valueDate);
+    const [draftTime, setDraftTime] = useState<string | null>(valueTime);
+
+    const handleOpenChange = (nextOpen: boolean): void => {
+      if (nextOpen) {
+        setDraftDate(valueDate);
+        setDraftTime(valueTime);
+      }
+      setPickerOpen(nextOpen);
+    };
+
+    const handleConfirm = (): void => {
+      setValueDate(draftDate);
+      setValueTime(draftTime);
+      setInputValue(formatDateTimeValue(draftDate, draftTime));
+      setPickerOpen(false);
+    };
+
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+      const nextValue = event.currentTarget.value;
+      setInputValue(nextValue);
+      const [datePart, timePart] = nextValue.split(' ');
+      const parsedDate = parseISODate(datePart ?? '');
+      if (parsedDate || !datePart) {
+        setValueDate(parsedDate);
+        setDraftDate(parsedDate);
+      }
+      if (timePart) {
+        const [hStr, mStr] = timePart.split(':');
+        const h = Number.parseInt(hStr ?? '', 10);
+        const m = Number.parseInt(mStr ?? '', 10);
+        if (Number.isInteger(h) && Number.isInteger(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+          const date = new Date();
+          date.setHours(h, m, 0, 0);
+          const utcTime = `${padZero(date.getUTCHours())}:${padZero(date.getUTCMinutes())}Z`;
+          setValueTime(utcTime);
+          setDraftTime(utcTime);
+        }
+      }
+    };
+
+    return (
+      <div className='flex flex-col items-center gap-3 p-4'>
+        <div className='max-w-120 text-sm text-subtle'>Combined date and time picker inside a dialog.</div>
+        <Dialog>
+          <Dialog.Trigger asChild>
+            <Button variant='outline'>Open Dialog</Button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content>
+              <Dialog.Header>
+                <Dialog.Title>Select Date and Time</Dialog.Title>
+                <Dialog.Close />
+              </Dialog.Header>
+              <Dialog.Body className='-mx-1.5 px-1.5 pb-2'>
+                <DatePicker
+                  value={draftDate}
+                  onValueChange={setDraftDate}
+                  open={pickerOpen}
+                  onOpenChange={handleOpenChange}
+                  closeOnSelect={false}
+                  focusOnCloseRef={inputRef}
+                  className='w-full'
+                >
+                  <div ref={inputWrapperRef}>
+                    <Input
+                      ref={inputRef}
+                      label='Schedule'
+                      placeholder='YYYY-MM-DD HH:MM'
+                      value={inputValue}
+                      onChange={handleInputChange}
+                      endAddon={
+                        <DatePicker.Trigger
+                          className={'size-8 bg-transparent'}
+                          aria-label='Open date and time picker'
+                        />
+                      }
+                    />
+                  </div>
+                  <DatePicker.Content anchorRef={inputWrapperRef} align='start'>
+                    <div className='flex flex-col gap-4'>
+                      <div className='flex flex-col gap-2'>
+                        <DatePicker.Header />
+                        <div className='flex flex-col gap-2'>
+                          <DatePicker.Weekdays />
+                          <DatePicker.Grid />
+                        </div>
+                      </div>
+                      <div className='border-bdr-subtle border-t pt-3'>
+                        <div className='flex items-center justify-between gap-3'>
+                          <TimePicker
+                            value={draftTime}
+                            onValueChange={setDraftTime}
+                            referenceDate={draftDate ?? new Date()}
+                            timezone
+                          >
+                            <div className='flex items-center gap-2'>
+                              <TimePicker.HourSelect className='w-20' />
+                              <span className='font-bold text-lg text-main'>:</span>
+                              <TimePicker.MinuteSelect className='w-20' />
+                              <TimePicker.Timezone className='ml-1 text-subtle text-xs' />
+                            </div>
+                          </TimePicker>
+                          <Button size='sm' variant='solid' onClick={handleConfirm}>
+                            OK
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </DatePicker.Content>
+                </DatePicker>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.Close asChild>
+                  <Button variant='outline'>Cancel</Button>
+                </Dialog.Close>
+                <Dialog.Close asChild>
+                  <Button variant='solid'>Confirm</Button>
+                </Dialog.Close>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
+export const DateTimeRangeInDialog: Story = {
+  name: 'Examples / Date and Time Range in Dialog',
+  render: () => {
+    const fromInputRef = useRef<HTMLInputElement>(null);
+    const fromWrapperRef = useRef<HTMLDivElement>(null);
+    const toInputRef = useRef<HTMLInputElement>(null);
+    const toWrapperRef = useRef<HTMLDivElement>(null);
+
+    const [fromOpen, setFromOpen] = useState(false);
+    const [fromDate, setFromDate] = useState<Date | null>(() => new Date());
+    const [fromTime, setFromTime] = useState<string | null>(() => getNowTimeValueUtc());
+    const [fromInputValue, setFromInputValue] = useState(() => formatDateTimeValue(new Date(), getNowTimeValueUtc()));
+    const [fromDraftDate, setFromDraftDate] = useState<Date | null>(fromDate);
+    const [fromDraftTime, setFromDraftTime] = useState<string | null>(fromTime);
+
+    const [toOpen, setToOpen] = useState(false);
+    const [toDate, setToDate] = useState<Date | null>(null);
+    const [toTime, setToTime] = useState<string | null>(null);
+    const [toInputValue, setToInputValue] = useState('');
+    const [toDraftDate, setToDraftDate] = useState<Date | null>(toDate);
+    const [toDraftTime, setToDraftTime] = useState<string | null>(toTime);
+
+    const handleFromOpenChange = (nextOpen: boolean): void => {
+      if (nextOpen) {
+        setFromDraftDate(fromDate);
+        setFromDraftTime(fromTime);
+      }
+      setFromOpen(nextOpen);
+    };
+
+    const handleFromConfirm = (): void => {
+      setFromDate(fromDraftDate);
+      setFromTime(fromDraftTime);
+      setFromInputValue(formatDateTimeValue(fromDraftDate, fromDraftTime));
+      setFromOpen(false);
+    };
+
+    const handleToOpenChange = (nextOpen: boolean): void => {
+      if (nextOpen) {
+        setToDraftDate(toDate);
+        setToDraftTime(toTime);
+      }
+      setToOpen(nextOpen);
+    };
+
+    const handleToConfirm = (): void => {
+      setToDate(toDraftDate);
+      setToTime(toDraftTime);
+      setToInputValue(formatDateTimeValue(toDraftDate, toDraftTime));
+      setToOpen(false);
+    };
+
+    return (
+      <div className='flex flex-col items-center gap-3 p-4'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Two date-time pickers inside a dialog for selecting a range.
+        </div>
+        <Dialog>
+          <Dialog.Trigger asChild>
+            <Button variant='outline'>Select Date Range</Button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content>
+              <Dialog.Header>
+                <Dialog.Title>Select Date Range</Dialog.Title>
+                <Dialog.Close />
+              </Dialog.Header>
+              <Dialog.Body className='-mx-1.5 flex flex-col gap-4 px-1.5 pb-2'>
+                <DatePicker
+                  value={fromDraftDate}
+                  onValueChange={setFromDraftDate}
+                  open={fromOpen}
+                  onOpenChange={handleFromOpenChange}
+                  closeOnSelect={false}
+                  focusOnCloseRef={fromInputRef}
+                  className='w-full'
+                >
+                  <div ref={fromWrapperRef}>
+                    <Input
+                      ref={fromInputRef}
+                      label='From'
+                      placeholder='YYYY-MM-DD HH:MM'
+                      value={fromInputValue}
+                      endAddon={
+                        <DatePicker.Trigger className='size-8 bg-transparent' aria-label='Open from date picker' />
+                      }
+                    />
+                  </div>
+                  <DatePicker.Content anchorRef={fromWrapperRef} align='start'>
+                    <div className='flex flex-col gap-4'>
+                      <div className='flex flex-col gap-2'>
+                        <DatePicker.Header />
+                        <div className='flex flex-col gap-2'>
+                          <DatePicker.Weekdays />
+                          <DatePicker.Grid />
+                        </div>
+                      </div>
+                      <div className='border-bdr-subtle border-t pt-3'>
+                        <div className='flex items-center justify-between gap-3'>
+                          <TimePicker
+                            value={fromDraftTime}
+                            onValueChange={setFromDraftTime}
+                            referenceDate={fromDraftDate ?? new Date()}
+                            timezone
+                          >
+                            <div className='flex items-center gap-2'>
+                              <TimePicker.HourSelect className='w-20' />
+                              <span className='font-bold text-lg text-main'>:</span>
+                              <TimePicker.MinuteSelect className='w-20' />
+                              <TimePicker.Timezone className='ml-1 text-subtle text-xs' />
+                            </div>
+                          </TimePicker>
+                          <Button size='sm' variant='solid' onClick={handleFromConfirm}>
+                            OK
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </DatePicker.Content>
+                </DatePicker>
+                <DatePicker
+                  value={toDraftDate}
+                  onValueChange={setToDraftDate}
+                  open={toOpen}
+                  onOpenChange={handleToOpenChange}
+                  closeOnSelect={false}
+                  focusOnCloseRef={toInputRef}
+                  className='w-full'
+                >
+                  <div ref={toWrapperRef}>
+                    <Input
+                      ref={toInputRef}
+                      label='To'
+                      placeholder='YYYY-MM-DD HH:MM'
+                      value={toInputValue}
+                      endAddon={
+                        <DatePicker.Trigger className='size-8 bg-transparent' aria-label='Open to date picker' />
+                      }
+                    />
+                  </div>
+                  <DatePicker.Content anchorRef={toWrapperRef} align='start'>
+                    <div className='flex flex-col gap-4'>
+                      <div className='flex flex-col gap-2'>
+                        <DatePicker.Header />
+                        <div className='flex flex-col gap-2'>
+                          <DatePicker.Weekdays />
+                          <DatePicker.Grid />
+                        </div>
+                      </div>
+                      <div className='border-bdr-subtle border-t pt-3'>
+                        <div className='flex items-center justify-between gap-3'>
+                          <TimePicker
+                            value={toDraftTime}
+                            onValueChange={setToDraftTime}
+                            referenceDate={toDraftDate ?? new Date()}
+                            timezone
+                          >
+                            <div className='flex items-center gap-2'>
+                              <TimePicker.HourSelect className='w-20' />
+                              <span className='font-bold text-lg text-main'>:</span>
+                              <TimePicker.MinuteSelect className='w-20' />
+                              <TimePicker.Timezone className='ml-1 text-subtle text-xs' />
+                            </div>
+                          </TimePicker>
+                          <Button size='sm' variant='solid' onClick={handleToConfirm}>
+                            OK
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </DatePicker.Content>
+                </DatePicker>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.Close asChild>
+                  <Button variant='outline'>Cancel</Button>
+                </Dialog.Close>
+                <Dialog.Close asChild>
+                  <Button variant='solid'>Confirm</Button>
+                </Dialog.Close>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
       </div>
     );
   },
@@ -548,16 +933,6 @@ export const NativeInput: Story = {
         Forces the native date input (useful for mobile-first experiences).
       </div>
       <DatePicker native nativeInputProps={{ 'aria-label': 'Select date' }} />
-    </div>
-  ),
-};
-
-export const Required: Story = {
-  name: 'Features / Required',
-  render: () => (
-    <div className='flex w-72 flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>Required propagates to the native input and aria-required.</div>
-      <DatePicker required native nativeInputProps={{ 'aria-label': 'Select date' }} />
     </div>
   ),
 };

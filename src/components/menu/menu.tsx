@@ -210,7 +210,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     const [isPortalMode, setIsPortalMode] = useState(false);
     const position = useFloatingPosition({
       enabled: open,
-      triggerRef,
+      anchorRef: triggerRef,
       contentRef,
       align,
     });
