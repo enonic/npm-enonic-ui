@@ -40,6 +40,10 @@ export type ComboboxContextValue = {
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
+
+  // Value component registration
+  hasValue: boolean;
+  setHasValue: (has: boolean) => void;
 };
 
 const ComboboxContext = createContext<ComboboxContextValue | undefined>(undefined);

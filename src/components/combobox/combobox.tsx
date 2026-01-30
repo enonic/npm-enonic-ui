@@ -143,6 +143,9 @@ const ComboboxRoot = ({
 
   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
+  // Track if a Value component is present
+  const [hasValue, setHasValue] = useState(false);
+
   // Wrap setInputValue to also open the dropdown
   const setInputValue = useCallback(
     (next: string) => {
@@ -227,7 +230,7 @@ const ComboboxRoot = ({
     requestAnimationFrame(() => {
       const tree = document.getElementById(`${baseId}-tree`);
       const treeContainer = tree?.querySelector<HTMLElement>('[role="tree"]');
-      treeContainer?.focus();
+      treeContainer?.focus({ focusVisible: true });
     });
   }, [baseId]);
 
@@ -329,6 +332,8 @@ const ComboboxRoot = ({
       unregisterItem,
       getItems,
       isItemDisabled,
+      hasValue,
+      setHasValue,
     }),
     [
       open,
@@ -356,6 +361,7 @@ const ComboboxRoot = ({
       unregisterItem,
       getItems,
       isItemDisabled,
+      hasValue,
     ],
   );
 
@@ -508,10 +514,11 @@ export type ComboboxInputProps = {
   placeholder?: string;
 } & ComponentPropsWithoutRef<'input'>;
 
-const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, ref): ReactElement => {
+const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, ref): ReactElement | null => {
   const innerRef = useRef<HTMLInputElement>(null);
+  const composedRef = useComposedRefs(ref, innerRef);
 
-  const { open, keyHandler, baseId, active, disabled, error, contentType } = useCombobox();
+  const { open, keyHandler, baseId, active, disabled, error, contentType, hasValue } = useCombobox();
 
   useEffect(() => {
     if (open && !disabled) {
@@ -519,9 +526,12 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
     }
   }, [open, disabled]);
 
+  // Hide when Value is present and closed
+  if (hasValue && !open) return null;
+
   return (
     <SearchField.Input
-      ref={useComposedRefs(ref, innerRef)}
+      ref={composedRef}
       id={`${baseId}-input`}
       onKeyDown={keyHandler}
       aria-disabled={disabled}
@@ -580,7 +590,12 @@ export type ComboboxSearchIconProps = {
   className?: string;
 } & ComponentPropsWithoutRef<typeof SearchField.Icon>;
 
-const ComboboxSearchIcon = ({ className, ...props }: ComboboxSearchIconProps): ReactElement => {
+const ComboboxSearchIcon = ({ className, ...props }: ComboboxSearchIconProps): ReactElement | null => {
+  const { open, hasValue } = useCombobox();
+
+  // Hide when Value is present and closed
+  if (hasValue && !open) return null;
+
   return <SearchField.Icon className={className} {...props} />;
 };
 ComboboxSearchIcon.displayName = 'Combobox.SearchIcon';
@@ -621,6 +636,74 @@ const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElem
   );
 };
 ComboboxToggle.displayName = 'Combobox.Toggle';
+
+//
+// * Value
+//
+
+export type ComboboxValueProps = {
+  className?: string;
+  children?: ReactNode;
+} & Omit<ComponentPropsWithoutRef<'button'>, 'children'>;
+
+const ComboboxValue = ({ className, children, ...props }: ComboboxValueProps): ReactElement | null => {
+  const { open, setOpen, disabled, setHasValue } = useCombobox();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const prevOpenRef = useRef(open);
+
+  // Register presence with context - useLayoutEffect prevents flash on initial render
+  useLayoutEffect(() => {
+    setHasValue(true);
+    return () => setHasValue(false);
+  }, [setHasValue]);
+
+  // Focus button when combobox closes (open: true → false)
+  useEffect(() => {
+    if (prevOpenRef.current && !open) {
+      buttonRef.current?.focus();
+    }
+    prevOpenRef.current = open;
+  }, [open]);
+
+  const handleClick = useCallback(() => {
+    if (!disabled) setOpen(true);
+  }, [disabled, setOpen]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        setOpen(true);
+      }
+    },
+    [setOpen],
+  );
+
+  // Hidden when open (Input is visible instead)
+  if (open) return null;
+
+  return (
+    <button
+      ref={buttonRef}
+      type='button'
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      disabled={disabled}
+      className={cn(
+        'flex flex-1 items-center gap-2 truncate text-left',
+        '-mx-4.5 -my-3 h-11.5 px-4.5',
+        'cursor-pointer select-none',
+        'focus-visible:outline-none',
+        disabled && 'pointer-events-none cursor-not-allowed',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+ComboboxValue.displayName = 'Combobox.Value';
 
 export type ComboboxApplyProps = {
   className?: string;
@@ -860,7 +943,7 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
         }
         // Return focus to input
         const input = document.getElementById(`${baseId}-input`);
-        input?.focus();
+        input?.focus({ focusVisible: true });
         return;
       }
 
@@ -871,7 +954,7 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
         e.stopPropagation();
         setOpen(false);
         const input = document.getElementById(`${baseId}-input`);
-        input?.focus();
+        input?.focus({ focusVisible: true });
         return;
       }
 
@@ -880,7 +963,7 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
       if (e.key.length === 1 && e.key !== ' ' && !e.metaKey && !e.ctrlKey && !e.altKey) {
         const input = document.getElementById(`${baseId}-input`) as HTMLInputElement | null;
         if (input) {
-          input.focus();
+          input.focus({ focusVisible: true });
           // The character will be captured by the now-focused input
         }
       }
@@ -906,6 +989,7 @@ export const Combobox = Object.assign(ComboboxRoot, {
   Search: ComboboxSearch,
   Input: ComboboxInput,
   SearchIcon: ComboboxSearchIcon,
+  Value: ComboboxValue,
   Toggle: ComboboxToggle,
   Apply: ComboboxApply,
   Portal: ComboboxPortal,

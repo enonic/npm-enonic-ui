@@ -191,6 +191,60 @@ export const Preselected: Story = {
   },
 };
 
+export const ToggleWithValue: Story = {
+  name: 'Features / Value Button',
+  render: () => {
+    const [value, setValue] = useState<string | undefined>();
+    const [selection, setSelection] = useState<readonly string[]>(['react']);
+
+    const selectedFramework = frameworks.find(f => selection.includes(f.id));
+
+    const filtered = value
+      ? frameworks.filter(
+          f =>
+            f.name.toLowerCase().includes(value.toLowerCase()) ||
+            f.language.toLowerCase().includes(value.toLowerCase()),
+        )
+      : frameworks;
+
+    return (
+      <div className='relative w-80'>
+        <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Value>
+                  {selectedFramework ? (
+                    <span className='flex items-center gap-2'>
+                      <span className='font-medium'>{selectedFramework.name}</span>
+                      <span className='text-sm text-subtle'>{selectedFramework.language}</span>
+                    </span>
+                  ) : (
+                    <span className='text-subtle'>Select a framework</span>
+                  )}
+                </Combobox.Value>
+                <Combobox.Input placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              <Listbox.Content className='rounded-sm'>
+                {filtered.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+      </div>
+    );
+  },
+};
+
 const frameworkTreeData: TreeDataSource[] = [
   {
     id: 'javascript',
