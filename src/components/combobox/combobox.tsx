@@ -276,7 +276,8 @@ const ComboboxRoot = ({
       }
 
       // Only delegate to Listbox navigation in listbox/auto mode
-      if (contentType !== 'tree') {
+      // also prevent space from being captured by the listbox
+      if (contentType !== 'tree' && e.key !== ' ') {
         handleNavKeyDown(e);
       }
     },
