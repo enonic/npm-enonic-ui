@@ -375,7 +375,7 @@ export const WithLeftToggleButton: Story = {
           {' · '}
           <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Shift+V</kbd>
         </p>
-        <Combobox.Root value={value} onChange={setValue} contentType={isTreeView ? 'tree' : 'auto'} closeOnBlur={false}>
+        <Combobox.Root value={value} onChange={setValue} contentType={isTreeView ? 'tree' : 'auto'}>
           <Combobox.Content onKeyDown={handleKeyDown}>
             <Combobox.Control>
               <Combobox.Search className='pl-0'>
