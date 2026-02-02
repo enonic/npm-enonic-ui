@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { ChevronRight, Loader2, Square } from 'lucide-react';
+import { ChevronRight, Circle, Loader2, Square } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   cloneElement,
@@ -20,7 +20,7 @@ import {
   useKeyboardNavigation,
   useRovingTabIndex,
 } from '@/hooks';
-import { FilledSquareCheck } from '@/icons';
+import { CircleDisc, FilledSquareCheck } from '@/icons';
 import { usePrefixedId } from '@/providers';
 import { type SelectionMode, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
 import type { ItemInteraction, LucideIcon } from '@/types';
@@ -1189,15 +1189,20 @@ export type TreeListRowSelectionControlProps = {
   /** Override selection state. If not provided, reads from TreeList selection context. */
   selected?: boolean;
   selectable?: boolean;
+  /** Override indicator style. Default: checkbox for multiple, none for single */
+  variant?: 'checkbox' | 'radio';
   className?: string;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'onClick'>;
 
 export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRowSelectionControlProps>(
-  ({ rowId, selected, selectable = true, className, ...props }, ref): ReactElement => {
+  ({ rowId, selected, selectable = true, variant, className, ...props }, ref): ReactElement | null => {
     const { selection, toggleSelection, setActive, baseId, setAnchorId, selectionMode } = useTreeList();
 
     // Use prop if provided, otherwise read from context
     const isSelected = selected ?? selection.has(rowId);
+
+    // Determine effective variant: checkbox for multiple, undefined (no indicator) for single
+    const effectiveVariant = variant ?? (selectionMode === 'multiple' ? 'checkbox' : undefined);
 
     const handleClick = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
@@ -1224,10 +1229,34 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
       [baseId, rowId, setActive, toggleSelection, setAnchorId],
     );
 
-    if (!selectable || selectionMode === 'none') {
-      return <div ref={ref} aria-hidden='true' className={cn('size-4', className)} {...props} />;
+    // No indicator: single mode default, none mode, or not selectable
+    if (!selectable || selectionMode === 'none' || !effectiveVariant) {
+      return null;
     }
 
+    // Radio variant (opt-in for single selection)
+    if (effectiveVariant === 'radio') {
+      return (
+        <div
+          ref={ref}
+          role='radio'
+          aria-checked={isSelected}
+          aria-label={isSelected ? 'Selected' : 'Select row'}
+          tabIndex={-1}
+          className={cn('flex size-4 cursor-pointer items-center', className)}
+          onKeyDown={handleKeyDown}
+          // Preact/React dual event handler. See architecture.md for details.
+          onDblClick={e => e.stopPropagation()}
+          {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
+          {...props}
+          onClick={handleClick}
+        >
+          {isSelected ? <CircleDisc className='size-4' /> : <Circle className='size-4' strokeWidth={2} />}
+        </div>
+      );
+    }
+
+    // Checkbox variant (default for multiple selection)
     return (
       <div
         ref={ref}

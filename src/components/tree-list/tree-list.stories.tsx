@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, Folder, Pencil, Trash2 } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { Button, ListItem } from '@/components';
 import { TreeList } from './tree-list';
 
@@ -329,6 +329,92 @@ export const CheckboxesOnRight: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
+      </div>
+    );
+  },
+};
+
+export const SelectionModes: Story = {
+  name: 'Examples / Selection Modes',
+  render: () => {
+    const [selectionMode, setSelectionMode] = useState<'single' | 'multiple'>('single');
+    const [variant, setVariant] = useState<'none' | 'checkbox' | 'radio'>('none');
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+
+    // Reset selection when mode changes
+    // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally reset only when mode changes
+    useEffect(() => {
+      setSelection(new Set());
+    }, [selectionMode]);
+
+    const flatItems = [
+      { id: 'item-1', label: 'Option A' },
+      { id: 'item-2', label: 'Option B' },
+      { id: 'item-3', label: 'Option C' },
+      { id: 'item-4', label: 'Option D' },
+      { id: 'item-5', label: 'Option E' },
+    ];
+
+    // Determine if we should show the control
+    const showControl = variant !== 'none';
+    // Map variant to prop value (undefined when 'none', explicit value otherwise)
+    const variantProp = variant === 'none' ? undefined : variant;
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Selection Modes</div>
+        <div className='mb-4 flex gap-4'>
+          <label className='flex items-center gap-2 text-sm'>
+            Selection Mode:
+            <select
+              value={selectionMode}
+              onChange={e => setSelectionMode(e.currentTarget.value as 'single' | 'multiple')}
+              className='rounded border border-bdr-subtle bg-surface-primary px-2 py-1 text-sm'
+            >
+              <option value='single'>Single</option>
+              <option value='multiple'>Multiple</option>
+            </select>
+          </label>
+          <label className='flex items-center gap-2 text-sm'>
+            Indicator:
+            <select
+              value={variant}
+              onChange={e => setVariant(e.currentTarget.value as 'none' | 'checkbox' | 'radio')}
+              className='rounded border border-bdr-subtle bg-surface-primary px-2 py-1 text-sm'
+            >
+              <option value='none'>None (background only)</option>
+              <option value='checkbox'>Checkbox</option>
+              <option value='radio'>Radio</option>
+            </select>
+          </label>
+        </div>
+        <div className='mb-2 text-sm text-subtle'>
+          {variant === 'none' && 'Selection indicated by background styling only.'}
+          {variant === 'checkbox' && 'Checkbox indicators for selection.'}
+          {variant === 'radio' && 'Radio indicators for selection.'}
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_SM)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode={selectionMode}
+        >
+          <TreeList.Container>
+            {flatItems.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                {showControl && (
+                  <TreeList.RowLeft>
+                    <TreeList.RowSelectionControl rowId={item.id} variant={variantProp} />
+                  </TreeList.RowLeft>
+                )}
+                <TreeList.RowContent>
+                  <span className='text-sm'>{item.label}</span>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },

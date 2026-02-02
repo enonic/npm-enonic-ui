@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, Folder, Pencil, Trash2 } from 'lucide-react';
 import type React from 'react';
-import { forwardRef, type ReactElement, useMemo, useRef, useState } from 'react';
+import { forwardRef, type ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import { Button, ListItem } from '@/components';
 import { cn } from '@/utils';
@@ -594,6 +594,141 @@ export const CheckboxesOnRight: Story = {
         <div className='text-sm text-subtle'>
           Active: {activeId ?? 'none'} | Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}
         </div>
+      </div>
+    );
+  },
+};
+
+export const SelectionModes: Story = {
+  name: 'Examples / Selection Modes',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [selectionMode, setSelectionMode] = useState<'single' | 'multiple'>('single');
+    const [variant, setVariant] = useState<'none' | 'checkbox' | 'radio'>('none');
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+
+    // Reset selection when mode changes
+    // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally reset only when mode changes
+    useEffect(() => {
+      setSelection(new Set());
+    }, [selectionMode]);
+
+    const items: FlatNode<TreeNodeData>[] = [
+      {
+        id: 'item-1',
+        data: { label: 'Option A', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'item-2',
+        data: { label: 'Option B', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'item-3',
+        data: { label: 'Option C', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'item-4',
+        data: { label: 'Option D', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'item-5',
+        data: { label: 'Option E', icon: 'file' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+    ];
+
+    // Determine if we should show the control
+    const showControl = variant !== 'none';
+    // Map variant to prop value (undefined when 'none', explicit value otherwise)
+    const variantProp = variant === 'none' ? undefined : variant;
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Selection Modes</div>
+        <div className='mb-4 flex gap-4'>
+          <label className='flex items-center gap-2 text-sm'>
+            Selection Mode:
+            <select
+              value={selectionMode}
+              onChange={e => setSelectionMode(e.currentTarget.value as 'single' | 'multiple')}
+              className='rounded border border-bdr-subtle bg-surface-primary px-2 py-1 text-sm'
+            >
+              <option value='single'>Single</option>
+              <option value='multiple'>Multiple</option>
+            </select>
+          </label>
+          <label className='flex items-center gap-2 text-sm'>
+            Indicator:
+            <select
+              value={variant}
+              onChange={e => setVariant(e.currentTarget.value as 'none' | 'checkbox' | 'radio')}
+              className='rounded border border-bdr-subtle bg-surface-primary px-2 py-1 text-sm'
+            >
+              <option value='none'>None (background only)</option>
+              <option value='checkbox'>Checkbox</option>
+              <option value='radio'>Radio</option>
+            </select>
+          </label>
+        </div>
+        <div className='mb-2 text-sm text-subtle'>
+          {variant === 'none' && 'Selection indicated by background styling only.'}
+          {variant === 'checkbox' && 'Checkbox indicators for selection.'}
+          {variant === 'radio' && 'Radio indicators for selection.'}
+        </div>
+        <VirtualizedTreeList
+          items={items}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode={selectionMode}
+          virtuosoRef={virtuosoRef}
+          aria-label='Selection modes demo'
+          className={treeListClass(TREE_HEIGHT_SM)}
+        >
+          {({ items: nodeItems, getItemProps, containerProps }) => (
+            <Virtuoso<FlatNode<TreeNodeData>>
+              ref={virtuosoRef}
+              data={nodeItems}
+              components={virtuosoComponents}
+              {...containerProps}
+              className={cn('h-full', containerProps.className)}
+              itemContent={(index, node) => {
+                const itemProps = getItemProps(index, node);
+                return (
+                  <VirtualizedTreeList.Row {...itemProps}>
+                    {showControl && (
+                      <VirtualizedTreeList.RowLeft>
+                        <VirtualizedTreeList.RowSelectionControl rowId={node.id} variant={variantProp} />
+                      </VirtualizedTreeList.RowLeft>
+                    )}
+                    <VirtualizedTreeList.RowContent>
+                      <span className='text-sm'>{node.data.label}</span>
+                    </VirtualizedTreeList.RowContent>
+                  </VirtualizedTreeList.Row>
+                );
+              }}
+            />
+          )}
+        </VirtualizedTreeList>
+        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },
