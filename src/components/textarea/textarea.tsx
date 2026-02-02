@@ -84,6 +84,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           <textarea
             ref={ref}
             id={textareaId}
+            aria-invalid={!!error || undefined}
             className={cn(
               'w-full flex-1 px-4.5 py-3 text-base',
               resizable ? 'resize-y' : 'resize-none',

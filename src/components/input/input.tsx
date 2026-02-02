@@ -89,6 +89,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={inputId}
+            aria-invalid={!!error || undefined}
             className={cn(
               'w-full flex-1 px-4.5 text-base',
               'bg-surface-neutral text-main placeholder:text-subtle',
