@@ -1126,7 +1126,11 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
       aria-checked={isSelected}
       aria-label={isSelected ? 'Deselect row' : 'Select row'}
       tabIndex={-1}
-      className={cn('flex size-4 cursor-pointer items-center', className)}
+      className={cn(
+        'flex size-4 cursor-pointer items-center',
+        'after:-inset-1 after:-z-10 relative z-0 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+        className,
+      )}
       onKeyDown={handleKeyDown}
       // Preact/React dual event handler. See architecture.md for details.
       onDblClick={e => e.stopPropagation()}
