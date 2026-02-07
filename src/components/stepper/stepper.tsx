@@ -107,8 +107,6 @@ StepperRoot.displayName = 'Stepper.Root';
 export type StepperPanelProps = {
   /** Value that identifies this panel */
   value: string;
-  /** Keep content in DOM even when inactive */
-  forceMount?: boolean;
   /** Whether the panel is locked. If locked, navigation via dots or buttons will not be possible. */
   locked?: boolean;
   /** Content */
@@ -116,7 +114,7 @@ export type StepperPanelProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref): ReactElement | null => {
-  const { value, locked = false, forceMount = false, children, className, ...restProps } = props;
+  const { value, locked = false, children, className, ...restProps } = props;
   const { baseId, value: selectedValue, registerItem, unregisterItem } = useStepper();
   const isSelected = selectedValue === value;
   const panelRef = useRef<HTMLDivElement>(null);
@@ -127,10 +125,6 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
     return () => unregisterItem(value);
   }, [value, locked, registerItem, unregisterItem]);
 
-  if (!isSelected && !forceMount) {
-    return null;
-  }
-
   return (
     <div
       ref={composedRef}
@@ -138,6 +132,7 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
       data-registry-id={value}
       role='tabpanel'
       aria-labelledby={getButtonId(baseId, value)}
+      hidden={!isSelected}
       className={className}
       {...restProps}
     >

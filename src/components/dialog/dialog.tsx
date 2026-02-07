@@ -600,16 +600,14 @@ DialogStepHeader.displayName = 'Dialog.StepHeader';
 
 export type DialogStepContentProps = {
   step: string;
-  /** Keep content in DOM when inactive */
-  forceMount?: boolean;
   /** Prevent navigation away from this step */
   locked?: boolean;
   children?: ReactNode;
 };
 
-const DialogStepContent = ({ step, forceMount, locked, children }: DialogStepContentProps): ReactElement => {
+const DialogStepContent = ({ step, locked, children }: DialogStepContentProps): ReactElement => {
   return (
-    <Stepper.Panel value={step} forceMount={forceMount} locked={locked}>
+    <Stepper.Panel value={step} locked={locked}>
       {children}
     </Stepper.Panel>
   );

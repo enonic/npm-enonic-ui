@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ChevronLeft, ChevronRight } from 'lucide-preact';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button } from '../button';
 import { Dialog } from '../dialog/dialog';
 import { IconButton } from '../icon-button';
@@ -135,6 +135,52 @@ export const ControlledSteps: Story = {
         <p className='text-center text-sm text-subtle'>
           Current: <span className='font-semibold'>{step}</span>
         </p>
+      </div>
+    );
+  },
+};
+
+export const ControlledLockedSteps: Story = {
+  name: 'Features / Controlled locked steps',
+  render: () => {
+    const steps = ['step1', 'step2', 'step3'];
+    const [lockedSteps, setLockedSteps] = useState<string[]>([]);
+
+    const toggleLock = useCallback(
+      (step: string) => {
+        if (lockedSteps.includes(step)) {
+          setLockedSteps(prev => prev.filter(s => s !== step));
+        } else {
+          setLockedSteps(prev => [...prev, step]);
+        }
+      },
+      [lockedSteps],
+    );
+
+    return (
+      <div className='space-y-4'>
+        <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
+          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+            {steps.map(step => (
+              <Stepper.Panel key={step} value={step} locked={lockedSteps.includes(step)}>
+                {step} content
+              </Stepper.Panel>
+            ))}
+          </div>
+          <Stepper.Dots />
+        </Stepper.Root>
+        <div className='flex items-center justify-center gap-2'>
+          {steps.map(step => (
+            <button
+              key={step}
+              type='button'
+              onClick={() => toggleLock(step)}
+              className='rounded bg-surface-neutral-hover px-3 py-1 text-sm'
+            >
+              {lockedSteps.includes(step) ? `Unlock ${step}` : `Lock ${step}`}
+            </button>
+          ))}
+        </div>
       </div>
     );
   },
