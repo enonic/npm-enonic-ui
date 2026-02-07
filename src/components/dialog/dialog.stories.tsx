@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { BadgeInfo, ChevronLeft, ChevronRight, Loader2, Plus, TriangleAlert, User } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
 import { Input } from '@/components/input';
+import { Stepper } from '@/components/stepper';
 import { Dialog } from './dialog';
 
 const meta: Meta<typeof Dialog> = {
@@ -609,57 +610,31 @@ export const MultiStepWizard: Story = {
   name: 'Features / Multi-Step Wizard',
   render: () => {
     const [open, setOpen] = useState(false);
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState('step1');
     const [projectName, setProjectName] = useState('');
     const [projectType, setProjectType] = useState('');
     const [teamSize, setTeamSize] = useState('');
 
-    const totalSteps = 3;
+    const isFirstStep = step === 'step1';
+    const isLastStep = step === 'step3';
 
-    const handleNext = (): void => {
-      if (step < totalSteps) {
-        setStep(step + 1);
-      }
-    };
-
-    const handleBack = (): void => {
-      if (step > 1) {
-        setStep(step - 1);
-      }
-    };
+    const canProceed =
+      step === 'step1'
+        ? projectName.length > 0
+        : step === 'step2'
+          ? projectType.length > 0
+          : step === 'step3'
+            ? teamSize.length > 0
+            : false;
 
     const handleFinish = (): void => {
       console.log('Wizard completed:', { projectName, projectType, teamSize });
       setOpen(false);
-      setStep(1);
+      setStep('step1');
       setProjectName('');
       setProjectType('');
       setTeamSize('');
     };
-
-    const canProceed = (): boolean => {
-      switch (step) {
-        case 1:
-          return projectName.length > 0;
-        case 2:
-          return projectType.length > 0;
-        case 3:
-          return teamSize.length > 0;
-        default:
-          return false;
-      }
-    };
-
-    const description = useMemo(() => {
-      if (step === 1) {
-        return 'Enter basic project information';
-      } else if (step === 2) {
-        return 'Choose your project type';
-      } else if (step === 3) {
-        return 'Set up your team';
-      }
-      return 'Unknown step';
-    }, [step]);
 
     return (
       <div className='space-y-4'>
@@ -671,25 +646,31 @@ export const MultiStepWizard: Story = {
           iconStrokeWidth={2}
         />
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={setOpen} step={step} onStepChange={setStep}>
           <Dialog.Portal>
             <Dialog.Overlay />
             <Dialog.Content className='w-140'>
-              <Dialog.DefaultHeader title={`Create Project — Step ${step} / ${totalSteps}`} description={description} />
+              <Dialog.StepHeader
+                step='step1'
+                helper='Step 1 of 3'
+                title='Create Project'
+                description='Enter basic project information'
+              />
+              <Dialog.StepHeader
+                step='step2'
+                helper='Step 2 of 3'
+                title='Create Project'
+                description='Choose your project type'
+              />
+              <Dialog.StepHeader
+                step='step3'
+                helper='Step 3 of 3'
+                title='Create Project'
+                description='Set up your team'
+              />
 
-              <Dialog.Body className='space-y-4'>
-                {/* Progress Indicator */}
-                <div className='flex gap-2'>
-                  {Array.from({ length: totalSteps }, (_, i) => i + 1).map(key => (
-                    <div
-                      key={key}
-                      className={`h-1 flex-1 rounded-full ${key <= step ? 'bg-main' : 'bg-surface-neutral-hover'}`}
-                    />
-                  ))}
-                </div>
-
-                {/* Step 1: Project Name */}
-                {step === 1 && (
+              <Dialog.Body>
+                <Dialog.StepContent step='step1'>
                   <div className='space-y-3'>
                     <Input
                       label='Project Name'
@@ -701,10 +682,9 @@ export const MultiStepWizard: Story = {
                       Choose a descriptive name for your project. You can always change it later.
                     </p>
                   </div>
-                )}
+                </Dialog.StepContent>
 
-                {/* Step 2: Project Type */}
-                {step === 2 && (
+                <Dialog.StepContent step='step2'>
                   <div className='space-y-2'>
                     <h5 className='font-semibold'>Project Type</h5>
                     <div className='space-y-2'>
@@ -720,10 +700,9 @@ export const MultiStepWizard: Story = {
                       ))}
                     </div>
                   </div>
-                )}
+                </Dialog.StepContent>
 
-                {/* Step 3: Team Size */}
-                {step === 3 && (
+                <Dialog.StepContent step='step3'>
                   <div className='space-y-2'>
                     <h5 className='font-semibold'>Expected Team Size</h5>
                     <div className='space-y-2'>
@@ -739,38 +718,40 @@ export const MultiStepWizard: Story = {
                       ))}
                     </div>
                   </div>
-                )}
+                </Dialog.StepContent>
               </Dialog.Body>
 
               <Dialog.Footer>
-                <Button
-                  variant='outline'
-                  onClick={handleBack}
-                  label='Back'
-                  startIcon={ChevronLeft}
-                  disabled={step === 1}
-                  iconStrokeWidth={2}
-                />
+                <Stepper.Previous asChild>
+                  <Button
+                    variant='outline'
+                    label='Back'
+                    startIcon={ChevronLeft}
+                    className={isFirstStep ? 'invisible' : undefined}
+                    iconStrokeWidth={2}
+                  />
+                </Stepper.Previous>
                 <div className='flex-1' />
                 <Button
                   variant='outline'
                   onClick={() => {
                     setOpen(false);
-                    setStep(1);
+                    setStep('step1');
                   }}
                   label='Cancel'
                 />
-                {step < totalSteps ? (
-                  <Button
-                    variant='solid'
-                    onClick={handleNext}
-                    label='Next'
-                    endIcon={ChevronRight}
-                    disabled={!canProceed()}
-                    iconStrokeWidth={2}
-                  />
+                {!isLastStep ? (
+                  <Stepper.Next asChild>
+                    <Button
+                      variant='solid'
+                      label='Next'
+                      endIcon={ChevronRight}
+                      disabled={!canProceed}
+                      iconStrokeWidth={2}
+                    />
+                  </Stepper.Next>
                 ) : (
-                  <Button variant='solid' onClick={handleFinish} label='Create Project' disabled={!canProceed()} />
+                  <Button variant='solid' onClick={handleFinish} label='Create Project' disabled={!canProceed} />
                 )}
               </Dialog.Footer>
             </Dialog.Content>
