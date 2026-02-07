@@ -625,10 +625,13 @@ export type DialogStepIndicatorProps = {
 };
 
 const DialogStepIndicator = ({ previousLabel, nextLabel, dots }: DialogStepIndicatorProps): ReactElement => {
+  const { value, getItems } = useStepper();
+  const isFirst = value === getItems()[0];
+
   return (
     <div className='flex items-center justify-between'>
       <Stepper.Previous asChild>
-        <Button variant='outline' label={previousLabel} />
+        <Button variant='outline' label={previousLabel} className={cn(isFirst && 'invisible')} />
       </Stepper.Previous>
       {dots && <Stepper.Dots />}
       <Stepper.Next asChild>
