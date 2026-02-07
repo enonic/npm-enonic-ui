@@ -120,10 +120,15 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
   const panelRef = useRef<HTMLDivElement>(null);
   const composedRef = useComposedRefs(ref, panelRef);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: locked is handled by the next effect to avoid unregister/re-register cycle that breaks Map insertion order
   useEffect(() => {
     registerItem(value, locked, panelRef.current);
     return () => unregisterItem(value);
-  }, [value, locked, registerItem, unregisterItem]);
+  }, [value, registerItem, unregisterItem]);
+
+  useEffect(() => {
+    registerItem(value, locked, panelRef.current);
+  }, [value, locked, registerItem]);
 
   return (
     <div
