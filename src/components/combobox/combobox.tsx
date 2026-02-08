@@ -625,11 +625,10 @@ const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElem
       }}
       disabled={disabled}
       tabIndex={-1}
+      iconClassName={cn('transition-transform duration-150', open && 'rotate-180')}
       className={cn(
         'mr-1.25 shrink-0 rounded-[0.1875rem] text-subtle hover:bg-surface-neutral-hover',
         'after:-inset-1 after:-z-10 relative z-0 overflow-visible after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
-        '[&>svg]:transition-transform [&>svg]:duration-150',
-        open && '[&>svg]:rotate-180',
         className,
       )}
       {...props}

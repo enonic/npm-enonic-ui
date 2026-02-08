@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { ChevronDown, Download, Monitor, RefreshCw, Save, Share, Trash2, Upload } from 'lucide-react';
+import { ChevronDown, Download, Loader2, Monitor, RefreshCw, Save, Share, Trash2, Upload } from 'lucide-react';
 
 import { Button, type ButtonProps } from './button';
 
@@ -231,6 +231,33 @@ export const WithIcons: Story = {
           <Button label='Small' variant='filled' size='sm' startIcon={Monitor} endIcon={ChevronDown} />
           <Button label='Medium' variant='filled' size='md' startIcon={Monitor} endIcon={ChevronDown} />
           <Button label='Large' variant='filled' size='lg' startIcon={Monitor} endIcon={ChevronDown} />
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+export const IconClasses: Story = {
+  name: 'Features / Icon Classes',
+  render: () => (
+    <div className='space-y-6 p-4'>
+      <div>
+        <h3 className='mb-3 font-medium text-sm'>Animated Start Icon (Spin)</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Loading' variant='solid' startIcon={Loader2} startIconClassName='animate-spin' />
+          <Button label='Syncing' variant='filled' startIcon={RefreshCw} startIconClassName='animate-spin' />
+        </div>
+      </div>
+      <div>
+        <h3 className='mb-3 font-medium text-sm'>Animated End Icon (Rotate)</h3>
+        <div className='flex flex-wrap gap-3'>
+          <Button label='Closed' variant='outline' endIcon={ChevronDown} />
+          <Button
+            label='Opened'
+            variant='outline'
+            endIcon={ChevronDown}
+            endIconClassName='rotate-180 transition-transform duration-150'
+          />
         </div>
       </div>
     </div>

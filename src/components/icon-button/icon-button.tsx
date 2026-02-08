@@ -29,13 +29,14 @@ const iconButtonVariants = cva(['p-0'], {
 
 export type IconButtonProps = {
   icon: LucideIcon;
+  iconClassName?: string;
   disabled?: boolean;
 } & IconButtonVariantsProps &
   ComponentPropsWithoutRef<'button'>;
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   (
-    { className, variant = 'text', size = 'md', shape = 'square', icon, ...props }: IconButtonProps,
+    { className, variant = 'text', size = 'md', shape = 'square', icon, iconClassName, ...props }: IconButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
     return (
@@ -45,6 +46,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         variant={variant}
         size={size}
         startIcon={icon}
+        startIconClassName={iconClassName}
         label=''
         {...props}
       />
