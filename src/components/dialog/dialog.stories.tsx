@@ -821,6 +821,10 @@ export const AutoFocusInput: Story = {
 export const StepsDialog: Story = {
   name: 'Features / Steps',
   render: () => {
+    const handleLastStep = (): void => {
+      console.log('Last step action triggered');
+    };
+
     return (
       <div className='flex flex-col gap-2.5'>
         <Dialog defaultStep='step1'>
@@ -860,7 +864,13 @@ export const StepsDialog: Story = {
               </Dialog.Body>
 
               <Dialog.Footer className='flex flex-col'>
-                <Dialog.StepIndicator previousLabel='Previous' nextLabel='Next' dots />
+                <Dialog.StepIndicator
+                  previousLabel='Previous'
+                  nextLabel='Next'
+                  lastStepLabel='Submit'
+                  onLastStep={handleLastStep}
+                  dots
+                />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -913,6 +923,72 @@ export const DisabledStepIndicator: Story = {
 
               <Dialog.Footer className='flex flex-col'>
                 <Dialog.StepIndicator previousLabel='Previous' nextLabel='Next' dots disabled />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
+export const PendingStepIndicator: Story = {
+  name: 'Features / Pending Step Indicator',
+  render: () => {
+    const [pending, setPending] = useState(false);
+
+    const handleLastStep = (): void => {
+      setPending(true);
+      setTimeout(() => setPending(false), 2000);
+    };
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Dialog defaultStep='step1'>
+          <Dialog.Trigger>
+            <Button variant='solid' label='Open dialog with pending state' />
+          </Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='h-160 w-200 max-w-auto'>
+              <Dialog.StepHeader
+                step='step1'
+                helper='Step 1 of 3'
+                title='1. First step'
+                description='Navigate to last step to see pending state'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step2'
+                helper='Step 2 of 3'
+                title='2. Second step'
+                description='Navigate to last step to see pending state'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step3'
+                helper='Step 3 of 3'
+                title='3. Third step'
+                description='Click "Create Project" to trigger pending state'
+                withClose
+              />
+
+              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+                <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
+                <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
+                <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
+              </Dialog.Body>
+
+              <Dialog.Footer className='flex flex-col'>
+                <Dialog.StepIndicator
+                  previousLabel='Previous'
+                  nextLabel='Next'
+                  lastStepLabel='Create Project'
+                  onLastStep={handleLastStep}
+                  dots
+                  pending={pending}
+                />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>

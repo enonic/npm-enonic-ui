@@ -1,6 +1,6 @@
 import { Slot } from '@radix-ui/react-slot';
 import { FocusTrap } from 'focus-trap-react';
-import { X } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -621,23 +621,54 @@ DialogStepContent.displayName = 'Dialog.StepContent';
 export type DialogStepIndicatorProps = {
   previousLabel: string;
   nextLabel: string;
+  lastStepLabel?: string;
+  onLastStep?: () => void;
   dots?: boolean;
   disabled?: boolean;
+  pending?: boolean;
 };
 
-const DialogStepIndicator = ({ previousLabel, nextLabel, dots, disabled }: DialogStepIndicatorProps): ReactElement => {
+const DialogStepIndicator = ({
+  previousLabel,
+  nextLabel,
+  lastStepLabel,
+  onLastStep,
+  dots,
+  disabled,
+  pending,
+}: DialogStepIndicatorProps): ReactElement => {
   const { value, getItems } = useStepper();
-  const isFirst = value === getItems()[0];
+  const items = getItems();
+  const isFirst = value === items[0];
+  const isLast = value === items[items.length - 1];
+  const isDisabled = disabled || pending;
 
   return (
-    <div className='flex items-center justify-between'>
+    <div className={cn('items-center', dots ? 'grid grid-cols-[1fr_auto_1fr]' : 'flex justify-between')}>
       <Stepper.Previous asChild>
-        <Button variant='outline' label={previousLabel} disabled={disabled} className={cn(isFirst && 'invisible')} />
+        <Button
+          variant='outline'
+          label={previousLabel}
+          disabled={isDisabled}
+          className={cn('justify-self-start', isFirst && 'invisible')}
+        />
       </Stepper.Previous>
-      {dots && <Stepper.Dots disabled={disabled} />}
-      <Stepper.Next asChild>
-        <Button variant='outline' label={nextLabel} disabled={disabled} />
-      </Stepper.Next>
+      {dots && <Stepper.Dots disabled={isDisabled} />}
+      {isLast && lastStepLabel ? (
+        <Button
+          variant='solid'
+          label={lastStepLabel}
+          disabled={isDisabled}
+          onClick={onLastStep}
+          className='justify-self-end'
+        >
+          {pending && <Loader2 className='animate-spin' size={16} />}
+        </Button>
+      ) : (
+        <Stepper.Next asChild>
+          <Button variant='solid' label={nextLabel} disabled={isDisabled} className='justify-self-end' />
+        </Stepper.Next>
+      )}
     </div>
   );
 };
