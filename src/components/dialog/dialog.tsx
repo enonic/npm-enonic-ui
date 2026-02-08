@@ -622,20 +622,21 @@ export type DialogStepIndicatorProps = {
   previousLabel: string;
   nextLabel: string;
   dots?: boolean;
+  disabled?: boolean;
 };
 
-const DialogStepIndicator = ({ previousLabel, nextLabel, dots }: DialogStepIndicatorProps): ReactElement => {
+const DialogStepIndicator = ({ previousLabel, nextLabel, dots, disabled }: DialogStepIndicatorProps): ReactElement => {
   const { value, getItems } = useStepper();
   const isFirst = value === getItems()[0];
 
   return (
     <div className='flex items-center justify-between'>
       <Stepper.Previous asChild>
-        <Button variant='outline' label={previousLabel} className={cn(isFirst && 'invisible')} />
+        <Button variant='outline' label={previousLabel} disabled={disabled} className={cn(isFirst && 'invisible')} />
       </Stepper.Previous>
-      {dots && <Stepper.Dots />}
+      {dots && <Stepper.Dots disabled={disabled} />}
       <Stepper.Next asChild>
-        <Button variant='outline' label={nextLabel} />
+        <Button variant='outline' label={nextLabel} disabled={disabled} />
       </Stepper.Next>
     </div>
   );
