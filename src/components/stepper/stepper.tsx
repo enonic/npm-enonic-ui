@@ -165,11 +165,16 @@ type StepperDotProps = {
   small?: boolean;
   /** If the dot is hidden */
   hidden?: boolean;
+  /** Disabled state from parent (e.g., when Dots container is disabled) */
+  disabled?: boolean;
 };
+
 const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): ReactElement | null => {
-  const { index, itemId, goTo, onKeyDown, small = false, hidden = false } = props;
+  const { index, itemId, goTo, onKeyDown, small = false, hidden = false, disabled: disabledProp = false } = props;
 
   const { baseId, value: selectedValue, getItems, isItemDisabled } = useStepper();
+
+  const isDotDisabled = disabledProp || isItemDisabled(itemId);
 
   const getClass = useCallback(
     (itemId: string) => {
@@ -186,16 +191,16 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
           : small
             ? 'after:scale-80 after:bg-transparent after:ring-2 after:ring-bdr-subtle'
             : 'after:scale-100 after:bg-transparent after:ring-bdr-subtle',
-        isItemDisabled(itemId) && 'after:opacity-30 hover:cursor-default',
+        isDotDisabled && 'after:opacity-30 hover:cursor-default',
       );
     },
-    [isItemDisabled, selectedValue, small, hidden],
+    [isDotDisabled, selectedValue, small, hidden],
   );
 
   const { tabIndex } = useRovingTabIndex({
     id: getButtonId(baseId, itemId),
     active: getButtonId(baseId, String(selectedValue)),
-    disabled: isItemDisabled(itemId),
+    disabled: isDotDisabled,
     getItems,
     isItemDisabled,
   });
@@ -211,7 +216,7 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
       tabIndex={tabIndex}
       type='button'
       role='tab'
-      disabled={isItemDisabled(itemId)}
+      disabled={isDotDisabled}
       className={getClass(itemId)}
       onClick={() => goTo(itemId)}
       onKeyDown={onKeyDown}
@@ -226,10 +231,13 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
 // * Stepper.Dots
 //
 
-export type StepperDotsProps = ComponentPropsWithoutRef<'div'>;
+export type StepperDotsProps = {
+  /** Disable all dots navigation */
+  disabled?: boolean;
+} & ComponentPropsWithoutRef<'div'>;
 
 const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): ReactElement => {
-  const { className, ...restProps } = props;
+  const { disabled, className, ...restProps } = props;
 
   const {
     baseId,
@@ -260,9 +268,11 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
       role='tablist'
       aria-label='Step navigation'
       aria-orientation='horizontal'
+      aria-disabled={disabled || undefined}
       className={cn(
         'mx-auto flex w-fit items-center justify-center gap-0 rounded-md p-2',
         'has-focus-visible:ring-3 has-focus-visible:ring-ring has-focus-visible:ring-offset-3 has-focus-visible:ring-offset-ring-offset',
+        disabled && 'pointer-events-none',
         className,
       )}
       {...restProps}
@@ -293,6 +303,7 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
             onKeyDown={handleKeyDown}
             small={small}
             hidden={!isVisible}
+            disabled={disabled}
           />
         );
       })}
@@ -312,7 +323,7 @@ export type StepperPreviousProps = {
 } & ComponentPropsWithoutRef<'button'>;
 
 const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((props, ref): ReactElement => {
-  const { asChild, onClick, children, ...restProps } = props;
+  const { asChild, onClick, disabled: disabledProp, children, ...restProps } = props;
 
   const { baseId, getItems, onValueChange, value: selectedValue, isItemDisabled, registryVersion } = useStepper();
 
@@ -326,6 +337,8 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
     registryVersion,
   });
 
+  const isDisabled = !canGoPrevious || !!disabledProp;
+
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
     onClick?.(e);
     goToPrevious();
@@ -338,8 +351,8 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
       // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
       ref={ref}
       onClick={handleClick}
-      aria-disabled={!canGoPrevious}
-      disabled={!canGoPrevious}
+      aria-disabled={isDisabled}
+      disabled={isDisabled}
       {...(!asChild && { type: 'button' })}
       {...restProps}
     >
@@ -360,7 +373,7 @@ export type StepperNextProps = {
 } & ComponentPropsWithoutRef<'button'>;
 
 const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref): ReactElement => {
-  const { asChild, onClick, children, ...restProps } = props;
+  const { asChild, onClick, disabled: disabledProp, children, ...restProps } = props;
 
   const { baseId, getItems, onValueChange, value: selectedValue, isItemDisabled, registryVersion } = useStepper();
 
@@ -374,6 +387,8 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
     registryVersion,
   });
 
+  const isDisabled = !canGoNext || !!disabledProp;
+
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
     onClick?.(e);
     goToNext();
@@ -386,8 +401,8 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
       // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
       ref={ref}
       onClick={handleClick}
-      aria-disabled={!canGoNext}
-      disabled={!canGoNext}
+      aria-disabled={isDisabled}
+      disabled={isDisabled}
       {...(!asChild && { type: 'button' })}
       {...restProps}
     >

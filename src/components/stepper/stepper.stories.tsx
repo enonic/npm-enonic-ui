@@ -94,6 +94,57 @@ export const NavigationWithButtonsAndDots: Story = {
   },
 };
 
+export const DialogWithStepper: Story = {
+  name: 'Examples / With Dialog',
+  render: () => {
+    return (
+      <Dialog>
+        <Dialog.Trigger>
+          <Button variant='outline' label='Open Dialog with Stepper' />
+        </Dialog.Trigger>
+
+        <Dialog.Portal>
+          <Dialog.Overlay />
+          <Dialog.Content className='w-120 max-w-auto'>
+            <Stepper.Root defaultValue='step1' smallOnEdges maxVisible={5}>
+              <Dialog.Body className='flex size-full flex-col gap-4 p-1.5'>
+                <div className='flex h-48 w-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+                  <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
+                  <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
+                  <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
+                  <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
+                  <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
+                  <Stepper.Panel value='step6'>Step 6 content</Stepper.Panel>
+                  <Stepper.Panel value='step7'>Step 7 content</Stepper.Panel>
+                  <Stepper.Panel value='step8'>Step 8 content</Stepper.Panel>
+                  <Stepper.Panel value='step9' locked>
+                    Step 9 content
+                  </Stepper.Panel>
+                  <Stepper.Panel value='step10' locked>
+                    Step 10 content
+                  </Stepper.Panel>
+                </div>
+              </Dialog.Body>
+
+              <Dialog.Footer className='flex items-center justify-between p-1.5'>
+                <Stepper.Previous asChild>
+                  <Button variant='outline' label='Previous' />
+                </Stepper.Previous>
+
+                <Stepper.Dots />
+
+                <Stepper.Next asChild>
+                  <Button variant='outline' label='Next' />
+                </Stepper.Next>
+              </Dialog.Footer>
+            </Stepper.Root>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+    );
+  },
+};
+
 export const ControlledSteps: Story = {
   name: 'Features / Controlled steps',
   render: () => {
@@ -288,53 +339,23 @@ export const EvenMaxVisible: Story = {
   },
 };
 
-export const DialogWithStepper: Story = {
-  name: 'Examples / With Dialog',
+export const DisabledDots: Story = {
+  name: 'Features / Disabled dots',
   render: () => {
     return (
-      <Dialog>
-        <Dialog.Trigger>
-          <Button variant='outline' label='Open Dialog with Stepper' />
-        </Dialog.Trigger>
-
-        <Dialog.Portal>
-          <Dialog.Overlay />
-          <Dialog.Content className='w-120 max-w-auto'>
-            <Stepper.Root defaultValue='step1' smallOnEdges maxVisible={5}>
-              <Dialog.Body className='flex size-full flex-col gap-4 p-1.5'>
-                <div className='flex h-48 w-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
-                  <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
-                  <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
-                  <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
-                  <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
-                  <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
-                  <Stepper.Panel value='step6'>Step 6 content</Stepper.Panel>
-                  <Stepper.Panel value='step7'>Step 7 content</Stepper.Panel>
-                  <Stepper.Panel value='step8'>Step 8 content</Stepper.Panel>
-                  <Stepper.Panel value='step9' locked>
-                    Step 9 content
-                  </Stepper.Panel>
-                  <Stepper.Panel value='step10' locked>
-                    Step 10 content
-                  </Stepper.Panel>
-                </div>
-              </Dialog.Body>
-
-              <Dialog.Footer className='flex items-center justify-between p-1.5'>
-                <Stepper.Previous asChild>
-                  <Button variant='outline' label='Previous' />
-                </Stepper.Previous>
-
-                <Stepper.Dots />
-
-                <Stepper.Next asChild>
-                  <Button variant='outline' label='Next' />
-                </Stepper.Next>
-              </Dialog.Footer>
-            </Stepper.Root>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog>
+      <div className='flex flex-col gap-4'>
+        <p className='text-sm text-subtle'>All dots are disabled and non-interactive.</p>
+        <Stepper.Root defaultValue='step2' className='flex size-96 flex-col gap-4'>
+          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+            <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
+            <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
+            <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
+            <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
+            <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
+          </div>
+          <Stepper.Dots disabled />
+        </Stepper.Root>
+      </div>
     );
   },
 };
