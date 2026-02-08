@@ -42,6 +42,8 @@ export type ButtonSize = NonNullable<ButtonVariantsProps['size']>;
 export type ButtonIconProps = {
   iconSize?: number | ButtonSize;
   iconStrokeWidth?: number;
+  startIconClassName?: string;
+  endIconClassName?: string;
 };
 
 export type ButtonProps = {
@@ -74,6 +76,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       size = 'md',
       iconSize,
       iconStrokeWidth = 1.5,
+      startIconClassName,
+      endIconClassName,
       startIcon,
       label,
       endIcon,
@@ -100,10 +104,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled}
         {...props}
       >
-        {StartIcon && <StartIcon size={iconSizeValue} strokeWidth={iconStrokeWidth} />}
+        {StartIcon && <StartIcon className={startIconClassName} size={iconSizeValue} strokeWidth={iconStrokeWidth} />}
         {children}
         {label}
-        {EndIcon && <EndIcon size={iconSizeValue} strokeWidth={iconStrokeWidth} />}
+        {EndIcon && <EndIcon className={endIconClassName} size={iconSizeValue} strokeWidth={iconStrokeWidth} />}
       </button>
     );
   },

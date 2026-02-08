@@ -661,9 +661,10 @@ const DialogStepIndicator = ({
           disabled={isDisabled}
           onClick={onLastStep}
           className='justify-self-end'
-        >
-          {pending && <Loader2 className='animate-spin' size={16} />}
-        </Button>
+          startIcon={pending ? Loader2 : undefined}
+          startIconClassName='animate-spin'
+          iconSize='sm'
+        />
       ) : (
         <Stepper.Next asChild>
           <Button variant='solid' label={nextLabel} disabled={isDisabled} className='justify-self-end' />
