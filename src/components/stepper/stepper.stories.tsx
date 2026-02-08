@@ -78,15 +78,15 @@ export const NavigationWithButtonsAndDots: Story = {
           <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
         </div>
 
-        <div className='flex items-center justify-between'>
+        <div className='grid grid-cols-[1fr_auto_1fr] items-center'>
           <Stepper.Previous asChild>
-            <IconButton icon={ChevronLeft} variant='outline' className='rounded-full' />
+            <IconButton icon={ChevronLeft} variant='outline' className='justify-self-start rounded-full' />
           </Stepper.Previous>
 
           <Stepper.Dots />
 
           <Stepper.Next asChild>
-            <IconButton icon={ChevronRight} variant='outline' className='rounded-full' />
+            <IconButton icon={ChevronRight} variant='outline' className='justify-self-end rounded-full' />
           </Stepper.Next>
         </div>
       </Stepper.Root>
@@ -126,15 +126,15 @@ export const DialogWithStepper: Story = {
                 </div>
               </Dialog.Body>
 
-              <Dialog.Footer className='flex items-center justify-between p-1.5'>
+              <Dialog.Footer className='grid grid-cols-[1fr_auto_1fr] items-center p-1.5'>
                 <Stepper.Previous asChild>
-                  <Button variant='outline' label='Previous' />
+                  <Button variant='outline' label='Previous' className='justify-self-start' />
                 </Stepper.Previous>
 
                 <Stepper.Dots />
 
                 <Stepper.Next asChild>
-                  <Button variant='outline' label='Next' />
+                  <Button variant='outline' label='Next' className='justify-self-end' />
                 </Stepper.Next>
               </Dialog.Footer>
             </Stepper.Root>
@@ -405,15 +405,15 @@ export const KeyboardNavigation: Story = {
             </Stepper.Panel>
           </div>
 
-          <div className='flex items-center justify-between'>
+          <div className='grid grid-cols-[1fr_auto_1fr] items-center'>
             <Stepper.Previous asChild>
-              <IconButton icon={ChevronLeft} variant='outline' className='rounded-full' />
+              <IconButton icon={ChevronLeft} variant='outline' className='justify-self-start rounded-full' />
             </Stepper.Previous>
 
             <Stepper.Dots />
 
             <Stepper.Next asChild>
-              <IconButton icon={ChevronRight} variant='outline' className='rounded-full' />
+              <IconButton icon={ChevronRight} variant='outline' className='justify-self-end rounded-full' />
             </Stepper.Next>
           </div>
         </Stepper.Root>
