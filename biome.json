@@ -67,7 +67,12 @@
       "style": {
         "useConst": "error",
         "useExportType": "error",
-        "useImportType": "error"
+        "useImportType": "error",
+        "useConsistentTypeDefinitions": {
+          "level": "error",
+          "fix": "unsafe",
+          "options": { "style": "type" }
+        }
       },
       "suspicious": {
         "noExplicitAny": "error",

@@ -91,7 +91,7 @@ export default [
       ],
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
       '@typescript-eslint/no-unnecessary-type-arguments': 'warn',
-      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      '@typescript-eslint/consistent-type-definitions': 'off',
       '@typescript-eslint/no-use-before-define': ['error', { functions: false, classes: true }],
       '@typescript-eslint/no-dynamic-delete': 'off',
       // Disable rules that Biome handles
