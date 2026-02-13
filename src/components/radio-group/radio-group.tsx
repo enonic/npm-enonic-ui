@@ -16,7 +16,8 @@ import { CircleDisc } from '@/icons';
 import { type RadioGroupContextValue, RadioGroupProvider, usePrefixedId, useRadioGroup } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 
-const getRadioId = (baseId: string, itemId: string): string => `${baseId}-radio-${itemId}`;
+const getRadioId = (baseId: string, value: string): string => `${baseId}-radio-${value}`;
+const getValueFromRadioId = (radioId: string): string => radioId.split('-').pop() ?? '';
 
 //
 // * RadioGroupItemContext
@@ -169,7 +170,7 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
   } = useRadioGroup();
 
   const id = getRadioId(baseId, value);
-  const selectedRadioId = getRadioId(baseId, String(selectedValue));
+  const selectedRadioId = selectedValue ? getRadioId(baseId, selectedValue) : undefined;
   const isChecked = selectedValue === value;
   const isDisabled = isItemDisabled(value);
   const itemRef = useRef<HTMLButtonElement>(null);
@@ -184,14 +185,22 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
     id: id,
     active: selectedRadioId,
     disabled: isDisabled,
-    getItems,
-    isItemDisabled,
+    // Radio group context stores item values; roving tabindex expects DOM element IDs
+    getItems: () => getItems().map(id => getRadioId(baseId, id)),
+    isItemDisabled: id => isItemDisabled(getValueFromRadioId(id)),
   });
 
   const handleClick = useCallback(() => {
     if (isDisabled) return;
     onValueChange(value);
   }, [isDisabled, value, onValueChange]);
+
+  // Selects on first Tab-in only
+  const handleFocus = useCallback(() => {
+    if (!selectedValue) {
+      onValueChange(value);
+    }
+  }, [selectedValue, value, onValueChange]);
 
   const itemContextValue = useMemo(() => ({ checked: isChecked }), [isChecked]);
 
@@ -225,6 +234,7 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
           className,
         )}
         onClick={handleClick}
+        onFocus={handleFocus}
         {...restProps}
       >
         {children}
