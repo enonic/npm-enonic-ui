@@ -139,6 +139,7 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
       aria-labelledby={getButtonId(baseId, value)}
       hidden={!isSelected}
       className={className}
+      tabIndex={-1}
       {...restProps}
     >
       {children}
@@ -253,7 +254,7 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
   const { items, handleKeyDown, currentIndex, goTo } = useStepNavigation({
     baseId,
     getItems,
-    getButtonId,
+    getNextFocusable: getButtonId,
     onValueChange,
     value: selectedValue,
     isItemDisabled,
@@ -330,7 +331,7 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
   const { canGoPrevious, goToPrevious } = useStepNavigation({
     baseId,
     getItems,
-    getButtonId,
+    getNextFocusable: getPanelId,
     onValueChange,
     value: selectedValue,
     isItemDisabled,
@@ -380,7 +381,7 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
   const { canGoNext, goToNext } = useStepNavigation({
     baseId,
     getItems,
-    getButtonId,
+    getNextFocusable: getPanelId,
     onValueChange,
     value: selectedValue,
     isItemDisabled,
