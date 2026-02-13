@@ -645,13 +645,8 @@ const DialogStepIndicator = ({
 
   return (
     <div className={cn('items-center', dots ? 'grid grid-cols-[1fr_auto_1fr]' : 'flex justify-between')}>
-      <Stepper.Previous asChild>
-        <Button
-          variant='outline'
-          label={previousLabel}
-          disabled={isDisabled}
-          className={cn('justify-self-start', isFirst && 'invisible')}
-        />
+      <Stepper.Previous asChild disabled={isDisabled}>
+        <Button variant='outline' label={previousLabel} className={cn('justify-self-start', isFirst && 'invisible')} />
       </Stepper.Previous>
       {dots && <Stepper.Dots disabled={isDisabled} />}
       {isLast && lastStepLabel ? (
@@ -666,8 +661,8 @@ const DialogStepIndicator = ({
           iconSize='sm'
         />
       ) : (
-        <Stepper.Next asChild>
-          <Button variant='solid' label={nextLabel} disabled={isDisabled} className='justify-self-end' />
+        <Stepper.Next asChild disabled={isDisabled}>
+          <Button variant='solid' label={nextLabel} className='justify-self-end' />
         </Stepper.Next>
       )}
     </div>
