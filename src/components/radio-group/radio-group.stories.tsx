@@ -283,6 +283,39 @@ export const FeatureCustomItems: Story = {
   },
 };
 
+export const UnselectedRadio: Story = {
+  name: 'Behavior / Unselected Radio',
+  render: () => {
+    return (
+      <div className='flex flex-col gap-4'>
+        <div className='w-96 rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-2 font-medium'>Radio Group with unselected radio:</p>
+          <ul className='space-y-1 text-xs'>
+            <li>Reachable via Keyboard Tab</li>
+            <li>Focus moves to the first enabled radio</li>
+          </ul>
+        </div>
+        <RadioGroup.Root name='unselectedAccessMode'>
+          <RadioGroup.Item value='public' disabled>
+            <RadioGroup.Indicator />
+            <span>Public - Everyone can read the content</span>
+          </RadioGroup.Item>
+
+          <RadioGroup.Item value='private'>
+            <RadioGroup.Indicator />
+            <span>Private - Only project roles can read content</span>
+          </RadioGroup.Item>
+
+          <RadioGroup.Item value='custom'>
+            <RadioGroup.Indicator />
+            <span>Custom - Selected users can read content</span>
+          </RadioGroup.Item>
+        </RadioGroup.Root>
+      </div>
+    );
+  },
+};
+
 export const KeyboardNavigation: Story = {
   name: 'Behavior / Keyboard Navigation',
   render: () => {
