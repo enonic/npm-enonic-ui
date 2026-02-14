@@ -11,6 +11,9 @@ import { fixedCountRangeAround } from '@/utils/array';
 const getPanelId = (baseId: string, itemId: string): string => `${baseId}-panel-${itemId}`;
 const getButtonId = (baseId: string, itemId: string): string => `${baseId}-tab-${itemId}`;
 
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 //
 // * Stepper.Root
 //
@@ -139,7 +142,6 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
       aria-labelledby={getButtonId(baseId, value)}
       hidden={!isSelected}
       className={className}
-      tabIndex={-1}
       {...restProps}
     >
       {children}
@@ -328,10 +330,9 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
 
   const { baseId, getItems, onValueChange, value: selectedValue, isItemDisabled, registryVersion } = useStepper();
 
-  const { canGoPrevious, goToPrevious } = useStepNavigation({
+  const { canGoPrevious, goToPrevious, items, currentIndex } = useStepNavigation({
     baseId,
     getItems,
-    getNextFocusable: getPanelId,
     onValueChange,
     value: selectedValue,
     isItemDisabled,
@@ -342,7 +343,18 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
     onClick?.(e);
+
+    const prevValue = items[currentIndex - 1];
+    if (!canGoPrevious || !prevValue) return;
     goToPrevious();
+
+    const beforePrev = items[currentIndex - 2];
+    const willBeDisabled = beforePrev == null || isItemDisabled(beforePrev);
+    if (willBeDisabled) {
+      requestAnimationFrame(() => {
+        document.getElementById(getPanelId(baseId, prevValue))?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
+      });
+    }
   };
 
   const Comp = asChild ? Slot : 'button';
@@ -378,10 +390,9 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
 
   const { baseId, getItems, onValueChange, value: selectedValue, isItemDisabled, registryVersion } = useStepper();
 
-  const { canGoNext, goToNext } = useStepNavigation({
+  const { canGoNext, goToNext, items, currentIndex } = useStepNavigation({
     baseId,
     getItems,
-    getNextFocusable: getPanelId,
     onValueChange,
     value: selectedValue,
     isItemDisabled,
@@ -392,7 +403,18 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
     onClick?.(e);
+
+    const nextValue = items[currentIndex + 1];
+    if (!canGoNext || !nextValue) return;
     goToNext();
+
+    const afterNext = items[currentIndex + 2];
+    const willBeDisabled = afterNext == null || isItemDisabled(afterNext);
+    if (willBeDisabled) {
+      requestAnimationFrame(() => {
+        document.getElementById(getPanelId(baseId, nextValue))?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
+      });
+    }
   };
 
   const Comp = asChild ? Slot : 'button';
