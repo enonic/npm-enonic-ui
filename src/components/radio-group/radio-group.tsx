@@ -17,7 +17,6 @@ import { type RadioGroupContextValue, RadioGroupProvider, usePrefixedId, useRadi
 import { cn, useComposedRefs } from '@/utils';
 
 const getRadioId = (baseId: string, value: string): string => `${baseId}-radio-${value}`;
-const getValueFromRadioId = (radioId: string): string => radioId.split('-').pop() ?? '';
 
 //
 // * RadioGroupItemContext
@@ -170,7 +169,6 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
   } = useRadioGroup();
 
   const id = getRadioId(baseId, value);
-  const selectedRadioId = selectedValue ? getRadioId(baseId, selectedValue) : undefined;
   const isChecked = selectedValue === value;
   const isDisabled = isItemDisabled(value);
   const itemRef = useRef<HTMLButtonElement>(null);
@@ -182,12 +180,11 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
   }, [value, disabled, registerItem, unregisterItem]);
 
   const { tabIndex } = useRovingTabIndex({
-    id: id,
-    active: selectedRadioId,
+    id: value,
+    active: selectedValue || undefined,
     disabled: isDisabled,
-    // Radio group context stores item values; roving tabindex expects DOM element IDs
-    getItems: () => getItems().map(id => getRadioId(baseId, id)),
-    isItemDisabled: id => isItemDisabled(getValueFromRadioId(id)),
+    getItems,
+    isItemDisabled,
   });
 
   const handleClick = useCallback(() => {
@@ -195,7 +192,7 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
     onValueChange(value);
   }, [isDisabled, value, onValueChange]);
 
-  // Selects on first Tab-in only
+  // Select on focus when nothing is selected (e.g., first Tab-in)
   const handleFocus = useCallback(() => {
     if (!selectedValue) {
       onValueChange(value);
