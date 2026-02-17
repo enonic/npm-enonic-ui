@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
+  Check,
   ChevronDown,
   Copy,
   Download,
@@ -17,7 +18,7 @@ import {
   Trash2,
   Upload,
 } from 'lucide-react';
-import { useState } from 'preact/hooks';
+import { useCallback, useState } from 'preact/hooks';
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
 
@@ -363,6 +364,97 @@ export const Interactive: Story = {
             </Menu.Content>
           </Menu.Portal>
         </Menu>
+      </div>
+    );
+  },
+};
+
+export const OpenMenuWithDependentGroup: Story = {
+  name: 'Behavior / Menu stays open + disabled items',
+  render: () => {
+    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+    const [lastAction, setLastAction] = useState('None');
+    const hasSelectedType = selectedTypes.length > 0;
+
+    const handleTypeToggle = useCallback(
+      (type: string) =>
+        (event: Event): void => {
+          event.preventDefault();
+          setSelectedTypes(prev => (prev.includes(type) ? prev.filter(value => value !== type) : [...prev, type]));
+        },
+      [],
+    );
+
+    return (
+      <div className='flex w-96 flex-col gap-y-3 p-4'>
+        <div className='w-full rounded-sm border border-bdr-subtle bg-surface-neutral px-3 py-2 text-sm text-subtle'>
+          This menu stays open while selecting content types. Bulk actions remain disabled until at least one type is
+          selected, then all actions in the second group become enabled.
+        </div>
+        <div className='w-full text-sm'>
+          <span className='text-subtle'>Selected types: </span>
+          <span className='inline-block max-w-full truncate align-bottom font-semibold'>
+            {hasSelectedType ? selectedTypes.join(', ') : 'None'}
+          </span>
+        </div>
+        <div className='w-full text-sm'>
+          <span className='text-subtle'>Actions group: </span>
+          <span className='font-semibold'>{hasSelectedType ? 'Enabled' : 'Disabled'}</span>
+        </div>
+        <div className='w-full text-sm'>
+          <span className='text-subtle'>Last action: </span>
+          <span className='inline-block max-w-full truncate align-bottom font-semibold'>{lastAction}</span>
+        </div>
+
+        <div className='w-full'>
+          <Menu>
+            <Menu.Trigger asChild>
+              <Button className='w-40' variant='outline'>
+                Bulk menu
+              </Button>
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Content>
+                <Menu.Label>Select content types</Menu.Label>
+                <Menu.Item onSelect={handleTypeToggle('Documents')}>
+                  <span className='inline-flex size-4 items-center justify-center rounded-xs border border-bdr-subtle'>
+                    {selectedTypes.includes('Documents') && <Check className='size-3' />}
+                  </span>
+                  <FileText className='size-4' />
+                  <span>Documents</span>
+                </Menu.Item>
+                <Menu.Item onSelect={handleTypeToggle('Images')}>
+                  <span className='inline-flex size-4 items-center justify-center rounded-xs border border-bdr-subtle'>
+                    {selectedTypes.includes('Images') && <Check className='size-3' />}
+                  </span>
+                  <Image className='size-4' />
+                  <span>Images</span>
+                </Menu.Item>
+                <Menu.Item onSelect={handleTypeToggle('Folders')}>
+                  <span className='inline-flex size-4 items-center justify-center rounded-xs border border-bdr-subtle'>
+                    {selectedTypes.includes('Folders') && <Check className='size-3' />}
+                  </span>
+                  <Folder className='size-4' />
+                  <span>Folders</span>
+                </Menu.Item>
+                <Menu.Separator />
+                <Menu.Label>Bulk actions</Menu.Label>
+                <Menu.Item disabled={!hasSelectedType} onSelect={() => setLastAction('Download selected')}>
+                  <Download className='size-4' />
+                  <span>Download Selected</span>
+                </Menu.Item>
+                <Menu.Item disabled={!hasSelectedType} onSelect={() => setLastAction('Share selected')}>
+                  <Share2 className='size-4' />
+                  <span>Share Selected</span>
+                </Menu.Item>
+                <Menu.Item disabled={!hasSelectedType} onSelect={() => setLastAction('Delete selected')}>
+                  <Trash2 className='size-4 text-red-600' />
+                  <span className='text-red-600'>Delete Selected</span>
+                </Menu.Item>
+              </Menu.Content>
+            </Menu.Portal>
+          </Menu>
+        </div>
       </div>
     );
   },

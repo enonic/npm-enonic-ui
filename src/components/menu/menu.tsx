@@ -207,6 +207,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     const menuId = `${baseId}-content`;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
+    const wasOpenRef = useRef(false);
     const [isPortalMode, setIsPortalMode] = useState(false);
     const position = useFloatingPosition({
       enabled: open,
@@ -224,9 +225,11 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     // Register with parent focus trap (e.g., Dialog) when in portal mode
     usePortalFocusContainer(contentRef, isPortalMode);
 
-    // Focus menu when it opens and select first selectable item
+    // Focus menu and initialize active item only on closed -> open transition.
     useEffect(() => {
-      if (open && contentRef.current) {
+      const isOpening = open && !wasOpenRef.current;
+
+      if (isOpening && contentRef.current) {
         contentRef.current.focus();
 
         // Select first non-disabled item
@@ -236,6 +239,8 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
           setActive(firstSelectableItem);
         }
       }
+
+      wasOpenRef.current = open;
     }, [open, getItems, isItemDisabled, setActive]);
 
     // Keyboard navigation
