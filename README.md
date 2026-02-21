@@ -54,6 +54,28 @@ yarn add @enonic/ui preact @radix-ui/react-slot focus-trap-react
 
 ## Usage
 
+### Styles
+
+> **Important**: Components render unstyled without CSS setup. Choose one of the paths below before importing components.
+
+#### Tailwind CSS
+
+If your project uses Tailwind CSS, import the preset in your main CSS file:
+
+```css
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@enonic/ui/preset.css';
+```
+
+#### CSS Only
+
+If your project does not use Tailwind CSS, import the pre-built stylesheet instead:
+
+```css
+@import '@enonic/ui/style.css';
+```
+
 ### Import Components
 
 ```tsx
@@ -69,30 +91,6 @@ function App() {
     </div>
   );
 }
-```
-
-### Styles
-
-#### Tailwind CSS
-
-If your project uses Tailwind CSS, you can import the styles directly from the library:
-
-```css
-/* Import Tailwind CSS */
-@import 'tailwindcss';
-/* Required by some components that use animations */
-@import 'tw-animate-css';
-
-/* Preset styles (includes tokens, base, and utilities) */
-@import '@enonic/ui/preset.css';
-```
-
-#### CSS Only
-
-If you only need the pre-built CSS styles:
-
-```css
-@import '@enonic/ui/style.css';
 ```
 
 ## Peer Dependencies

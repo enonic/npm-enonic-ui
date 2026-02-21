@@ -25,7 +25,25 @@ Tests not implemented: `pnpm test` and `pnpm test:ci` are no-op.
 - Preact with React compat layer (preact/compat). Radix UI ref type mismatches expected.
 - Target: ECMAScript 2022
 - TypeScript required for all code
-- Tailwind CSS v4 with `data-theme` attribute for dark mode
+- Tailwind CSS v4 with `.dark` class for dark mode (via `@custom-variant`)
+
+## Consumer Setup
+
+Components render unstyled without CSS. Two setup paths:
+
+**Tailwind CSS project** (consumer has their own Tailwind):
+```css
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@enonic/ui/preset.css';
+```
+
+**CSS-only project** (no Tailwind in consumer):
+```css
+@import '@enonic/ui/style.css';
+```
+
+Using the wrong path causes style conflicts. `preset.css` is for Tailwind projects only.
 
 ## Code Standards
 
