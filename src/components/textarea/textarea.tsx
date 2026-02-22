@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
-import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef } from 'react';
+import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactNode } from 'react';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 
@@ -30,7 +30,7 @@ const textareaContainerVariants = cva(
 
 export type TextAreaProps = {
   label?: string;
-  description?: string;
+  description?: ReactNode;
   error?: string;
   disabled?: boolean;
   readOnly?: boolean;
