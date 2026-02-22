@@ -21,7 +21,7 @@ export type ListItemContentProps = {
 export type ListItemDefaultContentProps = {
   className?: string;
   label?: string;
-  description?: string;
+  description?: ReactNode;
   metadata?: string;
   icon?: ReactNode;
 };

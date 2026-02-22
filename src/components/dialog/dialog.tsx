@@ -512,7 +512,7 @@ DialogDefaultClose.displayName = 'Dialog.DefaultClose';
 export type DialogDefaultHeaderProps = {
   title: string;
   titleId?: string;
-  description?: string;
+  description?: ReactNode;
   descriptionId?: string;
   withClose?: boolean;
 } & ComponentPropsWithoutRef<typeof DialogHeader>;
@@ -545,7 +545,7 @@ export type DialogStepHeaderProps = {
   step: string;
   title: string;
   titleId?: string;
-  description?: string;
+  description?: ReactNode;
   descriptionId?: string;
   helper?: string;
   withClose?: boolean;

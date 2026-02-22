@@ -30,7 +30,7 @@ const inputContainerVariants = cva(
 
 export type InputProps = {
   label?: string;
-  description?: string;
+  description?: ReactNode;
   error?: string;
   startAddon?: string | ReactElement;
   endAddon?: string | ReactElement;
