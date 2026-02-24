@@ -1,3 +1,10 @@
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility transition-highlight {
   transition-property: color, box-shadow;
   transition-duration: 100ms;

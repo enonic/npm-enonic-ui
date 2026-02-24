@@ -16,6 +16,7 @@ export {
   type UseKeyboardNavigationReturn,
   useKeyboardNavigation,
 } from './use-keyboard-navigation';
+export { type UseOverflowDetectionReturn, useOverflowDetection } from './use-overflow-detection';
 export { type PointerPosition, type UsePointerPositionConfig, usePointerPosition } from './use-pointer-position';
 export { usePortalFocusContainer } from './use-portal-focus-container';
 export { type RadioNavigationConfig, type UseRadioNavigationReturn, useRadioNavigation } from './use-radio-navigation';

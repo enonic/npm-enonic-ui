@@ -133,6 +133,177 @@ export const LongText: Story = {
   ),
 };
 
+export const Overflow: Story = {
+  name: 'Examples / Overflow',
+  render: () => (
+    <Tab.Root defaultValue='overview' className='w-80'>
+      <Tab.ListOverflow>
+        <Tab.List aria-label='Overflow tabs'>
+          <Tab.DefaultTrigger value='overview'>Overview</Tab.DefaultTrigger>
+          <Tab.DefaultTrigger value='activity'>Activity Feed</Tab.DefaultTrigger>
+          <Tab.DefaultTrigger value='analytics'>Analytics Dashboard</Tab.DefaultTrigger>
+          <Tab.DefaultTrigger value='notifications'>Notifications</Tab.DefaultTrigger>
+          <Tab.DefaultTrigger value='billing'>Billing & Plans</Tab.DefaultTrigger>
+          <Tab.DefaultTrigger value='team'>Team Members</Tab.DefaultTrigger>
+          <Tab.DefaultTrigger value='integrations'>Integrations</Tab.DefaultTrigger>
+        </Tab.List>
+      </Tab.ListOverflow>
+      <Tab.Content value='overview' className='p-4'>
+        <p className='text-sm text-subtle'>Overview content</p>
+      </Tab.Content>
+      <Tab.Content value='activity' className='p-4'>
+        <p className='text-sm text-subtle'>Activity content</p>
+      </Tab.Content>
+      <Tab.Content value='analytics' className='p-4'>
+        <p className='text-sm text-subtle'>Analytics content</p>
+      </Tab.Content>
+      <Tab.Content value='notifications' className='p-4'>
+        <p className='text-sm text-subtle'>Notifications content</p>
+      </Tab.Content>
+      <Tab.Content value='billing' className='p-4'>
+        <p className='text-sm text-subtle'>Billing content</p>
+      </Tab.Content>
+      <Tab.Content value='team' className='p-4'>
+        <p className='text-sm text-subtle'>Team content</p>
+      </Tab.Content>
+      <Tab.Content value='integrations' className='p-4'>
+        <p className='text-sm text-subtle'>Integrations content</p>
+      </Tab.Content>
+    </Tab.Root>
+  ),
+};
+
+export const OverflowResizable: Story = {
+  name: 'Examples / Overflow (Resizable)',
+  render: () => (
+    <div className='w-120 resize-x overflow-auto rounded border border-border p-4'>
+      <Tab.Root defaultValue='overview'>
+        <Tab.ListOverflow>
+          <Tab.List aria-label='Resizable overflow tabs'>
+            <Tab.DefaultTrigger value='overview'>Overview</Tab.DefaultTrigger>
+            <Tab.DefaultTrigger value='activity'>Activity Feed</Tab.DefaultTrigger>
+            <Tab.DefaultTrigger value='analytics'>Analytics Dashboard</Tab.DefaultTrigger>
+            <Tab.DefaultTrigger value='notifications'>Notifications</Tab.DefaultTrigger>
+            <Tab.DefaultTrigger value='billing'>Billing & Plans</Tab.DefaultTrigger>
+            <Tab.DefaultTrigger value='team'>Team Members</Tab.DefaultTrigger>
+            <Tab.DefaultTrigger value='integrations'>Integrations</Tab.DefaultTrigger>
+          </Tab.List>
+        </Tab.ListOverflow>
+        <Tab.Content value='overview' className='p-4'>
+          <p className='text-sm text-subtle'>Overview content</p>
+        </Tab.Content>
+        <Tab.Content value='activity' className='p-4'>
+          <p className='text-sm text-subtle'>Activity content</p>
+        </Tab.Content>
+        <Tab.Content value='analytics' className='p-4'>
+          <p className='text-sm text-subtle'>Analytics content</p>
+        </Tab.Content>
+        <Tab.Content value='notifications' className='p-4'>
+          <p className='text-sm text-subtle'>Notifications content</p>
+        </Tab.Content>
+        <Tab.Content value='billing' className='p-4'>
+          <p className='text-sm text-subtle'>Billing content</p>
+        </Tab.Content>
+        <Tab.Content value='team' className='p-4'>
+          <p className='text-sm text-subtle'>Team content</p>
+        </Tab.Content>
+        <Tab.Content value='integrations' className='p-4'>
+          <p className='text-sm text-subtle'>Integrations content</p>
+        </Tab.Content>
+      </Tab.Root>
+    </div>
+  ),
+};
+
+export const OverflowMinWidth: Story = {
+  name: 'Examples / Overflow (Min Width)',
+  render: () => (
+    <div className='space-y-8'>
+      <div>
+        <p className='mb-2 text-sm text-subtle'>Default (6.25rem) — short labels get padded out</p>
+        <Tab.Root defaultValue='a' className='w-96'>
+          <Tab.ListOverflow>
+            <Tab.List aria-label='Default min width'>
+              <Tab.DefaultTrigger value='a'>A</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='b'>B</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='c'>C</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='d'>D</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='e'>E</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='f'>F</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='g'>G</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='h'>H</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='i'>I</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='j'>J</Tab.DefaultTrigger>
+            </Tab.List>
+          </Tab.ListOverflow>
+        </Tab.Root>
+      </div>
+
+      <div>
+        <p className='mb-2 text-sm text-subtle'>Narrow (3rem) — tabs shrink closer to content</p>
+        <Tab.Root defaultValue='a' className='w-96'>
+          <Tab.ListOverflow minTabWidth='3rem'>
+            <Tab.List aria-label='Narrow min width'>
+              <Tab.DefaultTrigger value='a'>A</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='b'>B</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='c'>C</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='d'>D</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='e'>E</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='f'>F</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='g'>G</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='h'>H</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='i'>I</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='j'>J</Tab.DefaultTrigger>
+            </Tab.List>
+          </Tab.ListOverflow>
+        </Tab.Root>
+      </div>
+
+      <div>
+        <p className='mb-2 text-sm text-subtle'>Wide (10rem) — tabs are wider, long labels fit</p>
+        <Tab.Root defaultValue='overview' className='w-96'>
+          <Tab.ListOverflow minTabWidth='10rem'>
+            <Tab.List aria-label='Wide min width'>
+              <Tab.DefaultTrigger value='overview'>Overview</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='activity'>Activity Feed</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='analytics'>Analytics Dashboard</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='notifications'>Notifications</Tab.DefaultTrigger>
+              <Tab.DefaultTrigger value='team'>Team Members</Tab.DefaultTrigger>
+            </Tab.List>
+          </Tab.ListOverflow>
+        </Tab.Root>
+      </div>
+    </div>
+  ),
+};
+
+export const OverflowFewTabs: Story = {
+  name: 'Examples / Overflow (No Overflow)',
+  render: () => (
+    <div className='w-96 space-y-4'>
+      <p className='text-sm text-subtle'>ListOverflow wrapper is present but tabs fit — no arrow buttons are shown.</p>
+      <Tab.Root defaultValue='tab1'>
+        <Tab.ListOverflow>
+          <Tab.List aria-label='Few tabs'>
+            <Tab.DefaultTrigger value='tab1'>Tab 1</Tab.DefaultTrigger>
+            <Tab.DefaultTrigger value='tab2'>Tab 2</Tab.DefaultTrigger>
+            <Tab.DefaultTrigger value='tab3'>Tab 3</Tab.DefaultTrigger>
+          </Tab.List>
+        </Tab.ListOverflow>
+        <Tab.Content value='tab1' className='p-4'>
+          <p className='text-sm text-subtle'>Tab 1 content</p>
+        </Tab.Content>
+        <Tab.Content value='tab2' className='p-4'>
+          <p className='text-sm text-subtle'>Tab 2 content</p>
+        </Tab.Content>
+        <Tab.Content value='tab3' className='p-4'>
+          <p className='text-sm text-subtle'>Tab 3 content</p>
+        </Tab.Content>
+      </Tab.Root>
+    </div>
+  ),
+};
+
 export const WithError: Story = {
   name: 'Examples / With Error',
   render: () => (
