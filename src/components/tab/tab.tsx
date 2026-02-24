@@ -1,4 +1,4 @@
-import { OctagonAlert } from 'lucide-react';
+import { ChevronLeft, ChevronRight, OctagonAlert } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -11,7 +11,15 @@ import {
   useState,
 } from 'react';
 
-import { useControlledState, useItemRegistry, useKeyboardNavigation, useRovingTabIndex, useSyncValue } from '@/hooks';
+import {
+  useControlledState,
+  useItemRegistry,
+  useKeyboardNavigation,
+  useOverflowDetection,
+  useRovingTabIndex,
+  useScrollActiveIntoView,
+  useSyncValue,
+} from '@/hooks';
 import { type TabContextValue, TabProvider, usePrefixedId, useTab } from '@/providers';
 import type { LucideIcon } from '@/types';
 import { cn, useComposedRefs } from '@/utils';
@@ -337,12 +345,103 @@ const TabContent = forwardRef<HTMLDivElement, TabContentProps>(
 TabContent.displayName = 'Tab.Content';
 
 //
+// * Tab.ListOverflow
+//
+
+const SCROLL_AMOUNT = 150;
+
+export type TabListOverflowProps = {
+  /** Minimum width for each tab (CSS value, e.g. '6rem', '120px'). Defaults to '6.25rem'. */
+  minTabWidth?: string;
+  children?: ReactNode;
+} & ComponentPropsWithoutRef<'div'>;
+
+const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props, ref): ReactElement => {
+  const { minTabWidth = '6.25rem', children, className, ...restProps } = props;
+
+  const { baseId, active } = useTab();
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { canScrollLeft, canScrollRight, hasOverflow, scrollBy } = useOverflowDetection(scrollRef);
+
+  const buildTriggerId = useCallback((id: string) => `${baseId}-trigger-${id}`, [baseId]);
+
+  useScrollActiveIntoView({
+    containerRef: scrollRef,
+    activeId: active,
+    orientation: 'horizontal',
+    buildElementId: buildTriggerId,
+  });
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleWheel = (e: WheelEvent): void => {
+      if (!hasOverflow) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+
+      const scrollingRight = e.deltaY > 0;
+      const canScroll = scrollingRight ? el.scrollLeft < el.scrollWidth - el.clientWidth - 1 : el.scrollLeft > 1;
+
+      if (canScroll) {
+        e.preventDefault();
+        el.scrollBy({ left: e.deltaY });
+      }
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [hasOverflow]);
+
+  return (
+    <div ref={ref} className={cn('relative flex items-center', className)} {...restProps}>
+      {hasOverflow && (
+        <button
+          type='button'
+          tabIndex={-1}
+          aria-hidden='true'
+          disabled={!canScrollLeft}
+          onClick={() => scrollBy(-SCROLL_AMOUNT)}
+          className='flex shrink-0 cursor-pointer items-center justify-center p-1 text-subtle hover:text-default disabled:pointer-events-none disabled:cursor-default disabled:opacity-30'
+        >
+          <ChevronLeft size={16} />
+        </button>
+      )}
+
+      <div
+        ref={scrollRef}
+        style={{ '--tab-min-w': minTabWidth }}
+        className='scrollbar-none -my-1.5 [&_[role=tablist]]:!inline-flex [&_[role=tablist]]:!w-auto min-w-0 flex-1 scroll-px-1.5 overflow-x-auto py-1.5 [&_[role=tab]]:min-w-(--tab-min-w) [&_[role=tab]]:px-2 [&_[role=tablist]]:min-w-full [&_[role=tablist]]:px-1.5'
+      >
+        {children}
+      </div>
+
+      {hasOverflow && (
+        <button
+          type='button'
+          tabIndex={-1}
+          aria-hidden='true'
+          disabled={!canScrollRight}
+          onClick={() => scrollBy(SCROLL_AMOUNT)}
+          className='flex shrink-0 cursor-pointer items-center justify-center p-1 text-subtle hover:text-default disabled:pointer-events-none disabled:cursor-default disabled:opacity-30'
+        >
+          <ChevronRight size={16} />
+        </button>
+      )}
+    </div>
+  );
+});
+TabListOverflow.displayName = 'Tab.ListOverflow';
+
+//
 // * Tab
 //
 
 export const Tab = Object.assign(TabRoot, {
   Root: TabRoot,
   List: TabList,
+  ListOverflow: TabListOverflow,
   Trigger: TabTrigger,
   DefaultTrigger: TabDefaultTrigger,
   Content: TabContent,

@@ -94,7 +94,7 @@ export function useScrollActiveIntoView({
     }
 
     const elementId = buildElementId ? buildElementId(activeId) : activeId;
-    const element = containerRef.current.querySelector<HTMLElement>(`#${elementId}`);
+    const element = containerRef.current.querySelector<HTMLElement>(`#${CSS.escape(elementId)}`);
 
     if (element) {
       element.scrollIntoView({
