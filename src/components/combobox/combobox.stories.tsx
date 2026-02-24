@@ -37,7 +37,7 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta;
 
-const createInputRefAndFocus = (): RefObject<HTMLInputElement> => {
+const useInputRefAndFocus = (): RefObject<HTMLInputElement> => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -61,6 +61,7 @@ const ListboxItemContent = ({ name, language }: Omit<Option, 'id'>): ReactElemen
 export const Basic: Story = {
   name: 'Examples / Basic',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
 
     const filtered = value
@@ -79,7 +80,7 @@ export const Basic: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Input ref={inputRef} placeholder='Search frameworks' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
@@ -103,6 +104,7 @@ export const Basic: Story = {
 export const Multi: Story = {
   name: 'Examples / Multi-Select',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
 
     const filtered = value
@@ -121,7 +123,7 @@ export const Multi: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Input ref={inputRef} placeholder='Search frameworks' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
@@ -145,6 +147,7 @@ export const Multi: Story = {
 export const Preselected: Story = {
   name: 'Examples / Preselected',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
 
@@ -170,7 +173,7 @@ export const Preselected: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Input ref={inputRef} placeholder='Search frameworks' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
@@ -501,6 +504,7 @@ export const Disabled: Story = {
 export const WithError: Story = {
   name: 'States / Error',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
 
     const filtered = value
@@ -519,7 +523,7 @@ export const WithError: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Input ref={inputRef} placeholder='Search frameworks' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
@@ -543,6 +547,7 @@ export const WithError: Story = {
 export const LongList: Story = {
   name: 'Features / Long List',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
     const longList = Array.from({ length: 50 }, (_, i) => ({
       id: `framework-${i + 1}`,
@@ -559,7 +564,7 @@ export const LongList: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Select from long list' />
+                <Combobox.Input ref={inputRef} placeholder='Select from long list' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
@@ -583,6 +588,7 @@ export const LongList: Story = {
 export const CustomFiltering: Story = {
   name: 'Features / Custom Filtering',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<readonly string[]>([]);
 
@@ -598,7 +604,7 @@ export const CustomFiltering: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Type year (e.g., 2018)' />
+                <Combobox.Input ref={inputRef} placeholder='Type year (e.g., 2018)' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
@@ -627,6 +633,7 @@ export const CustomFiltering: Story = {
 export const Staged: Story = {
   name: 'Features / Staged Selection',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
 
     const filtered = value
@@ -650,7 +657,7 @@ export const Staged: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Input ref={inputRef} placeholder='Search frameworks' />
                 <Combobox.Apply />
                 <Combobox.Toggle />
               </Combobox.Search>
@@ -675,6 +682,7 @@ export const Staged: Story = {
 export const StagedPreselected: Story = {
   name: 'Features / Staged with Preselected',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
 
@@ -706,7 +714,7 @@ export const StagedPreselected: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Input ref={inputRef} placeholder='Search frameworks' />
                 <Combobox.Apply />
                 <Combobox.Toggle />
               </Combobox.Search>
@@ -775,6 +783,7 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
     },
   },
   render: args => {
+    const inputRef = useInputRefAndFocus();
     const { selectionMode, closeOnBlur, disabled, error, placeholder, defaultOpen } = args;
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<readonly string[]>([]);
@@ -821,7 +830,7 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder={placeholder} />
+                <Combobox.Input ref={inputRef} placeholder={placeholder} />
                 {selectionMode === 'staged' && <Combobox.Apply />}
                 <Combobox.Toggle />
               </Combobox.Search>
@@ -943,6 +952,7 @@ function flattenTree(
 export const TreeContent: Story = {
   name: 'Features / Tree Content',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
@@ -1003,7 +1013,7 @@ export const TreeContent: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search files...' />
+                <Combobox.Input ref={inputRef} placeholder='Search files...' />
                 <Combobox.Toggle />
               </Combobox.Search>
             </Combobox.Control>
@@ -1165,6 +1175,7 @@ const StagedTreeContent = ({
 export const TreeContentStaged: Story = {
   name: 'Features / Tree Content Staged',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const virtuosoRef = useRef<VirtuosoHandle>(null);
     const [value, setValue] = useState<string | undefined>();
     const [appliedSelection, setAppliedSelection] = useState<readonly string[]>(['1', '1-1']); // Preselected: Documents, Work
@@ -1236,7 +1247,7 @@ export const TreeContentStaged: Story = {
             <Combobox.Control>
               <Combobox.Search>
                 <Combobox.SearchIcon />
-                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search files...' />
+                <Combobox.Input ref={inputRef} placeholder='Search files...' />
                 <Combobox.Apply />
                 <Combobox.Toggle />
               </Combobox.Search>
@@ -1268,6 +1279,7 @@ export const TreeContentStaged: Story = {
 export const Portal: Story = {
   name: 'Features / Portal',
   render: () => {
+    const inputRef = useInputRefAndFocus();
     const [value, setValue] = useState<string | undefined>();
     const [selection, setSelection] = useState<readonly string[]>([]);
 
@@ -1303,7 +1315,7 @@ export const Portal: Story = {
               <Combobox.Control>
                 <Combobox.Search>
                   <Combobox.SearchIcon />
-                  <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                  <Combobox.Input ref={inputRef} placeholder='Search frameworks' />
                   <Combobox.Toggle />
                 </Combobox.Search>
               </Combobox.Control>
