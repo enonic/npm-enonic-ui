@@ -20,7 +20,7 @@ import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/
 import { FocusContainerContext } from '@/providers/focus-container-provider';
 import { cn, useComposedRefs } from '@/utils';
 import { Button } from '../button';
-import { Stepper } from '../stepper';
+import { Stepper, type StepperDotsProps } from '../stepper';
 
 //
 // * Dialog
@@ -626,6 +626,7 @@ export type DialogStepIndicatorProps = {
   dots?: boolean;
   disabled?: boolean;
   pending?: boolean;
+  tooltip?: StepperDotsProps['tooltip'];
 };
 
 const DialogStepIndicator = ({
@@ -636,6 +637,7 @@ const DialogStepIndicator = ({
   dots,
   disabled,
   pending,
+  tooltip,
 }: DialogStepIndicatorProps): ReactElement => {
   const { value, getItems } = useStepper();
   const items = getItems();
@@ -648,7 +650,7 @@ const DialogStepIndicator = ({
       <Stepper.Previous asChild disabled={isDisabled}>
         <Button variant='outline' label={previousLabel} className={cn('justify-self-start', isFirst && 'invisible')} />
       </Stepper.Previous>
-      {dots && <Stepper.Dots disabled={isDisabled} />}
+      {dots && <Stepper.Dots disabled={isDisabled} tooltip={tooltip} />}
       {isLast && lastStepLabel ? (
         <Button
           variant='solid'

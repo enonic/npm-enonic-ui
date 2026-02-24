@@ -880,6 +880,75 @@ export const StepsDialog: Story = {
   },
 };
 
+export const DialogSetpIndicatorWithTooltips: Story = {
+  name: 'Features / Step Indicator with Tooltips',
+  render: () => {
+    const stepMap = new Map<string, string>([
+      ['step1', 'First step'],
+      ['step2', 'Second step'],
+      ['step3', 'Third step'],
+    ]);
+
+    const handleLastStep = (): void => {
+      console.log('Last step action triggered');
+    };
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Dialog defaultStep='step1'>
+          <Dialog.Trigger>
+            <Button variant='solid' label='Open dialog with tooltips on steps' />
+          </Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='h-160 w-200 max-w-auto'>
+              <Dialog.StepHeader
+                step='step1'
+                helper='Optional helper for first step'
+                title='1. This is the title on first step'
+                description='Optional description for first step'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step2'
+                helper='Optional helper for second step'
+                title='2. This is the title on the second step'
+                description='Optional description for second step'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step3'
+                helper='Optional helper for third step'
+                title='3. This is the title on the third step'
+                description='Optional description for third step'
+                withClose
+              />
+
+              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+                <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
+                <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
+                <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
+              </Dialog.Body>
+
+              <Dialog.Footer className='flex flex-col'>
+                <Dialog.StepIndicator
+                  previousLabel='Previous'
+                  nextLabel='Next'
+                  lastStepLabel='Submit'
+                  onLastStep={handleLastStep}
+                  tooltip={(step: string) => String(stepMap.get(step))}
+                  dots
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
 export const DisabledStepIndicator: Story = {
   name: 'Features / Disabled Step Indicator',
   render: () => {

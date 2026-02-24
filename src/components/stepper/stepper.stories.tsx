@@ -360,6 +360,53 @@ export const DisabledDots: Story = {
   },
 };
 
+export const DotsTooltip: Story = {
+  name: 'Features / Tooltip',
+  render: () => {
+    return (
+      <div className='flex flex-col gap-4'>
+        <p className='text-sm text-subtle'>Dots Tooltip.</p>
+        <Stepper.Root defaultValue='step2' className='flex size-96 flex-col gap-4'>
+          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+            <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
+            <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
+            <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
+            <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
+            <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
+          </div>
+          <Stepper.Dots tooltip={(step: string) => `This is step: ${step}`} />
+        </Stepper.Root>
+      </div>
+    );
+  },
+};
+
+export const DotsCustomTooltip: Story = {
+  name: 'Features / Custom tooltip',
+  render: () => {
+    return (
+      <div className='flex flex-col gap-4'>
+        <p className='text-sm text-subtle'>Custom Dots Tooltip.</p>
+        <Stepper.Root defaultValue='step2' className='flex size-96 flex-col gap-4'>
+          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+            <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
+            <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
+            <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
+            <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
+            <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
+          </div>
+          <Stepper.Dots
+            tooltip={(step: string) => ({
+              side: 'top',
+              value: <span className='font-semibold uppercase'>{step}</span>,
+            })}
+          />
+        </Stepper.Root>
+      </div>
+    );
+  },
+};
+
 export const KeyboardNavigation: Story = {
   name: 'Behavior / Keyboard Navigation',
   render: () => {
