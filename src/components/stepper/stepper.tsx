@@ -1,28 +1,15 @@
 import { Slot } from '@radix-ui/react-slot';
 import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
-import { forwardRef, useCallback, useEffect, useMemo, useRef } from 'react';
+import { Fragment, forwardRef, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useControlledState, useItemRegistry, useRovingTabIndex } from '@/hooks';
 import { useStepNavigation } from '@/hooks/use-step-navigation';
 import { usePrefixedId } from '@/providers';
 import { type StepperContextValue, StepperProvider, useStepper } from '@/providers/stepper-provider';
 import { cn, useComposedRefs } from '@/utils';
 import { fixedCountRangeAround } from '@/utils/array';
-import { Tooltip, type TooltipProps } from '../tooltip';
 
 const getPanelId = (baseId: string, itemId: string): string => `${baseId}-panel-${itemId}`;
 const getButtonId = (baseId: string, itemId: string): string => `${baseId}-tab-${itemId}`;
-const processStepperDotsTooltipProps = (
-  tooltip: StepperDotsProps['tooltip'] = (step: string) => step,
-  step: string,
-): Omit<TooltipProps, 'children'> => {
-  const result = tooltip(step);
-
-  if (typeof result === 'string') {
-    return { value: result };
-  }
-
-  return result;
-};
 
 const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -179,23 +166,12 @@ type StepperDotProps = {
   onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
   /** If the dot is small */
   small?: boolean;
-  /** If the dot is hidden */
-  hidden?: boolean;
   /** Disabled state from parent (e.g., when Dots container is disabled) */
   disabled?: boolean;
-} & Omit<ComponentPropsWithoutRef<'button'>, 'hidden' | 'disabled'>;
+} & Omit<ComponentPropsWithoutRef<'button'>, 'disabled'>;
 
-const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): ReactElement | null => {
-  const {
-    index,
-    itemId,
-    goTo,
-    onKeyDown,
-    small = false,
-    hidden = false,
-    disabled: disabledProp = false,
-    ...restProps
-  } = props;
+const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): ReactElement => {
+  const { index, itemId, goTo, onKeyDown, small = false, disabled: disabledProp = false, ...restProps } = props;
 
   const { baseId, value: selectedValue, getItems, isItemDisabled } = useStepper();
 
@@ -210,7 +186,6 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
         'hover:cursor-pointer focus-visible:outline-none',
         'after:size-2.5 after:rounded-full after:ring-[1.5px]',
         'after:transition-[scale,background-color,box-shadow] after:duration-300 after:ease-in-out',
-        hidden && 'hidden',
         isSelected
           ? 'after:scale-120 after:bg-subtle after:ring-1 after:ring-subtle'
           : small
@@ -219,7 +194,7 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
         isDotDisabled && 'after:opacity-30 hover:cursor-default',
       );
     },
-    [isDotDisabled, selectedValue, small, hidden],
+    [isDotDisabled, selectedValue, small],
   );
 
   const { tabIndex } = useRovingTabIndex({
@@ -229,10 +204,6 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
     getItems,
     isItemDisabled,
   });
-
-  if (hidden) {
-    return null;
-  }
 
   return (
     <button
@@ -260,11 +231,12 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
 export type StepperDotsProps = {
   /** Disable all dots navigation */
   disabled?: boolean;
-  tooltip?: (step: string) => string | Omit<TooltipProps, 'children'>;
+  /** Custom render wrapper for each dot. Receives the dot element and the step ID. */
+  renderDot?: (dot: ReactElement, step: string) => ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
 const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): ReactElement => {
-  const { disabled, tooltip, className, ...restProps } = props;
+  const { disabled, renderDot, className, ...restProps } = props;
 
   const {
     baseId,
@@ -321,36 +293,20 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
           small = (hasHiddenBefore && index === leftmostVisible) || (hasHiddenAfter && index === rightmostVisible);
         }
 
-        if (tooltip) {
-          const tooltipProps = processStepperDotsTooltipProps(tooltip, itemId);
+        if (!isVisible) return null;
 
-          return (
-            <Tooltip key={itemId} {...tooltipProps}>
-              <StepperDot
-                itemId={itemId}
-                index={index}
-                goTo={goTo}
-                onKeyDown={handleKeyDown}
-                small={small}
-                hidden={!isVisible}
-                disabled={disabled}
-              />
-            </Tooltip>
-          );
-        }
-
-        return (
+        const dot = (
           <StepperDot
-            key={itemId}
             itemId={itemId}
             index={index}
             goTo={goTo}
             onKeyDown={handleKeyDown}
             small={small}
-            hidden={!isVisible}
             disabled={disabled}
           />
         );
+
+        return <Fragment key={itemId}>{renderDot ? renderDot(dot, itemId) : dot}</Fragment>;
       })}
     </div>
   );

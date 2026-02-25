@@ -626,7 +626,7 @@ export type DialogStepIndicatorProps = {
   dots?: boolean;
   disabled?: boolean;
   pending?: boolean;
-  tooltip?: StepperDotsProps['tooltip'];
+  renderDot?: StepperDotsProps['renderDot'];
 };
 
 const DialogStepIndicator = ({
@@ -637,7 +637,7 @@ const DialogStepIndicator = ({
   dots,
   disabled,
   pending,
-  tooltip,
+  renderDot,
 }: DialogStepIndicatorProps): ReactElement => {
   const { value, getItems } = useStepper();
   const items = getItems();
@@ -648,11 +648,17 @@ const DialogStepIndicator = ({
   return (
     <div className={cn('items-center', dots ? 'grid grid-cols-[1fr_auto_1fr]' : 'flex justify-between')}>
       <Stepper.Previous asChild disabled={isDisabled}>
-        <Button variant='outline' label={previousLabel} className={cn('justify-self-start', isFirst && 'invisible')} />
+        <Button
+          size='lg'
+          variant='outline'
+          label={previousLabel}
+          className={cn('justify-self-start', isFirst && 'invisible')}
+        />
       </Stepper.Previous>
-      {dots && <Stepper.Dots disabled={isDisabled} tooltip={tooltip} />}
+      {dots && <Stepper.Dots disabled={isDisabled} renderDot={renderDot} />}
       {isLast && lastStepLabel ? (
         <Button
+          size='lg'
           variant='solid'
           label={lastStepLabel}
           disabled={isDisabled}
@@ -664,7 +670,7 @@ const DialogStepIndicator = ({
         />
       ) : (
         <Stepper.Next asChild disabled={isDisabled}>
-          <Button variant='solid' label={nextLabel} className='justify-self-end' />
+          <Button size='lg' variant='solid' label={nextLabel} className='justify-self-end' />
         </Stepper.Next>
       )}
     </div>
