@@ -23,6 +23,7 @@ import {
 import { type TabContextValue, TabProvider, usePrefixedId, useTab } from '@/providers';
 import type { LucideIcon } from '@/types';
 import { cn, useComposedRefs } from '@/utils';
+import { IconButton } from '../icon-button';
 
 //
 // * Tab.Root
@@ -286,13 +287,12 @@ const TabDefaultTrigger = forwardRef<HTMLButtonElement, TabDefaultTriggerProps>(
           </span>
         )}
         <span className='truncate'>{children}</span>
-        {error ? (
-          <OctagonAlert className='size-3 shrink-0 text-error' strokeWidth={2.5} />
-        ) : count !== undefined ? (
+        {error && <OctagonAlert className='size-3 shrink-0 text-error' strokeWidth={2.5} />}
+        {!error && count !== undefined && (
           <span className='min-w-5 shrink-0 rounded-full bg-surface-primary px-1.5 py-0.5 font-medium text-xs'>
             {count}
           </span>
-        ) : null}
+        )}
       </TabTrigger>
     );
   },
@@ -348,8 +348,14 @@ TabContent.displayName = 'Tab.Content';
 // * Tab.ListOverflow
 //
 
-const SCROLL_AMOUNT = 150;
-
+/**
+ * Wraps `Tab.List` to add horizontal scroll and chevron navigation when tabs overflow.
+ *
+ * **Styling contract**: This component uses descendant selectors targeting `[role=tablist]`
+ * and `[role=tab]` (WAI-ARIA mandated attributes) to restyle `Tab.List` and `Tab.Trigger`
+ * children for the overflow layout. Changes to those components' role attributes or DOM
+ * nesting may require updating the selectors here.
+ */
 export type TabListOverflowProps = {
   /** Minimum width for each tab (CSS value, e.g. '6rem', '120px'). Defaults to '6.25rem'. */
   minTabWidth?: string;
@@ -394,41 +400,52 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
     return () => el.removeEventListener('wheel', handleWheel);
   }, [hasOverflow]);
 
+  const arrowClassName = cn(
+    'flex shrink-0 cursor-pointer items-center justify-center p-1 text-subtle',
+    'hover:text-default disabled:pointer-events-none disabled:cursor-default disabled:opacity-30',
+    !hasOverflow && 'pointer-events-none w-0 overflow-hidden opacity-0',
+  );
+
   return (
-    <div ref={ref} className={cn('relative flex items-center', className)} {...restProps}>
-      {hasOverflow && (
-        <button
-          type='button'
-          tabIndex={-1}
-          aria-hidden='true'
-          disabled={!canScrollLeft}
-          onClick={() => scrollBy(-SCROLL_AMOUNT)}
-          className='flex shrink-0 cursor-pointer items-center justify-center p-1 text-subtle hover:text-default disabled:pointer-events-none disabled:cursor-default disabled:opacity-30'
-        >
-          <ChevronLeft size={16} />
-        </button>
-      )}
+    <div ref={ref} className={cn('relative flex items-center gap-1.5', className)} {...restProps}>
+      <IconButton
+        size='sm'
+        iconSize={22}
+        iconStrokeWidth={1.25}
+        tabIndex={-1}
+        aria-hidden='true'
+        disabled={!canScrollLeft}
+        onClick={() => scrollBy(-(scrollRef.current?.clientWidth ?? 0))}
+        className={arrowClassName}
+        icon={ChevronLeft}
+      />
 
       <div
         ref={scrollRef}
         style={{ '--tab-min-w': minTabWidth }}
-        className='scrollbar-none -my-1.5 [&_[role=tablist]]:!inline-flex [&_[role=tablist]]:!w-auto min-w-0 flex-1 scroll-px-1.5 overflow-x-auto py-1.5 [&_[role=tab]]:min-w-(--tab-min-w) [&_[role=tab]]:px-2 [&_[role=tablist]]:min-w-full [&_[role=tablist]]:px-1.5'
+        className={cn(
+          'scrollbar-none -my-1.5 min-w-0 flex-1 scroll-px-1.5 overflow-x-auto py-1.5',
+          'outline-none focus-visible:ring-2 focus-visible:ring-ring/10 focus-visible:ring-inset',
+          // Restyle Tab.List: switch from flex to inline-flex, auto width with min-w-full
+          '**:[[role=tablist]]:inline-flex! **:[[role=tablist]]:w-auto! **:[[role=tablist]]:min-w-full **:[[role=tablist]]:px-1.5',
+          // Restyle Tab.Trigger: enforce minimum width and tighter padding
+          '**:[[role=tab]]:min-w-(--tab-min-w) **:[[role=tab]]:px-2',
+        )}
       >
         {children}
       </div>
 
-      {hasOverflow && (
-        <button
-          type='button'
-          tabIndex={-1}
-          aria-hidden='true'
-          disabled={!canScrollRight}
-          onClick={() => scrollBy(SCROLL_AMOUNT)}
-          className='flex shrink-0 cursor-pointer items-center justify-center p-1 text-subtle hover:text-default disabled:pointer-events-none disabled:cursor-default disabled:opacity-30'
-        >
-          <ChevronRight size={16} />
-        </button>
-      )}
+      <IconButton
+        size='sm'
+        iconSize={22}
+        iconStrokeWidth={1.25}
+        tabIndex={-1}
+        aria-hidden='true'
+        disabled={!canScrollRight}
+        onClick={() => scrollBy(scrollRef.current?.clientWidth ?? 0)}
+        className={arrowClassName}
+        icon={ChevronRight}
+      />
     </div>
   );
 });
