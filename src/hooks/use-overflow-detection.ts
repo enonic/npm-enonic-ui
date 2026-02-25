@@ -7,24 +7,31 @@ export type UseOverflowDetectionReturn = {
   scrollBy: (offset: number) => void;
 };
 
+type OverflowState = {
+  canScrollLeft: boolean;
+  canScrollRight: boolean;
+  hasOverflow: boolean;
+};
+
+const INITIAL_STATE: OverflowState = { canScrollLeft: false, canScrollRight: false, hasOverflow: false };
+
 export function useOverflowDetection(containerRef: RefObject<HTMLElement | null>): UseOverflowDetectionReturn {
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const [hasOverflow, setHasOverflow] = useState(false);
+  const [state, setState] = useState<OverflowState>(INITIAL_STATE);
   const rafId = useRef(0);
 
   const update = useCallback(() => {
     const el = containerRef.current;
     if (!el) {
-      setCanScrollLeft(false);
-      setCanScrollRight(false);
-      setHasOverflow(false);
+      setState(INITIAL_STATE);
       return;
     }
 
-    setHasOverflow(el.scrollWidth > el.clientWidth);
-    setCanScrollLeft(el.scrollLeft > 1);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+    const threshold = 1;
+    setState({
+      hasOverflow: el.scrollWidth - el.clientWidth > threshold,
+      canScrollLeft: el.scrollLeft > threshold,
+      canScrollRight: el.scrollLeft < el.scrollWidth - el.clientWidth - threshold,
+    });
   }, [containerRef]);
 
   const scheduleUpdate = useCallback(() => {
@@ -40,18 +47,28 @@ export function useOverflowDetection(containerRef: RefObject<HTMLElement | null>
 
     el.addEventListener('scroll', scheduleUpdate, { passive: true });
 
-    const observer = new ResizeObserver(scheduleUpdate);
-    observer.observe(el);
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    resizeObserver.observe(el);
 
-    // Also observe children for size changes (e.g. tab content changes)
-    for (let i = 0; i < el.children.length; i++) {
-      const child = el.children[i];
-      if (child) observer.observe(child);
-    }
+    const observeChildren = (): void => {
+      for (let i = 0; i < el.children.length; i++) {
+        const child = el.children[i];
+        if (child) resizeObserver.observe(child);
+      }
+    };
+
+    observeChildren();
+
+    const mutationObserver = new MutationObserver(() => {
+      observeChildren();
+      scheduleUpdate();
+    });
+    mutationObserver.observe(el, { childList: true, subtree: true });
 
     return () => {
       el.removeEventListener('scroll', scheduleUpdate);
-      observer.disconnect();
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
       cancelAnimationFrame(rafId.current);
     };
   }, [containerRef, update, scheduleUpdate]);
@@ -64,9 +81,7 @@ export function useOverflowDetection(containerRef: RefObject<HTMLElement | null>
   );
 
   return {
-    canScrollLeft,
-    canScrollRight,
-    hasOverflow,
+    ...state,
     scrollBy,
   };
 }
