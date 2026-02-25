@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Button } from '../button';
 import { Dialog } from '../dialog/dialog';
 import { IconButton } from '../icon-button';
+import { Tooltip } from '../tooltip';
 import { Stepper, type StepperRootProps } from './stepper';
 
 type Story = StoryObj<StepperRootProps>;
@@ -374,7 +375,13 @@ export const DotsTooltip: Story = {
             <Stepper.Panel value='step4'>Step 4 content</Stepper.Panel>
             <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
           </div>
-          <Stepper.Dots tooltip={(step: string) => `This is step: ${step}`} />
+          <Stepper.Dots
+            renderDot={(dot, step) => (
+              <Tooltip delay={150} value={`This is step: ${step}`}>
+                {dot}
+              </Tooltip>
+            )}
+          />
         </Stepper.Root>
       </div>
     );
@@ -396,10 +403,11 @@ export const DotsCustomTooltip: Story = {
             <Stepper.Panel value='step5'>Step 5 content</Stepper.Panel>
           </div>
           <Stepper.Dots
-            tooltip={(step: string) => ({
-              side: 'top',
-              value: <span className='font-semibold uppercase'>{step}</span>,
-            })}
+            renderDot={(dot, step) => (
+              <Tooltip delay={150} side='top' value={<span className='font-semibold uppercase'>{step}</span>}>
+                {dot}
+              </Tooltip>
+            )}
           />
         </Stepper.Root>
       </div>

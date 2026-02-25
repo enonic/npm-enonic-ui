@@ -5,6 +5,7 @@ import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
 import { Input } from '@/components/input';
 import { Stepper } from '@/components/stepper';
+import { Tooltip } from '@/components/tooltip';
 import { Dialog } from './dialog';
 
 const meta: Meta<typeof Dialog> = {
@@ -55,8 +56,8 @@ export const BasicDialog: Story = {
                 </div>
               </Dialog.Body>
               <Dialog.Footer>
-                <Button variant='outline' onClick={() => setOpen(false)} label='Maybe Later' />
-                <Button variant='solid' onClick={() => setOpen(false)} label='Get Started' />
+                <Button variant='outline' size='lg' onClick={() => setOpen(false)} label='Maybe Later' />
+                <Button variant='solid' size='lg' onClick={() => setOpen(false)} label='Get Started' />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -146,8 +147,8 @@ export const QuickConfirmation: Story = {
                 <p className='mt-1 text-sm text-subtle'>This may affect application stability.</p>
               </Dialog.Body>
               <Dialog.Footer className='justify-center'>
-                <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
-                <Button variant='solid' onClick={handleConfirm} label='Enable' />
+                <Button variant='outline' size='lg' onClick={() => setOpen(false)} label='Cancel' />
+                <Button variant='solid' size='lg' onClick={handleConfirm} label='Enable' />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -262,6 +263,7 @@ export const FormDialog: Story = {
               <Dialog.Footer>
                 <Button
                   variant='outline'
+                  size='lg'
                   onClick={() => {
                     setOpen(false);
                     setEmail('');
@@ -271,7 +273,7 @@ export const FormDialog: Story = {
                   }}
                   label='Cancel'
                 />
-                <Button variant='solid' onClick={handleSubmit} label='Sign In' />
+                <Button variant='solid' size='lg' onClick={handleSubmit} label='Sign In' />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -378,8 +380,8 @@ export const NestedConfirmation: Story = {
               </Dialog.Body>
 
               <Dialog.Footer>
-                <Button variant='outline' onClick={requestClose} label='Cancel' />
-                <Button variant='solid' onClick={handleSave} label='Save Changes' />
+                <Button variant='outline' size='lg' onClick={requestClose} label='Cancel' />
+                <Button variant='solid' size='lg' onClick={handleSave} label='Save Changes' />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -395,10 +397,11 @@ export const NestedConfirmation: Story = {
                 <p className='mt-2 text-sm text-subtle'>You have unsaved changes that will be lost.</p>
               </Dialog.Body>
               <Dialog.Footer>
-                <Button variant='outline' onClick={() => setConfirmOpen(false)} label='Keep Editing' />
+                <Button variant='outline' size='lg' onClick={() => setConfirmOpen(false)} label='Keep Editing' />
                 <Button
                   className='border-error bg-error text-alt hover:bg-error/90 active:bg-error/80'
                   variant='solid'
+                  size='lg'
                   onClick={handleDiscard}
                   label='Discard'
                 />
@@ -465,9 +468,9 @@ export const CustomHeader: Story = {
 
               <Dialog.Footer>
                 <Dialog.Close asChild>
-                  <Button variant='outline' label='Close' />
+                  <Button variant='outline' size='lg' label='Close' />
                 </Dialog.Close>
-                <Button variant='solid' onClick={() => setOpen(false)} label='Save Changes' />
+                <Button variant='solid' size='lg' onClick={() => setOpen(false)} label='Save Changes' />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -517,9 +520,10 @@ export const ScrollableContent: Story = {
                 ))}
               </Dialog.Body>
               <Dialog.Footer>
-                <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
+                <Button variant='outline' size='lg' onClick={() => setOpen(false)} label='Cancel' />
                 <Button
                   variant='solid'
+                  size='lg'
                   onClick={() => setOpen(false)}
                   label={`Confirm (${selected.length})`}
                   disabled={selected.length === 0}
@@ -595,8 +599,8 @@ export const LargeDialog: Story = {
                 </div>
               </Dialog.Body>
               <Dialog.Footer>
-                <Button variant='outline' onClick={() => setOpen(false)} label='Close' />
-                <Button variant='solid' onClick={() => setOpen(false)} label='Export Report' />
+                <Button variant='outline' size='lg' onClick={() => setOpen(false)} label='Close' />
+                <Button variant='solid' size='lg' onClick={() => setOpen(false)} label='Export Report' />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -669,7 +673,7 @@ export const MultiStepWizard: Story = {
                 description='Set up your team'
               />
 
-              <Dialog.Body>
+              <Dialog.Body className='-mx-2 px-2'>
                 <Dialog.StepContent step='step1'>
                   <div className='space-y-3'>
                     <Input
@@ -725,6 +729,7 @@ export const MultiStepWizard: Story = {
                 <Stepper.Previous asChild>
                   <Button
                     variant='outline'
+                    size='lg'
                     label='Back'
                     startIcon={ChevronLeft}
                     className={isFirstStep ? 'invisible' : undefined}
@@ -734,6 +739,7 @@ export const MultiStepWizard: Story = {
                 <div className='flex-1' />
                 <Button
                   variant='outline'
+                  size='lg'
                   onClick={() => {
                     setOpen(false);
                     setStep('step1');
@@ -744,6 +750,7 @@ export const MultiStepWizard: Story = {
                   <Stepper.Next asChild>
                     <Button
                       variant='solid'
+                      size='lg'
                       label='Next'
                       endIcon={ChevronRight}
                       disabled={!canProceed}
@@ -751,7 +758,13 @@ export const MultiStepWizard: Story = {
                     />
                   </Stepper.Next>
                 ) : (
-                  <Button variant='solid' onClick={handleFinish} label='Create Project' disabled={!canProceed} />
+                  <Button
+                    variant='solid'
+                    size='lg'
+                    onClick={handleFinish}
+                    label='Create Project'
+                    disabled={!canProceed}
+                  />
                 )}
               </Dialog.Footer>
             </Dialog.Content>
@@ -807,8 +820,8 @@ export const AutoFocusInput: Story = {
                 <p className='text-subtle text-xs'>The input receives focus automatically when the dialog opens.</p>
               </Dialog.Body>
               <Dialog.Footer>
-                <Button variant='outline' onClick={() => setOpen(false)} label='Cancel' />
-                <Button variant='solid' onClick={handleSubmit} label='Add Contact' disabled={!name.trim()} />
+                <Button variant='outline' size='lg' onClick={() => setOpen(false)} label='Cancel' />
+                <Button variant='solid' size='lg' onClick={handleSubmit} label='Add Contact' disabled={!name.trim()} />
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -880,7 +893,7 @@ export const StepsDialog: Story = {
   },
 };
 
-export const DialogSetpIndicatorWithTooltips: Story = {
+export const DialogStepIndicatorWithTooltips: Story = {
   name: 'Features / Step Indicator with Tooltips',
   render: () => {
     const stepMap = new Map<string, string>([
@@ -937,7 +950,11 @@ export const DialogSetpIndicatorWithTooltips: Story = {
                   nextLabel='Next'
                   lastStepLabel='Submit'
                   onLastStep={handleLastStep}
-                  tooltip={(step: string) => String(stepMap.get(step))}
+                  renderDot={(dot, step) => (
+                    <Tooltip delay={150} side='top' value={String(stepMap.get(step))}>
+                      {dot}
+                    </Tooltip>
+                  )}
                   dots
                 />
               </Dialog.Footer>
