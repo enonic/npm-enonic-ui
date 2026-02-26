@@ -60,7 +60,7 @@
     --color-link-visited: var(--color-purple-subtle);
 
     /* Tooltips */
-    --color-tooltip: var(--color-grey-600);
+    --color-tooltip: var(--color-grey-800);
     --color-tooltip-foreground: var(--color-white);
 
     /* Overlay */
