@@ -22,7 +22,12 @@ import {
 } from '@/hooks';
 import { CircleDisc, FilledSquareCheck } from '@/icons';
 import { usePrefixedId } from '@/providers';
-import { type SelectionMode, TreeListProvider, useTreeList } from '@/providers/tree-list-provider';
+import {
+  type RowClickSelection,
+  type SelectionMode,
+  TreeListProvider,
+  useTreeList,
+} from '@/providers/tree-list-provider';
 import type { ItemInteraction, LucideIcon } from '@/types';
 import { cn, setRef } from '@/utils';
 
@@ -126,6 +131,20 @@ export type TreeListRootProps = {
    */
   clearActiveOnReclick?: boolean;
   /**
+   * Controls how selection behaves on a plain row click (no modifier keys).
+   * Shift+Click (range) and Ctrl/Cmd+Click (toggle) are unaffected.
+   *
+   * - `'select'` (default): Selects only the clicked item, clearing others.
+   *   In single mode, clicking the already-selected item deselects it.
+   * - `'toggle'`: Toggles the clicked item without affecting other selections.
+   *   Suitable for combobox dropdowns where row click = checkbox click.
+   * - `'clear'`: Clears all selection on click. Row click only manages
+   *   the active item. Modifier clicks still work for selection.
+   *
+   * @default 'select'
+   */
+  rowClickSelection?: RowClickSelection;
+  /**
    * When true (default), pressing Escape clears the selection.
    * Set to false when using inside a Combobox where Escape should
    * only close the dropdown without clearing selection.
@@ -155,6 +174,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       onExpandedChange,
       getItemInteraction,
       clearActiveOnReclick = false,
+      rowClickSelection = 'select',
       clearSelectionOnEscape = true,
       ...props
     },
@@ -678,6 +698,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         enterActionMode,
         exitActionMode,
         clearActiveOnReclick,
+        rowClickSelection,
       }),
       [
         baseId,
@@ -705,6 +726,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         enterActionMode,
         exitActionMode,
         clearActiveOnReclick,
+        rowClickSelection,
       ],
     );
 
@@ -820,8 +842,8 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
       selectionMode,
       toggleSelection,
       selectOnly,
-      selectRange,
       clearSelection,
+      selectRange,
       setActive,
       active,
       baseId,
@@ -834,6 +856,7 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
       onActivate,
       actionModeRowId,
       clearActiveOnReclick,
+      rowClickSelection,
     } = useTreeList();
 
     const innerRef = useRef<HTMLDivElement>(null);
@@ -902,8 +925,12 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
         if (selectionMode === 'none' || !selectable) return;
 
         if (selectionMode === 'single') {
-          // Single mode: click selects only
-          selectOnly(id);
+          if (rowClickSelection === 'clear') {
+            clearSelection();
+          } else {
+            // Both 'select' and 'toggle' use toggleSelection in single mode
+            toggleSelection(id);
+          }
           return;
         }
 
@@ -919,13 +946,13 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
           toggleSelection(id);
           setAnchorId(id);
         } else {
-          // Regular click in multiple mode:
-          // - If clicking the only selected item → deselect it
-          // - Otherwise → select only this item
-          const isOnlySelected = selection.has(id) && selection.size === 1;
-          if (isOnlySelected) {
+          // Regular click in multiple mode
+          if (rowClickSelection === 'toggle') {
+            toggleSelection(id);
+          } else if (rowClickSelection === 'clear') {
             clearSelection();
           } else {
+            // 'select' (default): select only this item
             selectOnly(id);
           }
           setAnchorId(id);
@@ -937,18 +964,18 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
         rowDomId,
         selectionMode,
         selectable,
-        selectOnly,
         id,
         toggleSelection,
+        selectOnly,
+        clearSelection,
         selectRange,
         anchorId,
         active,
         fromDomId,
         setAnchorId,
-        selection,
-        clearSelection,
         clearActiveOnReclick,
         isActive,
+        rowClickSelection,
       ],
     );
 

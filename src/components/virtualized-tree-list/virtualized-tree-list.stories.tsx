@@ -1969,3 +1969,128 @@ export const ClearActiveOnReclick: Story = {
     );
   },
 };
+
+export const RowClickSelectionModes: Story = {
+  name: 'Behavior / Row Click Selection',
+  render: () => {
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [mode, setMode] = useState<'select' | 'toggle' | 'clear'>('select');
+
+    const flatItems: FlatNode<TreeNodeData>[] = [
+      {
+        id: 'rcl-1',
+        data: { label: 'Documents', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'rcl-2',
+        data: { label: 'Pictures', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'rcl-3',
+        data: { label: 'Music', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'rcl-4',
+        data: { label: 'Videos', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+      {
+        id: 'rcl-5',
+        data: { label: 'Downloads', icon: 'folder' },
+        level: 1,
+        parentId: null,
+        hasChildren: false,
+        isExpanded: false,
+      },
+    ];
+
+    const descriptions: Record<'select' | 'toggle' | 'clear', string> = {
+      select: 'Plain click selects only that item, clearing all others.',
+      toggle: 'Plain click toggles the item without clearing others (checkbox-like).',
+      clear: 'Plain click clears all selection. Use modifier keys to still select.',
+    };
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Row Click Selection</div>
+        <div className='text-sm text-subtle'>
+          Controls how a plain row click affects selection. Shift+click, Ctrl/Cmd+click, and checkboxes are always
+          independent of this prop.
+        </div>
+        <div className='flex gap-2'>
+          {(['select', 'toggle', 'clear'] as const).map(m => (
+            <Button
+              key={m}
+              variant={mode === m ? 'filled' : 'outline'}
+              size='sm'
+              onClick={() => {
+                setMode(m);
+                setSelection(new Set());
+              }}
+            >
+              {m}
+            </Button>
+          ))}
+        </div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-1 font-medium'>
+            <code className='rounded bg-bdr-subtle px-1 font-mono text-xs'>rowClickSelection=&quot;{mode}&quot;</code>
+          </p>
+          <p className='text-subtle text-xs'>{descriptions[mode]}</p>
+        </div>
+        <VirtualizedTreeList
+          items={flatItems}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='multiple'
+          rowClickSelection={mode}
+          virtuosoRef={virtuosoRef}
+          aria-label='Row click selection demo'
+          className={treeListClass(TREE_HEIGHT_SM)}
+        >
+          {({ items, getItemProps, containerProps }) => (
+            <Virtuoso<FlatNode<TreeNodeData>>
+              ref={virtuosoRef}
+              data={items}
+              components={virtuosoComponents}
+              {...containerProps}
+              className={cn('h-full', containerProps.className)}
+              itemContent={(index, node) => {
+                const itemProps = getItemProps(index, node);
+                return (
+                  <VirtualizedTreeList.Row {...itemProps}>
+                    <VirtualizedTreeList.RowLeft>
+                      <VirtualizedTreeList.RowSelectionControl rowId={node.id} />
+                    </VirtualizedTreeList.RowLeft>
+                    <VirtualizedTreeList.RowContent>
+                      <ListItem className='px-0 py-0'>
+                        <ListItem.DefaultContent icon={getIcon(node.data.icon)} label={node.data.label} />
+                      </ListItem>
+                    </VirtualizedTreeList.RowContent>
+                  </VirtualizedTreeList.Row>
+                );
+              }}
+            />
+          )}
+        </VirtualizedTreeList>
+        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+      </div>
+    );
+  },
+};

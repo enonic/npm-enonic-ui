@@ -2,6 +2,8 @@ import { createContext, type ReactElement, type ReactNode, type RefObject, useCo
 
 export type SelectionMode = 'single' | 'multiple' | 'none';
 
+export type RowClickSelection = 'select' | 'toggle' | 'clear';
+
 export type TreeListContextValue = {
   baseId: string;
   active: string | undefined;
@@ -34,6 +36,8 @@ export type TreeListContextValue = {
   exitActionMode: () => void;
   // Clear active on reclick when selection is empty
   clearActiveOnReclick: boolean;
+  // Controls plain-click selection behavior
+  rowClickSelection: RowClickSelection;
 };
 
 const TreeListContext = createContext<TreeListContextValue | undefined>(undefined);
