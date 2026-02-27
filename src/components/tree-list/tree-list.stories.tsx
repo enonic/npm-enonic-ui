@@ -1152,6 +1152,80 @@ export const ClearActiveOnReclick: Story = {
   },
 };
 
+export const RowClickSelectionModes: Story = {
+  name: 'Behavior / Row Click Selection',
+  render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [mode, setMode] = useState<'select' | 'toggle' | 'clear'>('select');
+
+    const items = [
+      { id: 'rcl-1', label: 'Documents' },
+      { id: 'rcl-2', label: 'Pictures' },
+      { id: 'rcl-3', label: 'Music' },
+      { id: 'rcl-4', label: 'Videos' },
+      { id: 'rcl-5', label: 'Downloads' },
+    ];
+
+    const descriptions: Record<'select' | 'toggle' | 'clear', string> = {
+      select: 'Plain click selects only that item, clearing all others.',
+      toggle: 'Plain click toggles the item without clearing others (checkbox-like).',
+      clear: 'Plain click clears all selection. Use modifier keys to still select.',
+    };
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Row Click Selection</div>
+        <div className='text-sm text-subtle'>
+          Controls how a plain row click affects selection. Shift+click, Ctrl/Cmd+click, and checkboxes are always
+          independent of this prop.
+        </div>
+        <div className='flex gap-2'>
+          {(['select', 'toggle', 'clear'] as const).map(m => (
+            <Button
+              key={m}
+              variant={mode === m ? 'filled' : 'outline'}
+              size='sm'
+              onClick={() => {
+                setMode(m);
+                setSelection(new Set());
+              }}
+            >
+              {m}
+            </Button>
+          ))}
+        </div>
+        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+          <p className='mb-1 font-medium'>
+            <code className='rounded bg-bdr-subtle px-1 font-mono text-xs'>rowClickSelection=&quot;{mode}&quot;</code>
+          </p>
+          <p className='text-subtle text-xs'>{descriptions[mode]}</p>
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_SM)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='multiple'
+          rowClickSelection={mode}
+        >
+          <TreeList.Container>
+            {items.map(item => (
+              <TreeList.Row key={item.id} id={item.id}>
+                <TreeList.RowLeft>
+                  <TreeList.RowSelectionControl rowId={item.id} />
+                </TreeList.RowLeft>
+                <TreeList.RowContent>
+                  <span className='text-sm'>{item.label}</span>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+      </div>
+    );
+  },
+};
+
 export const Invalidation: Story = {
   name: 'Behavior / Invalidation',
   render: function Render() {

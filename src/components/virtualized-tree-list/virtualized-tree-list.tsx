@@ -31,6 +31,7 @@ import {
 import { useControlledState, useControlledStateWithNull, useVirtualizedKeyboardNavigation } from '@/hooks';
 import { CircleDisc, FilledSquareCheck } from '@/icons';
 import { usePrefixedId } from '@/providers';
+import type { RowClickSelection } from '@/providers/tree-list-provider';
 import { useVirtualizedTreeList, VirtualizedTreeListProvider } from '@/providers/virtualized-tree-list-provider';
 import type { ItemInteraction, LucideIcon } from '@/types';
 import { cn } from '@/utils';
@@ -217,6 +218,21 @@ export type VirtualizedTreeListRootProps<TData = unknown> = {
   clearActiveOnReclick?: boolean;
 
   /**
+   * Controls how selection behaves on a plain row click (no modifier keys).
+   * Shift+Click (range) and Ctrl/Cmd+Click (toggle) are unaffected.
+   *
+   * - `'select'` (default): Selects only the clicked item, clearing others.
+   *   In single mode, clicking the already-selected item deselects it.
+   * - `'toggle'`: Toggles the clicked item without affecting other selections.
+   *   Suitable for combobox dropdowns where row click = checkbox click.
+   * - `'clear'`: Clears all selection on click. Row click only manages
+   *   the active item. Modifier clicks still work for selection.
+   *
+   * @default 'select'
+   */
+  rowClickSelection?: RowClickSelection;
+
+  /**
    * When true, selection is preserved even when items are filtered.
    * Use this when `items` represents a filtered view of a larger dataset.
    *
@@ -265,6 +281,7 @@ const VirtualizedTreeListRoot = forwardRef(
       loop = false,
       getItemInteraction,
       clearActiveOnReclick = false,
+      rowClickSelection = 'select',
       preserveFilteredSelection = false,
       clearSelectionOnEscape = true,
       'aria-label': ariaLabel,
@@ -706,26 +723,39 @@ const VirtualizedTreeListRoot = forwardRef(
             // Toggle selection
             toggleSelection(id, index);
           } else {
-            // Single item selection (clears others)
+            // Regular click in multiple mode
             selectionAnchorRef.current = index;
-            setSelection(new Set([id]));
+            if (rowClickSelection === 'toggle') {
+              toggleSelection(id, index);
+            } else if (rowClickSelection === 'clear') {
+              setSelection(new Set());
+            } else {
+              // 'select' (default): select only this item
+              setSelection(new Set([id]));
+            }
           }
         } else {
-          // Single mode: just select this item
-          toggleSelection(id, index);
+          // Single mode
+          if (rowClickSelection === 'clear') {
+            setSelection(new Set());
+          } else {
+            // Both 'select' and 'toggle' use toggleSelection in single mode
+            toggleSelection(id, index);
+          }
         }
       },
       [
         selectionMode,
         setActiveIndex,
+        setSelection,
         toggleSelection,
         rangeSelect,
-        setSelection,
         items,
         canNavigate,
         canSelect,
         clearActiveOnReclick,
         activeIndex,
+        rowClickSelection,
       ],
     );
 
