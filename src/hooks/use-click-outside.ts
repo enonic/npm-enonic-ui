@@ -30,6 +30,7 @@ export type UseClickOutsideConfig = {
  * Features:
  * - Ignores clicks inside the content element
  * - Supports excluding additional elements (e.g., trigger buttons)
+ * - Ignores clicks inside elements with `data-click-outside-ignore` attribute
  * - Respects event.defaultPrevented to allow custom handling
  * - Only active when enabled
  * - Properly cleans up event listeners
@@ -125,6 +126,12 @@ export function useClickOutside({
         if (excludeRef?.current?.contains(target)) {
           return;
         }
+      }
+
+      // Check if click target is inside an element marked as click-outside-ignored
+      const element = target instanceof Element ? target : target.parentElement;
+      if (element?.closest('[data-click-outside-ignore]')) {
+        return;
       }
 
       // Click is outside - trigger callbacks
