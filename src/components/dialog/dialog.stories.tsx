@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { BadgeInfo, ChevronLeft, ChevronRight, Loader2, Plus, TriangleAlert, User } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
 import { Input } from '@/components/input';
 import { Stepper } from '@/components/stepper';
+import { Toast } from '@/components/toast';
 import { Tooltip } from '@/components/tooltip';
 import { Dialog } from './dialog';
 
@@ -1134,6 +1136,71 @@ export const ControlledStepsDialog: Story = {
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog>
+      </div>
+    );
+  },
+};
+
+//
+// * Behavior
+//
+
+export const WithNotification: Story = {
+  name: 'Behavior / With Notification',
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+
+    const handleDialogChange = (nextOpen: boolean): void => {
+      setOpen(nextOpen);
+      if (!nextOpen) {
+        setShowToast(false);
+      }
+    };
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Button variant='solid' onClick={() => setOpen(true)} label='Open Dialog' />
+
+        <Dialog open={open} onOpenChange={handleDialogChange}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120'>
+              <Dialog.DefaultHeader
+                title='Dialog with Notification'
+                description='Test click-outside behavior with portaled toast'
+                withClose
+              />
+              <Dialog.Body>
+                <p className='mb-4 text-sm'>
+                  Click &ldquo;Show Notification&rdquo; to render a Toast via portal to document.body. The toast appears
+                  outside the dialog&apos;s DOM tree, but clicking it should not dismiss this dialog.
+                </p>
+                <Button
+                  variant='outline'
+                  onClick={() => setShowToast(true)}
+                  label='Show Notification'
+                  disabled={showToast}
+                />
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Button variant='outline' size='lg' onClick={() => handleDialogChange(false)} label='Close' />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+
+        {showToast &&
+          createPortal(
+            <div className='fixed top-4 right-4 z-50'>
+              <Toast open={showToast} onOpenChange={setShowToast} withClose>
+                <Toast.Icon tone='info' />
+                <Toast.Title>Notification</Toast.Title>
+                <Toast.Description>This toast is portaled to document.body, outside the dialog DOM.</Toast.Description>
+              </Toast>
+            </div>,
+            document.body,
+          )}
       </div>
     );
   },

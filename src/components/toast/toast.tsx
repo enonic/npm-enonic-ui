@@ -238,6 +238,7 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
           ref={ref}
           id={toastId}
           data-toast-id={toastId}
+          data-click-outside-ignore
           role={role ?? defaultRole}
           aria-live={ariaLive ?? defaultAriaLive}
           className={cn(
