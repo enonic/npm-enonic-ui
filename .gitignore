@@ -6,10 +6,6 @@
 *~
 
 # AI Assistant
-.claude/plans/
-.codex/
-.cursor/commands/
-.cursor/mcp.json
 .mcp.json
 settings.local.json
 

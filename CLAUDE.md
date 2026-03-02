@@ -5,72 +5,58 @@ UI Component Library. Preact 10, TypeScript, Vite, Tailwind CSS v4, Storybook.
 ## Commands
 
 ```bash
-pnpm check:fix    # Verify changes: typecheck + lint + format (with auto-fix)
-pnpm build        # Build library
-pnpm dev          # Run Storybook dev server (port 6006)
-pnpm release:dry  # Validate release (dry run)
+pnpm check:fix  # Typecheck + lint + format with auto-fix. Run after making changes.
+pnpm typecheck  # TypeScript only
+pnpm lint:fix   # Biome + ESLint with fixes
 ```
 
-Individual checks:
-```bash
-pnpm typecheck    # TypeScript only
-pnpm lint:fix     # Biome + ESLint with fixes
-pnpm format       # Biome format
-```
+`pnpm test` is a no-op — tests not implemented.
 
-Tests not implemented: `pnpm test` and `pnpm test:ci` are no-op.
+## Constraints
 
-## Critical Constraints
+- Preact with React compat layer (`preact/compat`). Radix UI ref type mismatches expected.
+- Tailwind CSS v4. Dark mode via `.dark` class (`@custom-variant`).
 
-- Preact with React compat layer (preact/compat). Radix UI ref type mismatches expected.
-- Target: ECMAScript 2022
-- TypeScript required for all code
-- Tailwind CSS v4 with `.dark` class for dark mode (via `@custom-variant`)
+## Docs
 
-## Consumer Setup
+Use Context7 MCP for Preact, Tailwind CSS v4, Vite, Storybook. Request specific topics.
 
-Components render unstyled without CSS. Two setup paths:
+## Git & GitHub
 
-**Tailwind CSS project** (consumer has their own Tailwind):
-```css
-@import 'tailwindcss';
-@import 'tw-animate-css';
-@import '@enonic/ui/preset.css';
-```
+No conventional commit prefixes. Plain descriptive language throughout.
 
-**CSS-only project** (no Tailwind in consumer):
-```css
-@import '@enonic/ui/style.css';
-```
+### Issues
 
-Using the wrong path causes style conflicts. `preset.css` is for Tailwind projects only.
+- **Title**: 80 chars or less. Component-specific: `Button: add disabled state`. General: `Add MyComponent`
+- **Body**:
+  ```
+  <4–8 sentence description: what, what's affected, how to reproduce, impact>
 
-## Code Standards
+  #### Rationale
+  <why this needs to be fixed or implemented>
 
-Detailed rules in `.cursor/rules/`:
-- `npm-scripts.mdc` - Available scripts reference
-- `preact.mdc` - Preact/React compatibility
-- `react.mdc` - Component patterns
-- `typescript.mdc` - Type definitions
-- `tailwind.mdc` - Styling conventions
-- `storybook.mdc` - Story organization
-- `structure.mdc` - File structure
-- `comments.mdc` - Documentation style
-- `patterns.mdc` - UI interaction patterns
+  #### References            ← optional
+  #### Implementation Notes  ← optional
 
-## Skills
+  <sub>*Drafted with AI assistance*</sub>
+  ```
 
-- `new-component` - Create production-ready components with deep research and planning
-- `npm-release` - Release to npm
-- `issue-writer` - Create or modify GitHub issues
+### Commits
 
-## Release
+- **With issue**: `<Issue Title> #<number>` — e.g. `Button: add disabled state #12`
+- **Without issue**: capitalized plain English — e.g. `Fix Tooltip background color in dark mode`
+- **Body** (optional): past tense, one change per paragraph, blank line between each, backticks for code refs. No `-` bullets.
 
-Package: `@enonic/ui`. Published via GitHub Actions on `v*` tags.
+### Pull Requests
 
-## External Docs
+- **Title**: `<Issue Title> #<number>` — matches the commit title
+- **Body**:
+  ```
+  <summary of changes>
 
-Use Context7 MCP for Preact, Tailwind CSS v4, Vite, Storybook documentation.
-Request specific topics, not full manuals.
+  Closes #<number>
 
-For large R&D tasks, use `docs-finder` skill to search documentation effectively.
+  [Claude Code session](<link>)  ← optional
+
+  <sub>*Drafted with AI assistance*</sub>
+  ```
