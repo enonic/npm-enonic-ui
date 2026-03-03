@@ -1,12 +1,12 @@
 import { cva } from 'class-variance-authority';
 import { LockKeyhole, OctagonAlert } from 'lucide-react';
-import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactElement, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactNode } from 'react';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 
 const inputContainerVariants = cva(
   [
-    'relative flex overflow-hidden rounded-sm',
+    'group/input relative flex overflow-hidden rounded-sm',
     'h-12 border focus-within:border-bdr-solid',
     'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
     'transition-highlight',
@@ -28,44 +28,53 @@ const inputContainerVariants = cva(
   },
 );
 
+//
+// * InputAddon
+//
+
+export type InputAddonProps = ComponentPropsWithoutRef<'div'>;
+
+const InputAddon = forwardRef<HTMLDivElement, InputAddonProps>(
+  ({ className, ...props }: InputAddonProps, ref: ForwardedRef<HTMLDivElement>) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex min-w-12 shrink-0 items-center justify-center px-4',
+        'bg-surface-primary text-sm text-subtle',
+        'first:rounded-l-sm first:border-bdr-subtle first:border-r',
+        'last:rounded-r-sm last:border-bdr-subtle last:border-l',
+        'group-data-[state=error]/input:last:border-error group-data-[state=error]/input:first:border-error',
+        className,
+      )}
+      {...props}
+    />
+  ),
+);
+
+InputAddon.displayName = 'InputAddon';
+
+//
+// * Input
+//
+
 export type InputProps = {
   label?: string;
   description?: ReactNode;
   error?: string;
-  startAddon?: string | ReactElement;
-  endAddon?: string | ReactElement;
+  startAddon?: string | ReactNode;
+  endAddon?: string | ReactNode;
   disabled?: boolean;
   readOnly?: boolean;
   className?: string;
 } & ComponentPropsWithoutRef<'input'>;
 
-type AddonProps = {
-  children: ReactNode;
-  error: boolean;
-};
-
-const Addon = ({ children, error }: AddonProps): ReactElement => (
-  <div
-    className={cn(
-      'flex min-w-12 shrink-0 items-center justify-center px-4',
-      'bg-surface-primary text-sm text-subtle',
-      'first:rounded-l-sm first:border-bdr-subtle first:border-r',
-      'last:rounded-r-sm last:border-bdr-subtle last:border-l',
-      error && 'first:border-error last:border-error',
-    )}
-  >
-    {children}
-  </div>
-);
-
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+const InputRoot = forwardRef<HTMLInputElement, InputProps>(
   (
     { className, label, description, error, startAddon, endAddon, id, disabled, readOnly, ...props }: InputProps,
     ref: ForwardedRef<HTMLInputElement>,
   ) => {
     const inputId = usePrefixedId(unwrap(id));
     const state = error ? 'error' : 'default';
-    const hasError = state === 'error';
 
     return (
       <div className={cn('w-full', disabled && 'opacity-30', className)}>
@@ -83,8 +92,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {description && <div className='text-sm text-subtle'>{description}</div>}
           </div>
         )}
-        <div className={cn(inputContainerVariants({ state, disabled }))}>
-          {startAddon && <Addon error={hasError}>{startAddon}</Addon>}
+        <div className={cn(inputContainerVariants({ state, disabled }))} data-state={state}>
+          {startAddon != null && (typeof startAddon === 'string' ? <InputAddon>{startAddon}</InputAddon> : startAddon)}
 
           <input
             ref={ref}
@@ -103,7 +112,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
 
-          {endAddon && <Addon error={hasError}>{endAddon}</Addon>}
+          {endAddon != null && (typeof endAddon === 'string' ? <InputAddon>{endAddon}</InputAddon> : endAddon)}
         </div>
 
         {error && (
@@ -117,4 +126,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   },
 );
 
-Input.displayName = 'Input';
+InputRoot.displayName = 'Input';
+
+export const Input = Object.assign(InputRoot, { Addon: InputAddon });
