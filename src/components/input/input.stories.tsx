@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Calendar, Eye, EyeOff, Mail, Search, User } from 'lucide-react';
+import { useState } from 'react';
+
+import { Tooltip } from '@/components/tooltip';
+import { cn } from '@/utils';
 
 import { Input, type InputProps } from './input';
 
@@ -101,7 +105,11 @@ export const FormExample: Story = {
         description="We'll use this for your account login"
         placeholder='john@example.com'
         type='email'
-        startAddon={<Mail size={16} />}
+        startAddon={
+          <Input.Addon>
+            <Mail size={16} />
+          </Input.Addon>
+        }
         required
       />
 
@@ -119,8 +127,16 @@ export const FormExample: Story = {
         placeholder='Create a strong password'
         type='password'
         error='Password must be at least 8 characters long'
-        startAddon={<User size={16} />}
-        endAddon={<EyeOff size={16} />}
+        startAddon={
+          <Input.Addon>
+            <User size={16} />
+          </Input.Addon>
+        }
+        endAddon={
+          <Input.Addon>
+            <EyeOff size={16} />
+          </Input.Addon>
+        }
         required
       />
     </div>
@@ -214,8 +230,16 @@ export const ReadOnlyStates: Story = {
         <Input
           label='Account Email'
           description='Email address from your profile settings'
-          startAddon={<Mail size={16} />}
-          endAddon={<User size={16} />}
+          startAddon={
+            <Input.Addon>
+              <Mail size={16} />
+            </Input.Addon>
+          }
+          endAddon={
+            <Input.Addon>
+              <User size={16} />
+            </Input.Addon>
+          }
           value='john.doe@company.com'
           readOnly
         />
@@ -278,8 +302,16 @@ export const ErrorStates: Story = {
         <Input
           label='Search Query'
           placeholder='Search...'
-          startAddon={<Search size={16} />}
-          endAddon={<Calendar size={16} />}
+          startAddon={
+            <Input.Addon>
+              <Search size={16} />
+            </Input.Addon>
+          }
+          endAddon={
+            <Input.Addon>
+              <Calendar size={16} />
+            </Input.Addon>
+          }
           value='inv@lid characters!'
           error='Search query contains invalid characters'
         />
@@ -314,11 +346,28 @@ export const WithIconAddons: Story = {
     <div className='w-80 space-y-6 p-4'>
       <div>
         <h3 className='mb-3 font-medium text-sm'>Search Field</h3>
-        <Input label='Search' placeholder='Search users...' startAddon={<Search size={16} />} />
+        <Input
+          label='Search'
+          placeholder='Search users...'
+          startAddon={
+            <Input.Addon>
+              <Search size={16} />
+            </Input.Addon>
+          }
+        />
       </div>
       <div>
         <h3 className='mb-3 font-medium text-sm'>Email Input</h3>
-        <Input label='Email' placeholder='Enter your email' type='email' startAddon={<Mail size={16} />} />
+        <Input
+          label='Email'
+          placeholder='Enter your email'
+          type='email'
+          startAddon={
+            <Input.Addon>
+              <Mail size={16} />
+            </Input.Addon>
+          }
+        />
       </div>
       <div>
         <h3 className='mb-3 font-medium text-sm'>Password Input</h3>
@@ -326,12 +375,64 @@ export const WithIconAddons: Story = {
           label='Password'
           placeholder='Enter password'
           type='password'
-          startAddon={<User size={16} />}
-          endAddon={<Eye size={16} />}
+          startAddon={
+            <Input.Addon>
+              <User size={16} />
+            </Input.Addon>
+          }
+          endAddon={
+            <Input.Addon>
+              <Eye size={16} />
+            </Input.Addon>
+          }
         />
       </div>
     </div>
   ),
+};
+
+const MAX_LENGTH = 20;
+
+export const CustomAddon: Story = {
+  name: 'Features / Custom Addon',
+  render: () => {
+    const [value, setValue] = useState('');
+    const length = value.length;
+    const overLimit = length > MAX_LENGTH;
+
+    return (
+      <div className='w-96 space-y-6 p-4'>
+        <Input
+          label='Bio'
+          description='Write a short bio for your profile'
+          placeholder='Tell us about yourself...'
+          value={value}
+          onInput={e => setValue((e.target as HTMLInputElement).value)}
+          error={overLimit ? `Bio must be ${MAX_LENGTH} characters or less` : undefined}
+          endAddon={
+            <Tooltip
+              value={
+                overLimit
+                  ? `${length - MAX_LENGTH} characters over limit`
+                  : `${MAX_LENGTH - length} characters remaining`
+              }
+              side='top'
+              delay={300}
+            >
+              <div
+                className={cn(
+                  'mr-4.5 flex cursor-default items-center text-sm text-subtle tabular-nums',
+                  overLimit && 'text-error',
+                )}
+              >
+                {length}/{MAX_LENGTH}
+              </div>
+            </Tooltip>
+          }
+        />
+      </div>
+    );
+  },
 };
 
 export const InputTypes: Story = {
