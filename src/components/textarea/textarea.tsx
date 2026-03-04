@@ -38,7 +38,6 @@ const InputAddon = forwardRef<HTMLDivElement, InputAddonProps>(
         'absolute right-0 bottom-0 items-center',
         'bg-surface-primary/50 text-sm',
         'rounded-tl-sm rounded-br-sm px-1.5 py-0.5',
-        'group-data-[state=error]/input:last:border-error group-data-[state=error]/input:first:border-error',
         className,
       )}
       {...props}
@@ -122,7 +121,12 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             {...props}
           />
 
-          {endAddon != null && (typeof endAddon === 'string' ? <InputAddon>{endAddon}</InputAddon> : endAddon)}
+          {endAddon != null &&
+            (typeof endAddon === 'string' ? (
+              <InputAddon className={cn(error && 'text-error')}>{endAddon}</InputAddon>
+            ) : (
+              endAddon
+            ))}
         </div>
 
         {error && (

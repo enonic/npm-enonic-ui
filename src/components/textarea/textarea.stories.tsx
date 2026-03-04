@@ -101,6 +101,7 @@ export const WithEndAddon: Story = {
     const [value, setValue] = useState('');
     const length = value.length;
     const overLimit = length > MAX_LENGTH;
+    const negative = MAX_LENGTH - length;
     return (
       <div className='w-96 space-y-6 p-4'>
         <TextArea
@@ -111,7 +112,7 @@ export const WithEndAddon: Story = {
           value={value}
           onInput={e => setValue((e.target as HTMLInputElement).value)}
           error={overLimit ? `Message must be ${MAX_LENGTH} characters or less` : undefined}
-          endAddon={`${length}/${MAX_LENGTH}`}
+          endAddon={overLimit ? `${negative}` : `${length}/${MAX_LENGTH}`}
         />
       </div>
     );
