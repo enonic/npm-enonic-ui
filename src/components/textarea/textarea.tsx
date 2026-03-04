@@ -28,29 +28,10 @@ const textareaContainerVariants = cva(
   },
 );
 
-export type InputAddonProps = ComponentPropsWithoutRef<'div'>;
-
-const InputAddon = forwardRef<HTMLDivElement, InputAddonProps>(
-  ({ className, ...props }: InputAddonProps, ref: ForwardedRef<HTMLDivElement>) => (
-    <div
-      ref={ref}
-      className={cn(
-        'absolute right-0 bottom-0 items-center',
-        'bg-surface-primary/50 text-sm',
-        'rounded-tl-sm rounded-br-sm px-1.5 py-0.5',
-        className,
-      )}
-      {...props}
-    />
-  ),
-);
-
-InputAddon.displayName = 'InputAddon';
-
 export type TextAreaProps = {
   label?: string;
   description?: ReactNode;
-  endAddon?: string | ReactNode;
+  endAddon?: ReactNode;
   error?: string;
   disabled?: boolean;
   readOnly?: boolean;
@@ -121,12 +102,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             {...props}
           />
 
-          {endAddon != null &&
-            (typeof endAddon === 'string' ? (
-              <InputAddon className={cn(error && 'text-error')}>{endAddon}</InputAddon>
-            ) : (
-              endAddon
-            ))}
+          {endAddon}
         </div>
 
         {error && (

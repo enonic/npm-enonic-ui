@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { Tooltip } from '@/components';
 import { cn } from '@/utils';
@@ -95,30 +94,6 @@ export const WithError: Story = {
 
 const MAX_LENGTH = 100;
 
-export const WithEndAddon: Story = {
-  name: 'Examples / With End Addon',
-  render: () => {
-    const [value, setValue] = useState('');
-    const length = value.length;
-    const overLimit = length > MAX_LENGTH;
-    const negative = MAX_LENGTH - length;
-    return (
-      <div className='w-96 space-y-6 p-4'>
-        <TextArea
-          label='Message'
-          description='Top helper text remains unchanged'
-          placeholder='Enter your message'
-          rows={4}
-          value={value}
-          onInput={e => setValue((e.target as HTMLInputElement).value)}
-          error={overLimit ? `Message must be ${MAX_LENGTH} characters or less` : undefined}
-          endAddon={overLimit ? `${negative}` : `${length}/${MAX_LENGTH}`}
-        />
-      </div>
-    );
-  },
-};
-
 export const WithCustomEndAddon: Story = {
   name: 'Examples / With Custom End Addon',
   render: () => {
@@ -147,14 +122,13 @@ export const WithCustomEndAddon: Story = {
             >
               <div
                 className={cn(
-                  'absolute right-0 bottom-0 flex cursor-default items-center gap-1.5 rounded-tl-sm rounded-br-sm bg-alt/70 px-1.5 py-0.5 font-semibold text-docs text-md',
+                  'absolute right-0 bottom-0 items-center',
+                  'bg-surface-primary/50 text-sm tabular-nums',
+                  'rounded-tl-sm rounded-br-sm px-1.5 py-0.5',
                   overLimit && 'text-error',
                 )}
               >
-                <span className='tabular-nums'>
-                  {length}/{MAX_LENGTH}
-                </span>
-                <Pencil className='size-4' />
+                {length}/{MAX_LENGTH}
               </div>
             </Tooltip>
           }
