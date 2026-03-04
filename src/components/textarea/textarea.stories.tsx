@@ -1,4 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { useState } from 'react';
+import { Tooltip } from '@/components';
+import { cn } from '@/utils';
 
 import { TextArea, type TextAreaProps } from './textarea';
 
@@ -19,6 +22,10 @@ export default {
     description: {
       control: 'text',
       description: 'Optional helper text displayed below label',
+    },
+    endAddon: {
+      control: false,
+      description: 'Optional helper content rendered below the field and aligned to the end side',
     },
     placeholder: {
       control: 'text',
@@ -82,6 +89,52 @@ export const WithError: Story = {
     placeholder: 'Enter your message',
     error: 'Message is required',
     value: '',
+  },
+};
+
+const MAX_LENGTH = 100;
+
+export const WithCustomEndAddon: Story = {
+  name: 'Examples / With Custom End Addon',
+  render: () => {
+    const [value, setValue] = useState('');
+    const length = value.length;
+    const overLimit = length > MAX_LENGTH;
+    return (
+      <div className='w-96 space-y-6 p-4'>
+        <TextArea
+          label='Express yourself'
+          description='Write what is on your mind.'
+          placeholder='Share your story...'
+          rows={2}
+          value={value}
+          onInput={e => setValue((e.target as HTMLInputElement).value)}
+          error={overLimit ? `Message must be ${MAX_LENGTH} characters or less` : undefined}
+          endAddon={
+            <Tooltip
+              value={
+                overLimit
+                  ? `${length - MAX_LENGTH} characters over limit`
+                  : `${MAX_LENGTH - length} characters remaining`
+              }
+              side='top'
+              delay={300}
+            >
+              <div
+                className={cn(
+                  'absolute right-0 bottom-0 items-center',
+                  'bg-surface-primary/50 text-sm tabular-nums',
+                  'rounded-tl-sm rounded-br-sm px-1.5 py-0.5',
+                  overLimit && 'text-error',
+                )}
+              >
+                {length}/{MAX_LENGTH}
+              </div>
+            </Tooltip>
+          }
+        />
+      </div>
+    );
   },
 };
 

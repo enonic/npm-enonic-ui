@@ -31,6 +31,7 @@ const textareaContainerVariants = cva(
 export type TextAreaProps = {
   label?: string;
   description?: ReactNode;
+  endAddon?: ReactNode;
   error?: string;
   disabled?: boolean;
   readOnly?: boolean;
@@ -50,6 +51,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       className,
       label,
       description,
+      endAddon,
       error,
       id,
       disabled,
@@ -99,6 +101,8 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             rows={rows}
             {...props}
           />
+
+          {endAddon}
         </div>
 
         {error && (
