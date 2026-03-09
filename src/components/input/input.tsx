@@ -14,7 +14,7 @@ const inputContainerVariants = cva(
   {
     variants: {
       state: {
-        default: 'border-bdr-subtle focus-within:border-bdr-strong',
+        default: 'hover:-outline-offset-1 border-bdr-subtle hover:outline-2 hover:outline-bdr-subtle',
         error: 'border-error focus-within:border-error focus-within:ring-error',
       },
       disabled: {
