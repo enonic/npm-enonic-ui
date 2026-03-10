@@ -207,6 +207,7 @@ const selectorTriggerVariants = cva(
     'flex w-full items-center justify-between gap-2.5',
     'h-12 rounded-sm border bg-surface-neutral px-4',
     'cursor-pointer select-none text-left',
+    'hover:-outline-offset-1 hover:outline-2',
     'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
     'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
     'transition-highlight',
@@ -214,15 +215,15 @@ const selectorTriggerVariants = cva(
   {
     variants: {
       error: {
-        true: 'border-error focus-visible:border-error focus-visible:ring-error',
-        false: 'border-bdr-subtle focus-visible:border-bdr-strong',
+        true: 'border-error hover:outline-error focus-visible:border-error focus-visible:ring-error',
+        false: 'border-bdr-subtle hover:outline-bdr-subtle',
       },
       open: {
-        true: 'border-bdr-strong',
+        true: '',
         false: null,
       },
       disabled: {
-        true: 'pointer-events-none cursor-not-allowed select-none opacity-30',
+        true: 'pointer-events-none cursor-not-allowed select-none opacity-30 hover:outline-none focus-visible:outline-none',
         false: null,
       },
     },

@@ -208,7 +208,7 @@ const TimePickerHourSelect = forwardRef<HTMLButtonElement, TimePickerHourSelectP
       >
         <Selector.Trigger
           ref={composedRefs}
-          className={cn('h-10 gap-1 bg-btn-primary px-3 font-normal text-sm hover:bg-btn-primary-hover', className)}
+          className={cn('h-10 gap-1 bg-btn-primary px-3 font-normal text-sm', className)}
           aria-label='Hour'
           tabIndex={tabIndex}
           data-registry-id={hourSelectId}
@@ -331,7 +331,7 @@ const TimePickerMinuteSelect = forwardRef<HTMLButtonElement, TimePickerMinuteSel
       >
         <Selector.Trigger
           ref={composedRefs}
-          className={cn('h-10 gap-1 bg-btn-primary px-3 font-normal text-sm hover:bg-btn-primary-hover', className)}
+          className={cn('h-10 gap-1 bg-btn-primary px-3 font-normal text-sm', className)}
           aria-label='Minute'
           tabIndex={tabIndex}
           data-registry-id={minuteSelectId}

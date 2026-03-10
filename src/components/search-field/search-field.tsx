@@ -70,11 +70,13 @@ const SearchFieldRoot = ({
         className={cn(
           'relative flex items-center gap-2.5 overflow-hidden rounded-sm',
           'h-11.5 px-4.5 py-3',
-          'border border-bdr-subtle focus-within:border-bdr-strong',
+          'border border-bdr-subtle',
+          'hover:outline-2 hover:outline-bdr-subtle',
           'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
           'transition-highlight',
           readOnly ? 'bg-surface-primary' : 'bg-surface-neutral',
-          disabled && 'pointer-events-none select-none opacity-30',
+          readOnly && 'hover:outline-none hover:outline-offset-0',
+          disabled && 'pointer-events-none select-none opacity-30 focus-within:outline-none hover:outline-none',
           className,
         )}
         {...props}

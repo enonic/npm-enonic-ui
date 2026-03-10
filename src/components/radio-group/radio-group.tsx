@@ -225,10 +225,12 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
         className={cn(
           'my-0.75 flex w-fit items-center gap-1 rounded-xs leading-4 transition-highlight',
           'group-data-[state=error]:focus-visible:ring-error',
+          'group-data-[state=error]:[&_[data-slot=radio-indicator]]:outline-error',
           isDisabled
             ? 'pointer-events-none opacity-30'
-            : 'hover:cursor-pointer focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+            : 'hover:[&_[data-slot=radio-indicator]]:-outline-offset-1 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset hover:[&_[data-slot=radio-indicator]]:outline-1 hover:[&_[data-slot=radio-indicator]]:outline-bdr-alt',
           className,
+          '',
         )}
         onClick={handleClick}
         onFocus={handleFocus}
@@ -253,11 +255,25 @@ const RadioGroupIndicator = forwardRef<SVGSVGElement, LucideProps>(({ className,
 
   if (checked) {
     return (
-      <CircleDisc ref={ref} size={14} className={cn('group-data-[state=error]:text-error', className)} {...props} />
+      <CircleDisc
+        ref={ref}
+        size={14}
+        className={cn('rounded-full transition-highlight', 'group-data-[state=error]:text-error', className)}
+        data-slot='radio-indicator'
+        {...props}
+      />
     );
   }
 
-  return <Circle ref={ref} size={14} className={cn('group-data-[state=error]:text-error', className)} {...props} />;
+  return (
+    <Circle
+      ref={ref}
+      size={14}
+      className={cn('rounded-full transition-highlight', 'group-data-[state=error]:text-error', className)}
+      data-slot='radio-indicator'
+      {...props}
+    />
+  );
 });
 
 RadioGroupIndicator.displayName = 'RadioGroup.Indicator';

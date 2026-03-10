@@ -14,16 +14,21 @@ const textareaContainerVariants = cva(
   {
     variants: {
       state: {
-        default: 'border-bdr-subtle focus-within:border-bdr-strong',
-        error: 'border-error focus-within:border-error focus-within:ring-error',
+        default: 'hover:-outline-offset-1 border-bdr-subtle hover:outline-2 hover:outline-bdr-subtle',
+        error:
+          'hover:-outline-offset-1 border-error focus-within:border-error focus-within:ring-error hover:outline-2 hover:outline-error',
       },
       disabled: {
-        true: 'select-none',
+        true: 'select-none focus-within:outline-none hover:outline-none',
+      },
+      readOnly: {
+        true: 'hover:outline-none hover:outline-offset-0',
       },
     },
     defaultVariants: {
       state: 'default',
       disabled: false,
+      readOnly: false,
     },
   },
 );
@@ -82,7 +87,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             {description && <div className='text-sm text-subtle'>{description}</div>}
           </div>
         )}
-        <div className={cn(textareaContainerVariants({ state, disabled }))}>
+        <div className={cn(textareaContainerVariants({ state, disabled, readOnly }))}>
           <textarea
             ref={ref}
             id={textareaId}

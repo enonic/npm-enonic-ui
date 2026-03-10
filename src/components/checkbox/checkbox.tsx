@@ -124,6 +124,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             labeled && 'my-0.75',
             editable && [
               'cursor-pointer',
+              'hover:[&_[data-slot=checkbox-indicator]]:-outline-offset-2 hover:[&_[data-slot=checkbox-indicator]]:outline-2',
+              state === 'error'
+                ? 'hover:[&_[data-slot=checkbox-indicator]]:outline-error'
+                : 'hover:[&_[data-slot=checkbox-indicator]]:outline-bdr-alt',
               'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
               // Override ring colors for inverse tone to match background
               'group-data-[tone=inverse]:[--color-ring-offset:var(--color-surface-selected)] group-data-[tone=inverse]:[--color-ring:var(--color-ring-alt)]',
@@ -160,26 +164,29 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             {isIndeterminate ? (
               <FilledSquareMinus
                 className={cn(
-                  'size-4 transition-highlight',
+                  'size-4 rounded-sm transition-highlight',
                   !editable && 'opacity-30',
                   state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
                 )}
+                data-slot='checkbox-indicator'
               />
             ) : isChecked ? (
               <FilledSquareCheck
                 className={cn(
-                  'size-4 transition-highlight',
+                  'size-4 rounded-sm transition-highlight',
                   !editable && 'opacity-30',
                   state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
                 )}
+                data-slot='checkbox-indicator'
               />
             ) : (
               <Square
                 className={cn(
-                  'size-4 transition-highlight',
+                  'size-4 rounded-sm transition-highlight focus:outline-none',
                   !editable && 'opacity-30',
                   state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
                 )}
+                data-slot='checkbox-indicator'
               />
             )}
           </span>

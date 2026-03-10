@@ -186,8 +186,9 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
         'hover:cursor-pointer focus-visible:outline-none',
         'after:size-2.5 after:rounded-full after:ring-[1.5px]',
         'after:transition-[scale,background-color,box-shadow] after:duration-300 after:ease-in-out',
+        'hover:after:outline-2 hover:after:outline-bdr-subtle',
         isSelected
-          ? 'after:scale-120 after:bg-subtle after:ring-1 after:ring-subtle'
+          ? 'after:scale-120 after:bg-subtle after:ring-1 after:ring-subtle hover:after:outline-none'
           : small
             ? 'after:scale-80 after:bg-transparent after:ring-2 after:ring-bdr-subtle'
             : 'after:scale-100 after:bg-transparent after:ring-bdr-subtle',
