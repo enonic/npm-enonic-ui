@@ -459,7 +459,7 @@ const comboboxControlVariants = cva(
     variants: {
       error: {
         true: 'border-error focus-within:border-error focus-within:ring-error',
-        false: 'border-bdr-subtle focus-within:border-bdr-strong',
+        false: 'border-bdr-subtle',
       },
       open: {
         true: 'border-bdr-strong',
@@ -562,10 +562,11 @@ ComboboxInput.displayName = 'Combobox.Input';
 export type ComboboxSearchProps = {
   className?: string;
   children?: ReactNode;
+  error?: boolean;
 } & ComponentPropsWithoutRef<typeof SearchField.Root>;
 
 const ComboboxSearch = ({ children, className, ...props }: ComboboxSearchProps): ReactElement => {
-  const { inputValue, setInputValue } = useCombobox();
+  const { inputValue, setInputValue, error } = useCombobox();
 
   return (
     <SearchField.Root
@@ -574,6 +575,7 @@ const ComboboxSearch = ({ children, className, ...props }: ComboboxSearchProps):
       className={cn(
         'w-full pr-0',
         'border-0 focus-within:border-0 focus-within:ring-0 focus-within:ring-offset-0',
+        error && 'hover:outline-error',
         className,
       )}
       {...props}

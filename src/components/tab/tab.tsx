@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
-
+import { IconButton } from '@/components';
 import {
   useControlledState,
   useItemRegistry,
@@ -23,7 +23,6 @@ import {
 import { type TabContextValue, TabProvider, usePrefixedId, useTab } from '@/providers';
 import type { LucideIcon } from '@/types';
 import { cn, useComposedRefs } from '@/utils';
-import { IconButton } from '../icon-button';
 
 //
 // * Tab.Root
@@ -240,7 +239,7 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
           'cursor-pointer',
           'after:absolute after:inset-x-0 after:bottom-0',
           'after:h-px after:bg-bdr-soft after:transition-all',
-          'hover:text-default',
+          'hover:text-default hover:after:h-0.5',
           'data-[state=active]:font-semibold data-[state=active]:text-default',
           'data-[state=active]:after:h-0.5 data-[state=active]:after:bg-bdr-strong',
           'data-disabled:pointer-events-none data-disabled:opacity-50',
