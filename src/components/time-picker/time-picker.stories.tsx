@@ -184,7 +184,11 @@ export const TimeInput: Story = {
               placeholder='HH:MM'
               value={inputValue}
               onChange={handleInputChange}
-              endAddon={<TimePicker.Trigger className='size-8 bg-transparent' aria-label='Open time picker' />}
+              endAddon={
+                <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                  <TimePicker.Trigger className='size-8 bg-transparent' aria-label='Open time picker' />
+                </div>
+              }
             />
           </div>
           <TimePicker.Content anchorRef={inputWrapperRef} align='start' />
@@ -248,7 +252,11 @@ export const TimeInputInDialog: Story = {
                       placeholder='HH:MM'
                       value={inputValue}
                       onChange={handleInputChange}
-                      endAddon={<TimePicker.Trigger className='size-8 bg-transparent' aria-label='Open time picker' />}
+                      endAddon={
+                        <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                          <TimePicker.Trigger className='size-8 bg-transparent' aria-label='Open time picker' />
+                        </div>
+                      }
                     />
                   </div>
                   <TimePicker.Content anchorRef={inputWrapperRef} align='start' />

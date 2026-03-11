@@ -125,7 +125,11 @@ export const DateInput: Story = {
               placeholder='YYYY-MM-DD'
               value={inputValue}
               onChange={handleInputChange}
-              endAddon={<DatePicker.Trigger className='size-8 bg-transparent' aria-label='Open date picker' />}
+              endAddon={
+                <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                  <DatePicker.Trigger className='size-8' aria-label='Open date picker' />
+                </div>
+              }
             />
           </div>
           <DatePicker.Portal>
@@ -195,7 +199,9 @@ export const DateInputInDialog: Story = {
                       value={inputValue}
                       onChange={handleInputChange}
                       endAddon={
-                        <DatePicker.Trigger className={'size-8 bg-transparent'} aria-label='Open date picker' />
+                        <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                          <DatePicker.Trigger className='size-8' aria-label='Open date picker' />
+                        </div>
                       }
                     />
                   </div>
@@ -289,7 +295,11 @@ export const DateTimeInput: Story = {
               placeholder='YYYY-MM-DD HH:MM'
               value={inputValue}
               onChange={handleInputChange}
-              endAddon={<DatePicker.Trigger className='size-8 bg-transparent' aria-label='Open date and time picker' />}
+              endAddon={
+                <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                  <DatePicker.Trigger className='size-8' aria-label='Open date picker' />
+                </div>
+              }
             />
           </div>
           <DatePicker.Portal>
@@ -414,10 +424,9 @@ export const DateTimeInDialog: Story = {
                       value={inputValue}
                       onChange={handleInputChange}
                       endAddon={
-                        <DatePicker.Trigger
-                          className={'size-8 bg-transparent'}
-                          aria-label='Open date and time picker'
-                        />
+                        <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                          <DatePicker.Trigger className='size-8' aria-label='Open date picker' />
+                        </div>
                       }
                     />
                   </div>
@@ -555,7 +564,9 @@ export const DateTimeRangeInDialog: Story = {
                       placeholder='YYYY-MM-DD HH:MM'
                       value={fromInputValue}
                       endAddon={
-                        <DatePicker.Trigger className='size-8 bg-transparent' aria-label='Open from date picker' />
+                        <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                          <DatePicker.Trigger className='size-8' aria-label='Open date picker' />
+                        </div>
                       }
                     />
                   </div>
@@ -607,7 +618,9 @@ export const DateTimeRangeInDialog: Story = {
                       placeholder='YYYY-MM-DD HH:MM'
                       value={toInputValue}
                       endAddon={
-                        <DatePicker.Trigger className='size-8 bg-transparent' aria-label='Open to date picker' />
+                        <div className='flex h-full w-11 items-center justify-center bg-transparent'>
+                          <DatePicker.Trigger className='size-8' aria-label='Open date picker' />
+                        </div>
                       }
                     />
                   </div>
