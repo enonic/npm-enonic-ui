@@ -1,8 +1,8 @@
 import { cva } from 'class-variance-authority';
-import { OctagonAlert, Square } from 'lucide-react';
+import { Square } from 'lucide-react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 import { useControlledState } from '@/hooks';
-import { FilledSquareCheck, FilledSquareMinus } from '@/icons';
+import { FilledOctagonAlert, FilledSquareCheck, FilledSquareMinus } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 
@@ -199,7 +199,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         </label>
         {state === 'error' && errorMessage && (
           <div className={cn('flex items-center gap-2 text-error leading-5', disabled && 'opacity-30')}>
-            <OctagonAlert size={14} strokeWidth={2.5} />
+            <FilledOctagonAlert size={14} />
             {errorMessage}
           </div>
         )}

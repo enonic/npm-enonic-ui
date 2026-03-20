@@ -1,4 +1,4 @@
-import { Circle, type LucideProps, OctagonAlert } from 'lucide-react';
+import { Circle, type LucideProps } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   createContext,
@@ -12,7 +12,7 @@ import {
   useRef,
 } from 'react';
 import { useControlledState, useItemRegistry, useRadioNavigation, useRovingTabIndex } from '@/hooks';
-import { CircleDisc } from '@/icons';
+import { CircleDisc, FilledOctagonAlert } from '@/icons';
 import { type RadioGroupContextValue, RadioGroupProvider, usePrefixedId, useRadioGroup } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 
@@ -132,8 +132,8 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
         {children}
 
         {state === 'error' && errorMessage && (
-          <div className={cn('flex items-center gap-1 text-error leading-5')}>
-            <OctagonAlert size={14} />
+          <div className={cn('flex items-center gap-2 text-error leading-5')}>
+            <FilledOctagonAlert size={14} />
             {errorMessage}
           </div>
         )}
@@ -230,7 +230,6 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
             ? 'pointer-events-none opacity-30'
             : 'hover:[&_[data-slot=radio-indicator]]:-outline-offset-1 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset hover:[&_[data-slot=radio-indicator]]:outline-1 hover:[&_[data-slot=radio-indicator]]:outline-bdr-alt',
           className,
-          '',
         )}
         onClick={handleClick}
         onFocus={handleFocus}
