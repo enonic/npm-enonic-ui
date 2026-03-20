@@ -32,6 +32,7 @@ import {
   FilledCircleCheckIcon,
   FilledCircleInfoIcon,
   FilledCircleXIcon,
+  FilledOctagonAlertIcon,
   FilledSquareCheckIcon,
   FilledSquareMinusIcon,
 } from '@/icons';
@@ -66,6 +67,11 @@ export const CustomIcons: Story = {
         icon={<FilledSquareMinusIcon />}
         label='Filled Square Minus'
         description='Filled square with minus'
+      />
+      <IconListItem
+        icon={<FilledOctagonAlertIcon />}
+        label='Filled Octagon Alert'
+        description='Filled octagon with alert'
       />
       <IconListItem
         icon={<FilledCircleAlertIcon />}

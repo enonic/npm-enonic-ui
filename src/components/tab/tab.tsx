@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, OctagonAlert } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -20,6 +20,7 @@ import {
   useScrollActiveIntoView,
   useSyncValue,
 } from '@/hooks';
+import { FilledOctagonAlert } from '@/icons';
 import { type TabContextValue, TabProvider, usePrefixedId, useTab } from '@/providers';
 import type { LucideIcon } from '@/types';
 import { cn, useComposedRefs } from '@/utils';
@@ -286,7 +287,7 @@ const TabDefaultTrigger = forwardRef<HTMLButtonElement, TabDefaultTriggerProps>(
           </span>
         )}
         <span className='truncate'>{children}</span>
-        {error && <OctagonAlert className='size-3 shrink-0 text-error' strokeWidth={2.5} />}
+        {error && <FilledOctagonAlert className='size-3 shrink-0 text-error' />}
         {!error && count !== undefined && (
           <span className='min-w-5 shrink-0 rounded-full bg-surface-primary px-1.5 py-0.5 font-medium text-xs'>
             {count}

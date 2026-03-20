@@ -1,6 +1,7 @@
 import { cva } from 'class-variance-authority';
-import { LockKeyhole, OctagonAlert } from 'lucide-react';
+import { LockKeyhole } from 'lucide-react';
 import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactNode } from 'react';
+import { FilledOctagonAlert } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
 
@@ -122,7 +123,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
 
         {error && (
           <div className='mt-2 flex items-center gap-2 text-error leading-5'>
-            <OctagonAlert size={16} strokeWidth={2.5} />
+            <FilledOctagonAlert size={16} />
             {error}
           </div>
         )}
