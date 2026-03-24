@@ -470,6 +470,13 @@ const comboboxControlVariants = cva(
         false: null,
       },
     },
+    compoundVariants: [
+      {
+        error: true,
+        open: true,
+        class: 'border-error',
+      },
+    ],
     defaultVariants: {
       error: false,
       open: false,
