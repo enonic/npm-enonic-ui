@@ -305,7 +305,11 @@ const listboxItemVariants = cva(
           'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
         ],
-        activedescendant: '',
+        activedescendant: [
+          // Items never receive DOM focus — ring must be driven by data-active
+          'data-[active=true]:ring-3 data-[active=true]:ring-ring-offset data-[active=true]:ring-inset',
+          'data-[active=true]:ring-offset-3 data-[active=true]:ring-offset-ring',
+        ],
       },
     },
     compoundVariants: [
