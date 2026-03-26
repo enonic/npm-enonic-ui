@@ -71,11 +71,14 @@ export type UseScrollActiveIntoViewConfig = {
  *   const contentRef = useRef<HTMLDivElement>(null);
  *   const { active } = useListbox();
  *
+ *   // Memoize to keep the effect dependency stable across re-renders
+ *   const buildElementId = useCallback((id: string) => `${baseId}-listbox-option-${id}`, [baseId]);
+ *
  *   useScrollActiveIntoView({
  *     containerRef: contentRef,
  *     activeId: active,
  *     orientation: 'vertical',
- *     buildElementId: (id) => `${baseId}-listbox-option-${id}`,
+ *     buildElementId,
  *   });
  *
  *   return <div ref={contentRef}>...</div>;

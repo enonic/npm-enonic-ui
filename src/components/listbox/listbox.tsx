@@ -236,11 +236,13 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
       }
     }, [focusMode, setActive]);
 
+    const buildOptionId = useCallback((id: string) => `${baseId}-listbox-option-${id}`, [baseId]);
+
     useScrollActiveIntoView({
       containerRef: innerRef,
       activeId: active ?? undefined,
       orientation: 'vertical',
-      buildElementId: id => `${baseId}-listbox-option-${id}`,
+      buildElementId: buildOptionId,
     });
 
     return (

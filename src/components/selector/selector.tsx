@@ -435,11 +435,13 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
       onClose: () => setOpen(false),
     });
 
+    const buildOptionId = useCallback((id: string) => `${baseId}-option-${id}`, [baseId]);
+
     useScrollActiveIntoView({
       containerRef: contentRef,
       activeId: active,
       orientation: 'vertical',
-      buildElementId: id => `${baseId}-option-${id}`,
+      buildElementId: buildOptionId,
     });
 
     if (!mounted || !open) {
