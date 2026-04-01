@@ -1145,6 +1145,44 @@ export const ControlledStepsDialog: Story = {
 // * Behavior
 //
 
+export const NonDismissable: Story = {
+  name: 'Behavior / Non-Dismissable',
+  render: () => {
+    const [open, setOpen] = useState(false);
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <div className='max-w-120 text-sm text-subtle'>
+          This dialog cannot be closed by clicking outside. Use the close button or Escape key to dismiss it.
+        </div>
+        <Button variant='solid' onClick={() => setOpen(true)} label='Open Non-Dismissable Dialog' />
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120' onPointerDownOutside={e => e.preventDefault()}>
+              <Dialog.DefaultHeader
+                title='Non-Dismissable Dialog'
+                description='Clicking outside will not close this dialog'
+                withClose
+              />
+              <Dialog.Body>
+                <p className='text-sm'>
+                  Try clicking outside this dialog — it will stay open. You can only close it via the close button or
+                  pressing Escape.
+                </p>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Button variant='outline' size='lg' onClick={() => setOpen(false)} label='Close' />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
 export const WithNotification: Story = {
   name: 'Behavior / With Notification',
   render: () => {
