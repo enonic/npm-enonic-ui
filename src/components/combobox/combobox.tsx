@@ -436,7 +436,7 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
 
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-      <div ref={useComposedRefs(ref, innerRef)} className={className} onBlur={handleOnBlur} {...props}>
+      <div ref={useComposedRefs(ref, innerRef)} className={cn('relative', className)} onBlur={handleOnBlur} {...props}>
         {children}
       </div>
     );
