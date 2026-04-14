@@ -1,5 +1,6 @@
 @layer base {
-  :root {
+  :root,
+  :host {
     /* Neutrals */
     --color-black: #000000;
     --color-grey-950: #242829;

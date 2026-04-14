@@ -1,5 +1,6 @@
 @layer base {
-  .dark {
+  .dark,
+  :host(.dark) {
     /* Main Colors */
     --color-main: var(--color-white);
     --color-main-hover: var(--color-grey-200);
