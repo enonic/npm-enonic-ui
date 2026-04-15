@@ -9,6 +9,7 @@
     --color-rev: var(--color-white);
     --color-alt-rev: var(--color-black);
     --color-muted: var(--color-grey-200);
+    --color-decorative: var(--color-grey-400);
 
     --color-info: var(--color-fbk-info);
     --color-info-rev: var(--color-fbk-info-subtle);

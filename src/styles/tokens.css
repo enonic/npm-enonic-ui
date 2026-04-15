@@ -15,6 +15,7 @@
   --color-rev: var(--color-rev);
   --color-alt-rev: var(--color-alt-rev);
   --color-muted: var(--color-muted);
+  --color-decorative: var(--color-decorative);
 
   --color-info: var(--color-info);
   --color-info-rev: var(--color-info-rev);
