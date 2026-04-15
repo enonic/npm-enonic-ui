@@ -35,6 +35,7 @@ export type SkeletonShape = NonNullable<SkeletonVariantsProps['shape']>;
 export type SkeletonSize = NonNullable<SkeletonVariantsProps['size']>;
 
 export type SkeletonProps = {
+  animated?: boolean;
   className?: string;
 } & SkeletonVariantsProps &
   ComponentPropsWithoutRef<'div'>;
@@ -66,7 +67,13 @@ const SkeletonGroup = ({ className, children, ...props }: SkeletonGroupProps): R
 
 SkeletonGroup.displayName = 'Skeleton.Group';
 
-const SkeletonRoot = ({ className, shape = 'rectangle', size = 'auto', ...props }: SkeletonProps): ReactElement => {
+const SkeletonRoot = ({
+  animated = true,
+  className,
+  shape = 'rectangle',
+  size = 'auto',
+  ...props
+}: SkeletonProps): ReactElement => {
   const { inGroup } = useSkeletonContext();
 
   return (
@@ -75,7 +82,7 @@ const SkeletonRoot = ({ className, shape = 'rectangle', size = 'auto', ...props 
       aria-hidden='true'
       className={cn(
         skeletonVariants({ shape, size }),
-        inGroup ? 'animate-skeleton-shimmer' : 'animate-pulse',
+        animated && (inGroup ? 'animate-skeleton-shimmer' : 'animate-pulse'),
         className,
       )}
       {...props}
