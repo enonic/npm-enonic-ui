@@ -19,6 +19,10 @@ const meta: Meta<SkeletonProps> = {
       options: ['sm', 'md', 'lg', 'auto'],
       description: 'Preset size (use "auto" for custom sizing via className)',
     },
+    animated: {
+      control: 'boolean',
+      description: 'Enable pulse or shimmer animation (default: true)',
+    },
   },
 };
 export default meta;
@@ -151,6 +155,22 @@ export const CustomSizing: Story = {
       <Skeleton className='h-10 w-40' />
       <Skeleton shape='circle' className='size-16' />
     </Container>
+  ),
+};
+
+export const NoAnimation: Story = {
+  name: 'Features / No Animation',
+  render: () => (
+    <div className='w-72 rounded-lg border border-bdr-soft p-4'>
+      <div className='flex items-center gap-3'>
+        <Skeleton animated={false} shape='circle' size='md' />
+        <div className='flex-1 space-y-2'>
+          <Skeleton animated={false} className='h-4 w-3/4' />
+          <Skeleton animated={false} className='h-3 w-1/2' />
+        </div>
+      </div>
+      <Skeleton animated={false} className='mt-4 h-20 w-full' />
+    </div>
   ),
 };
 
