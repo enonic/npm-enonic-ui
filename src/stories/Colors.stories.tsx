@@ -221,6 +221,8 @@ export const BasicPalette: Story = {
             { name: 'purple', variable: '--color-purple', description: 'For visited links' },
             { name: 'purple-subtle', variable: '--color-purple-subtle', description: 'Lighter variant' },
             { name: 'juke', variable: '--color-juke', description: 'Accent color' },
+            { name: 'blue', variable: '--color-blue', description: 'Select accent' },
+            { name: 'blue-subtle', variable: '--color-blue-subtle', description: 'Lighter variant' },
           ]}
         />
       </div>
@@ -305,11 +307,12 @@ export const SemanticColors: Story = {
           <ColorGroup
             title='Borders'
             description='Subtle to strong border emphasis'
-            columns={3}
+            columns={2}
             colors={[
               { name: 'bdr-subtle', variable: '--color-bdr-subtle', description: 'Low emphasis' },
               { name: 'bdr-soft', variable: '--color-bdr-soft', description: 'Medium emphasis' },
               { name: 'bdr-strong', variable: '--color-bdr-strong', description: 'High emphasis' },
+              { name: 'bdr-select', variable: '--color-bdr-select', description: 'Select accent' },
             ]}
           />
 

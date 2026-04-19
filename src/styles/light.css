@@ -38,6 +38,7 @@
     --color-bdr-subtle: var(--color-grey-500);
     --color-bdr-soft: var(--color-grey-200);
     --color-bdr-strong: var(--color-black);
+    --color-bdr-select: var(--color-blue);
 
     /* Outline Ring */
     --color-ring: var(--color-black);
