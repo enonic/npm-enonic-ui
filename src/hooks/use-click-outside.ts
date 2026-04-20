@@ -109,36 +109,32 @@ export function useClickOutside({
 }: UseClickOutsideConfig): void {
   const handlePointerDown = useCallback(
     (event: PointerEvent): void => {
-      const target = event.target;
+      // ? Use composedPath() so shadow-DOM retargeting doesn't hide the real origin
+      const path = event.composedPath();
+      const target = path[0];
 
-      // Ensure target is a valid DOM node
       if (!(target instanceof Node)) {
         return;
       }
 
-      // Check if click is inside content
-      if (contentRef.current?.contains(target)) {
+      if (contentRef.current && path.includes(contentRef.current)) {
         return;
       }
 
-      // Check if click is inside any excluded elements (e.g., trigger button)
       for (const excludeRef of excludeRefs) {
-        if (excludeRef?.current?.contains(target)) {
+        const element = excludeRef?.current;
+        if (element && path.includes(element)) {
           return;
         }
       }
 
-      // Check if click target is inside an element marked as click-outside-ignored
-      const element = target instanceof Element ? target : target.parentElement;
-      if (element?.closest('[data-click-outside-ignore]')) {
+      if (path.some(node => node instanceof Element && node.hasAttribute('data-click-outside-ignore'))) {
         return;
       }
 
-      // Click is outside - trigger callbacks
       onPointerDownOutside?.(event);
       onInteractOutside?.(event);
 
-      // Only close if event wasn't prevented by callback
       if (!event.defaultPrevented) {
         onClose?.();
       }
