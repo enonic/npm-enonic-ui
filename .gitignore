@@ -8,6 +8,7 @@
 # AI Assistant
 .mcp.json
 settings.local.json
+.claude/scheduled_tasks.lock
 
 # Build files
 dist/
