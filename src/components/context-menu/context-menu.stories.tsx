@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Copy, Download, ExternalLink, File, FileText, Folder, Link, Scissors, Trash2 } from 'lucide-react';
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import type { ReactElement, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/button';
 
 import { ContextMenu } from './context-menu';
@@ -332,6 +334,90 @@ export const CloseOnSelect: Story = {
             </ContextMenu.Content>
           </ContextMenu.Portal>
         </ContextMenu>
+      </div>
+    );
+  },
+};
+
+//
+// * Behavior
+//
+
+type ShadowHostProps = {
+  children: (container: HTMLElement) => ReactNode;
+};
+
+const ShadowHost = ({ children }: ShadowHostProps): ReactElement => {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host || host.shadowRoot) return;
+
+    const shadow = host.attachShadow({ mode: 'open' });
+
+    // ? Clone document styles so Tailwind utilities resolve inside the shadow tree
+    for (const node of Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'))) {
+      shadow.appendChild(node.cloneNode(true));
+    }
+
+    const mount = document.createElement('div');
+    mount.className = 'contents';
+    shadow.appendChild(mount);
+    setContainer(mount);
+  }, []);
+
+  return (
+    <div ref={hostRef} className='flex w-full justify-center'>
+      {container && createPortal(children(container), container)}
+    </div>
+  );
+};
+ShadowHost.displayName = 'ShadowHost';
+
+export const InsideShadowRoot: Story = {
+  name: 'Behavior / Inside Shadow Root',
+  render: () => {
+    const [lastAction, setLastAction] = useState<string>('None');
+
+    return (
+      <div className='flex flex-col items-center gap-y-3 p-4'>
+        <div className='max-w-120 text-sm text-subtle'>
+          The trigger and portaled content both live inside an open shadow root. Right-click the surface, then click a
+          menu item — the item&apos;s action should fire instead of the menu dismissing silently. Regression guard for
+          the <code className='mx-1'>useClickOutside</code> shadow-DOM retargeting bug.
+        </div>
+        <div className='text-sm'>
+          <span className='text-subtle'>Last action: </span>
+          <span className='font-semibold'>{lastAction}</span>
+        </div>
+        <ShadowHost>
+          {container => (
+            <ContextMenu>
+              <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
+                <span className='cursor-default text-subtle'>Right click here (inside shadow root)</span>
+              </ContextMenu.Trigger>
+              <ContextMenu.Portal container={container}>
+                <ContextMenu.Content>
+                  <ContextMenu.Item onSelect={() => setLastAction('Cut')}>
+                    <Scissors className='size-4' />
+                    <span>Cut</span>
+                  </ContextMenu.Item>
+                  <ContextMenu.Item onSelect={() => setLastAction('Copy')}>
+                    <Copy className='size-4' />
+                    <span>Copy</span>
+                  </ContextMenu.Item>
+                  <ContextMenu.Separator />
+                  <ContextMenu.Item onSelect={() => setLastAction('Delete')}>
+                    <Trash2 className='size-4' />
+                    <span>Delete</span>
+                  </ContextMenu.Item>
+                </ContextMenu.Content>
+              </ContextMenu.Portal>
+            </ContextMenu>
+          )}
+        </ShadowHost>
       </div>
     );
   },
