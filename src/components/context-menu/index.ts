@@ -8,6 +8,9 @@ export type {
   ContextMenuRadioItemProps,
   ContextMenuRootProps,
   ContextMenuSeparatorProps,
+  ContextMenuSubContentProps,
+  ContextMenuSubProps,
+  ContextMenuSubTriggerProps,
   ContextMenuTriggerProps,
 } from './context-menu';
 export { ContextMenu } from './context-menu';

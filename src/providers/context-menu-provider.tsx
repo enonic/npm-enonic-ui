@@ -1,16 +1,17 @@
 import { createContext, type ReactElement, type ReactNode, useContext } from 'react';
 
+/**
+ * Root-level context for ContextMenu. Holds menu-wide state that every level
+ * (top content, submenus) needs access to.
+ *
+ * Navigation state (active item, item registry) lives in a per-level
+ * `ContextMenuContentContextValue` — each Content and SubContent owns its own.
+ */
 export type ContextMenuContextValue = {
   baseId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-  active: string | undefined;
-  setActive: (id: string | undefined) => void;
-  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
-  unregisterItem: (id: string) => void;
-  getItems: () => string[];
-  isItemDisabled: (id: string) => boolean;
-  // Context menu specific: mouse position instead of triggerRef
+  /** Pointer coordinates where the menu was opened (set by Trigger onContextMenu) */
   position: { x: number; y: number } | null;
   setPosition: (pos: { x: number; y: number } | null) => void;
   /**

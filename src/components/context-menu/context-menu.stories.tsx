@@ -1,7 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { Copy, Download, ExternalLink, File, FileText, Folder, Link, Scissors, Trash2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'preact/hooks';
-import type { ReactElement, ReactNode } from 'react';
+import {
+  Archive,
+  ArrowUpRight,
+  Copy,
+  Download,
+  ExternalLink,
+  File,
+  FileText,
+  Folder,
+  Link,
+  Mail,
+  MessageSquare,
+  Scissors,
+  Share2,
+  Trash2,
+} from 'lucide-react';
+import { type ReactElement, type ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/button';
 
@@ -331,6 +345,106 @@ export const CloseOnSelect: Story = {
                   </ContextMenu.RadioItem>
                 ))}
               </ContextMenu.RadioGroup>
+            </ContextMenu.Content>
+          </ContextMenu.Portal>
+        </ContextMenu>
+      </div>
+    );
+  },
+};
+
+export const Submenu: Story = {
+  name: 'Features / Submenu',
+  render: () => {
+    const [lastAction, setLastAction] = useState<string>('None');
+
+    return (
+      <div className='flex flex-col items-center gap-y-3 p-4'>
+        <div className='max-w-120 text-sm text-subtle'>
+          Hover <strong>Share</strong> or <strong>Archive</strong> to reveal a submenu. Keyboard: ArrowDown to the row,
+          ArrowRight to enter the submenu, ArrowLeft to return, Escape closes the submenu only.
+        </div>
+        <div className='text-sm'>
+          <span className='text-subtle'>Last action: </span>
+          <span className='font-semibold'>{lastAction}</span>
+        </div>
+        <ContextMenu>
+          <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
+            <span className='cursor-default text-subtle'>Right click here</span>
+          </ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Content>
+              <ContextMenu.Item onSelect={() => setLastAction('Cut')}>
+                <Scissors className='size-4' />
+                <span>Cut</span>
+              </ContextMenu.Item>
+              <ContextMenu.Item onSelect={() => setLastAction('Copy')}>
+                <Copy className='size-4' />
+                <span>Copy</span>
+              </ContextMenu.Item>
+              <ContextMenu.Separator />
+              <ContextMenu.Sub>
+                <ContextMenu.SubTrigger>
+                  <Share2 className='size-4' />
+                  <span>Share</span>
+                </ContextMenu.SubTrigger>
+                <ContextMenu.Portal>
+                  <ContextMenu.SubContent>
+                    <ContextMenu.Item onSelect={() => setLastAction('Share / Email')}>
+                      <Mail className='size-4' />
+                      <span>Email</span>
+                    </ContextMenu.Item>
+                    <ContextMenu.Item onSelect={() => setLastAction('Share / Message')}>
+                      <MessageSquare className='size-4' />
+                      <span>Message</span>
+                    </ContextMenu.Item>
+                    <ContextMenu.Item onSelect={() => setLastAction('Share / Copy link')}>
+                      <Link className='size-4' />
+                      <span>Copy link</span>
+                    </ContextMenu.Item>
+                  </ContextMenu.SubContent>
+                </ContextMenu.Portal>
+              </ContextMenu.Sub>
+              <ContextMenu.Sub>
+                <ContextMenu.SubTrigger>
+                  <Archive className='size-4' />
+                  <span>Archive</span>
+                </ContextMenu.SubTrigger>
+                <ContextMenu.Portal>
+                  <ContextMenu.SubContent>
+                    <ContextMenu.Item onSelect={() => setLastAction('Archive / Compress')}>
+                      <span>Compress</span>
+                    </ContextMenu.Item>
+                    <ContextMenu.Item disabled>
+                      <span>Encrypt (unavailable)</span>
+                    </ContextMenu.Item>
+                    <ContextMenu.Separator />
+                    <ContextMenu.Sub>
+                      <ContextMenu.SubTrigger>
+                        <ArrowUpRight className='size-4' />
+                        <span>Move to</span>
+                      </ContextMenu.SubTrigger>
+                      <ContextMenu.Portal>
+                        <ContextMenu.SubContent>
+                          <ContextMenu.Item onSelect={() => setLastAction('Move to / Inbox')}>Inbox</ContextMenu.Item>
+                          <ContextMenu.Item onSelect={() => setLastAction('Move to / Starred')}>
+                            Starred
+                          </ContextMenu.Item>
+                          <ContextMenu.Item onSelect={() => setLastAction('Move to / Trash')}>Trash</ContextMenu.Item>
+                        </ContextMenu.SubContent>
+                      </ContextMenu.Portal>
+                    </ContextMenu.Sub>
+                  </ContextMenu.SubContent>
+                </ContextMenu.Portal>
+              </ContextMenu.Sub>
+              <ContextMenu.Separator />
+              <ContextMenu.Item
+                className='text-error data-[active=true]:not-dark:text-error-rev'
+                onSelect={() => setLastAction('Delete')}
+              >
+                <Trash2 className='size-4' />
+                <span>Delete</span>
+              </ContextMenu.Item>
             </ContextMenu.Content>
           </ContextMenu.Portal>
         </ContextMenu>
