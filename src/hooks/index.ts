@@ -2,7 +2,12 @@ export { type UseActiveItemFocusConfig, useActiveItemFocus } from './use-active-
 export { type UseClickOutsideConfig, useClickOutside } from './use-click-outside';
 export { useControlledState } from './use-controlled-state';
 export { useControlledStateWithNull } from './use-controlled-state-with-null';
-export { type FloatingPosition, type UseFloatingPositionConfig, useFloatingPosition } from './use-floating-position';
+export {
+  type FloatingPosition,
+  type FloatingSide,
+  type UseFloatingPositionConfig,
+  useFloatingPosition,
+} from './use-floating-position';
 export {
   type ActiveCell,
   type GridNavigationConfig,
@@ -29,6 +34,12 @@ export {
   useSelectorKeyboard,
 } from './use-selector-keyboard';
 export { type StepNavigationConfig, type UseStepNavigationReturn, useStepNavigation } from './use-step-navigation';
+export {
+  type SafeAreaSide,
+  type UseSubmenuSafeAreaConfig,
+  type UseSubmenuSafeAreaReturn,
+  useSubmenuSafeArea,
+} from './use-submenu-safe-area';
 export { useSyncValue } from './use-sync-value';
 export { type UseTypeAheadConfig, type UseTypeAheadReturn, useTypeAhead } from './use-type-ahead';
 export {
