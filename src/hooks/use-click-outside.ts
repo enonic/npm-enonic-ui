@@ -1,4 +1,4 @@
-import { type RefObject, useCallback, useEffect } from 'react';
+import { type RefObject, useCallback, useEffect, useRef } from 'react';
 
 export type UseClickOutsideConfig = {
   /** Whether the click outside listener is active */
@@ -14,6 +14,8 @@ export type UseClickOutsideConfig = {
   onPointerDownOutside?: (event: PointerEvent) => void;
   /** Callback when any interaction occurs outside */
   onInteractOutside?: (event: Event) => void;
+  /** Which event should trigger `onClose`. Outside callbacks still fire on pointerdown. Defaults to pointerdown. */
+  closeOn?: 'pointerdown' | 'click';
   /**
    * Callback to close/hide the content.
    * Only called if event.defaultPrevented is false.
@@ -105,52 +107,94 @@ export function useClickOutside({
   excludeRefs = [],
   onPointerDownOutside,
   onInteractOutside,
+  closeOn = 'pointerdown',
   onClose,
 }: UseClickOutsideConfig): void {
-  const handlePointerDown = useCallback(
-    (event: PointerEvent): void => {
-      // ? Use composedPath() so shadow-DOM retargeting doesn't hide the real origin
+  const pendingOutsideClickRef = useRef(false);
+
+  const isOutside = useCallback(
+    (event: Event): boolean => {
       const path = event.composedPath();
       const target = path[0];
 
       if (!(target instanceof Node)) {
-        return;
+        return false;
       }
 
       if (contentRef.current && path.includes(contentRef.current)) {
-        return;
+        return false;
       }
 
       for (const excludeRef of excludeRefs) {
         const element = excludeRef?.current;
         if (element && path.includes(element)) {
-          return;
+          return false;
         }
       }
 
-      if (path.some(node => node instanceof Element && node.hasAttribute('data-click-outside-ignore'))) {
+      return !path.some(node => node instanceof Element && node.hasAttribute('data-click-outside-ignore'));
+    },
+    [contentRef, excludeRefs],
+  );
+
+  const handlePointerDown = useCallback(
+    (event: PointerEvent): void => {
+      pendingOutsideClickRef.current = false;
+
+      if (!isOutside(event)) {
         return;
       }
 
       onPointerDownOutside?.(event);
       onInteractOutside?.(event);
 
+      if (closeOn === 'pointerdown') {
+        if (!event.defaultPrevented) {
+          onClose?.();
+        }
+        return;
+      }
+
+      if (!event.defaultPrevented) {
+        pendingOutsideClickRef.current = true;
+      }
+    },
+    [closeOn, isOutside, onPointerDownOutside, onInteractOutside, onClose],
+  );
+
+  const handleClick = useCallback(
+    (event: MouseEvent): void => {
+      const shouldClose = pendingOutsideClickRef.current;
+      pendingOutsideClickRef.current = false;
+
+      if (closeOn !== 'click' || !shouldClose || !isOutside(event)) {
+        return;
+      }
+
       if (!event.defaultPrevented) {
         onClose?.();
       }
     },
-    [contentRef, excludeRefs, onPointerDownOutside, onInteractOutside, onClose],
+    [closeOn, isOutside, onClose],
   );
 
   useEffect(() => {
     if (!enabled) {
+      pendingOutsideClickRef.current = false;
       return;
     }
 
     document.addEventListener('pointerdown', handlePointerDown);
+    if (closeOn === 'click') {
+      document.addEventListener('click', handleClick);
+    }
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
+      if (closeOn === 'click') {
+        document.removeEventListener('click', handleClick);
+      }
+      pendingOutsideClickRef.current = false;
     };
-  }, [enabled, handlePointerDown]);
+  }, [closeOn, enabled, handleClick, handlePointerDown]);
 }
