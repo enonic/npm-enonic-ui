@@ -252,6 +252,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       excludeRefs,
       onPointerDownOutside,
       onInteractOutside,
+      closeOn: 'click',
       onClose: () => setOpen(false),
     });
 
