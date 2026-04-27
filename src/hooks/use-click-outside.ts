@@ -33,6 +33,8 @@ export type UseClickOutsideConfig = {
  * - Ignores clicks inside the content element
  * - Supports excluding additional elements (e.g., trigger buttons)
  * - Ignores clicks inside elements with `data-click-outside-ignore` attribute
+ * - Can close immediately on outside pointerdown, or wait for the matching click
+ * - Waiting for click helps avoid mobile tap clicks reaching elements behind a closing overlay
  * - Respects event.defaultPrevented to allow custom handling
  * - Only active when enabled
  * - Properly cleans up event listeners
@@ -111,46 +113,58 @@ export function useClickOutside({
   onClose,
 }: UseClickOutsideConfig): void {
   const pendingOutsideClickRef = useRef(false);
+  const contentRefRef = useRef(contentRef);
+  const excludeRefsRef = useRef(excludeRefs);
+  const onPointerDownOutsideRef = useRef(onPointerDownOutside);
+  const onInteractOutsideRef = useRef(onInteractOutside);
+  const onCloseRef = useRef(onClose);
+  const closeOnRef = useRef(closeOn);
 
-  const isOutside = useCallback(
-    (event: Event): boolean => {
-      const path = event.composedPath();
-      const target = path[0];
+  contentRefRef.current = contentRef;
+  excludeRefsRef.current = excludeRefs;
+  onPointerDownOutsideRef.current = onPointerDownOutside;
+  onInteractOutsideRef.current = onInteractOutside;
+  onCloseRef.current = onClose;
+  closeOnRef.current = closeOn;
 
-      if (!(target instanceof Node)) {
+  const isOutside = useCallback((event: Event): boolean => {
+    const path = event.composedPath();
+    const target = path[0];
+    const currentContentRef = contentRefRef.current;
+
+    if (!(target instanceof Node)) {
+      return false;
+    }
+
+    if (currentContentRef.current && path.includes(currentContentRef.current)) {
+      return false;
+    }
+
+    for (const excludeRef of excludeRefsRef.current) {
+      const element = excludeRef?.current;
+      if (element && path.includes(element)) {
         return false;
       }
+    }
 
-      if (contentRef.current && path.includes(contentRef.current)) {
-        return false;
-      }
-
-      for (const excludeRef of excludeRefs) {
-        const element = excludeRef?.current;
-        if (element && path.includes(element)) {
-          return false;
-        }
-      }
-
-      return !path.some(node => node instanceof Element && node.hasAttribute('data-click-outside-ignore'));
-    },
-    [contentRef, excludeRefs],
-  );
+    return !path.some(node => node instanceof Element && node.hasAttribute('data-click-outside-ignore'));
+  }, []);
 
   const handlePointerDown = useCallback(
     (event: PointerEvent): void => {
       pendingOutsideClickRef.current = false;
+      const currentCloseOn = closeOnRef.current;
 
       if (!isOutside(event)) {
         return;
       }
 
-      onPointerDownOutside?.(event);
-      onInteractOutside?.(event);
+      onPointerDownOutsideRef.current?.(event);
+      onInteractOutsideRef.current?.(event);
 
-      if (closeOn === 'pointerdown') {
+      if (currentCloseOn === 'pointerdown') {
         if (!event.defaultPrevented) {
-          onClose?.();
+          onCloseRef.current?.();
         }
         return;
       }
@@ -159,7 +173,7 @@ export function useClickOutside({
         pendingOutsideClickRef.current = true;
       }
     },
-    [closeOn, isOutside, onPointerDownOutside, onInteractOutside, onClose],
+    [isOutside],
   );
 
   const handleClick = useCallback(
@@ -167,20 +181,20 @@ export function useClickOutside({
       const shouldClose = pendingOutsideClickRef.current;
       pendingOutsideClickRef.current = false;
 
-      if (closeOn !== 'click' || !shouldClose || !isOutside(event)) {
+      // Guard the stable listener while effect cleanup catches up after closeOn changes.
+      if (closeOnRef.current !== 'click' || !shouldClose || !isOutside(event)) {
         return;
       }
 
       if (!event.defaultPrevented) {
-        onClose?.();
+        onCloseRef.current?.();
       }
     },
-    [closeOn, isOutside, onClose],
+    [isOutside],
   );
 
   useEffect(() => {
     if (!enabled) {
-      pendingOutsideClickRef.current = false;
       return;
     }
 
@@ -191,10 +205,14 @@ export function useClickOutside({
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
-      if (closeOn === 'click') {
-        document.removeEventListener('click', handleClick);
-      }
-      pendingOutsideClickRef.current = false;
+      document.removeEventListener('click', handleClick);
     };
   }, [closeOn, enabled, handleClick, handlePointerDown]);
+
+  // Separate reset for actual mode/active-state changes
+  useEffect(() => {
+    if (!enabled || closeOn !== 'click') {
+      pendingOutsideClickRef.current = false;
+    }
+  }, [enabled, closeOn]);
 }
