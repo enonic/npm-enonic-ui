@@ -128,6 +128,7 @@ const ToggleGroupRootSingle = forwardRef<HTMLDivElement, ToggleGroupRootSinglePr
     <ToggleGroupProvider value={contextValue}>
       {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus -- Keyboard navigation is handled via roving tabindex on child items */}
       <div
+        data-component='ToggleGroup.Root'
         ref={composedRef}
         role='radiogroup'
         id={groupId}
@@ -218,6 +219,7 @@ const ToggleGroupRootMultiple = forwardRef<HTMLDivElement, ToggleGroupRootMultip
     <ToggleGroupProvider value={contextValue}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Centralized keyboard handler for efficient roving tabindex pattern */}
       <div
+        data-component='ToggleGroup.Root'
         ref={composedRef}
         role='group'
         id={groupId}
@@ -242,7 +244,7 @@ const ToggleGroupRoot = forwardRef<HTMLDivElement, ToggleGroupRootProps>((props,
     <ToggleGroupRootMultiple {...props} ref={ref} />
   );
 });
-ToggleGroupRoot.displayName = 'ToggleGroup.Root';
+ToggleGroupRoot.displayName = 'ToggleGroup';
 
 //
 // * ToggleGroup.Item
@@ -332,6 +334,7 @@ const ToggleGroupItem = forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
 
     return (
       <Comp
+        data-component='ToggleGroup.Item'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRef}
         {...(selectionMode === 'single' ? { 'aria-pressed': isSelected } : { 'aria-checked': isSelected })}

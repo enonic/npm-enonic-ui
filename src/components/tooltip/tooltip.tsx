@@ -154,6 +154,7 @@ function TooltipTrigger({
 
   return (
     <Trigger
+      data-component='Tooltip'
       ref={triggerRef}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -180,6 +181,7 @@ function TooltipContent({
 }: TooltipContentProps): ReactElement<TooltipContentProps> {
   return (
     <div
+      data-component='Tooltip.Content'
       ref={tooltipRef}
       role='tooltip'
       className={cn('pointer-events-none fixed z-50 select-none', !position.transformOrigin && 'opacity-0')}

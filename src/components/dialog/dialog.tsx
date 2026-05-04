@@ -69,7 +69,7 @@ const DialogRoot = ({
 
   return <DialogProvider value={context}>{children}</DialogProvider>;
 };
-DialogRoot.displayName = 'Dialog.Root';
+DialogRoot.displayName = 'Dialog';
 
 //
 // * DialogTrigger
@@ -93,6 +93,7 @@ const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
 
     return (
       <Comp
+        data-component='Dialog.Trigger'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         onClick={handleClick}
@@ -151,6 +152,7 @@ const DialogOverlay = forwardRef<HTMLDivElement, DialogOverlayProps>(
 
     return (
       <div
+        data-component='Dialog.Overlay'
         ref={ref}
         data-state={open ? 'open' : 'closed'}
         className={cn(
@@ -292,6 +294,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         >
           <div className='fixed inset-0 z-40 flex items-center justify-center p-4'>
             <div
+              data-component='Dialog.Content'
               ref={composedRef}
               role='dialog'
               aria-modal='true'
@@ -333,7 +336,12 @@ export type DialogHeaderProps = {
 const DialogHeader = forwardRef<HTMLElement, DialogHeaderProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <header ref={ref} className={cn('relative grid gap-2.5 self-stretch', className)} {...props}>
+      <header
+        data-component='Dialog.Header'
+        ref={ref}
+        className={cn('relative grid gap-2.5 self-stretch', className)}
+        {...props}
+      >
         {children}
       </header>
     );
@@ -367,6 +375,7 @@ const DialogClose = forwardRef<HTMLButtonElement, DialogCloseProps>(
 
     return (
       <Comp
+        data-component='Dialog.Close'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         onClick={handleClick}
@@ -398,6 +407,7 @@ const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
 
     return (
       <Comp
+        data-component='Dialog.Title'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         id={titleId}
@@ -429,6 +439,7 @@ const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProp
 
     return (
       <Comp
+        data-component='Dialog.Description'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         id={descriptionId}
@@ -453,7 +464,12 @@ export type DialogBodyProps = {
 const DialogBody = forwardRef<HTMLDivElement, DialogBodyProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <div ref={ref} className={cn('min-h-0 flex-1 overflow-y-auto', className)} {...props}>
+      <div
+        data-component='Dialog.Body'
+        ref={ref}
+        className={cn('min-h-0 flex-1 overflow-y-auto', className)}
+        {...props}
+      >
         {children}
       </div>
     );
@@ -474,7 +490,7 @@ export type DialogFooterProps = {
 const DialogFooter = forwardRef<HTMLElement, DialogFooterProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <footer ref={ref} className={cn('flex justify-end gap-2.5', className)} {...props}>
+      <footer data-component='Dialog.Footer' ref={ref} className={cn('flex justify-end gap-2.5', className)} {...props}>
         {children}
       </footer>
     );
@@ -490,7 +506,7 @@ type DialogDefaultCloseProps = Partial<ComponentPropsWithoutRef<typeof IconButto
 
 const DialogDefaultClose = forwardRef<HTMLButtonElement, DialogDefaultCloseProps>((props, ref): ReactElement => {
   return (
-    <DialogClose asChild ref={ref} {...props}>
+    <DialogClose data-component='Dialog.DefaultClose' asChild ref={ref} {...props}>
       <IconButton
         aria-label='Close'
         data-area='close'
@@ -521,7 +537,12 @@ export type DialogDefaultHeaderProps = {
 const DialogDefaultHeader = forwardRef<HTMLElement, DialogDefaultHeaderProps>(
   ({ title, titleId, description, descriptionId, withClose, className, children, ...props }, ref): ReactElement => {
     return (
-      <DialogHeader ref={ref} className={cn(withClose && 'grid-cols-[minmax(0,1fr)_auto]', className)} {...props}>
+      <DialogHeader
+        data-component='Dialog.DefaultHeader'
+        ref={ref}
+        className={cn(withClose && 'grid-cols-[minmax(0,1fr)_auto]', className)}
+        {...props}
+      >
         <DialogTitle id={titleId} className={cn(withClose && 'col-start-1 row-start-1 min-w-0')}>
           {title}
         </DialogTitle>
@@ -561,7 +582,12 @@ const DialogStepHeader = forwardRef<HTMLElement, DialogStepHeaderProps>((props, 
   if (step !== value) return null;
 
   return (
-    <DialogHeader ref={ref} className={cn(withClose && 'grid-cols-[minmax(0,1fr)_auto]', className)} {...restProps}>
+    <DialogHeader
+      data-component='Dialog.StepHeader'
+      ref={ref}
+      className={cn(withClose && 'grid-cols-[minmax(0,1fr)_auto]', className)}
+      {...restProps}
+    >
       {helper && <p className={cn('font-semibold', withClose && 'col-start-1 row-start-1 min-w-0')}>{helper}</p>}
 
       <DialogTitle
@@ -608,7 +634,7 @@ export type DialogStepContentProps = {
 
 const DialogStepContent = ({ step, locked, children }: DialogStepContentProps): ReactElement => {
   return (
-    <Stepper.Panel value={step} locked={locked}>
+    <Stepper.Panel data-component='Dialog.StepContent' value={step} locked={locked}>
       {children}
     </Stepper.Panel>
   );
@@ -647,7 +673,10 @@ const DialogStepIndicator = ({
   const isDisabled = disabled || pending;
 
   return (
-    <div className={cn('items-center', dots ? 'grid grid-cols-[1fr_auto_1fr]' : 'flex justify-between')}>
+    <div
+      data-component='Dialog.StepIndicator'
+      className={cn('items-center', dots ? 'grid grid-cols-[1fr_auto_1fr]' : 'flex justify-between')}
+    >
       <Stepper.Previous asChild disabled={isDisabled}>
         <Button
           size='lg'

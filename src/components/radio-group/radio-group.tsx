@@ -113,6 +113,7 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
   return (
     <RadioGroupProvider value={contextValue}>
       <div
+        data-component='RadioGroup.Root'
         ref={ref}
         role='radiogroup'
         tabIndex={-1}
@@ -142,7 +143,7 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
   );
 });
 
-RadioGroupRoot.displayName = 'RadioGroup.Root';
+RadioGroupRoot.displayName = 'RadioGroup';
 
 //
 // * RadioGroup.Item
@@ -214,6 +215,7 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
         className='peer sr-only'
       />
       <button
+        data-component='RadioGroup.Item'
         ref={composedRef}
         id={id}
         data-registry-id={value}
@@ -255,6 +257,7 @@ const RadioGroupIndicator = forwardRef<SVGSVGElement, LucideProps>(({ className,
   if (checked) {
     return (
       <CircleDisc
+        data-component='RadioGroup.Indicator'
         ref={ref}
         size={14}
         className={cn('rounded-full transition-highlight', 'group-data-[state=error]:text-error', className)}
@@ -266,6 +269,7 @@ const RadioGroupIndicator = forwardRef<SVGSVGElement, LucideProps>(({ className,
 
   return (
     <Circle
+      data-component='RadioGroup.Indicator'
       ref={ref}
       size={14}
       className={cn('rounded-full transition-highlight', 'group-data-[state=error]:text-error', className)}

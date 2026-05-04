@@ -94,14 +94,14 @@ const StepperRoot = forwardRef<HTMLDivElement, StepperRootProps>((props, ref): R
 
   return (
     <StepperProvider value={contextValue}>
-      <div ref={ref} className={className} {...restProps}>
+      <div data-component='Stepper.Root' ref={ref} className={className} {...restProps}>
         {children}
       </div>
     </StepperProvider>
   );
 });
 
-StepperRoot.displayName = 'Stepper.Root';
+StepperRoot.displayName = 'Stepper';
 
 //
 // * Stepper.Panel
@@ -135,6 +135,7 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
 
   return (
     <div
+      data-component='Stepper.Panel'
       ref={composedRef}
       id={getPanelId(baseId, value)}
       data-registry-id={value}
@@ -264,6 +265,7 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
 
   return (
     <div
+      data-component='Stepper.Dots'
       ref={ref}
       role='tablist'
       aria-label='Step navigation'
@@ -360,6 +362,7 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
 
   return (
     <Comp
+      data-component='Stepper.Previous'
       // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
       ref={ref}
       onClick={handleClick}
@@ -420,6 +423,7 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
 
   return (
     <Comp
+      data-component='Stepper.Next'
       // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
       ref={ref}
       onClick={handleClick}

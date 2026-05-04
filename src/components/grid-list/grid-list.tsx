@@ -302,6 +302,7 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
         {/* Grid uses roving tabindex pattern - cells provide focusability, not container */}
         {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
         <div
+          data-component='GridList'
           ref={useComposedRefs(ref, innerRef)}
           id={`${gridBaseId}-grid`}
           className={cn(
@@ -374,6 +375,7 @@ const GridListRow = forwardRef<HTMLDivElement, GridListRowProps>(
     return (
       <GridListRowProvider value={rowContextValue}>
         <div
+          data-component='GridList.Row'
           ref={useComposedRefs(ref, rowRef)}
           id={`${baseId}-row-${id}`}
           className={cn('flex items-center', disabled && !gridDisabled && 'pointer-events-none opacity-30', className)}
@@ -388,7 +390,7 @@ const GridListRow = forwardRef<HTMLDivElement, GridListRowProps>(
     );
   },
 );
-GridListRow.displayName = 'GridListRow';
+GridListRow.displayName = 'GridList.Row';
 
 export type GridListCellProps = {
   /**
@@ -495,6 +497,7 @@ const GridListCell = forwardRef<HTMLDivElement, GridListCellProps>(
 
     return (
       <div
+        data-component='GridList.Cell'
         ref={useComposedRefs(ref, cellRef)}
         id={`${baseId}-cell-${rowId}-${colIndex}`}
         className={cn(
@@ -516,7 +519,7 @@ const GridListCell = forwardRef<HTMLDivElement, GridListCellProps>(
     );
   },
 );
-GridListCell.displayName = 'GridListCell';
+GridListCell.displayName = 'GridList.Cell';
 
 export type GridListActionProps = {
   /**
@@ -536,7 +539,7 @@ const GridListAction = ({ children }: GridListActionProps): ReactElement => {
   }
   return cloneElement(children, { tabIndex: -1 });
 };
-GridListAction.displayName = 'GridListAction';
+GridListAction.displayName = 'GridList.Action';
 
 export const GridList = Object.assign(GridListRoot, {
   Root: GridListRoot,

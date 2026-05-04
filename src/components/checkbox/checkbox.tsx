@@ -111,7 +111,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     };
 
     return (
-      <div className='flex w-fit flex-col gap-1'>
+      <div data-component='Checkbox' className='flex w-fit flex-col gap-1'>
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events -- Label with htmlFor is interactive; keyboard events handled by linked input */}
         <label
           htmlFor={inputId}

@@ -104,7 +104,7 @@ const ContextMenuRoot = ({
 
   return <ContextMenuProvider value={value}>{children}</ContextMenuProvider>;
 };
-ContextMenuRoot.displayName = 'ContextMenu.Root';
+ContextMenuRoot.displayName = 'ContextMenu';
 
 //
 // * ContextMenuTrigger
@@ -138,6 +138,7 @@ const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
 
     return (
       <Comp
+        data-component='ContextMenu.Trigger'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         data-disabled={disabled || undefined}
@@ -361,6 +362,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     return (
       <ContextMenuContentProvider value={contentContextValue}>
         <div
+          data-component='ContextMenu.Content'
           ref={composedRefs}
           id={menuId}
           role='menu'
@@ -409,6 +411,7 @@ const ContextMenuItem = forwardRef<HTMLDivElement, ContextMenuItemProps>(
     const { active, setActive, registerItem, unregisterItem, getItems, isItemDisabled } = useContextMenuContent();
     return (
       <MenuPrimitiveItem
+        data-component='ContextMenu.Item'
         ref={ref}
         active={active}
         setActive={setActive}
@@ -432,7 +435,7 @@ ContextMenuItem.displayName = 'ContextMenu.Item';
 export type ContextMenuLabelProps = MenuPrimitiveLabelProps;
 
 const ContextMenuLabel = forwardRef<HTMLDivElement, ContextMenuLabelProps>((props, ref): ReactElement => {
-  return <MenuPrimitiveLabel ref={ref} {...props} />;
+  return <MenuPrimitiveLabel data-component='ContextMenu.Label' ref={ref} {...props} />;
 });
 ContextMenuLabel.displayName = 'ContextMenu.Label';
 
@@ -443,7 +446,7 @@ ContextMenuLabel.displayName = 'ContextMenu.Label';
 export type ContextMenuSeparatorProps = MenuPrimitiveSeparatorProps;
 
 const ContextMenuSeparator = forwardRef<HTMLDivElement, ContextMenuSeparatorProps>((props, ref): ReactElement => {
-  return <MenuPrimitiveSeparator ref={ref} {...props} />;
+  return <MenuPrimitiveSeparator data-component='ContextMenu.Separator' ref={ref} {...props} />;
 });
 ContextMenuSeparator.displayName = 'ContextMenu.Separator';
 
@@ -455,7 +458,7 @@ export type ContextMenuRadioGroupProps = MenuRadioGroupOwnProps;
 
 const ContextMenuRadioGroup = forwardRef<HTMLDivElement, ContextMenuRadioGroupProps>((props, ref): ReactElement => {
   const { setOpen } = useContextMenu();
-  return <MenuPrimitiveRadioGroup ref={ref} setOpen={setOpen} {...props} />;
+  return <MenuPrimitiveRadioGroup data-component='ContextMenu.RadioGroup' ref={ref} setOpen={setOpen} {...props} />;
 });
 ContextMenuRadioGroup.displayName = 'ContextMenu.RadioGroup';
 
@@ -478,6 +481,7 @@ const ContextMenuRadioItem = forwardRef<HTMLDivElement, ContextMenuRadioItemProp
     const { active, setActive, registerItem, unregisterItem, getItems, isItemDisabled } = useContextMenuContent();
     return (
       <MenuPrimitiveRadioItem
+        data-component='ContextMenu.RadioItem'
         ref={ref}
         active={active}
         setActive={setActive}
@@ -501,7 +505,7 @@ export type ContextMenuItemIndicatorProps = MenuPrimitiveItemIndicatorProps;
 
 const ContextMenuItemIndicator = forwardRef<HTMLSpanElement, ContextMenuItemIndicatorProps>(
   (props, ref): ReactElement | null => {
-    return <MenuPrimitiveItemIndicator ref={ref} {...props} />;
+    return <MenuPrimitiveItemIndicator data-component='ContextMenu.ItemIndicator' ref={ref} {...props} />;
   },
 );
 ContextMenuItemIndicator.displayName = 'ContextMenu.ItemIndicator';
@@ -694,6 +698,7 @@ const ContextMenuSubTrigger = forwardRef<HTMLDivElement, ContextMenuSubTriggerPr
 
     return (
       <div
+        data-component='ContextMenu.SubTrigger'
         ref={composedRefs}
         id={id}
         role='menuitem'
@@ -931,6 +936,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       <IdProvider prefix={subId}>
         <ContextMenuContentProvider value={contentContextValue}>
           <div
+            data-component='ContextMenu.SubContent'
             ref={composedRefs}
             id={contentId}
             role='menu'

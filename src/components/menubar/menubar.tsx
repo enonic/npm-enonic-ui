@@ -133,7 +133,7 @@ const MenubarRoot = ({ defaultActive, onActiveChange, id, children }: MenubarRoo
 
   return <MenubarProvider value={value}>{children}</MenubarProvider>;
 };
-MenubarRoot.displayName = 'Menubar.Root';
+MenubarRoot.displayName = 'Menubar';
 
 //
 // * MenubarNav (internal name for menubar container)
@@ -249,6 +249,7 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
 
     return (
       <div
+        data-component='Menubar.Nav'
         ref={composedRefs}
         id={menubarId}
         role='menubar'
@@ -409,6 +410,7 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
 
     return (
       <Comp
+        data-component='Menubar.Button'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
@@ -487,6 +489,7 @@ const MenubarSeparator = forwardRef<HTMLDivElement, MenubarSeparatorProps>(
       // Horizontal separator for menu dropdowns
       return (
         <div
+          data-component='Menubar.Separator'
           ref={ref}
           role='separator'
           aria-orientation='horizontal'
@@ -499,6 +502,7 @@ const MenubarSeparator = forwardRef<HTMLDivElement, MenubarSeparatorProps>(
     // Vertical separator for menubar
     return (
       <div
+        data-component='Menubar.Separator'
         ref={ref}
         role='separator'
         aria-orientation='vertical'
@@ -759,6 +763,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
 
     return (
       <Comp
+        data-component='Menubar.Trigger'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={menuId}
@@ -1074,6 +1079,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
     return (
       <MenubarContentContext.Provider value={contentContextValue}>
         <div
+          data-component='Menubar.Content'
           ref={composedRefs}
           id={contentId}
           role='menu'
@@ -1242,6 +1248,7 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
 
     return (
       <Comp
+        data-component='Menubar.Item'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
@@ -1293,7 +1300,7 @@ MenubarItem.displayName = 'Menubar.Item';
 export type MenubarLabelProps = MenuPrimitiveLabelProps;
 
 const MenubarLabel = forwardRef<HTMLDivElement, MenubarLabelProps>((props, ref): ReactElement => {
-  return <MenuPrimitiveLabel ref={ref} {...props} />;
+  return <MenuPrimitiveLabel data-component='Menubar.Label' ref={ref} {...props} />;
 });
 MenubarLabel.displayName = 'Menubar.Label';
 
@@ -1394,7 +1401,13 @@ const MenubarRadioGroup = forwardRef<HTMLDivElement, MenubarRadioGroupProps>(
 
     return (
       <RadioGroupContext.Provider value={contextValue}>
-        <div ref={ref} role='group' className={cn('relative flex w-full flex-col gap-y-1', className)} {...props}>
+        <div
+          data-component='Menubar.RadioGroup'
+          ref={ref}
+          role='group'
+          className={cn('relative flex w-full flex-col gap-y-1', className)}
+          {...props}
+        >
           {children}
         </div>
       </RadioGroupContext.Provider>
@@ -1571,6 +1584,7 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
 
     return (
       <Comp
+        data-component='Menubar.RadioItem'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
@@ -1648,7 +1662,13 @@ const MenubarItemIndicator = forwardRef<HTMLSpanElement, MenubarItemIndicatorPro
     );
 
     return (
-      <span ref={ref} data-indicator className={cn('inline-flex items-center justify-center', className)} {...props}>
+      <span
+        data-component='Menubar.ItemIndicator'
+        ref={ref}
+        data-indicator
+        className={cn('inline-flex items-center justify-center', className)}
+        {...props}
+      >
         {children ?? defaultContent}
       </span>
     );

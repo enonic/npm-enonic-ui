@@ -46,6 +46,7 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
 
     return (
       <a
+        data-component='Link'
         ref={ref}
         href={href}
         className={cn(

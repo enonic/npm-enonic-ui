@@ -869,6 +869,7 @@ const VirtualizedTreeListRoot = forwardRef(
     return (
       <VirtualizedTreeListProvider value={contextValue}>
         <div
+          data-component='VirtualizedTreeList'
           id={baseId}
           ref={node => {
             (innerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
@@ -939,6 +940,7 @@ const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRow
   ): ReactElement => {
     return (
       <div
+        data-component='VirtualizedTreeList.Row'
         ref={ref}
         data-tone={selected ? 'inverse' : undefined}
         data-active={active || undefined}
@@ -1041,6 +1043,7 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
 
     return (
       <IconButton
+        data-component='VirtualizedTreeList.RowExpandControl'
         ref={ref}
         icon={icon}
         variant='text'
@@ -1130,6 +1133,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
   if (effectiveVariant === 'radio') {
     return (
       <div
+        data-component='VirtualizedTreeList.RowSelectionControl'
         ref={ref}
         role='radio'
         aria-checked={isSelected}
@@ -1151,6 +1155,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
   // Checkbox variant (default for multiple selection)
   return (
     <div
+      data-component='VirtualizedTreeList.RowSelectionControl'
       ref={ref}
       role='checkbox'
       aria-checked={isSelected}

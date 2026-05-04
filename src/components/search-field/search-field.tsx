@@ -67,6 +67,7 @@ const SearchFieldRoot = ({
   return (
     <SearchFieldProvider value={context}>
       <div
+        data-component='SearchField.Root'
         className={cn(
           'relative flex items-center gap-2.5 overflow-hidden rounded-sm',
           'h-11.5 px-4.5 py-3',
@@ -86,7 +87,7 @@ const SearchFieldRoot = ({
     </SearchFieldProvider>
   );
 };
-SearchFieldRoot.displayName = 'SearchFieldRoot';
+SearchFieldRoot.displayName = 'SearchField';
 
 //
 // * SearchFieldIcon
@@ -94,17 +95,19 @@ SearchFieldRoot.displayName = 'SearchFieldRoot';
 
 export type SearchFieldIconProps = {
   className?: string;
-};
+} & ComponentPropsWithoutRef<typeof Search>;
 
-const SearchFieldIcon = ({ className }: SearchFieldIconProps): ReactElement => {
+const SearchFieldIcon = ({ className, ...props }: SearchFieldIconProps): ReactElement => {
   return (
     <Search
+      data-component='SearchField.Icon'
       className={cn('flex size-5.5 shrink-0 items-center justify-center text-subtle', className)}
       strokeWidth={1.5}
+      {...props}
     />
   );
 };
-SearchFieldIcon.displayName = 'SearchFieldIcon';
+SearchFieldIcon.displayName = 'SearchField.Icon';
 
 //
 // * SearchFieldInput
@@ -129,6 +132,7 @@ const SearchFieldInput = forwardRef<HTMLInputElement, SearchFieldInputProps>(
 
     return (
       <input
+        data-component='SearchField.Input'
         ref={useComposedRefs(ref, inputRef)}
         id={id}
         className={cn(
@@ -151,7 +155,7 @@ const SearchFieldInput = forwardRef<HTMLInputElement, SearchFieldInputProps>(
     );
   },
 );
-SearchFieldInput.displayName = 'SearchFieldInput';
+SearchFieldInput.displayName = 'SearchField.Input';
 
 //
 // * SearchFieldClear
@@ -173,6 +177,7 @@ const SearchFieldClear = ({ className, ...props }: SearchFieldClearProps): React
 
   return (
     <IconButton
+      data-component='SearchField.Clear'
       className={cn('-mx-1.5 flex size-7 shrink-0 items-center justify-center text-subtle', className)}
       icon={X}
       title={clearLabel}
@@ -184,7 +189,7 @@ const SearchFieldClear = ({ className, ...props }: SearchFieldClearProps): React
     />
   );
 };
-SearchFieldClear.displayName = 'SearchFieldClear';
+SearchFieldClear.displayName = 'SearchField.Clear';
 
 export const SearchField = Object.assign(SearchFieldRoot, {
   Root: SearchFieldRoot,

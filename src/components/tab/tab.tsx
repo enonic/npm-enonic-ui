@@ -88,13 +88,13 @@ const TabRoot = forwardRef<HTMLDivElement, TabRootProps>((props, ref): ReactElem
 
   return (
     <TabProvider value={contextValue}>
-      <div ref={ref} className={cn('flex flex-col', className)} {...restProps}>
+      <div data-component='Tab.Root' ref={ref} className={cn('flex flex-col', className)} {...restProps}>
         {children}
       </div>
     </TabProvider>
   );
 });
-TabRoot.displayName = 'Tab.Root';
+TabRoot.displayName = 'Tab';
 
 //
 // * Tab.List
@@ -143,6 +143,7 @@ const TabList = forwardRef<HTMLDivElement, TabListProps>((props, ref): ReactElem
   return (
     // eslint-disable-next-line jsx-a11y/interactive-supports-focus -- Keyboard navigation is handled via roving tabindex on child items
     <div
+      data-component='Tab.List'
       ref={composedRef}
       role='tablist'
       id={`${baseId}-list`}
@@ -222,6 +223,7 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
 
     return (
       <button
+        data-component='Tab.Trigger'
         ref={composedRef}
         type='button'
         role='tab'
@@ -280,7 +282,7 @@ const TabDefaultTrigger = forwardRef<HTMLButtonElement, TabDefaultTriggerProps>(
     const Icon = icon;
 
     return (
-      <TabTrigger ref={ref} {...props}>
+      <TabTrigger data-component='Tab.DefaultTrigger' ref={ref} {...props}>
         {Icon && (
           <span className='shrink-0'>
             <Icon size={14} strokeWidth={2} />
@@ -328,6 +330,7 @@ const TabContent = forwardRef<HTMLDivElement, TabContentProps>(
 
     return (
       <div
+        data-component='Tab.Content'
         ref={ref}
         role='tabpanel'
         id={panelId}
@@ -407,7 +410,12 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
   );
 
   return (
-    <div ref={ref} className={cn('relative flex items-center gap-1.5', className)} {...restProps}>
+    <div
+      data-component='Tab.ListOverflow'
+      ref={ref}
+      className={cn('relative flex items-center gap-1.5', className)}
+      {...restProps}
+    >
       <IconButton
         size='sm'
         iconSize={22}

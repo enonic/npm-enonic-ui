@@ -282,6 +282,7 @@ const DatePickerDay = forwardRef<HTMLButtonElement, DatePickerDayProps>(
 
     return (
       <button
+        data-component='DatePicker.Day'
         ref={ref}
         type='button'
         role={role ?? 'gridcell'}
@@ -428,6 +429,7 @@ const DatePickerGrid = ({
   return (
     // eslint-disable-next-line jsx-a11y/aria-activedescendant-has-tabindex
     <div
+      data-component='DatePicker.Grid'
       role='grid'
       aria-label='Date picker'
       tabIndex={tabIndex ?? 0}
@@ -498,7 +500,7 @@ const DatePickerWeekdays = ({ className, ...props }: DatePickerWeekdaysProps): R
   const labels = useMemo(() => getWeekdayLabels(locale, weekStartsOn), [locale, weekStartsOn]);
 
   return (
-    <div className={cn('grid grid-cols-7 gap-1', className)} {...props}>
+    <div data-component='DatePicker.Weekdays' className={cn('grid grid-cols-7 gap-1', className)} {...props}>
       {labels.map(label => (
         <div key={label} className='flex items-center justify-center font-semibold text-subtle text-xs'>
           {label}
@@ -609,6 +611,7 @@ const DatePickerMonthSelect = forwardRef<HTMLButtonElement, DatePickerMonthSelec
         onOpenChange={handleOpenChange}
       >
         <Selector.Trigger
+          data-component='DatePicker.MonthSelect'
           ref={composedRefs}
           className={cn(
             'h-10 gap-1 border-bdr-subtle bg-btn-primary px-3 font-normal text-sm hover:bg-btn-primary-hover',
@@ -751,6 +754,7 @@ const DatePickerYearSelect = forwardRef<HTMLButtonElement, DatePickerYearSelectP
         onOpenChange={handleOpenChange}
       >
         <Selector.Trigger
+          data-component='DatePicker.YearSelect'
           ref={composedRefs}
           className={cn(
             'h-10 gap-1 border-bdr-subtle bg-btn-primary px-3 font-normal text-sm hover:bg-btn-primary-hover',
@@ -918,7 +922,7 @@ const DatePickerHeader = ({
   );
 
   return (
-    <div className={cn('flex items-center gap-2', className)} {...props}>
+    <div data-component='DatePicker.Header' className={cn('flex items-center gap-2', className)} {...props}>
       {shouldShowNavigation ? (
         <IconButton
           ref={prevButtonRef}
@@ -1064,6 +1068,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
     return (
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
+        data-component='DatePicker.Content'
         ref={composedRefs}
         id={contentId}
         role='dialog'
@@ -1128,6 +1133,7 @@ const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
     if (!asChild && !children) {
       return (
         <IconButton
+          data-component='DatePicker.Trigger'
           ref={composedRefs}
           icon={CalendarIcon}
           variant='text'
@@ -1151,6 +1157,7 @@ const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
 
     return (
       <Comp
+        data-component='DatePicker.Trigger'
         // @ts-expect-error - Radix Slot ref type is incompatible with ForwardedRef
         ref={composedRefs}
         id={triggerId}
@@ -1227,6 +1234,7 @@ const DatePickerNativeInput = forwardRef<HTMLInputElement, DatePickerNativeInput
 
     return (
       <input
+        data-component='DatePicker.NativeInput'
         ref={ref}
         type='date'
         className={cn(
@@ -1264,6 +1272,7 @@ const DatePickerHiddenInput = forwardRef<HTMLInputElement, DatePickerHiddenInput
 
     return (
       <input
+        data-component='DatePicker.HiddenInput'
         ref={ref}
         type='hidden'
         name={name ?? contextName}
@@ -1516,6 +1525,7 @@ const DatePickerRoot = ({
     <DatePickerProvider value={contextValue}>
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
+        data-component='DatePicker.Root'
         className={
           children
             ? className
@@ -1530,7 +1540,7 @@ const DatePickerRoot = ({
   );
 };
 
-DatePickerRoot.displayName = 'DatePicker.Root';
+DatePickerRoot.displayName = 'DatePicker';
 
 //
 

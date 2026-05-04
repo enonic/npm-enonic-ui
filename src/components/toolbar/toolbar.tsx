@@ -137,7 +137,7 @@ const ToolbarRoot = ({
 
   return <ToolbarContext.Provider value={value}>{children}</ToolbarContext.Provider>;
 };
-ToolbarRoot.displayName = 'Toolbar.Root';
+ToolbarRoot.displayName = 'Toolbar';
 
 //
 // * Toolbar.Container
@@ -233,6 +233,7 @@ const ToolbarContainer = forwardRef<HTMLDivElement, ToolbarContainerProps>(
 
     return (
       <div
+        data-component='Toolbar.Container'
         ref={composedRefs}
         id={toolbarId}
         role='toolbar'
@@ -365,6 +366,7 @@ const ToolbarItem = forwardRef<HTMLDivElement, ToolbarItemProps>(
 
     return (
       <Comp
+        data-component='Toolbar.Item'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
@@ -417,6 +419,7 @@ const ToolbarSeparator = forwardRef<HTMLDivElement, ToolbarSeparatorProps>(
       // Horizontal separator for vertical toolbar
       return (
         <div
+          data-component='Toolbar.Separator'
           ref={ref}
           role='separator'
           aria-orientation='horizontal'
@@ -429,6 +432,7 @@ const ToolbarSeparator = forwardRef<HTMLDivElement, ToolbarSeparatorProps>(
     // Vertical separator for horizontal toolbar (default)
     return (
       <div
+        data-component='Toolbar.Separator'
         ref={ref}
         role='separator'
         aria-orientation='vertical'

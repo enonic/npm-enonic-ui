@@ -133,7 +133,7 @@ const SkeletonGroup = ({ className, children, ...props }: SkeletonGroupProps): R
   return (
     <SkeletonContext.Provider value={{ inGroup: true }}>
       {/* ! Overriding position to `static` detaches the shimmer overlay from the group's box. */}
-      <div ref={groupRef} className={cn('relative', className)} {...props}>
+      <div data-component='Skeleton.Group' ref={groupRef} className={cn('relative', className)} {...props}>
         {children}
         <div
           ref={overlayRef}
@@ -158,6 +158,7 @@ const SkeletonRoot = ({
 
   return (
     <div
+      data-component='Skeleton'
       role='presentation'
       aria-hidden='true'
       data-skeleton-mask={animated && inGroup ? 'true' : undefined}

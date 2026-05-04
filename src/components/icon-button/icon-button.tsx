@@ -41,6 +41,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   ) => {
     return (
       <Button
+        data-component='IconButton'
         ref={ref}
         className={cn(iconButtonVariants({ size, shape }), className)}
         variant={variant}

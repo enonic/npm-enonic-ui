@@ -174,7 +174,7 @@ const ListboxRoot = ({
 
   return <ListboxProvider value={contextValue}>{children}</ListboxProvider>;
 };
-ListboxRoot.displayName = 'ListboxRoot';
+ListboxRoot.displayName = 'Listbox';
 
 export type ListboxContentProps = {
   className?: string;
@@ -249,6 +249,7 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
       // tabIndex for aria-activedescendant is properly managed based on focusMode and disabled state
       // eslint-disable-next-line jsx-a11y/aria-activedescendant-has-tabindex, jsx-a11y/interactive-supports-focus
       <div
+        data-component='Listbox.Content'
         ref={useComposedRefs(ref, innerRef)}
         id={`${baseId}-listbox`}
         className={cn(
@@ -277,7 +278,7 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
     );
   },
 );
-ListboxContent.displayName = 'ListboxContent';
+ListboxContent.displayName = 'Listbox.Content';
 
 //
 // * Listbox Item
@@ -400,6 +401,7 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
     // ARIA listbox pattern: supports both roving tabindex and aria-activedescendant
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
     <div
+      data-component='Listbox.Item'
       ref={itemRef}
       id={`${baseId}-listbox-option-${value}`}
       className={cn(listboxItemVariants({ selected: isSelected, disabled: isDisabled, focusMode }), className)}
@@ -419,7 +421,7 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
     </div>
   );
 };
-ListboxItem.displayName = 'ListboxItem';
+ListboxItem.displayName = 'Listbox.Item';
 
 export const Listbox = Object.assign(ListboxRoot, {
   Root: ListboxRoot,
