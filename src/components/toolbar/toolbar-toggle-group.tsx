@@ -129,6 +129,7 @@ const ToolbarToggleGroupRootSingle = forwardRef<HTMLDivElement, ToolbarToggleGro
     return (
       <ToolbarToggleGroupContext.Provider value={contextValue}>
         <div
+          data-component='Toolbar.ToggleGroup'
           ref={composedRef}
           role='radiogroup'
           id={groupId}
@@ -198,6 +199,7 @@ const ToolbarToggleGroupRootMultiple = forwardRef<HTMLDivElement, ToolbarToggleG
     return (
       <ToolbarToggleGroupContext.Provider value={contextValue}>
         <div
+          data-component='Toolbar.ToggleGroup'
           ref={composedRef}
           role='group'
           id={groupId}
@@ -325,6 +327,7 @@ const ToolbarToggleItem = forwardRef<HTMLButtonElement, ToolbarToggleItemProps>(
 
     return (
       <Comp
+        data-component='Toolbar.ToggleItem'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRef}
         id={id}

@@ -11,11 +11,14 @@ export const Separator = ({ className, label, decorative = false, ...props }: Se
   const ariaHidden = decorative ? 'true' : undefined;
 
   if (!label) {
-    return <hr aria-hidden={ariaHidden} className={cn('w-full border-bdr-subtle', className)} />;
+    return (
+      <hr data-component='Separator' aria-hidden={ariaHidden} className={cn('w-full border-bdr-subtle', className)} />
+    );
   }
 
   return (
     <div
+      data-component='Separator'
       role='separator'
       aria-orientation='horizontal'
       aria-hidden={ariaHidden}

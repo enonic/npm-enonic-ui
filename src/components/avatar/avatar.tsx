@@ -53,14 +53,19 @@ const AvatarRoot = forwardRef<HTMLSpanElement, AvatarRootProps>(
 
     return (
       <AvatarProvider value={contextValue}>
-        <span ref={ref} className={cn(avatarVariants({ size, shape }), className)} {...props}>
+        <span
+          data-component='Avatar.Root'
+          ref={ref}
+          className={cn(avatarVariants({ size, shape }), className)}
+          {...props}
+        >
           {children}
         </span>
       </AvatarProvider>
     );
   },
 );
-AvatarRoot.displayName = 'AvatarRoot';
+AvatarRoot.displayName = 'Avatar';
 
 export type AvatarImageProps = {
   src?: string;
@@ -115,6 +120,7 @@ const AvatarImage = forwardRef<HTMLImageElement, AvatarImageProps>(
 
     return (
       <img
+        data-component='Avatar.Image'
         ref={ref}
         src={src}
         alt={alt}
@@ -124,7 +130,7 @@ const AvatarImage = forwardRef<HTMLImageElement, AvatarImageProps>(
     );
   },
 );
-AvatarImage.displayName = 'AvatarImage';
+AvatarImage.displayName = 'Avatar.Image';
 
 export type AvatarFallbackProps = {
   children?: React.ReactNode;
@@ -159,6 +165,7 @@ const AvatarFallback = forwardRef<HTMLSpanElement, AvatarFallbackProps>(
 
     return (
       <span
+        data-component='Avatar.Fallback'
         ref={ref}
         className={cn(
           'flex h-full w-full items-center justify-center',
@@ -172,7 +179,7 @@ const AvatarFallback = forwardRef<HTMLSpanElement, AvatarFallbackProps>(
     );
   },
 );
-AvatarFallback.displayName = 'AvatarFallback';
+AvatarFallback.displayName = 'Avatar.Fallback';
 
 export const Avatar = Object.assign(AvatarRoot, {
   Root: AvatarRoot,

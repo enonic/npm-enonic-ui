@@ -62,6 +62,7 @@ const ToastTitle = forwardRef<HTMLHeadingElement, { asChild?: boolean } & Compon
     const Comp = asChild ? Slot : 'h4';
     return (
       <Comp
+        data-component='Toast.Title'
         // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
         className={cn('font-semibold text-alt text-lg', className)}
@@ -79,6 +80,7 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
     const Comp = asChild ? Slot : 'p';
     return (
       <Comp
+        data-component='Toast.Description'
         // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
         className={cn('text-md', className)}
@@ -92,7 +94,16 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
 ToastDescription.displayName = 'Toast.Description';
 
 const ToastLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...props }, ref): ReactElement => {
-  return <Link ref={ref} external={false} data-tone='inverse' className={cn('w-fit text-md', className)} {...props} />;
+  return (
+    <Link
+      data-component='Toast.Link'
+      ref={ref}
+      external={false}
+      data-tone='inverse'
+      className={cn('w-fit text-md', className)}
+      {...props}
+    />
+  );
 });
 ToastLink.displayName = 'Toast.Link';
 
@@ -100,6 +111,7 @@ const ToastButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<typeo
   ({ className, children, ...props }, ref): ReactElement => {
     return (
       <Button
+        data-component='Toast.Button'
         ref={ref}
         variant='outline'
         size='md'
@@ -127,6 +139,7 @@ const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<Ic
     if (asChild) {
       return (
         <Slot
+          data-component='Toast.Close'
           // @ts-expect-error - Slot ref typing incompatibility with Preact
           ref={ref}
           onClick={handleClick}
@@ -139,6 +152,7 @@ const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<Ic
 
     return (
       <IconButton
+        data-component='Toast.Close'
         ref={ref}
         icon={X}
         iconSize='lg'
@@ -172,14 +186,18 @@ const ToastIcon = ({ tone, children, className }: ToastIconProps): null => {
   const iconElement = useMemo(() => {
     // Custom icon provided as children
     if (children) {
-      return <div className={toastIconVariants({ variant: 'custom', className })}>{children}</div>;
+      return (
+        <div data-component='Toast.Icon' className={toastIconVariants({ variant: 'custom', className })}>
+          {children}
+        </div>
+      );
     }
 
     // Built-in icon based on tone
     const IconComponent = resolvedTone ? toneIcons[resolvedTone] : Info;
 
     return (
-      <div className={toastIconVariants({ variant: resolvedTone, className })}>
+      <div data-component='Toast.Icon' className={toastIconVariants({ variant: resolvedTone, className })}>
         <IconComponent className='scale-125 text-surface-tertiary' size={24} strokeWidth={2} aria-hidden='true' />
       </div>
     );
@@ -235,6 +253,7 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
     return (
       <ToastProvider value={{ setOpen, setIconSlot, tone, setTone }}>
         <div
+          data-component='Toast'
           ref={ref}
           id={toastId}
           data-toast-id={toastId}

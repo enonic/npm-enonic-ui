@@ -26,6 +26,7 @@ export const SelectableListItem = ({
 }: SelectableListItemProps): ReactElement => {
   return (
     <ListItem
+      data-component='SelectableListItem'
       className={cn(!selected && 'hover:bg-surface-neutral-hover', className)}
       selected={selected}
       role='row'

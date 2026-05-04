@@ -32,10 +32,11 @@ export type ListItemRightProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 export const ListItemLeft = ({ children, className, ...props }: ListItemLeftProps): ReactElement<ListItemLeftProps> => (
-  <div className={cn('flex flex-shrink-0 items-center gap-2.5', className)} {...props}>
+  <div data-component='ListItem.Left' className={cn('flex flex-shrink-0 items-center gap-2.5', className)} {...props}>
     {children}
   </div>
 );
+ListItemLeft.displayName = 'ListItem.Left';
 
 export const ListItemContent = ({
   className,
@@ -43,7 +44,7 @@ export const ListItemContent = ({
   ...props
 }: ListItemContentProps): ReactElement<ListItemContentProps> => {
   return (
-    <div className={cn('min-w-0 flex-1', className)} {...props}>
+    <div data-component='ListItem.Content' className={cn('min-w-0 flex-1', className)} {...props}>
       {children}
     </div>
   );
@@ -58,7 +59,10 @@ export const ListItemDefaultContent = ({
   icon,
 }: ListItemDefaultContentProps): ReactElement<ListItemDefaultContentProps> => {
   return (
-    <ListItemContent className={cn(icon && 'grid grid-cols-[auto_1fr] items-center gap-2.5', className)}>
+    <ListItemContent
+      data-component='ListItem.DefaultContent'
+      className={cn(icon && 'grid grid-cols-[auto_1fr] items-center gap-2.5', className)}
+    >
       {icon && (
         <div className='flex flex-shrink-0 items-center justify-center group-data-[tone=inverse]:text-alt'>{icon}</div>
       )}
@@ -72,13 +76,14 @@ export const ListItemDefaultContent = ({
     </ListItemContent>
   );
 };
+ListItemDefaultContent.displayName = 'ListItem.DefaultContent';
 
 export const ListItemRight = ({
   children,
   className,
   ...props
 }: ListItemRightProps): ReactElement<ListItemRightProps> => (
-  <div className={cn('flex flex-shrink-0 items-center gap-5', className)} {...props}>
+  <div data-component='ListItem.Right' className={cn('flex flex-shrink-0 items-center gap-5', className)} {...props}>
     {children}
   </div>
 );
@@ -91,6 +96,7 @@ const ListItemRoot = ({ children, className, selected, ...props }: ListItemProps
   const right = findComponentByType(children, ListItemRight);
   return (
     <div
+      data-component='ListItem'
       className={cn(
         'group flex items-center gap-2.5 px-2.5 py-1',
         selected && 'bg-surface-selected text-alt',

@@ -43,6 +43,7 @@ export type InputAddonProps = ComponentPropsWithoutRef<'div'>;
 const InputAddon = forwardRef<HTMLDivElement, InputAddonProps>(
   ({ className, ...props }: InputAddonProps, ref: ForwardedRef<HTMLDivElement>) => (
     <div
+      data-component='Input.Addon'
       ref={ref}
       className={cn(
         'flex min-w-12 shrink-0 items-center justify-center px-4',
@@ -57,7 +58,7 @@ const InputAddon = forwardRef<HTMLDivElement, InputAddonProps>(
   ),
 );
 
-InputAddon.displayName = 'InputAddon';
+InputAddon.displayName = 'Input.Addon';
 
 //
 // * Input
@@ -83,7 +84,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
     const state = error ? 'error' : 'default';
 
     return (
-      <div className={cn('w-full', disabled && 'opacity-30', className)}>
+      <div data-component='Input' className={cn('w-full', disabled && 'opacity-30', className)}>
         {(!!label || !!description) && (
           <div className='mb-2'>
             {label && (

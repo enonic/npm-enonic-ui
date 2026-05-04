@@ -73,7 +73,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const state = error ? 'error' : 'default';
 
     return (
-      <div className={cn('w-full', disabled && 'opacity-30', className)}>
+      <div data-component='TextArea' className={cn('w-full', disabled && 'opacity-30', className)}>
         {(!!label || !!description) && (
           <div className='mb-2'>
             {label && (

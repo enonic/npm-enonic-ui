@@ -394,7 +394,7 @@ const ComboboxRoot = ({
     </ComboboxProvider>
   );
 };
-ComboboxRoot.displayName = 'Combobox.Root';
+ComboboxRoot.displayName = 'Combobox';
 
 //
 // * Content
@@ -436,7 +436,13 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
 
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-      <div ref={useComposedRefs(ref, innerRef)} className={cn('relative', className)} onBlur={handleOnBlur} {...props}>
+      <div
+        data-component='Combobox.Content'
+        ref={useComposedRefs(ref, innerRef)}
+        className={cn('relative', className)}
+        onBlur={handleOnBlur}
+        {...props}
+      >
         {children}
       </div>
     );
@@ -495,6 +501,7 @@ const ComboboxControl = ({ className, children, ...props }: ComboboxControlProps
 
   return (
     <div
+      data-component='Combobox.Control'
       ref={controlRef}
       className={cn(
         comboboxControlVariants({
@@ -539,6 +546,7 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
 
   return (
     <SearchField.Input
+      data-component='Combobox.Input'
       ref={composedRef}
       id={`${baseId}-input`}
       onKeyDown={keyHandler}
@@ -577,6 +585,7 @@ const ComboboxSearch = ({ children, className, ...props }: ComboboxSearchProps):
 
   return (
     <SearchField.Root
+      data-component='Combobox.Search'
       value={inputValue}
       onChange={setInputValue}
       className={cn(
@@ -606,7 +615,7 @@ const ComboboxSearchIcon = ({ className, ...props }: ComboboxSearchIconProps): R
   // Hide when Value is present and closed
   if (hasValue && !open) return null;
 
-  return <SearchField.Icon className={className} {...props} />;
+  return <SearchField.Icon data-component='Combobox.SearchIcon' className={className} {...props} />;
 };
 ComboboxSearchIcon.displayName = 'Combobox.SearchIcon';
 
@@ -623,6 +632,7 @@ const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElem
 
   return (
     <IconButton
+      data-component='Combobox.Toggle'
       type='button'
       variant='text'
       size='sm'
@@ -695,6 +705,7 @@ const ComboboxValue = ({ className, children, ...props }: ComboboxValueProps): R
 
   return (
     <button
+      data-component='Combobox.Value'
       ref={buttonRef}
       type='button'
       onClick={handleClick}
@@ -729,6 +740,7 @@ const ComboboxApply = ({ className, label = 'Apply', ...props }: ComboboxApplyPr
 
   return (
     <Button
+      data-component='Combobox.Apply'
       className={cn('h-7 min-w-14 gap-2 px-2.5 text-xs', className)}
       type='button'
       label={label}
@@ -833,6 +845,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
 
     return (
       <div
+        data-component='Combobox.Popup'
         ref={composedRefs}
         data-combobox-popup=''
         data-side={isPortalMode ? position?.side : 'bottom'}
@@ -897,7 +910,7 @@ const ComboboxListContent = ({ children, className, ...props }: ComboboxListCont
       getItems={getItems}
       isItemDisabled={isItemDisabled}
     >
-      <Listbox.Content className={className} {...props}>
+      <Listbox.Content data-component='Combobox.ListContent' className={className} {...props}>
         {children}
       </Listbox.Content>
     </Listbox.Root>
@@ -984,7 +997,13 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
 
   return (
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- VirtualizedTreeList inside provides proper role and tabIndex
-    <div id={`${baseId}-tree`} className={cn('outline-none', className)} onKeyDown={handleKeyDown} {...props}>
+    <div
+      data-component='Combobox.TreeContent'
+      id={`${baseId}-tree`}
+      className={cn('outline-none', className)}
+      onKeyDown={handleKeyDown}
+      {...props}
+    >
       {children}
     </div>
   );

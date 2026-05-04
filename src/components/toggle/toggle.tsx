@@ -26,6 +26,7 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
 
     return (
       <Button
+        data-component='Toggle'
         ref={ref}
         aria-pressed={pressedState}
         data-state={pressedState ? 'on' : 'off'}

@@ -94,6 +94,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <button
+        data-component='Button'
         ref={ref}
         type='button'
         className={cn(buttonVariants({ variant, size }), className)}

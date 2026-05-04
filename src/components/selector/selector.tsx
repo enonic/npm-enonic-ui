@@ -196,7 +196,7 @@ const SelectorRoot = ({
 
   return <SelectorProvider value={context}>{children}</SelectorProvider>;
 };
-SelectorRoot.displayName = 'Selector.Root';
+SelectorRoot.displayName = 'Selector';
 
 //
 // * Selector Trigger
@@ -257,6 +257,7 @@ const SelectorTrigger = forwardRef<HTMLButtonElement, SelectorTriggerProps>(
 
     return (
       <button
+        data-component='Selector.Trigger'
         ref={useComposedRefs(ref, triggerRef)}
         type='button'
         id={`${baseId}-trigger`}
@@ -332,6 +333,7 @@ const SelectorValue = forwardRef<HTMLSpanElement, SelectorValueProps>(
 
     return (
       <span
+        data-component='Selector.Value'
         ref={ref}
         className={cn('flex-1 truncate', showPlaceholder && 'text-subtle', className)}
         data-placeholder={showPlaceholder || undefined}
@@ -359,6 +361,7 @@ const SelectorIcon = forwardRef<HTMLSpanElement, SelectorIconProps>(
 
     return (
       <span
+        data-component='Selector.Icon'
         ref={ref}
         aria-hidden='true'
         className={cn('shrink-0 text-subtle transition-transform', open && 'rotate-180', className)}
@@ -452,6 +455,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
 
     const content = (
       <div
+        data-component='Selector.Content'
         ref={composedRefs}
         id={`${baseId}-content`}
         role='listbox'
@@ -496,7 +500,12 @@ export type SelectorViewportProps = {
 const SelectorViewport = forwardRef<HTMLDivElement, SelectorViewportProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <div ref={ref} className={cn('flex max-h-80 flex-col gap-y-1 overflow-y-auto p-1', className)} {...props}>
+      <div
+        data-component='Selector.Viewport'
+        ref={ref}
+        className={cn('flex max-h-80 flex-col gap-y-1 overflow-y-auto p-1', className)}
+        {...props}
+      >
         {children}
       </div>
     );
@@ -619,6 +628,7 @@ const SelectorItem = forwardRef<HTMLDivElement, SelectorItemProps>(
       // Keyboard navigation is handled at the trigger level via aria-activedescendant pattern
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
       <div
+        data-component='Selector.Item'
         ref={composedRefs}
         id={`${baseId}-option-${value}`}
         role='option'
@@ -656,7 +666,7 @@ export type SelectorItemTextProps = {
 const SelectorItemText = forwardRef<HTMLSpanElement, SelectorItemTextProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <span ref={ref} className={cn('flex-1', className)} {...props}>
+      <span data-component='Selector.ItemText' ref={ref} className={cn('flex-1', className)} {...props}>
         {children}
       </span>
     );
@@ -677,6 +687,7 @@ const SelectorItemIndicator = forwardRef<HTMLSpanElement, SelectorItemIndicatorP
   ({ className, children, ...props }, ref): ReactElement => {
     return (
       <span
+        data-component='Selector.ItemIndicator'
         ref={ref}
         className={cn(
           'inline-flex shrink-0 items-center justify-center',
@@ -706,7 +717,14 @@ const SelectorGroup = forwardRef<HTMLDivElement, SelectorGroupProps>(
     const groupId = usePrefixedId(undefined, 'selector-group');
 
     return (
-      <div ref={ref} role='group' aria-labelledby={`${groupId}-label`} className={cn('w-full', className)} {...props}>
+      <div
+        data-component='Selector.Group'
+        ref={ref}
+        role='group'
+        aria-labelledby={`${groupId}-label`}
+        className={cn('w-full', className)}
+        {...props}
+      >
         {children}
       </div>
     );
@@ -726,7 +744,12 @@ export type SelectorLabelProps = {
 const SelectorLabel = forwardRef<HTMLDivElement, SelectorLabelProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <div ref={ref} className={cn('px-4.5 py-1.5 font-semibold text-subtle text-xs', className)} {...props}>
+      <div
+        data-component='Selector.Label'
+        ref={ref}
+        className={cn('px-4.5 py-1.5 font-semibold text-subtle text-xs', className)}
+        {...props}
+      >
         {children}
       </div>
     );
@@ -746,6 +769,7 @@ const SelectorSeparator = forwardRef<HTMLDivElement, SelectorSeparatorProps>(
   ({ className, ...props }, ref): ReactElement => {
     return (
       <div
+        data-component='Selector.Separator'
         ref={ref}
         role='separator'
         aria-orientation='horizontal'
@@ -771,6 +795,7 @@ const SelectorHiddenSelect = forwardRef<HTMLSelectElement, SelectorHiddenSelectP
 
     return (
       <select
+        data-component='Selector.HiddenSelect'
         ref={ref}
         name={name}
         form={form}

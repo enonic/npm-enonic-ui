@@ -91,7 +91,7 @@ const MenuRoot = ({
 
   return <MenuProvider value={value}>{children}</MenuProvider>;
 };
-MenuRoot.displayName = 'Menu.Root';
+MenuRoot.displayName = 'Menu';
 
 //
 // * MenuTrigger
@@ -126,6 +126,7 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
 
     return (
       <Comp
+        data-component='Menu.Trigger'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={useComposedRefs(ref, triggerRef)}
         id={triggerId}
@@ -308,6 +309,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
 
     return (
       <div
+        data-component='Menu.Content'
         ref={composedRefs}
         id={menuId}
         role='menu'
@@ -374,6 +376,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>((props, ref): ReactEl
   const { active, setActive, setOpen, registerItem, unregisterItem, getItems, isItemDisabled } = useMenu();
   return (
     <MenuPrimitiveItem
+      data-component='Menu.Item'
       ref={ref}
       active={active}
       setActive={setActive}
@@ -395,7 +398,7 @@ MenuItem.displayName = 'Menu.Item';
 export type MenuLabelProps = MenuPrimitiveLabelProps;
 
 const MenuLabel = forwardRef<HTMLDivElement, MenuLabelProps>((props, ref): ReactElement => {
-  return <MenuPrimitiveLabel ref={ref} {...props} />;
+  return <MenuPrimitiveLabel data-component='Menu.Label' ref={ref} {...props} />;
 });
 MenuLabel.displayName = 'Menu.Label';
 
@@ -406,7 +409,7 @@ MenuLabel.displayName = 'Menu.Label';
 export type MenuSeparatorProps = MenuPrimitiveSeparatorProps;
 
 const MenuSeparator = forwardRef<HTMLDivElement, MenuSeparatorProps>((props, ref): ReactElement => {
-  return <MenuPrimitiveSeparator ref={ref} {...props} />;
+  return <MenuPrimitiveSeparator data-component='Menu.Separator' ref={ref} {...props} />;
 });
 MenuSeparator.displayName = 'Menu.Separator';
 
@@ -418,7 +421,7 @@ export type MenuRadioGroupProps = MenuRadioGroupOwnProps;
 
 const MenuRadioGroup = forwardRef<HTMLDivElement, MenuRadioGroupProps>((props, ref): ReactElement => {
   const { setOpen } = useMenu();
-  return <MenuPrimitiveRadioGroup ref={ref} setOpen={setOpen} {...props} />;
+  return <MenuPrimitiveRadioGroup data-component='Menu.RadioGroup' ref={ref} setOpen={setOpen} {...props} />;
 });
 MenuRadioGroup.displayName = 'Menu.RadioGroup';
 
@@ -432,6 +435,7 @@ const MenuRadioItem = forwardRef<HTMLDivElement, MenuRadioItemProps>((props, ref
   const { active, setActive, registerItem, unregisterItem, getItems, isItemDisabled } = useMenu();
   return (
     <MenuPrimitiveRadioItem
+      data-component='Menu.RadioItem'
       ref={ref}
       active={active}
       setActive={setActive}
@@ -452,7 +456,7 @@ MenuRadioItem.displayName = 'Menu.RadioItem';
 export type MenuItemIndicatorProps = MenuPrimitiveItemIndicatorProps;
 
 const MenuItemIndicator = forwardRef<HTMLSpanElement, MenuItemIndicatorProps>((props, ref): ReactElement | null => {
-  return <MenuPrimitiveItemIndicator ref={ref} {...props} />;
+  return <MenuPrimitiveItemIndicator data-component='Menu.ItemIndicator' ref={ref} {...props} />;
 });
 MenuItemIndicator.displayName = 'Menu.ItemIndicator';
 

@@ -207,6 +207,7 @@ const TimePickerHourSelect = forwardRef<HTMLButtonElement, TimePickerHourSelectP
         onOpenChange={handleOpenChange}
       >
         <Selector.Trigger
+          data-component='TimePicker.HourSelect'
           ref={composedRefs}
           className={cn('h-10 gap-1 bg-btn-primary px-3 font-normal text-sm', className)}
           aria-label='Hour'
@@ -330,6 +331,7 @@ const TimePickerMinuteSelect = forwardRef<HTMLButtonElement, TimePickerMinuteSel
         onOpenChange={handleOpenChange}
       >
         <Selector.Trigger
+          data-component='TimePicker.MinuteSelect'
           ref={composedRefs}
           className={cn('h-10 gap-1 bg-btn-primary px-3 font-normal text-sm', className)}
           aria-label='Minute'
@@ -376,7 +378,7 @@ const TimePickerTimezone = ({ className, ...props }: TimePickerTimezoneProps): R
   }
 
   return (
-    <span className={cn('text-xs underline', className)} {...props}>
+    <span data-component='TimePicker.Timezone' className={cn('text-xs underline', className)} {...props}>
       {timezoneOffset}
     </span>
   );
@@ -398,6 +400,7 @@ const TimePickerHiddenInput = forwardRef<HTMLInputElement, TimePickerHiddenInput
 
     return (
       <input
+        data-component='TimePicker.HiddenInput'
         ref={ref}
         type='hidden'
         name={name ?? contextName}
@@ -441,6 +444,7 @@ const TimePickerNativeInput = forwardRef<HTMLInputElement, TimePickerNativeInput
 
     return (
       <input
+        data-component='TimePicker.NativeInput'
         ref={ref}
         type='time'
         className={cn(
@@ -500,6 +504,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
     if (!asChild && !children) {
       return (
         <IconButton
+          data-component='TimePicker.Trigger'
           ref={composedRefs}
           icon={Clock}
           variant='text'
@@ -525,6 +530,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
 
     return (
       <Comp
+        data-component='TimePicker.Trigger'
         // @ts-expect-error - Radix Slot ref type is incompatible with ForwardedRef
         ref={composedRefs}
         id={triggerId}
@@ -687,6 +693,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
     return (
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
+        data-component='TimePicker.Content'
         ref={composedRefs}
         id={contentId}
         role='dialog'
@@ -934,7 +941,7 @@ const TimePickerRoot = ({
     return (
       <TimePickerProvider value={contextValue}>
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-        <div className={className} onKeyDown={handleInlineKeyDown} {...props}>
+        <div data-component='TimePicker.Root' className={className} onKeyDown={handleInlineKeyDown} {...props}>
           {children}
         </div>
       </TimePickerProvider>
@@ -955,6 +962,7 @@ const TimePickerRoot = ({
     <TimePickerProvider value={contextValue}>
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
+        data-component='TimePicker.Root'
         className={cn(
           'flex w-fit items-center gap-2 rounded-sm border border-bdr-subtle bg-surface-neutral p-3',
           shouldUseNative && 'border-none bg-transparent p-0',
@@ -969,7 +977,7 @@ const TimePickerRoot = ({
   );
 };
 
-TimePickerRoot.displayName = 'TimePicker.Root';
+TimePickerRoot.displayName = 'TimePicker';
 
 //
 
