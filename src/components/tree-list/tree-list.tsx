@@ -39,15 +39,15 @@ const calcSpacerWidth = (level: number, indent: number): number => indent * (lev
 
 export const treeListRowVariants = cva(
   [
-    'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 outline-none',
+    'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 outline-none hover:bg-surface-neutral-hover',
     // Click target expansion: -inset-y-{n} where n = gap / 2
     'after:-inset-y-0.75 after:-z-10 after:pointer-events-auto after:absolute after:inset-x-0 after:rounded-sm after:content-[""]',
   ],
   {
     variants: {
       active: {
-        true: 'bg-surface-neutral-hover',
-        false: 'hover:bg-surface-neutral-hover',
+        true: '',
+        false: '',
       },
       selected: {
         true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
@@ -65,13 +65,6 @@ export const treeListRowVariants = cva(
     compoundVariants: [
       {
         active: true,
-        selected: true,
-        disabled: false,
-        class: 'bg-surface-selected-hover',
-      },
-      {
-        active: true,
-        disabled: false,
         class: [
           'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
@@ -881,13 +874,16 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
       focusMode: 'roving-tabindex',
     });
 
-    // Auto-focus active item when keyboard navigating
-    // Disable when in action mode to prevent stealing focus from interactive elements
+    // Auto-focus active item when keyboard navigating.
+    // Disable only in action mode (interactive elements own focus then).
+    // We deliberately do NOT pass the row's `disabled` prop here so that
+    // `navigate-only` rows — which set `disabled` for visual styling — still
+    // receive focus when active and can show the keyboard focus ring.
     const isInActionMode = actionModeRowId !== undefined;
     useActiveItemFocus({
       ref: innerRef,
       isActive,
-      disabled: disabled || isInActionMode,
+      disabled: isInActionMode,
       focusMode: 'roving-tabindex',
       checkFocusWithin: {
         enabled: true,
