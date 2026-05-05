@@ -123,7 +123,9 @@ export function useActiveItemFocus({
     // Ensure the element is focusable before calling focus()
     // When using Slot with asChild, the ref might point to a non-focusable element
     if (typeof ref.current.focus === 'function') {
-      ref.current.focus();
+      // ? focusVisible:true preserves the focus ring across keyboard moves —
+      //   without it, browsers may drop :focus-visible on programmatic .focus().
+      ref.current.focus({ focusVisible: true });
     }
   }, [isActive, disabled, focusMode, checkFocusWithin, ref]);
 }

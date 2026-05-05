@@ -93,6 +93,9 @@ const ListboxRoot = ({
   // Initialize active state to first available item if not set
   // Priority: defaultActive > first selected item > first non-disabled item
   useEffect(() => {
+    // ? External registry signals that a host (e.g. Combobox) owns activation;
+    //   skip auto-pick so the host's policy (no auto-active on open) wins.
+    if (externalRegisterItem !== undefined) return;
     if (active === undefined && !disabled) {
       const items = getItems();
       if (items.length === 0) return;
@@ -110,7 +113,7 @@ const ListboxRoot = ({
         updateActive(firstEnabled);
       }
     }
-  }, [active, disabled, getItems, isItemDisabled, selectionSet, updateActive]);
+  }, [active, disabled, getItems, isItemDisabled, selectionSet, updateActive, externalRegisterItem]);
 
   const toggleValue = useCallback(
     (value: string) => {
@@ -225,17 +228,6 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
       }
     }, [focusMode, active, disabled, setActive, getItems, isItemDisabled]);
 
-    // Clear active state when mouse leaves container (only in roving-tabindex mode)
-    // Preserve active state if focus is within listbox (keyboard navigation)
-    const handleContainerPointerLeave = useCallback(() => {
-      if (focusMode === 'roving-tabindex') {
-        const focusWithinListbox = innerRef.current?.contains(document.activeElement);
-        if (!focusWithinListbox) {
-          setActive(undefined);
-        }
-      }
-    }, [focusMode, setActive]);
-
     const buildOptionId = useCallback((id: string) => `${baseId}-listbox-option-${id}`, [baseId]);
 
     useScrollActiveIntoView({
@@ -269,7 +261,6 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
         }
         tabIndex={focusMode === 'activedescendant' && !disabled ? 0 : undefined}
         onFocus={focusMode === 'activedescendant' ? handleContainerFocus : undefined}
-        onPointerLeave={focusMode === 'roving-tabindex' ? handleContainerPointerLeave : undefined}
         onKeyDown={handleKeyDown}
         {...props}
       >
@@ -294,7 +285,7 @@ const listboxItemVariants = cva(
     variants: {
       selected: {
         true: 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
-        false: 'hover:bg-surface-neutral-hover data-[active=true]:bg-surface-neutral-hover',
+        false: 'hover:bg-surface-neutral-hover',
       },
       disabled: {
         true: 'pointer-events-none cursor-not-allowed opacity-30',
@@ -313,13 +304,6 @@ const listboxItemVariants = cva(
         ],
       },
     },
-    compoundVariants: [
-      {
-        selected: true,
-        disabled: false,
-        class: 'data-[active=true]:bg-surface-selected-hover',
-      },
-    ],
     defaultVariants: {
       selected: false,
       disabled: false,
@@ -386,12 +370,6 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
     }
   }, [isDisabled, toggleValue, value]);
 
-  const handlePointerMove = useCallback(() => {
-    if (!isActive && !isDisabled) {
-      setActive(value);
-    }
-  }, [isActive, setActive, value, isDisabled]);
-
   const handleFocus = useCallback(() => {
     if (isDisabled) return;
     setActive(value);
@@ -413,7 +391,6 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
       data-active={isActive || undefined}
       data-tone={isSelected ? 'inverse' : undefined}
       onClick={handleClick}
-      onPointerMove={focusMode === 'roving-tabindex' ? handlePointerMove : undefined}
       onFocus={focusMode === 'roving-tabindex' ? handleFocus : undefined}
       {...props}
     >

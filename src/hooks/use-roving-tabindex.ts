@@ -93,11 +93,13 @@ export function useRovingTabIndex({
     const firstItem = items.length > 0 ? items[0] : undefined;
 
     // Determine which item should be focusable:
-    // 1. Active item (if set and not disabled)
+    // 1. Active item (if set, present in items, and not disabled)
     // 2. First non-disabled item
     // 3. First item (even if disabled)
     // 4. This item (if no other items exist)
-    const fallbackFocusableId = active ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? id;
+    // ? Validate active is still in items — filter/virtualization can leave a stale ID.
+    const activeInItems = active && items.includes(active) ? active : undefined;
+    const fallbackFocusableId = activeInItems ?? items.find(itemId => !isItemDisabled(itemId)) ?? firstItem ?? id;
 
     const isFocusable = fallbackFocusableId === id;
     const tabIndex = isFocusable ? 0 : -1;

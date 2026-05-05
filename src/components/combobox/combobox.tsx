@@ -23,7 +23,6 @@ import {
   useControlledStateWithNull,
   useFloatingPosition,
   useItemRegistry,
-  useKeyboardNavigation,
   usePortalFocusContainer,
 } from '@/hooks';
 import { type ComboboxContextValue, ComboboxProvider, type ContentType, useCombobox, usePrefixedId } from '@/providers';
@@ -203,28 +202,6 @@ const ComboboxRoot = ({
     setOpenInternal(false);
   }, [stagingEnabled, stagedSelection, appliedSelection, commitSelection, setOpenInternal]);
 
-  const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
-    getItems,
-    isItemDisabled,
-    active: activeInternal,
-    setActive: setActiveInternal,
-    loop: false,
-    orientation: 'vertical',
-    onSelect: id => {
-      let nextSelection: readonly string[];
-
-      if (!isMultipleSelection) {
-        nextSelection = [id];
-      } else if (currentSelection.includes(id)) {
-        nextSelection = currentSelection.filter(item => item !== id);
-      } else {
-        nextSelection = [...currentSelection, id];
-      }
-
-      handleSelectionChange(nextSelection);
-    },
-  });
-
   // Focus tree container after popup opens (for tree mode)
   const focusTreeContainer = useCallback(() => {
     requestAnimationFrame(() => {
@@ -234,39 +211,49 @@ const ComboboxRoot = ({
     });
   }, [baseId]);
 
-  // Wrap keyboard handler with Combobox-specific behavior
+  // Focus first focusable listbox option (for listbox/auto mode)
+  const focusListboxItem = useCallback(() => {
+    requestAnimationFrame(() => {
+      const listbox = document.getElementById(`${baseId}-listbox`);
+      const focusable = listbox?.querySelector<HTMLElement>('[role="option"][tabindex="0"]');
+      focusable?.focus({ focusVisible: true });
+    });
+  }, [baseId]);
+
+  // Input-level handler. Owns: open/close transitions and focus transfer
+  // from the input into the popup. Once focus is on a listbox item or the
+  // tree container, their own handlers drive navigation and selection.
   const keyHandler = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
       if (disabled) {
         return;
       }
 
-      // Ctrl/Cmd + Enter to apply staged selection
-      // NOTE: Also handled in ComboboxTreeContent for when focus is in tree container
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      // Enter applies/closes the popup. In staged mode it commits staged
+      // selection; otherwise it just closes (matches Escape). Selection itself
+      // is driven by Space on the focused option, not Enter.
+      // Also handled in Combobox.Popup for when focus has moved off the input.
+      if (e.key === 'Enter' && open) {
+        e.preventDefault();
         if (stagingEnabled) {
-          e.preventDefault();
           applyStagedSelection();
-          return;
+        } else {
+          setOpen(false);
         }
+        return;
       }
 
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
         if (!open) {
-          e.preventDefault();
           setOpenInternal(true);
-          // For tree mode, also focus tree after it renders
-          if (contentType === 'tree') {
-            focusTreeContainer();
-          }
-          return;
         }
-        // For tree mode, transfer focus to tree container
         if (contentType === 'tree') {
-          e.preventDefault();
           focusTreeContainer();
-          return;
+        } else {
+          focusListboxItem();
         }
+        return;
       }
 
       if (e.key === 'Escape') {
@@ -274,35 +261,19 @@ const ComboboxRoot = ({
         setOpen(false);
         return;
       }
-
-      // Only delegate to Listbox navigation in listbox/auto mode
-      // also prevent space from being captured by the listbox
-      if (contentType !== 'tree' && e.key !== ' ') {
-        handleNavKeyDown(e);
-      }
     },
     [
       disabled,
       open,
       setOpenInternal,
       setOpen,
-      handleNavKeyDown,
       contentType,
       focusTreeContainer,
+      focusListboxItem,
       stagingEnabled,
       applyStagedSelection,
     ],
   );
-
-  // Auto-select first item when opening
-  useEffect(() => {
-    if (open && activeInternal === undefined) {
-      const items = getItems();
-      if (items.length > 0) {
-        setActiveInternal(items[0]);
-      }
-    }
-  }, [open, activeInternal, getItems, setActiveInternal]);
 
   const context = useMemo<ComboboxContextValue>(
     () => ({
@@ -380,10 +351,9 @@ const ComboboxRoot = ({
         onSelectionChange={handleSelectionChange}
         disabled={disabled}
         active={activeInternal}
-        focusMode='activedescendant'
+        focusMode='roving-tabindex'
         baseId={baseId}
         setActive={setActiveInternal}
-        keyHandler={keyHandler}
         registerItem={registerItem}
         unregisterItem={unregisterItem}
         getItems={getItems}
@@ -533,12 +503,23 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
   const innerRef = useRef<HTMLInputElement>(null);
   const composedRef = useComposedRefs(ref, innerRef);
 
-  const { open, keyHandler, baseId, active, disabled, error, contentType, hasValue } = useCombobox();
+  const { open, keyHandler, baseId, disabled, error, contentType, hasValue } = useCombobox();
 
   useEffect(() => {
     if (open && !disabled) {
       innerRef.current?.focus();
     }
+  }, [open, disabled]);
+
+  // Return focus to the input when the popup closes (mirrors Combobox.Value's
+  // close-effect). Only fires when no Combobox.Value is rendered, since the
+  // input unmounts in that case and Value's own effect refocuses the button.
+  const prevOpenRef = useRef(open);
+  useEffect(() => {
+    if (prevOpenRef.current && !open && !disabled) {
+      innerRef.current?.focus({ focusVisible: true });
+    }
+    prevOpenRef.current = open;
   }, [open, disabled]);
 
   // Hide when Value is present and closed
@@ -557,13 +538,6 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
       aria-expanded={open}
       aria-haspopup={contentType === 'tree' ? 'tree' : 'listbox'}
       aria-controls={`${baseId}-${contentType === 'tree' ? 'tree' : 'listbox'}`}
-      aria-activedescendant={
-        contentType === 'tree'
-          ? undefined // Tree container manages aria-activedescendant
-          : active
-            ? `${baseId}-listbox-option-${active}`
-            : undefined
-      }
       {...props}
     />
   );
@@ -789,7 +763,17 @@ export type ComboboxPopupProps = {
 
 const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
   ({ children, className, style, ...props }, ref): ReactElement | null => {
-    const { open, setOpen, controlRef, closeOnBlur } = useCombobox();
+    const {
+      open,
+      setOpen,
+      controlRef,
+      closeOnBlur,
+      contentType,
+      baseId,
+      stagingEnabled,
+      applyStagedSelection,
+      selectionMode,
+    } = useCombobox();
     const innerRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, innerRef);
     const [isPortalMode, setIsPortalMode] = useState(false);
@@ -822,6 +806,63 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       onClose: () => setOpen(false),
     });
 
+    const focusInput = useCallback(() => {
+      const input = document.getElementById(`${baseId}-input`);
+      input?.focus({ focusVisible: true });
+    }, [baseId]);
+
+    // Capture phase: intercept Escape and Enter before Listbox.Content's
+    // bubble-phase handler runs.
+    // Enter semantics:
+    //   - staged → apply staged selection and close
+    //   - multi  → close without toggling (Space is the selection key)
+    //   - single → fall through; Listbox handles Enter as select-and-commit,
+    //              which triggers single-mode auto-close
+    const handleKeyDownCapture = useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (contentType === 'tree') return;
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(false);
+          focusInput();
+          return;
+        }
+
+        if (e.key === 'Enter') {
+          if (selectionMode === 'single' && !stagingEnabled) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+          if (stagingEnabled) {
+            applyStagedSelection();
+          } else {
+            setOpen(false);
+          }
+          focusInput();
+        }
+      },
+      [contentType, setOpen, focusInput, stagingEnabled, applyStagedSelection, selectionMode],
+    );
+
+    // Bubble phase: redirect printable keys (and Backspace) back to the input
+    // for filtering. Mirrors ComboboxTreeContent's redirect — focus the input
+    // so the browser delivers the keystroke to it as the next event.
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (contentType === 'tree') return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+        const isPrintable = e.key.length === 1 && e.key !== ' ';
+        const isBackspace = e.key === 'Backspace';
+        if (isPrintable || isBackspace) {
+          focusInput();
+        }
+      },
+      [contentType, focusInput],
+    );
+
     if (!open) {
       return null;
     }
@@ -844,6 +885,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       : ((style as React.CSSProperties | undefined) ?? {});
 
     return (
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- key handlers redirect to interactive descendants (listbox items / input)
       <div
         data-component='Combobox.Popup'
         ref={composedRefs}
@@ -857,6 +899,8 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
           className,
         )}
         style={popupStyle}
+        onKeyDownCapture={handleKeyDownCapture}
+        onKeyDown={handleKeyDown}
         {...props}
       >
         {children}
@@ -883,7 +927,6 @@ const ComboboxListContent = ({ children, className, ...props }: ComboboxListCont
     active,
     setActive,
     baseId,
-    keyHandler,
     registerItem,
     unregisterItem,
     getItems,
@@ -901,10 +944,9 @@ const ComboboxListContent = ({ children, className, ...props }: ComboboxListCont
       onSelectionChange={onSelectionChange}
       disabled={disabled}
       active={active}
-      focusMode='activedescendant'
+      focusMode='roving-tabindex'
       baseId={baseId}
       setActive={setActive}
-      keyHandler={keyHandler}
       registerItem={registerItem}
       unregisterItem={unregisterItem}
       getItems={getItems}
@@ -957,17 +999,18 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
   // Handle keyboard shortcuts from tree content
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
-      // Ctrl/Cmd + Enter to apply staged selection
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-        e.preventDefault();
-        if (stagingEnabled) {
-          applyStagedSelection();
-        } else {
-          setOpen(false);
-        }
-        // Return focus to input
+      const focusInput = (): void => {
         const input = document.getElementById(`${baseId}-input`);
         input?.focus({ focusVisible: true });
+      };
+
+      // Enter applies staged selection (and closes). Only intercept in staged
+      // mode — otherwise let TreeList handle Enter as row activation.
+      if (e.key === 'Enter' && stagingEnabled) {
+        e.preventDefault();
+        e.stopPropagation();
+        applyStagedSelection();
+        focusInput();
         return;
       }
 
@@ -977,19 +1020,17 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
         e.preventDefault();
         e.stopPropagation();
         setOpen(false);
-        const input = document.getElementById(`${baseId}-input`);
-        input?.focus({ focusVisible: true });
+        focusInput();
         return;
       }
 
-      // Redirect printable characters (except Space) to input for filtering
+      // Redirect printable characters (except Space) and Backspace to input for filtering
       // Space is excluded because it's used for selection in tree controls (ARIA pattern)
-      if (e.key.length === 1 && e.key !== ' ' && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        const input = document.getElementById(`${baseId}-input`) as HTMLInputElement | null;
-        if (input) {
-          input.focus({ focusVisible: true });
-          // The character will be captured by the now-focused input
-        }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const isPrintable = e.key.length === 1 && e.key !== ' ';
+      const isBackspace = e.key === 'Backspace';
+      if (isPrintable || isBackspace) {
+        focusInput();
       }
     },
     [setOpen, baseId, stagingEnabled, applyStagedSelection],
