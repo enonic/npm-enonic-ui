@@ -13,6 +13,9 @@ export type VirtualizedTreeListContextValue = {
   selectionMode: 'single' | 'multiple' | 'none';
   // Focus
   isFocused: boolean;
+  // True when the most recent interaction was via keyboard
+  // (used to gate the focus ring so it doesn't show after mouse clicks)
+  keyboardActive: boolean;
   // Items
   items: readonly FlatNodeBase[];
   getItemIndex: (id: string) => number;

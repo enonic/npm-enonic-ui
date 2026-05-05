@@ -95,22 +95,6 @@ export type VirtualizedTreeListRenderProps<TData> = {
   activeIndex: number | null;
   /**
    * Props to spread on the Virtuoso container for keyboard navigation, ARIA, and focus management.
-   *
-   * IMPORTANT: The `className` includes `group/tree` which is required for keyboard focus rings.
-   * When using custom Virtuoso components, you MUST preserve this className by merging it:
-   *
-   * @example
-   * ```tsx
-   * <Virtuoso
-   *   {...containerProps}
-   *   className={cn('your-classes', containerProps.className)}
-   *   components={{
-   *     Scroller: forwardRef(({ className, ...props }, ref) => (
-   *       <div ref={ref} {...props} className={cn('scroller-styles', className)} />
-   *     )),
-   *   }}
-   * />
-   * ```
    */
   containerProps: {
     role: 'tree';
@@ -118,10 +102,6 @@ export type VirtualizedTreeListRenderProps<TData> = {
     'aria-activedescendant': string | undefined;
     'aria-multiselectable': boolean | undefined;
     tabIndex: 0;
-    /**
-     * Contains `group/tree` class for CSS-based keyboard focus detection.
-     * Must be preserved when customizing Virtuoso's Scroller component.
-     */
     className: string;
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
     onFocus: () => void;
@@ -326,6 +306,26 @@ const VirtualizedTreeListRoot = forwardRef(
     );
 
     const [isFocused, setFocused] = useState(false);
+    // Track input modality so the focus ring can mirror :focus-visible behavior.
+    // The Scroller stays focused across arrow navigation, so the browser never
+    // re-evaluates :focus-visible after a click — we have to track it ourselves.
+    const [keyboardActive, setKeyboardActive] = useState(false);
+    const lastInputRef = useRef<'keyboard' | 'mouse'>('keyboard');
+
+    useEffect(() => {
+      const onGlobalKeyDown = (): void => {
+        lastInputRef.current = 'keyboard';
+      };
+      const onGlobalPointerDown = (): void => {
+        lastInputRef.current = 'mouse';
+      };
+      document.addEventListener('keydown', onGlobalKeyDown, true);
+      document.addEventListener('pointerdown', onGlobalPointerDown, true);
+      return () => {
+        document.removeEventListener('keydown', onGlobalKeyDown, true);
+        document.removeEventListener('pointerdown', onGlobalPointerDown, true);
+      };
+    }, []);
 
     const scrollToIndex = useCallback(
       (index: number) => {
@@ -519,6 +519,8 @@ const VirtualizedTreeListRoot = forwardRef(
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLElement>) => {
+        setKeyboardActive(true);
+
         // In action mode, let Space/Enter activate the focused button
         if (actionModeRowId && (e.key === ' ' || e.key === 'Enter')) {
           return;
@@ -790,16 +792,20 @@ const VirtualizedTreeListRoot = forwardRef(
 
     const handleContainerFocus = useCallback(() => {
       setFocused(true);
+      if (lastInputRef.current === 'keyboard') {
+        setKeyboardActive(true);
+      }
     }, []);
 
     const handleContainerBlur = useCallback(() => {
       setFocused(false);
+      setKeyboardActive(false);
     }, []);
 
-    // Container props for Virtuoso
-    // The 'group/tree' class enables CSS-based keyboard focus detection for rows.
-    // When this element has :focus-visible, descendant rows with group-focus-visible/tree:*
-    // classes will show their focus rings. Users must preserve className when customizing Scroller.
+    const handleWrapperPointerDown = useCallback(() => {
+      setKeyboardActive(false);
+    }, []);
+
     const containerProps = useMemo(
       () => ({
         role: 'tree' as const,
@@ -807,7 +813,7 @@ const VirtualizedTreeListRoot = forwardRef(
         'aria-activedescendant': activeId ? `${baseId}-item-${activeId}` : undefined,
         'aria-multiselectable': selectionMode === 'multiple' ? true : undefined,
         tabIndex: 0 as const,
-        className: 'group/tree outline-none',
+        className: 'outline-none',
         onKeyDown: handleKeyDown,
         onFocus: handleContainerFocus,
         onBlur: handleContainerBlur,
@@ -837,6 +843,7 @@ const VirtualizedTreeListRoot = forwardRef(
         toggleSelection,
         selectionMode,
         isFocused,
+        keyboardActive,
         items,
         getItemIndex,
         scrollToIndex,
@@ -855,6 +862,7 @@ const VirtualizedTreeListRoot = forwardRef(
         toggleSelection,
         selectionMode,
         isFocused,
+        keyboardActive,
         items,
         getItemIndex,
         scrollToIndex,
@@ -884,6 +892,7 @@ const VirtualizedTreeListRoot = forwardRef(
             'outline-none focus-within:ring-2 focus-within:ring-ring/10 focus-within:ring-inset',
             className,
           )}
+          onPointerDown={handleWrapperPointerDown}
           {...props}
         >
           {children(renderProps)}
@@ -905,18 +914,14 @@ const VirtualizedTreeListRoot = forwardRef(
  * Row component for VirtualizedTreeList.
  *
  * Focus Ring Behavior:
- * The focus ring uses CSS `group-focus-visible/tree` to detect keyboard focus.
- * This requires the Virtuoso container's Scroller to have the `group/tree` class
- * (provided via `containerProps.className`). When the Scroller has keyboard focus
- * (`:focus-visible`), active rows will show their focus rings automatically.
+ * The focus ring tracks keyboard input modality in JS (`keyboardActive` in context).
+ * Unlike TreeList — where focus moves between rows so `:focus-visible` re-evaluates
+ * naturally — the virtualized list keeps focus on the Scroller across arrow
+ * navigation. The browser never re-evaluates `:focus-visible` after a click,
+ * which would leave the ring permanently hidden after any mouse interaction.
  *
- * This approach was chosen over JavaScript state tracking because:
- * 1. The browser's `:focus-visible` heuristic correctly handles keyboard vs mouse focus
- * 2. It doesn't require additional state management
- * 3. It matches TreeList's native behavior (which uses `:focus-visible` directly)
- *
- * IMPORTANT: If you customize Virtuoso's Scroller component, you must preserve
- * the `className` prop by merging it with your custom classes. See containerProps docs.
+ * The root tracks `keydown` (sets keyboard mode) and `pointerdown` (sets mouse
+ * mode), and the row reads the resulting flag from context.
  */
 export type VirtualizedTreeListRowProps = {
   /** Whether this row is the active (focused) row */
@@ -938,6 +943,12 @@ const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRow
     { active = false, selected = false, disabled = false, selectable = true, className, children, ...props },
     ref,
   ): ReactElement => {
+    const { keyboardActive } = useVirtualizedTreeList();
+    // Show the ring on disabled rows too so 'navigate-only' items remain
+    // visually trackable during keyboard navigation. Items the user can't
+    // navigate to ('none') never become active in the first place.
+    const showFocusRing = active && keyboardActive;
+
     return (
       <div
         data-component='VirtualizedTreeList.Row'
@@ -952,12 +963,7 @@ const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRow
             disabled,
             selectable: selectable && !disabled,
           }),
-          // Focus ring for keyboard navigation (uses CSS group-focus-visible to detect keyboard focus on container)
-          active &&
-            !disabled && [
-              'group-focus-visible/tree:ring-3 group-focus-visible/tree:ring-ring-offset group-focus-visible/tree:ring-inset',
-              'group-focus-visible/tree:ring-offset-3 group-focus-visible/tree:ring-offset-ring',
-            ],
+          showFocusRing && ['ring-3 ring-ring-offset ring-inset', 'ring-offset-3 ring-offset-ring'],
           className,
         )}
         {...props}
