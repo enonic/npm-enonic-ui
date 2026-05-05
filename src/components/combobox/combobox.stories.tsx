@@ -643,7 +643,7 @@ export const Staged: Story = {
         <header>
           <h3 className='font-medium text-md'>Need to confirm selection changes</h3>
           <p className='text-sm text-subtle'>
-            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Enter</kbd>
+            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>Enter</kbd>
           </p>
         </header>
         <Combobox.Root value={value} onChange={setValue} selectionMode={'staged'} closeOnBlur={false}>
@@ -692,7 +692,7 @@ export const StagedPreselected: Story = {
         <header>
           <h3 className='font-medium text-md'>Confirm selection changes</h3>
           <p className='text-sm text-subtle'>
-            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Enter</kbd>
+            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>Enter</kbd>
           </p>
         </header>
         <Combobox.Root
@@ -1223,7 +1223,7 @@ export const TreeContentStaged: Story = {
         <header>
           <h3 className='font-medium text-md'>Tree with Staged Selection</h3>
           <p className='text-sm text-subtle'>
-            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Enter</kbd>
+            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>Enter</kbd>
           </p>
         </header>
         <Combobox.Root
