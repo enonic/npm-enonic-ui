@@ -416,18 +416,19 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
       className={cn('relative flex items-center gap-1.5', className)}
       {...restProps}
     >
-      <IconButton
-        size='sm'
-        iconSize={22}
-        iconStrokeWidth={1.25}
-        tabIndex={-1}
-        aria-hidden='true'
-        disabled={!canScrollLeft}
-        onClick={() => scrollBy(-(scrollRef.current?.clientWidth ?? 0))}
-        className={arrowClassName}
-        icon={ChevronLeft}
-      />
-
+      {hasOverflow && (
+        <IconButton
+          size='sm'
+          iconSize={22}
+          iconStrokeWidth={1.25}
+          tabIndex={-1}
+          aria-hidden='true'
+          disabled={!canScrollLeft}
+          onClick={() => scrollBy(-(scrollRef.current?.clientWidth ?? 0))}
+          className={arrowClassName}
+          icon={ChevronLeft}
+        />
+      )}
       <div
         ref={scrollRef}
         style={{ '--tab-min-w': minTabWidth }}
@@ -443,17 +444,19 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
         {children}
       </div>
 
-      <IconButton
-        size='sm'
-        iconSize={22}
-        iconStrokeWidth={1.25}
-        tabIndex={-1}
-        aria-hidden='true'
-        disabled={!canScrollRight}
-        onClick={() => scrollBy(scrollRef.current?.clientWidth ?? 0)}
-        className={arrowClassName}
-        icon={ChevronRight}
-      />
+      {hasOverflow && (
+        <IconButton
+          size='sm'
+          iconSize={22}
+          iconStrokeWidth={1.25}
+          tabIndex={-1}
+          aria-hidden='true'
+          disabled={!canScrollRight}
+          onClick={() => scrollBy(scrollRef.current?.clientWidth ?? 0)}
+          className={arrowClassName}
+          icon={ChevronRight}
+        />
+      )}
     </div>
   );
 });
