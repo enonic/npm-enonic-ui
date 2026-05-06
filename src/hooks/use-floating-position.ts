@@ -63,7 +63,11 @@ export function useFloatingPosition({
       if (!anchorRef.current || !contentRef.current) return;
 
       const anchorRect = anchorRef.current.getBoundingClientRect();
-      const contentRect = contentRef.current.getBoundingClientRect();
+      // ! offsetWidth/offsetHeight (layout box), not getBoundingClientRect() — the
+      // latter includes CSS transforms, so a popup mid-zoom-in animation reports
+      // ~95% of its real size and gets placed too close to the anchor.
+      const contentWidth = contentRef.current.offsetWidth;
+      const contentHeight = contentRef.current.offsetHeight;
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
@@ -78,18 +82,18 @@ export function useFloatingPosition({
         // Vertical sides (top/bottom): primary axis is Y, align is horizontal
         if (preferredSide === 'bottom') {
           top = anchorRect.bottom;
-          if (top + contentRect.height > viewportHeight - VIEWPORT_PADDING) {
-            const topPosition = anchorRect.top - contentRect.height;
+          if (top + contentHeight > viewportHeight - VIEWPORT_PADDING) {
+            const topPosition = anchorRect.top - contentHeight;
             if (topPosition >= VIEWPORT_PADDING) {
               top = topPosition;
               side = 'top';
             }
           }
         } else {
-          top = anchorRect.top - contentRect.height;
+          top = anchorRect.top - contentHeight;
           if (top < VIEWPORT_PADDING) {
             const bottomPosition = anchorRect.bottom;
-            if (bottomPosition + contentRect.height <= viewportHeight - VIEWPORT_PADDING) {
+            if (bottomPosition + contentHeight <= viewportHeight - VIEWPORT_PADDING) {
               top = bottomPosition;
               side = 'bottom';
             }
@@ -98,13 +102,13 @@ export function useFloatingPosition({
 
         if (align === 'start') {
           left = anchorRect.left;
-          if (left + contentRect.width > viewportWidth - VIEWPORT_PADDING) {
+          if (left + contentWidth > viewportWidth - VIEWPORT_PADDING) {
             left = undefined;
             right = viewportWidth - anchorRect.right;
           }
         } else {
           right = viewportWidth - anchorRect.right;
-          if (anchorRect.right - contentRect.width < VIEWPORT_PADDING) {
+          if (anchorRect.right - contentWidth < VIEWPORT_PADDING) {
             right = undefined;
             left = anchorRect.left;
           }
@@ -113,18 +117,18 @@ export function useFloatingPosition({
         // Horizontal sides (left/right): primary axis is X, align is vertical
         if (preferredSide === 'right') {
           left = anchorRect.right;
-          if (left + contentRect.width > viewportWidth - VIEWPORT_PADDING) {
-            const leftPosition = anchorRect.left - contentRect.width;
+          if (left + contentWidth > viewportWidth - VIEWPORT_PADDING) {
+            const leftPosition = anchorRect.left - contentWidth;
             if (leftPosition >= VIEWPORT_PADDING) {
               left = leftPosition;
               side = 'left';
             }
           }
         } else {
-          const leftPosition = anchorRect.left - contentRect.width;
+          const leftPosition = anchorRect.left - contentWidth;
           if (leftPosition < VIEWPORT_PADDING) {
             const rightPosition = anchorRect.right;
-            if (rightPosition + contentRect.width <= viewportWidth - VIEWPORT_PADDING) {
+            if (rightPosition + contentWidth <= viewportWidth - VIEWPORT_PADDING) {
               left = rightPosition;
               side = 'right';
             } else {
@@ -137,11 +141,11 @@ export function useFloatingPosition({
 
         if (align === 'start') {
           top = anchorRect.top;
-          if (top + contentRect.height > viewportHeight - VIEWPORT_PADDING) {
-            top = Math.max(VIEWPORT_PADDING, viewportHeight - contentRect.height - VIEWPORT_PADDING);
+          if (top + contentHeight > viewportHeight - VIEWPORT_PADDING) {
+            top = Math.max(VIEWPORT_PADDING, viewportHeight - contentHeight - VIEWPORT_PADDING);
           }
         } else {
-          top = anchorRect.bottom - contentRect.height;
+          top = anchorRect.bottom - contentHeight;
           if (top < VIEWPORT_PADDING) {
             top = VIEWPORT_PADDING;
           }
