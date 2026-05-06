@@ -127,5 +127,9 @@ export function useActiveItemFocus({
       //   without it, browsers may drop :focus-visible on programmatic .focus().
       ref.current.focus({ focusVisible: true });
     }
-  }, [isActive, disabled, focusMode, checkFocusWithin, ref]);
+    // ! Depend on the primitive fields of `checkFocusWithin`, not the object
+    //   itself. Callers pass an inline object literal — using its identity in
+    //   deps re-runs the effect every render, which fires `.focus()` during
+    //   intermediate renders where `isActive` is stale and yanks focus away.
+  }, [isActive, disabled, focusMode, checkFocusWithin?.enabled, checkFocusWithin?.containerRole, ref]);
 }
