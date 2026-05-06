@@ -13,6 +13,7 @@ import {
 import {
   type UseItemRegistryReturn,
   useActiveItemFocus,
+  useActiveOnOpen,
   useControlledStateWithNull,
   useItemRegistry,
   useKeyboardNavigation,
@@ -50,6 +51,12 @@ export type ListboxRootProps = {
   unregisterItem?: UseItemRegistryReturn['unregisterItem'];
   getItems?: UseItemRegistryReturn['getItems'];
   isItemDisabled?: UseItemRegistryReturn['isItemDisabled'];
+  /**
+   * When `false`, disables the auto-active-on-open behavior in
+   * `Listbox.Content`. Set by hosts (e.g., Combobox) when active state is
+   * externally controlled. Defaults to `true`.
+   */
+  autoActiveOnOpen?: boolean;
 };
 
 const ListboxRoot = ({
@@ -69,6 +76,7 @@ const ListboxRoot = ({
   unregisterItem: externalUnregisterItem,
   getItems: externalGetItems,
   isItemDisabled: externalIsItemDisabled,
+  autoActiveOnOpen = true,
 }: ListboxRootProps): ReactElement => {
   const prefixedId = usePrefixedId();
   const listboxBaseId = baseId ?? prefixedId;
@@ -89,31 +97,6 @@ const ListboxRoot = ({
   const unregisterItem = externalUnregisterItem ?? internalRegistry.unregisterItem;
   const getItems = externalGetItems ?? internalRegistry.getItems;
   const isItemDisabled = externalIsItemDisabled ?? internalRegistry.isItemDisabled;
-
-  // Initialize active state to first available item if not set
-  // Priority: defaultActive > first selected item > first non-disabled item
-  useEffect(() => {
-    // ? External registry signals that a host (e.g. Combobox) owns activation;
-    //   skip auto-pick so the host's policy (no auto-active on open) wins.
-    if (externalRegisterItem !== undefined) return;
-    if (active === undefined && !disabled) {
-      const items = getItems();
-      if (items.length === 0) return;
-
-      // Check if there's a selected item
-      const firstSelected = items.find(id => selectionSet.has(id) && !isItemDisabled(id));
-      if (firstSelected) {
-        updateActive(firstSelected);
-        return;
-      }
-
-      // Otherwise, use first non-disabled item
-      const firstEnabled = items.find(id => !isItemDisabled(id));
-      if (firstEnabled) {
-        updateActive(firstEnabled);
-      }
-    }
-  }, [active, disabled, getItems, isItemDisabled, selectionSet, updateActive, externalRegisterItem]);
 
   const toggleValue = useCallback(
     (value: string) => {
@@ -157,6 +140,7 @@ const ListboxRoot = ({
       unregisterItem,
       getItems,
       isItemDisabled,
+      autoActiveOnOpen,
     }),
     [
       active,
@@ -172,6 +156,7 @@ const ListboxRoot = ({
       unregisterItem,
       getItems,
       isItemDisabled,
+      autoActiveOnOpen,
     ],
   );
 
@@ -195,11 +180,13 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
       setActive,
       toggleValue,
       baseId,
+      selection,
       selectionMode,
       keyHandler,
       focusMode = 'roving-tabindex',
       getItems,
       isItemDisabled,
+      autoActiveOnOpen,
     } = useListbox();
 
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
@@ -229,6 +216,20 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
     }, [focusMode, active, disabled, setActive, getItems, isItemDisabled]);
 
     const buildOptionId = useCallback((id: string) => `${baseId}-listbox-option-${id}`, [baseId]);
+
+    // Order matters: useActiveOnOpen must center BEFORE useScrollActiveIntoView's
+    // 'nearest' scroll runs, otherwise scrollIntoViewIfNeeded sees the item as
+    // already visible (at the nearest edge) and skips centering.
+    useActiveOnOpen({
+      open: true,
+      selection,
+      setActive,
+      getItems,
+      isItemDisabled,
+      containerRef: innerRef,
+      buildElementId: buildOptionId,
+      enabled: autoActiveOnOpen && !disabled,
+    });
 
     useScrollActiveIntoView({
       containerRef: innerRef,

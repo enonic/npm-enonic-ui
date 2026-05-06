@@ -44,6 +44,13 @@ export type ComboboxContextValue = {
   // Value component registration
   hasValue: boolean;
   setHasValue: (has: boolean) => void;
+
+  /**
+   * Whether the auto-active-on-open behavior should run inside Listbox-backed
+   * content. Set to `false` when active state is consumer-controlled. Tree
+   * content doesn't use this — see `useScrollSelectedToVirtuoso` instead.
+   */
+  autoActiveOnOpen: boolean;
 };
 
 const ComboboxContext = createContext<ComboboxContextValue | undefined>(undefined);

@@ -27,6 +27,11 @@ export type ListboxContextValue = {
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
+  /**
+   * When `false`, `useActiveOnOpen` in `Listbox.Content` is skipped. Set
+   * by hosts (e.g., Combobox) when the consumer controls active state.
+   */
+  autoActiveOnOpen: boolean;
 };
 
 const ListboxContext = createContext<ListboxContextValue | undefined>(undefined);
