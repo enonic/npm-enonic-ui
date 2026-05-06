@@ -1004,12 +1004,19 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
         input?.focus({ focusVisible: true });
       };
 
-      // Enter applies staged selection (and closes). Only intercept in staged
-      // mode — otherwise let TreeList handle Enter as row activation.
-      if (e.key === 'Enter' && stagingEnabled) {
-        e.preventDefault();
-        e.stopPropagation();
-        applyStagedSelection();
+      // Enter closes the popup, mirroring listbox behavior. TreeList runs
+      // first in bubble phase: in single mode it toggles selection; in multi
+      // mode Space is the selection key, so Enter only commits the popup.
+      // Staged mode applies staged selection.
+      if (e.key === 'Enter') {
+        if (stagingEnabled) {
+          e.preventDefault();
+          e.stopPropagation();
+          applyStagedSelection();
+          focusInput();
+          return;
+        }
+        setOpen(false);
         focusInput();
         return;
       }
