@@ -153,10 +153,18 @@ export function useFloatingPosition({
 
     updatePosition();
 
+    // Recompute when the floating content or anchor resizes — e.g. dropdown
+    // shrinks after filtering. Without this, a popup placed above its anchor
+    // detaches from it because `top` is stored against the old height.
+    const resizeObserver = new ResizeObserver(updatePosition);
+    resizeObserver.observe(contentRef.current);
+    resizeObserver.observe(anchorRef.current);
+
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, true);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
     };
