@@ -600,11 +600,16 @@ const VirtualizedTreeListRoot = forwardRef(
           return;
         }
 
-        // Handle Enter for activation (only for selectable items)
+        // Handle Enter for activation (only for selectable items). In single
+        // selection mode, Enter mirrors Space — it selects the active item
+        // before firing onActivate.
         if (e.key === 'Enter' && activeIndex !== null) {
           e.preventDefault();
           const item = items[activeIndex];
           if (item && canSelect(item)) {
+            if (selectionMode === 'single') {
+              toggleSelection(item.id, activeIndex);
+            }
             onActivate?.(item.id);
           }
           return;
@@ -668,6 +673,7 @@ const VirtualizedTreeListRoot = forwardRef(
         selectionMode,
         setSelection,
         onActivate,
+        toggleSelection,
         findNextEnabledIndex,
         setActiveIndex,
         selection,

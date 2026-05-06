@@ -610,10 +610,16 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           return;
         }
 
-        // Handle Enter for activation
+        // Handle Enter for activation. In single selection mode, Enter mirrors
+        // Space — it selects the active item (and fires onActivate).
         if (e.key === 'Enter' && active && canSelectById(fromDomId(active))) {
           e.preventDefault();
-          onActivate?.(fromDomId(active));
+          const logicalId = fromDomId(active);
+          if (selectionMode === 'single') {
+            toggleSelection(logicalId);
+            setAnchorId(logicalId);
+          }
+          onActivate?.(logicalId);
           return;
         }
 
@@ -641,6 +647,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         clearSelection,
         selectAll,
         onActivate,
+        toggleSelection,
         exitActionMode,
         actionModeRowId,
         clearSelectionOnEscape,

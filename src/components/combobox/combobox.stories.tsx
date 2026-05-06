@@ -999,7 +999,13 @@ export const TreeContent: Story = {
       <div className='relative w-80 space-y-3'>
         <h3 className='font-medium text-md'>Combobox with Tree Content</h3>
         <p className='text-sm text-subtle'>Uses VirtualizedTreeList for hierarchical content</p>
-        <Combobox.Root value={value} onChange={setValue} closeOnBlur={false} contentType='tree'>
+        <Combobox.Root
+          value={value}
+          onChange={setValue}
+          closeOnBlur={false}
+          contentType='tree'
+          selectionMode='multiple'
+        >
           <Combobox.Content>
             <Combobox.Control>
               <Combobox.Search>
