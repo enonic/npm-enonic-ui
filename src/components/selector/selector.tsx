@@ -14,6 +14,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import {
+  useActiveOnOpen,
   useClickOutside,
   useControlledState,
   useFloatingPosition,
@@ -124,27 +125,10 @@ const SelectorRoot = ({
     onSelect: handleSelect,
   });
 
-  // Auto-activate selected or first item when opening
+  // Clear active when the popup closes; the open-active logic in
+  // SelectorContent re-derives it on next open.
   useEffect(() => {
-    if (open && active === undefined) {
-      const items = getItems();
-      if (items.length > 0) {
-        // Prefer currently selected value, otherwise first enabled item
-        const initialActive =
-          (value && items.includes(value) && !isItemDisabled(value) ? value : null) ||
-          items.find(id => !isItemDisabled(id));
-        if (initialActive) {
-          setActive(initialActive);
-        }
-      }
-    }
-  }, [open, active, value, getItems, isItemDisabled]);
-
-  // Reset active when closing
-  useEffect(() => {
-    if (!open) {
-      setActive(undefined);
-    }
+    if (!open) setActive(undefined);
   }, [open]);
 
   const context = useMemo<SelectorContextValue>(
@@ -403,7 +387,9 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
     },
     ref,
   ): ReactElement | null => {
-    const { baseId, open, setOpen, active, triggerRef } = useSelector();
+    const { baseId, open, setOpen, active, value, setActive, getItems, isItemDisabled, disabled, triggerRef } =
+      useSelector();
+    const selectionSet = useMemo<ReadonlySet<string>>(() => (value ? new Set([value]) : new Set()), [value]);
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
     const [mounted, setMounted] = useState(false);
@@ -439,6 +425,20 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
     });
 
     const buildOptionId = useCallback((id: string) => `${baseId}-option-${id}`, [baseId]);
+
+    // Order matters: useActiveOnOpen must center BEFORE useScrollActiveIntoView's
+    // 'nearest' scroll runs, otherwise scrollIntoViewIfNeeded sees the item as
+    // already visible (at the nearest edge) and skips centering.
+    useActiveOnOpen({
+      open,
+      selection: selectionSet,
+      setActive,
+      getItems,
+      isItemDisabled,
+      containerRef: contentRef,
+      buildElementId: buildOptionId,
+      enabled: !disabled,
+    });
 
     useScrollActiveIntoView({
       containerRef: contentRef,

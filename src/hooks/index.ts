@@ -1,4 +1,5 @@
 export { type UseActiveItemFocusConfig, useActiveItemFocus } from './use-active-item-focus';
+export { type UseActiveOnOpenConfig, useActiveOnOpen } from './use-active-on-open';
 export { type UseClickOutsideConfig, useClickOutside } from './use-click-outside';
 export { useControlledState } from './use-controlled-state';
 export { useControlledStateWithNull } from './use-controlled-state-with-null';
@@ -28,6 +29,10 @@ export { type RadioNavigationConfig, type UseRadioNavigationReturn, useRadioNavi
 export { type UseRovingTabIndexConfig, type UseRovingTabIndexReturn, useRovingTabIndex } from './use-roving-tabindex';
 export { type UseScrollActiveIntoViewConfig, useScrollActiveIntoView } from './use-scroll-active-into-view';
 export { useScrollLock } from './use-scroll-lock';
+export {
+  type UseScrollSelectedToVirtuosoConfig,
+  useScrollSelectedToVirtuoso,
+} from './use-scroll-selected-to-virtuoso';
 export {
   type UseSelectorKeyboardConfig,
   type UseSelectorKeyboardReturn,

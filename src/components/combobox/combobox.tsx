@@ -142,6 +142,10 @@ const ComboboxRoot = ({
 
   const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
 
+  // Auto-active-on-open is owned by Listbox.Content (covers both 'auto' and
+  // 'listbox' content modes). Skip it when active is consumer-controlled.
+  const autoActiveOnOpen = controlledActive === undefined && !disabled;
+
   // Track if a Value component is present
   const [hasValue, setHasValue] = useState(false);
 
@@ -306,6 +310,7 @@ const ComboboxRoot = ({
       isItemDisabled,
       hasValue,
       setHasValue,
+      autoActiveOnOpen,
     }),
     [
       open,
@@ -334,6 +339,7 @@ const ComboboxRoot = ({
       getItems,
       isItemDisabled,
       hasValue,
+      autoActiveOnOpen,
     ],
   );
 
@@ -358,6 +364,7 @@ const ComboboxRoot = ({
         unregisterItem={unregisterItem}
         getItems={getItems}
         isItemDisabled={isItemDisabled}
+        autoActiveOnOpen={autoActiveOnOpen}
       >
         {children}
       </Listbox.Root>
@@ -932,6 +939,7 @@ const ComboboxListContent = ({ children, className, ...props }: ComboboxListCont
     getItems,
     isItemDisabled,
     selectionMode,
+    autoActiveOnOpen,
   } = useCombobox();
 
   // Convert Set to array for Listbox
@@ -951,6 +959,7 @@ const ComboboxListContent = ({ children, className, ...props }: ComboboxListCont
       unregisterItem={unregisterItem}
       getItems={getItems}
       isItemDisabled={isItemDisabled}
+      autoActiveOnOpen={autoActiveOnOpen}
     >
       <Listbox.Content data-component='Combobox.ListContent' className={className} {...props}>
         {children}
