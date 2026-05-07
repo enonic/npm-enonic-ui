@@ -1,9 +1,22 @@
 import { cva } from 'class-variance-authority';
 import { LockKeyhole } from 'lucide-react';
-import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactNode } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  type ForwardedRef,
+  forwardRef,
+  type ReactNode,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import { FilledOctagonAlert } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
-import { cn, unwrap } from '@/utils';
+import { cn, unwrap, useComposedRefs } from '@/utils';
+import { SUPPORTS_FIELD_SIZING } from '@/utils/feature-support';
+
+const adjustTextareaHeight = (el: HTMLTextAreaElement): void => {
+  el.style.height = 'auto';
+  el.style.height = `${el.scrollHeight}px`;
+};
 
 const textareaContainerVariants = cva(
   [
@@ -43,9 +56,10 @@ export type TextAreaProps = {
   readOnly?: boolean;
   resizable?: boolean;
   /**
-   * Enables automatic content-based sizing using CSS `field-sizing: content`.
+   * Enables automatic content-based sizing.
+   * Uses CSS `field-sizing: content` when supported, with a JS fallback for browsers that lack it (e.g. Firefox).
+   * In the JS fallback, manual resizing is disabled even if `resizable` is true.
    * @see https://caniuse.com/mdn-css_properties_field-sizing
-   * @note Not supported in Firefox as of Feb 2025
    */
   autoSize?: boolean;
   className?: string;
@@ -72,6 +86,50 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const textareaId = usePrefixedId(unwrap(id));
     const state = error ? 'error' : 'default';
 
+    const internalRef = useRef<HTMLTextAreaElement | null>(null);
+    const composedRef = useComposedRefs(internalRef, ref);
+
+    const useJsAutoSize = autoSize && !SUPPORTS_FIELD_SIZING;
+
+    useLayoutEffect(() => {
+      if (!useJsAutoSize) return;
+      const el = internalRef.current;
+      if (!el) return;
+
+      el.style.resize = 'none';
+
+      let lastWidth = el.clientWidth;
+
+      const handleInput = (): void => adjustTextareaHeight(el);
+      const observer = new ResizeObserver(entries => {
+        const entry = entries[0];
+        if (!entry) return;
+        const newWidth = entry.contentRect.width;
+        if (newWidth === lastWidth) return;
+        lastWidth = newWidth;
+        adjustTextareaHeight(el);
+      });
+
+      adjustTextareaHeight(el);
+      el.addEventListener('input', handleInput);
+      observer.observe(el);
+
+      return () => {
+        observer.disconnect();
+        el.removeEventListener('input', handleInput);
+        el.style.height = '';
+        el.style.resize = '';
+      };
+    }, [useJsAutoSize]);
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: re-adjust height when controlled value changes
+    useLayoutEffect(() => {
+      if (!useJsAutoSize) return;
+      const el = internalRef.current;
+      if (!el) return;
+      adjustTextareaHeight(el);
+    }, [useJsAutoSize, props.value]);
+
     return (
       <div data-component='TextArea' className={cn('w-full', disabled && 'opacity-30', className)}>
         {(!!label || !!description) && (
@@ -90,7 +148,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         )}
         <div className={cn(textareaContainerVariants({ state, disabled, readOnly }))}>
           <textarea
-            ref={ref}
+            ref={composedRef}
             id={textareaId}
             aria-invalid={!!error || undefined}
             className={cn(
