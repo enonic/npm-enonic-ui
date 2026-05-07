@@ -80,10 +80,11 @@ jobs:
 
       - name: Publish
         # --no-git-checks: CI runs in detached HEAD state (tag checkout)
-        # --provenance: signed sigstore attestation via OIDC (id-token: write)
         # --tag: pre-release tags (containing '-') publish to 'beta' dist-tag,
         #        stable tags publish to 'latest'
-        run: pnpm publish --no-git-checks --provenance --tag ${{ contains(github.ref_name, '-') && 'beta' || 'latest' }}
+        # Provenance is disabled because the source repository is private; npm
+        # provenance via sigstore requires a public GitHub repository.
+        run: pnpm publish --no-git-checks --tag ${{ contains(github.ref_name, '-') && 'beta' || 'latest' }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
