@@ -21,6 +21,7 @@ import { createPortal } from 'react-dom';
 import { IconButton } from '@/components/icon-button';
 import { Selector } from '@/components/selector';
 import {
+  type FloatingProps,
   useActiveItemFocus,
   useClickOutside,
   useControlledState,
@@ -968,16 +969,29 @@ DatePickerHeader.displayName = 'DatePicker.Header';
 //
 
 export type DatePickerContentProps = {
-  align?: 'start' | 'end';
   /** Optional reference to an anchor element for positioning (defaults to trigger) */
   anchorRef?: RefObject<HTMLElement>;
   forceMount?: boolean;
   className?: string;
   children?: ReactNode;
-} & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children'>;
+} & FloatingProps &
+  Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children'>;
 
 const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
-  ({ align = 'start', anchorRef, forceMount, className, children, onKeyDown, ...props }, ref): ReactElement | null => {
+  (
+    {
+      side = 'bottom',
+      align = 'start',
+      collisionStrategy = 'flip',
+      anchorRef,
+      forceMount,
+      className,
+      children,
+      onKeyDown,
+      ...props
+    },
+    ref,
+  ): ReactElement | null => {
     const {
       baseId,
       open,
@@ -995,7 +1009,14 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
     const [isPortalMode, setIsPortalMode] = useState(false);
-    const position = useFloatingPosition({ enabled: open, anchorRef: anchorRef ?? triggerRef, contentRef, align });
+    const position = useFloatingPosition({
+      enabled: open,
+      anchorRef: anchorRef ?? triggerRef,
+      contentRef,
+      side,
+      align,
+      collisionStrategy,
+    });
     const contentId = `${baseId}-content`;
     const triggerId = `${baseId}-trigger`;
     const labelledBy = triggerRef.current ? triggerId : undefined;
@@ -1062,8 +1083,12 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
       </>
     );
 
-    const { side, top, left, right } = position ?? { side: 'bottom' };
-    const positionStyle: Pick<CSSProperties, 'top' | 'left' | 'right'> = { top, left, right };
+    const positionStyle: CSSProperties = {
+      top: position?.top,
+      left: position?.left,
+      right: position?.right,
+      maxHeight: position?.maxHeight,
+    };
 
     return (
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
@@ -1075,9 +1100,10 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
         aria-label='Date picker'
         aria-labelledby={labelledBy}
         data-state={open ? 'open' : 'closed'}
-        data-side={side}
+        data-side={position?.side ?? side}
         className={cn(
           'fixed z-40 flex w-fit flex-col gap-4 rounded-sm border border-bdr-subtle bg-surface-neutral p-5',
+          position?.maxHeight !== undefined && 'overflow-y-auto',
           'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
           'shadow-lg outline-none',
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
@@ -1086,7 +1112,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
           !position && 'pointer-events-none opacity-0',
           className,
         )}
-        style={{ ...positionStyle }}
+        style={positionStyle}
         onKeyDown={handleKeyDown}
         {...props}
       >
