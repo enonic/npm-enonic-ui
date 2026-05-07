@@ -5,8 +5,11 @@ export { type UseClickOutsideConfig, useClickOutside } from './use-click-outside
 export { useControlledState } from './use-controlled-state';
 export { useControlledStateWithNull } from './use-controlled-state-with-null';
 export {
+  type CollisionStrategy,
   type FloatingPosition,
+  type FloatingProps,
   type FloatingSide,
+  toFloatingStyle,
   type UseFloatingPositionConfig,
   useFloatingPosition,
 } from './use-floating-position';

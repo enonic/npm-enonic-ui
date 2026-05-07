@@ -1,15 +1,38 @@
-import { type RefObject, useEffect, useState } from 'react';
+import { type CSSProperties, type RefObject, useEffect, useState } from 'react';
 
 const VIEWPORT_PADDING = 10;
 
+/** Below this, `'shrink'` yields to the opposite side rather than render a sliver. */
+const MIN_SHRINK_HEIGHT = 96;
+
 export type FloatingSide = 'top' | 'bottom' | 'left' | 'right';
+
+export type CollisionStrategy = 'flip' | 'shrink';
 
 export type FloatingPosition = {
   top: number;
   left?: number;
   right?: number;
-  /** Which side the popup is positioned relative to the anchor (post-flip) */
+  /**
+   * The side the popup is actually positioned on. Equals `preferredSide`
+   * unless `collisionStrategy` is `'flip'` and the popup was flipped to fit.
+   */
   side: FloatingSide;
+  /** The `side` requested via config — useful when `flipped` is true. */
+  preferredSide: FloatingSide;
+  /** True when the popup could not use `preferredSide`. */
+  flipped: boolean;
+  /**
+   * Maximum height the popup should be clamped to, in pixels. Set whenever
+   * `collisionStrategy` is `'shrink'`. Consumers apply it via inline style on
+   * the popup wrapper; it only takes effect when the content is taller.
+   *
+   * A popup whose items are direct children also needs `overflow-y-auto` to
+   * scroll. One that wraps a scrollable child (a listbox or viewport) must not:
+   * constraining the wrapper alone keeps the child the scroller, which is what
+   * scroll-active-into-view relies on.
+   */
+  maxHeight?: number;
 };
 
 export type UseFloatingPositionConfig = {
@@ -20,8 +43,7 @@ export type UseFloatingPositionConfig = {
   /** Reference to the floating content element */
   contentRef: RefObject<HTMLElement> | null;
   /**
-   * Preferred side relative to the anchor. Flips to the opposite side when
-   * the content would overflow the viewport.
+   * Preferred side relative to the anchor.
    * @default 'bottom'
    */
   side?: FloatingSide;
@@ -32,18 +54,56 @@ export type UseFloatingPositionConfig = {
    * @default 'start'
    */
   align?: 'start' | 'end';
+  /**
+   * How to react when the preferred side cannot fit the popup:
+   * - `'flip'` (default) — flip to the opposite side if it fits; else stay on
+   *   the preferred side and overflow.
+   * - `'shrink'` — keep the preferred side and return the available space as
+   *   `maxHeight`, which the consumer applies to enable internal scroll. Falls
+   *   back to the opposite side when the preferred one is too cramped to use.
+   *
+   * @default 'flip'
+   */
+  collisionStrategy?: CollisionStrategy;
+};
+
+/**
+ * Projects a position into an inline style, keeping the coordinate fields and
+ * dropping the descriptive ones (`side`, `preferredSide`, `flipped`) that would
+ * otherwise leak into the DOM as invalid CSS.
+ */
+export function toFloatingStyle(position: FloatingPosition | null): CSSProperties {
+  return {
+    top: position?.top,
+    left: position?.left,
+    right: position?.right,
+    maxHeight: position?.maxHeight,
+  };
+}
+
+/**
+ * Shared prop surface for popup components that build on `useFloatingPosition`.
+ * Mix into a component's `*Props` type to expose consistent positioning controls
+ * across the library.
+ */
+export type FloatingProps = {
+  /** Preferred side relative to the anchor. @default 'bottom' */
+  side?: FloatingSide;
+  /** Alignment along the perpendicular axis. @default 'start' */
+  align?: 'start' | 'end';
+  /** Collision behavior when the preferred side does not fit. @default 'flip' */
+  collisionStrategy?: CollisionStrategy;
 };
 
 /**
  * Calculates optimal position for floating elements (menus, dropdowns, submenus) relative
- * to an anchor, with automatic viewport collision detection and flip behavior.
+ * to an anchor, with viewport collision handling controlled by `collisionStrategy`.
  *
- * Supports four preferred sides (top/bottom/left/right). When the content would overflow
- * the viewport on the preferred side, it flips to the opposite side. Perpendicular-axis
- * alignment is adjusted to keep the content within the viewport.
+ * Supports four preferred sides (top/bottom/left/right). Perpendicular-axis alignment is
+ * always adjusted to keep the content within the viewport, regardless of strategy.
  *
  * @param config - Configuration object for positioning behavior
- * @returns Position object with top and left/right coordinates, or null if not yet calculated
+ * @returns Position object with coordinates and side info, or null if not yet calculated
  */
 export function useFloatingPosition({
   enabled,
@@ -51,6 +111,7 @@ export function useFloatingPosition({
   contentRef,
   side: preferredSide = 'bottom',
   align = 'start',
+  collisionStrategy = 'flip',
 }: UseFloatingPositionConfig): FloatingPosition | null {
   const [position, setPosition] = useState<FloatingPosition | null>(null);
 
@@ -58,6 +119,15 @@ export function useFloatingPosition({
     if (!enabled || !anchorRef?.current || !contentRef?.current) {
       return;
     }
+
+    // ! The anchor-gap margin (`mt-2` / `-mt-2`) sits outside the border box and
+    // eats into the space a clamp may claim. Its magnitude is fixed for the
+    // popup's lifetime, so read it once rather than on every scroll tick — and
+    // never the signed value, which flips with `side` and would feed back.
+    const anchorGap =
+      collisionStrategy === 'shrink'
+        ? Math.abs(Number.parseFloat(window.getComputedStyle(contentRef.current).marginTop)) || 0
+        : 0;
 
     const updatePosition = (): void => {
       if (!anchorRef.current || !contentRef.current) return;
@@ -77,10 +147,26 @@ export function useFloatingPosition({
       let left: number | undefined;
       let right: number | undefined;
       let side: FloatingSide = preferredSide;
+      let maxHeight: number | undefined;
 
       if (isVerticalSide) {
-        // Vertical sides (top/bottom): primary axis is Y, align is horizontal
-        if (preferredSide === 'bottom') {
+        const availableBelow = viewportHeight - anchorRect.bottom - VIEWPORT_PADDING - anchorGap;
+        const availableAbove = anchorRect.top - VIEWPORT_PADDING - anchorGap;
+
+        if (collisionStrategy === 'shrink') {
+          // ! Derive maxHeight from the anchor and viewport only. Gating it on
+          // contentHeight feeds the clamp back into its own input through the
+          // ResizeObserver, oscillating the popup every frame.
+          const availablePreferred = preferredSide === 'bottom' ? availableBelow : availableAbove;
+          const availableOpposite = preferredSide === 'bottom' ? availableAbove : availableBelow;
+
+          if (availablePreferred < MIN_SHRINK_HEIGHT && availableOpposite > availablePreferred) {
+            side = preferredSide === 'bottom' ? 'top' : 'bottom';
+          }
+
+          maxHeight = Math.max(0, side === 'bottom' ? availableBelow : availableAbove);
+          top = side === 'bottom' ? anchorRect.bottom : anchorRect.top - Math.min(contentHeight, maxHeight);
+        } else if (preferredSide === 'bottom') {
           top = anchorRect.bottom;
           if (top + contentHeight > viewportHeight - VIEWPORT_PADDING) {
             const topPosition = anchorRect.top - contentHeight;
@@ -114,7 +200,8 @@ export function useFloatingPosition({
           }
         }
       } else {
-        // Horizontal sides (left/right): primary axis is X, align is vertical
+        // ? Horizontal sides always flip on overflow — clamping width would
+        // truncate labels. collisionStrategy governs the height clamp instead.
         if (preferredSide === 'right') {
           left = anchorRect.right;
           if (left + contentWidth > viewportWidth - VIEWPORT_PADDING) {
@@ -125,18 +212,18 @@ export function useFloatingPosition({
             }
           }
         } else {
-          const leftPosition = anchorRect.left - contentWidth;
-          if (leftPosition < VIEWPORT_PADDING) {
+          left = anchorRect.left - contentWidth;
+          if (left < VIEWPORT_PADDING) {
             const rightPosition = anchorRect.right;
             if (rightPosition + contentWidth <= viewportWidth - VIEWPORT_PADDING) {
               left = rightPosition;
               side = 'right';
-            } else {
-              left = leftPosition;
             }
-          } else {
-            left = leftPosition;
           }
+        }
+
+        if (collisionStrategy === 'shrink') {
+          maxHeight = Math.max(0, viewportHeight - 2 * VIEWPORT_PADDING);
         }
 
         if (align === 'start') {
@@ -152,7 +239,15 @@ export function useFloatingPosition({
         }
       }
 
-      setPosition({ top, left, right, side });
+      setPosition({
+        top,
+        left,
+        right,
+        side,
+        preferredSide,
+        flipped: side !== preferredSide,
+        maxHeight,
+      });
     };
 
     updatePosition();
@@ -172,7 +267,7 @@ export function useFloatingPosition({
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
     };
-  }, [enabled, preferredSide, align, anchorRef, contentRef]);
+  }, [enabled, preferredSide, align, collisionStrategy, anchorRef, contentRef]);
 
   return position;
 }

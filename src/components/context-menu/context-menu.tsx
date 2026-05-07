@@ -15,9 +15,11 @@ import {
 import { createPortal } from 'react-dom';
 
 import {
+  type FloatingProps,
   useActiveItemFocus,
   useClickOutside,
   useControlledState,
+  toFloatingStyle,
   useFloatingPosition,
   useItemRegistry,
   useKeyboardNavigation,
@@ -740,15 +742,25 @@ export type ContextMenuSubContentProps = {
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
   onInteractOutside?: (event: Event) => void;
+  /**
+   * Submenus open sideways only — the safe-area hover triangle assumes a
+   * horizontal approach, so top/bottom are not offered here.
+   * @default 'right'
+   */
+  side?: 'left' | 'right';
   className?: string;
   children?: ReactNode;
-} & ComponentPropsWithoutRef<'div'>;
+} & Omit<FloatingProps, 'side'> &
+  ComponentPropsWithoutRef<'div'>;
 
 const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentProps>(
   (
     {
       forceMount,
       loop = true,
+      side: preferredSide = 'right',
+      align = 'start',
+      collisionStrategy = 'flip',
       onEscapeKeyDown,
       onPointerDownOutside,
       onInteractOutside,
@@ -772,8 +784,9 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       enabled: open,
       anchorRef: triggerRef,
       contentRef,
-      side: 'right',
-      align: 'start',
+      side: preferredSide,
+      align,
+      collisionStrategy,
     });
     const side = position?.side === 'left' ? 'left' : 'right';
 
@@ -949,9 +962,10 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
             // close the whole menu on pointerdown inside a submenu item. Opt out explicitly.
             data-click-outside-ignore
             data-state={open ? 'open' : 'closed'}
-            data-side={position?.side ?? 'right'}
+            data-side={position?.side ?? preferredSide}
             className={cn(
               'fixed z-40 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
+              position?.maxHeight !== undefined && 'overflow-y-auto',
               'border-bdr-subtle bg-surface-neutral rounded-sm border shadow-lg outline-none',
               'data-[state=closed]:animate-out data-[state=open]:animate-in',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -959,7 +973,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
               !position && 'pointer-events-none opacity-0',
               className,
             )}
-            style={position ? { top: position.top, left: position.left, right: position.right } : undefined}
+            style={position ? toFloatingStyle(position) : undefined}
             onKeyDown={handleKeyDown}
             onPointerMoveCapture={handlePointerMoveCapture}
             {...props}
