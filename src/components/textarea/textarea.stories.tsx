@@ -53,7 +53,7 @@ export default {
     },
     autoSize: {
       control: 'boolean',
-      description: 'Enables automatic content-based sizing (not supported in Firefox)',
+      description: 'Enables automatic content-based sizing (uses CSS field-sizing with a JS fallback for Firefox)',
     },
   },
 } satisfies Meta<TextAreaProps>;
