@@ -39,7 +39,7 @@ const ColorSwatch = ({ name, variable, description, size = 'md' }: ColorSwatchPr
     <button
       type='button'
       onClick={handleClick}
-      className='group hover:-translate-y-0.5 relative flex cursor-pointer flex-col overflow-hidden rounded-lg border border-bdr-soft bg-surface-neutral text-left transition-all duration-200 hover:border-bdr-strong hover:shadow-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset'
+      className='group relative flex cursor-pointer flex-col overflow-hidden rounded-lg border border-bdr-soft bg-surface-neutral text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-bdr-strong hover:shadow-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset'
       title={`Click to copy: ${name}`}
     >
       <div
@@ -125,7 +125,7 @@ const PageHeader = ({ title, subtitle, note }: { title: string; subtitle: string
     </div>
     {note && (
       <div className='relative overflow-hidden rounded-lg bg-surface-primary p-5'>
-        <div className='-translate-y-16 absolute top-0 right-0 size-32 translate-x-16 rounded-full bg-info/10' />
+        <div className='absolute top-0 right-0 size-32 translate-x-16 -translate-y-16 rounded-full bg-info/10' />
         <div className='relative flex gap-3'>
           {/* <div className='shrink-0 text-2xl'>💡</div> */}
           <BadgeInfo className='size-6 shrink-0 text-info' />

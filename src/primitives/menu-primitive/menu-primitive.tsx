@@ -294,7 +294,7 @@ export const MenuPrimitiveRadioGroup = forwardRef<HTMLDivElement, MenuPrimitiveR
   (
     {
       value: controlledValue,
-      defaultValue = undefined,
+      defaultValue,
       onValueChange,
       closeOnSelect = false,
       setOpen,

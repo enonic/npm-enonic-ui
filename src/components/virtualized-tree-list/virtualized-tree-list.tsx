@@ -296,7 +296,7 @@ const VirtualizedTreeListRoot = forwardRef(
         if (index === null) {
           setActiveId(null);
         } else {
-          const item = items[index] as FlatNode<TData> | undefined;
+          const item = items[index];
           if (item) {
             setActiveId(item.id);
           }
@@ -1175,7 +1175,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
       tabIndex={-1}
       className={cn(
         'flex size-4 cursor-pointer items-center',
-        'after:-inset-1 after:-z-10 relative z-0 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+        'relative z-0 after:pointer-events-auto after:absolute after:-inset-1 after:-z-10 after:rounded-sm after:content-[""]',
         className,
       )}
       onKeyDown={handleKeyDown}

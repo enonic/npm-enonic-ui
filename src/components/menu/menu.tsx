@@ -301,10 +301,12 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     }
 
     const { side: _side, ...positionStyle } = position ?? { side: 'bottom' };
+    const styleOverride = (style ?? {}) as React.CSSProperties;
 
     const contentStyle = {
       ...positionStyle,
-      ...((style as React.CSSProperties | undefined) ?? {}),
+      // eslint-disable-next-line @typescript-eslint/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
+      ...styleOverride,
     };
 
     return (
@@ -320,7 +322,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
         data-side={position?.side}
         className={cn(
           'fixed z-40 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
-          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
+          'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
           // Animations
           'data-[state=closed]:animate-out data-[state=open]:animate-in',

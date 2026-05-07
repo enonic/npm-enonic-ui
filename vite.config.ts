@@ -14,10 +14,10 @@ export default defineConfig({
     EnvironmentPlugin('all'),
     dts({
       tsconfigPath: './tsconfig.app.json',
-      outDir: 'dist/types',
+      outDirs: 'dist/types',
+      entryRoot: 'src',
       aliasesExclude: ['react', 'react-dom', 'react-dom/test-utils'],
       exclude: ['**/*.stories.tsx', '.storybook/**/*'],
-      logLevel: 'warn',
     }),
     visualizer({
       filename: 'dist/stats.html',

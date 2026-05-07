@@ -3,9 +3,9 @@ import { AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Italic, Striket
 import { useState } from 'react';
 
 import { Button } from '../button';
-import { ToggleGroup, type ToggleGroupRootProps } from './toggle-group';
+import { ToggleGroup } from './toggle-group';
 
-type Story = StoryObj<ToggleGroupRootProps>;
+type Story = StoryObj<typeof ToggleGroup>;
 
 export default {
   title: 'Components/ToggleGroup',
@@ -14,7 +14,7 @@ export default {
     layout: 'centered',
   },
   tags: ['autodocs'],
-} satisfies Meta<ToggleGroupRootProps>;
+} satisfies Meta<typeof ToggleGroup>;
 
 //
 // Examples

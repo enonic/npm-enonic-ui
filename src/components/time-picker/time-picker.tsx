@@ -702,7 +702,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
         onKeyDown={handleKeyDown}
         className={cn(
           'fixed flex w-fit items-center gap-1.5 rounded-sm border border-bdr-subtle bg-surface-neutral p-3 shadow-md',
-          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
+          'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           className,
         )}
         style={{

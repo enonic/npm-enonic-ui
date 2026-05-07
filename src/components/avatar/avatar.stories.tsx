@@ -234,7 +234,7 @@ export const AvatarGroup: Story = {
   render: ({ size, shape }) => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
       <h3 className='font-medium text-sm'>Project Contributors</h3>
-      <div className='-space-x-2 flex'>
+      <div className='flex -space-x-2'>
         {users.slice(0, 4).map(({ name, avatar, alt }) => (
           <Avatar key={alt} size={size} shape={shape} className='ring-2 ring-surface-neutral'>
             <Avatar.Image src={avatar} alt={alt} />

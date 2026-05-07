@@ -280,7 +280,7 @@ const listboxItemVariants = cva(
   [
     'group relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-1 outline-none transition-highlight',
     // Click target expansion: -inset-y-{n} where n = gap / 2
-    'after:-inset-y-0.5 after:-z-10 after:pointer-events-auto after:absolute after:inset-x-0 after:rounded-sm after:content-[""]',
+    'after:pointer-events-auto after:absolute after:inset-x-0 after:-inset-y-0.5 after:-z-10 after:rounded-sm after:content-[""]',
   ],
   {
     variants: {

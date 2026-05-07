@@ -230,7 +230,7 @@ const RadioGroupItem = forwardRef<HTMLButtonElement, RadioGroupItemProps>((props
           'group-data-[state=error]:[&_[data-slot=radio-indicator]]:outline-error',
           isDisabled
             ? 'pointer-events-none opacity-30'
-            : 'hover:[&_[data-slot=radio-indicator]]:-outline-offset-1 hover:cursor-pointer focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset hover:[&_[data-slot=radio-indicator]]:outline-1 hover:[&_[data-slot=radio-indicator]]:outline-bdr-alt',
+            : 'hover:cursor-pointer focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset hover:[&_[data-slot=radio-indicator]]:outline-1 hover:[&_[data-slot=radio-indicator]]:outline-bdr-alt hover:[&_[data-slot=radio-indicator]]:-outline-offset-1',
           className,
         )}
         onClick={handleClick}

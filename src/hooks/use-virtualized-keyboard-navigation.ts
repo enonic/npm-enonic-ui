@@ -176,7 +176,7 @@ export function useVirtualizedKeyboardNavigation<TNode extends FlatNodeBase>(
   const findFirstChildIndex = useCallback(
     (nodeId: string, nodeIndex: number): number | null => {
       // First child should be the next item if it has a higher level
-      const nextItem = items[nodeIndex + 1] as TNode | undefined;
+      const nextItem = items[nodeIndex + 1];
       if (nextItem?.parentId === nodeId) {
         return nodeIndex + 1;
       }

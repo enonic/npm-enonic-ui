@@ -191,7 +191,7 @@ const selectorTriggerVariants = cva(
     'flex w-full items-center justify-between gap-2.5',
     'h-12 rounded-sm border bg-surface-neutral px-4',
     'cursor-pointer select-none text-left',
-    'hover:-outline-offset-1 hover:outline-2',
+    'hover:outline-2 hover:-outline-offset-1',
     'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
     'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
     'transition-highlight',
@@ -465,7 +465,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
         data-side={position?.side}
         className={cn(
           'fixed z-50 flex w-fit min-w-(--trigger-width) flex-col overflow-hidden',
-          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
+          'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -521,7 +521,7 @@ const selectorItemVariants = cva(
   [
     'group relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-2 outline-none transition-highlight',
     // Click target expansion: -inset-y-{n} where n = gap / 2
-    'after:-inset-y-0.5 after:-z-10 after:pointer-events-auto after:absolute after:inset-x-0 after:rounded-sm after:content-[""]',
+    'after:pointer-events-auto after:absolute after:inset-x-0 after:-inset-y-0.5 after:-z-10 after:rounded-sm after:content-[""]',
   ],
   {
     variants: {

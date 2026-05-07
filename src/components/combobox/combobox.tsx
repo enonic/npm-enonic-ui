@@ -628,7 +628,7 @@ const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElem
       iconClassName={cn('transition-transform duration-150', open && 'rotate-180')}
       className={cn(
         'mr-1.25 shrink-0 rounded-[0.1875rem] text-subtle hover:bg-surface-neutral-hover',
-        'after:-inset-1 after:-z-10 relative z-0 overflow-visible after:absolute after:rounded-sm after:content-[""]',
+        'relative z-0 overflow-visible after:absolute after:-inset-1 after:-z-10 after:rounded-sm after:content-[""]',
         !disabled && 'after:pointer-events-auto',
         'disabled:opacity-100',
         className,
@@ -880,6 +880,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     // Hide in portal mode until position is calculated
     const isHidden = isPortalMode && !position;
 
+    const styleOverride = (style ?? {}) as React.CSSProperties;
     const popupStyle: React.CSSProperties = isPortalMode
       ? {
           position: 'fixed',
@@ -887,9 +888,10 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
           left: position?.left !== undefined ? `${position.left}px` : undefined,
           right: position?.right !== undefined ? `${position.right}px` : undefined,
           width: portalWidth,
-          ...((style as React.CSSProperties | undefined) ?? {}),
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
+          ...styleOverride,
         }
-      : ((style as React.CSSProperties | undefined) ?? {});
+      : styleOverride;
 
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- key handlers redirect to interactive descendants (listbox items / input)
@@ -900,7 +902,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
         data-side={isPortalMode ? position?.side : 'bottom'}
         className={cn(
           'z-50 overflow-hidden rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
-          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
+          'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           !isPortalMode && 'absolute right-0 left-0',
           isHidden && 'pointer-events-none opacity-0',
           className,

@@ -41,7 +41,7 @@ export const treeListRowVariants = cva(
   [
     'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 outline-none hover:bg-surface-neutral-hover',
     // Click target expansion: -inset-y-{n} where n = gap / 2
-    'after:-inset-y-0.75 after:-z-10 after:pointer-events-auto after:absolute after:inset-x-0 after:rounded-sm after:content-[""]',
+    'after:pointer-events-auto after:absolute after:inset-x-0 after:-inset-y-0.75 after:-z-10 after:rounded-sm after:content-[""]',
   ],
   {
     variants: {

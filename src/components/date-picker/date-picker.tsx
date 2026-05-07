@@ -289,7 +289,7 @@ const DatePickerDay = forwardRef<HTMLButtonElement, DatePickerDayProps>(
         className={cn(
           'flex size-7.5 items-center justify-center rounded-sm font-medium text-sm transition-highlight',
           !selected && !disabled && 'data-[active=true]:bg-surface-neutral-hover',
-          'after:-inset-x-1.25 after:-inset-y-1 after:-z-10 relative z-0 after:absolute after:rounded-sm after:content-[""]',
+          'relative z-0 after:absolute after:-inset-x-1.25 after:-inset-y-1 after:-z-10 after:rounded-sm after:content-[""]',
           'after:pointer-events-auto',
           'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
           'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
@@ -1078,7 +1078,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
         data-side={side}
         className={cn(
           'fixed z-40 flex w-fit flex-col gap-4 rounded-sm border border-bdr-subtle bg-surface-neutral p-5',
-          'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
+          'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           'shadow-lg outline-none',
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',

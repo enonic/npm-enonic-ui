@@ -771,7 +771,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
 
     const position = useFloatingPosition({
       enabled: open,
-      anchorRef: triggerRef as React.RefObject<HTMLElement>,
+      anchorRef: triggerRef,
       contentRef,
       side: 'right',
       align: 'start',

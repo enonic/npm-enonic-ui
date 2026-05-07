@@ -208,10 +208,10 @@ function TooltipContent({
         <div
           className={cn(
             'absolute size-2 rotate-45 bg-inherit',
-            actualSide === 'top' && '-translate-x-1/2 bottom-0 left-1/2 translate-y-1/2',
-            actualSide === 'bottom' && '-translate-x-1/2 -translate-y-1/2 top-0 left-1/2',
-            actualSide === 'left' && '-translate-y-1/2 top-1/2 right-0 translate-x-1/2',
-            actualSide === 'right' && '-translate-y-1/2 -translate-x-1/2 top-1/2 left-0',
+            actualSide === 'top' && 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2',
+            actualSide === 'bottom' && 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2',
+            actualSide === 'left' && 'top-1/2 right-0 translate-x-1/2 -translate-y-1/2',
+            actualSide === 'right' && 'top-1/2 left-0 -translate-x-1/2 -translate-y-1/2',
           )}
         />
       </div>

@@ -28,9 +28,9 @@ const textareaContainerVariants = cva(
   {
     variants: {
       state: {
-        default: 'hover:-outline-offset-1 border-bdr-subtle hover:outline-2 hover:outline-bdr-subtle',
+        default: 'border-bdr-subtle hover:outline-2 hover:outline-bdr-subtle hover:-outline-offset-1',
         error:
-          'hover:-outline-offset-1 border-error focus-within:border-error focus-within:ring-error hover:outline-2 hover:outline-error',
+          'border-error focus-within:border-error focus-within:ring-error hover:outline-2 hover:outline-error hover:-outline-offset-1',
       },
       disabled: {
         true: 'select-none focus-within:outline-none hover:outline-none',

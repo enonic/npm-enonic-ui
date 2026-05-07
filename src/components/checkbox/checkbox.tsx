@@ -11,7 +11,7 @@ const checkboxIconWrapperVariants = cva(['inline-flex shrink-0'], {
     labeled: {
       true: '',
       false:
-        'after:-inset-1 after:-z-10 relative z-0 after:pointer-events-auto after:absolute after:rounded-sm after:content-[""]',
+        'relative z-0 after:pointer-events-auto after:absolute after:-inset-1 after:-z-10 after:rounded-sm after:content-[""]',
     },
   },
   defaultVariants: {
@@ -124,7 +124,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             labeled && 'my-0.75',
             editable && [
               'cursor-pointer',
-              'hover:[&_[data-slot=checkbox-indicator]]:-outline-offset-2 hover:[&_[data-slot=checkbox-indicator]]:outline-2',
+              'hover:[&_[data-slot=checkbox-indicator]]:outline-2 hover:[&_[data-slot=checkbox-indicator]]:-outline-offset-2',
               state === 'error'
                 ? 'hover:[&_[data-slot=checkbox-indicator]]:outline-error'
                 : 'hover:[&_[data-slot=checkbox-indicator]]:outline-bdr-alt',
