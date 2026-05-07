@@ -15,6 +15,7 @@ import {
 import { createPortal } from 'react-dom';
 
 import {
+  type FloatingProps,
   useActiveOnOpen,
   useClickOutside,
   useControlledState,
@@ -366,20 +367,22 @@ SelectorIcon.displayName = 'Selector.Icon';
 export type SelectorContentProps = {
   className?: string;
   children?: ReactNode;
-  align?: 'start' | 'end';
   /** Whether to render in a portal to document.body. Defaults to true. Set to false when used inside another portaled component (e.g., DatePicker/TimePicker inside Dialog). */
   portal?: boolean;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
   onInteractOutside?: (event: Event) => void;
-} & ComponentPropsWithoutRef<'div'>;
+} & FloatingProps &
+  ComponentPropsWithoutRef<'div'>;
 
 const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
   (
     {
       className,
       children,
+      side = 'bottom',
       align = 'start',
+      collisionStrategy = 'flip',
       portal = true,
       onEscapeKeyDown,
       onPointerDownOutside,
@@ -400,7 +403,9 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
       enabled: open,
       anchorRef: triggerRef,
       contentRef,
+      side,
       align,
+      collisionStrategy,
     });
 
     useEffect(() => {
@@ -452,8 +457,6 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
       return null;
     }
 
-    const { side: _side, ...positionStyle } = position ?? { side: 'bottom' };
-
     const content = (
       <div
         data-component='Selector.Content'
@@ -463,8 +466,10 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
         aria-labelledby={`${baseId}-trigger`}
         tabIndex={-1}
         data-state='open'
-        data-side={position?.side}
+        data-side={position?.side ?? side}
         className={cn(
+          // Already a flex column: Selector.Viewport shrinks and stays the
+          // scroller, so the clamp needs no overflow change here.
           'fixed z-50 flex w-fit min-w-(--trigger-width) flex-col overflow-hidden',
           'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           'border-bdr-subtle bg-surface-neutral rounded-sm border shadow-lg outline-none',
@@ -475,7 +480,10 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
           className,
         )}
         style={{
-          ...positionStyle,
+          top: position?.top,
+          left: position?.left,
+          right: position?.right,
+          maxHeight: position?.maxHeight,
           '--trigger-width': triggerRef.current ? `${triggerRef.current.offsetWidth}px` : undefined,
         }}
         {...props}

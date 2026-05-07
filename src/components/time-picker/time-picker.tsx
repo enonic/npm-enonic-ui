@@ -20,6 +20,7 @@ import {
 import { IconButton } from '@/components/icon-button';
 import { Selector } from '@/components/selector';
 import {
+  type FloatingProps,
   useActiveItemFocus,
   useClickOutside,
   useControlledState,
@@ -559,15 +560,27 @@ TimePickerTrigger.displayName = 'TimePicker.Trigger';
 //
 
 export type TimePickerContentProps = {
-  align?: 'start' | 'end';
   /** Optional reference to an anchor element for positioning (defaults to trigger) */
   anchorRef?: RefObject<HTMLElement>;
   className?: string;
   children?: ReactNode;
-} & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children'>;
+} & FloatingProps &
+  Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children'>;
 
 const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
-  ({ align = 'start', anchorRef, className, children, onKeyDown, ...props }, ref): ReactElement | null => {
+  (
+    {
+      side = 'bottom',
+      align = 'start',
+      collisionStrategy = 'flip',
+      anchorRef,
+      className,
+      children,
+      onKeyDown,
+      ...props
+    },
+    ref,
+  ): ReactElement | null => {
     const {
       baseId,
       open,
@@ -594,7 +607,9 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
       enabled: open,
       anchorRef: anchorRef ?? triggerRef,
       contentRef,
+      side,
       align,
+      collisionStrategy,
     });
 
     useClickOutside({
@@ -699,10 +714,11 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
         id={contentId}
         role='dialog'
         aria-modal='false'
-        data-side={position?.side}
+        data-side={position?.side ?? side}
         onKeyDown={handleKeyDown}
         className={cn(
           'border-bdr-subtle bg-surface-neutral fixed flex w-fit items-center gap-1.5 rounded-sm border p-3 shadow-md',
+          position?.maxHeight !== undefined && 'overflow-y-auto',
           'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           className,
         )}
@@ -710,6 +726,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
           top: position ? `${position.top}px` : '0',
           left: position?.left !== undefined ? `${position.left}px` : undefined,
           right: position?.right !== undefined ? `${position.right}px` : undefined,
+          maxHeight: position?.maxHeight !== undefined ? `${position.maxHeight}px` : undefined,
         }}
         {...props}
       >
