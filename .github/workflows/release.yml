@@ -6,8 +6,8 @@ on:
       - 'v*'
 
 concurrency:
-  group: release
-  cancel-in-progress: true
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -67,12 +67,26 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify tag matches package.json version
+        shell: bash
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          pkg_version="$(node -p "require('./package.json').version")"
+          if [ "$tag_version" != "$pkg_version" ]; then
+            echo "Tag/version mismatch: tag=$tag_version package.json=$pkg_version"
+            exit 1
+          fi
+          echo "Tag and package.json version match: $pkg_version"
+
       - name: Publish
         # --no-git-checks: CI runs in detached HEAD state (tag checkout)
-        # --provenance: Required for public repositories
-        run: pnpm publish --no-git-checks
+        # --provenance: signed sigstore attestation via OIDC (id-token: write)
+        # --tag: pre-release tags (containing '-') publish to 'beta' dist-tag,
+        #        stable tags publish to 'latest'
+        run: pnpm publish --no-git-checks --provenance --tag ${{ contains(github.ref_name, '-') && 'beta' || 'latest' }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           name: Enonic UI ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-') }}
