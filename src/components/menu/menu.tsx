@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import {
+  type FloatingProps,
   useClickOutside,
   useControlledState,
   useFloatingPosition,
@@ -179,20 +180,22 @@ MenuPortal.displayName = 'Menu.Portal';
 
 export type MenuContentProps = {
   forceMount?: boolean;
-  align?: 'start' | 'end';
   loop?: boolean;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
   onInteractOutside?: (event: Event) => void;
   className?: string;
   children?: ReactNode;
-} & ComponentPropsWithoutRef<'div'>;
+} & FloatingProps &
+  ComponentPropsWithoutRef<'div'>;
 
 const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
   (
     {
       forceMount,
+      side = 'bottom',
       align = 'start',
+      collisionStrategy = 'flip',
       loop = true,
       onEscapeKeyDown,
       onPointerDownOutside,
@@ -214,7 +217,9 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       enabled: open,
       anchorRef: triggerRef,
       contentRef,
+      side,
       align,
+      collisionStrategy,
     });
 
     // Detect portal mode
@@ -300,10 +305,11 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       return null;
     }
 
-    const { side: _side, ...positionStyle } = position ?? { side: 'bottom' };
-
-    const contentStyle = {
-      ...positionStyle,
+    const contentStyle: React.CSSProperties = {
+      top: position?.top,
+      left: position?.left,
+      right: position?.right,
+      maxHeight: position?.maxHeight,
       ...((style as React.CSSProperties | undefined) ?? {}),
     };
 
@@ -317,9 +323,10 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
         aria-activedescendant={active}
         tabIndex={-1}
         data-state={open ? 'open' : 'closed'}
-        data-side={position?.side}
+        data-side={position?.side ?? side}
         className={cn(
-          'fixed z-40 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
+          'fixed z-40 flex w-fit flex-col items-start gap-y-1 p-1',
+          position?.maxHeight !== undefined ? 'overflow-y-auto' : 'overflow-hidden',
           'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
           'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
           // Animations

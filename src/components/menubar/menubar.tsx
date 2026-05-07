@@ -16,6 +16,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import {
+  type FloatingProps,
   useActiveItemFocus,
   useClickOutside,
   useFloatingPosition,
@@ -884,8 +885,6 @@ MenubarPortal.displayName = 'Menubar.Portal';
  * ```
  */
 export type MenubarContentProps = {
-  /** Horizontal alignment relative to trigger */
-  align?: 'start' | 'end';
   /** Whether navigation should loop from last to first item */
   loop?: boolean;
   /** Keep content mounted in DOM even when menu is closed */
@@ -898,12 +897,15 @@ export type MenubarContentProps = {
   onInteractOutside?: (event: Event) => void;
   className?: string;
   children?: ReactNode;
-} & ComponentPropsWithoutRef<'div'>;
+} & FloatingProps &
+  ComponentPropsWithoutRef<'div'>;
 
 const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
   (
     {
+      side = 'bottom',
       align = 'start',
+      collisionStrategy = 'flip',
       loop = true,
       forceMount = false,
       onEscapeKeyDown,
@@ -929,7 +931,9 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       enabled: open,
       anchorRef: triggerRef as React.RefObject<HTMLElement>,
       contentRef,
+      side,
       align,
+      collisionStrategy,
     });
 
     // Detect portal mode
@@ -1087,9 +1091,12 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
           aria-labelledby={menuId}
           tabIndex={-1}
           data-state={open ? 'open' : 'closed'}
+          data-side={position?.side ?? side}
           data-align={align}
           className={cn(
-            'fixed z-40 mt-2 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
+            'fixed z-40 flex w-fit flex-col items-start gap-y-1 p-1',
+            position?.maxHeight !== undefined ? 'overflow-y-auto' : 'overflow-hidden',
+            'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
             'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
             // Animations
             'data-[state=closed]:animate-out data-[state=open]:animate-in',
@@ -1098,7 +1105,12 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
             !position && 'invisible',
             className,
           )}
-          style={{ ...position }}
+          style={{
+            top: position?.top,
+            left: position?.left,
+            right: position?.right,
+            maxHeight: position?.maxHeight,
+          }}
           onKeyDown={handleKeyDown_}
           {...props}
         >

@@ -8,6 +8,7 @@ import { Combobox } from '@/components/combobox/combobox';
 import { Dialog } from '@/components/dialog/dialog';
 import { Listbox } from '@/components/listbox/listbox';
 import { Toggle } from '@/components/toggle';
+import { ToggleGroup } from '@/components/toggle-group';
 import { type FlatNode, VirtualizedTreeList } from '@/components/virtualized-tree-list/virtualized-tree-list';
 import { useCombobox } from '@/providers';
 import { cn } from '@/utils';
@@ -1431,4 +1432,130 @@ export const DialogWithPortal: Story = {
       </div>
     );
   },
+};
+
+//
+// * Collision Strategy
+//
+
+const longFrameworkList: Option[] = Array.from({ length: 30 }, (_, i) => ({
+  id: `framework-${i + 1}`,
+  name: `Framework ${i + 1}`,
+  language: i % 2 === 0 ? 'TypeScript' : 'JavaScript',
+  year: 2010 + i,
+}));
+
+type Strategy = 'flip' | 'shift' | 'shrink';
+
+const STRATEGY_DESCRIPTIONS: Record<Strategy, string> = {
+  flip: 'Default behavior. Trigger sits below the viewport center; the dropdown flips above to fit. Reads as unnatural when the page or popup could scroll instead.',
+  shift: 'Dropdown stays below the trigger even when its full max-height does not fit. Page scroll reveals the rest.',
+  shrink: 'Dropdown stays below and clamps its max-height to the available space. Internal scroll appears.',
+};
+
+const CollisionDemo = (): ReactElement => {
+  const [strategy, setStrategy] = useState<Strategy>('flip');
+  const [value, setValue] = useState<string | undefined>();
+  const filtered = value
+    ? longFrameworkList.filter(f => f.name.toLowerCase().includes(value.toLowerCase()))
+    : longFrameworkList;
+
+  return (
+    <div className='flex h-screen flex-col'>
+      <div className='flex flex-1 items-end pb-[20vh]'>
+        <div className='mx-auto w-80 space-y-3'>
+          <ToggleGroup
+            type='single'
+            value={strategy}
+            onValueChange={(v: string) => v && setStrategy(v as Strategy)}
+            aria-label='Collision strategy'
+          >
+            <ToggleGroup.Item value='flip' variant='filled' label='flip' />
+            <ToggleGroup.Item value='shift' variant='filled' label='shift' />
+            <ToggleGroup.Item value='shrink' variant='filled' label='shrink' />
+          </ToggleGroup>
+          <p className='text-sm text-subtle'>{STRATEGY_DESCRIPTIONS[strategy]}</p>
+          <Combobox.Root key={strategy} value={value} onChange={setValue}>
+            <Combobox.Content>
+              <Combobox.Control>
+                <Combobox.Search>
+                  <Combobox.SearchIcon />
+                  <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                  <Combobox.Toggle />
+                </Combobox.Search>
+              </Combobox.Control>
+
+              <Combobox.Portal>
+                <Combobox.Popup collisionStrategy={strategy}>
+                  <Listbox.Content className={strategy === 'shrink' ? undefined : 'max-h-60'}>
+                    {filtered.map(({ id, ...rest }) => (
+                      <Listbox.Item key={id} value={id}>
+                        <ListboxItemContent {...rest} />
+                      </Listbox.Item>
+                    ))}
+                  </Listbox.Content>
+                </Combobox.Popup>
+              </Combobox.Portal>
+            </Combobox.Content>
+          </Combobox.Root>
+        </div>
+      </div>
+    </div>
+  );
+};
+CollisionDemo.displayName = 'CollisionDemo';
+
+const SideTopDemo = (): ReactElement => {
+  const [value, setValue] = useState<string | undefined>();
+  const filtered = value
+    ? longFrameworkList.filter(f => f.name.toLowerCase().includes(value.toLowerCase()))
+    : longFrameworkList;
+
+  return (
+    <div className='flex h-screen flex-col'>
+      <div className='flex flex-1 items-start pt-[30vh]'>
+        <div className='mx-auto w-80 space-y-3'>
+          <p className='text-sm text-subtle'>
+            side=&quot;top&quot;: dropdown opens above the trigger by default, flipping below if it does not fit.
+          </p>
+          <Combobox.Root value={value} onChange={setValue}>
+            <Combobox.Content>
+              <Combobox.Control>
+                <Combobox.Search>
+                  <Combobox.SearchIcon />
+                  <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                  <Combobox.Toggle />
+                </Combobox.Search>
+              </Combobox.Control>
+
+              <Combobox.Portal>
+                <Combobox.Popup side='top'>
+                  <Listbox.Content className='max-h-60'>
+                    {filtered.map(({ id, ...rest }) => (
+                      <Listbox.Item key={id} value={id}>
+                        <ListboxItemContent {...rest} />
+                      </Listbox.Item>
+                    ))}
+                  </Listbox.Content>
+                </Combobox.Popup>
+              </Combobox.Portal>
+            </Combobox.Content>
+          </Combobox.Root>
+        </div>
+      </div>
+    </div>
+  );
+};
+SideTopDemo.displayName = 'SideTopDemo';
+
+export const PortalCollisionStrategy: Story = {
+  name: 'Features / Collision Strategy',
+  parameters: { layout: 'fullscreen' },
+  render: () => <CollisionDemo />,
+};
+
+export const PortalSideTop: Story = {
+  name: 'Features / Side — Top',
+  parameters: { layout: 'fullscreen' },
+  render: () => <SideTopDemo />,
 };

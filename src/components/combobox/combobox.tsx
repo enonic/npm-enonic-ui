@@ -2,10 +2,12 @@ import { cva } from 'class-variance-authority';
 import { ChevronDown } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
+  createContext,
   forwardRef,
   type ReactElement,
   type ReactNode,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -18,6 +20,7 @@ import { IconButton } from '@/components/icon-button/icon-button';
 import { Listbox } from '@/components/listbox';
 import { SearchField } from '@/components/search-field';
 import {
+  type FloatingProps,
   useClickOutside,
   useControlledState,
   useControlledStateWithNull,
@@ -760,16 +763,38 @@ const ComboboxPortal = ({ container, forceMount, children }: ComboboxPortalProps
 ComboboxPortal.displayName = 'Combobox.Portal';
 
 //
+// * Popup Layout (internal)
+//
+
+// ? Internal bridge between Combobox.Popup (which owns positioning) and inner
+// content that manages its own pixel height (e.g. Combobox.TreeContent wrapping
+// Virtuoso). Lets the tree clamp its explicit height to the popup's shrink-mode
+// maxHeight without exposing positioning detail through the public Combobox
+// context. Not exported.
+type ComboboxPopupLayout = {
+  /** Popup max height in pixels when collisionStrategy='shrink' clamps it. */
+  maxHeight?: number;
+};
+
+const ComboboxPopupLayoutContext = createContext<ComboboxPopupLayout | undefined>(undefined);
+
+const useComboboxPopupLayout = (): ComboboxPopupLayout | undefined => useContext(ComboboxPopupLayoutContext);
+
+//
 // * Popup
 //
 
 export type ComboboxPopupProps = {
   children?: ReactNode;
   className?: string;
-} & ComponentPropsWithoutRef<'div'>;
+} & FloatingProps &
+  ComponentPropsWithoutRef<'div'>;
 
 const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
-  ({ children, className, style, ...props }, ref): ReactElement | null => {
+  (
+    { children, className, style, side = 'bottom', align = 'start', collisionStrategy = 'flip', ...props },
+    ref,
+  ): ReactElement | null => {
     const {
       open,
       setOpen,
@@ -802,7 +827,9 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       enabled: open && isPortalMode,
       anchorRef: controlRef,
       contentRef: innerRef,
-      align: 'start',
+      side,
+      align,
+      collisionStrategy,
     });
 
     // Click outside handling for portal mode (blur won't work across portal boundary)
@@ -870,6 +897,8 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       [contentType, focusInput],
     );
 
+    const layoutValue = useMemo<ComboboxPopupLayout>(() => ({ maxHeight: position?.maxHeight }), [position?.maxHeight]);
+
     if (!open) {
       return null;
     }
@@ -887,6 +916,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
           left: position?.left !== undefined ? `${position.left}px` : undefined,
           right: position?.right !== undefined ? `${position.right}px` : undefined,
           width: portalWidth,
+          maxHeight: position?.maxHeight !== undefined ? `${position.maxHeight}px` : undefined,
           ...((style as React.CSSProperties | undefined) ?? {}),
         }
       : ((style as React.CSSProperties | undefined) ?? {});
@@ -897,9 +927,10 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
         data-component='Combobox.Popup'
         ref={composedRefs}
         data-combobox-popup=''
-        data-side={isPortalMode ? position?.side : 'bottom'}
+        data-side={isPortalMode ? position?.side : side}
         className={cn(
-          'z-50 overflow-hidden rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+          'z-50 rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+          position?.maxHeight !== undefined ? 'overflow-y-auto' : 'overflow-hidden',
           'data-[side=top]:-mt-2 data-[side=bottom]:mt-2',
           !isPortalMode && 'absolute right-0 left-0',
           isHidden && 'pointer-events-none opacity-0',
@@ -910,7 +941,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
         onKeyDown={handleKeyDown}
         {...props}
       >
-        {children}
+        <ComboboxPopupLayoutContext.Provider value={layoutValue}>{children}</ComboboxPopupLayoutContext.Provider>
       </div>
     );
   },
@@ -1002,8 +1033,22 @@ export type ComboboxTreeContentProps = {
  * </Combobox.TreeContent>
  * ```
  */
-const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeContentProps): ReactElement => {
+const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxTreeContentProps): ReactElement => {
   const { baseId, setOpen, stagingEnabled, applyStagedSelection } = useCombobox();
+  const popupLayout = useComboboxPopupLayout();
+
+  // Virtuoso requires an explicit pixel height. When Combobox.Popup runs with
+  // collisionStrategy='shrink', the popup itself is clamped to the viewport's
+  // available space — but the consumer-supplied `style.height` doesn't know
+  // that. Clamp it here so the inner virtualizer renders against the same
+  // budget the popup is rendering in. Source of truth stays in the hook.
+  const consumerStyle = (style as React.CSSProperties | undefined) ?? {};
+  const consumerHeight = typeof consumerStyle.height === 'number' ? consumerStyle.height : undefined;
+  const clampedHeight =
+    consumerHeight !== undefined && popupLayout?.maxHeight !== undefined
+      ? Math.min(consumerHeight, popupLayout.maxHeight)
+      : consumerHeight;
+  const mergedStyle: React.CSSProperties = { ...consumerStyle, height: clampedHeight ?? consumerStyle.height };
 
   // Handle keyboard shortcuts from tree content
   const handleKeyDown = useCallback(
@@ -1059,6 +1104,7 @@ const ComboboxTreeContent = ({ children, className, ...props }: ComboboxTreeCont
       id={`${baseId}-tree`}
       className={cn('outline-none', className)}
       onKeyDown={handleKeyDown}
+      style={mergedStyle}
       {...props}
     >
       {children}

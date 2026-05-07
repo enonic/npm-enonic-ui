@@ -4,12 +4,27 @@ const VIEWPORT_PADDING = 10;
 
 export type FloatingSide = 'top' | 'bottom' | 'left' | 'right';
 
+export type CollisionStrategy = 'flip' | 'shift' | 'shrink';
+
 export type FloatingPosition = {
   top: number;
   left?: number;
   right?: number;
-  /** Which side the popup is positioned relative to the anchor (post-flip) */
+  /**
+   * The side the popup is actually positioned on. Equals `preferredSide`
+   * unless `collisionStrategy` is `'flip'` and the popup was flipped to fit.
+   */
   side: FloatingSide;
+  /** The `side` requested via config — useful when `flipped` is true. */
+  preferredSide: FloatingSide;
+  /** True iff `side !== preferredSide` (i.e. a flip occurred). */
+  flipped: boolean;
+  /**
+   * Maximum height the popup should be clamped to, in pixels. Set only when
+   * `collisionStrategy` is `'shrink'` AND the preferred side cannot fit the
+   * full content height. Consumers apply via inline style on the popup wrapper.
+   */
+  maxHeight?: number;
 };
 
 export type UseFloatingPositionConfig = {
@@ -20,8 +35,7 @@ export type UseFloatingPositionConfig = {
   /** Reference to the floating content element */
   contentRef: RefObject<HTMLElement> | null;
   /**
-   * Preferred side relative to the anchor. Flips to the opposite side when
-   * the content would overflow the viewport.
+   * Preferred side relative to the anchor.
    * @default 'bottom'
    */
   side?: FloatingSide;
@@ -32,18 +46,45 @@ export type UseFloatingPositionConfig = {
    * @default 'start'
    */
   align?: 'start' | 'end';
+  /**
+   * How to react when the preferred side cannot fit the popup:
+   * - `'flip'` (default) — flip to the opposite side if it fits; else stay on
+   *   preferred side and overflow.
+   * - `'shift'` — keep preferred side; do not flip; do not clamp height. The
+   *   popup may extend past the viewport. Consumer is expected to handle
+   *   scroll (page scroll or its own internal scroll bound).
+   * - `'shrink'` — keep preferred side; compute available height and return
+   *   it as `maxHeight`. Consumer applies it via inline style on the popup
+   *   wrapper to enable internal scroll.
+   *
+   * @default 'flip'
+   */
+  collisionStrategy?: CollisionStrategy;
+};
+
+/**
+ * Shared prop surface for popup components that build on `useFloatingPosition`.
+ * Mix into a component's `*Props` type to expose consistent positioning controls
+ * across the library.
+ */
+export type FloatingProps = {
+  /** Preferred side relative to the anchor. @default 'bottom' */
+  side?: FloatingSide;
+  /** Alignment along the perpendicular axis. @default 'start' */
+  align?: 'start' | 'end';
+  /** Collision behavior when the preferred side does not fit. @default 'flip' */
+  collisionStrategy?: CollisionStrategy;
 };
 
 /**
  * Calculates optimal position for floating elements (menus, dropdowns, submenus) relative
- * to an anchor, with automatic viewport collision detection and flip behavior.
+ * to an anchor, with viewport collision handling controlled by `collisionStrategy`.
  *
- * Supports four preferred sides (top/bottom/left/right). When the content would overflow
- * the viewport on the preferred side, it flips to the opposite side. Perpendicular-axis
- * alignment is adjusted to keep the content within the viewport.
+ * Supports four preferred sides (top/bottom/left/right). Perpendicular-axis alignment is
+ * always adjusted to keep the content within the viewport, regardless of strategy.
  *
  * @param config - Configuration object for positioning behavior
- * @returns Position object with top and left/right coordinates, or null if not yet calculated
+ * @returns Position object with coordinates and side info, or null if not yet calculated
  */
 export function useFloatingPosition({
   enabled,
@@ -51,6 +92,7 @@ export function useFloatingPosition({
   contentRef,
   side: preferredSide = 'bottom',
   align = 'start',
+  collisionStrategy = 'flip',
 }: UseFloatingPositionConfig): FloatingPosition | null {
   const [position, setPosition] = useState<FloatingPosition | null>(null);
 
@@ -77,25 +119,39 @@ export function useFloatingPosition({
       let left: number | undefined;
       let right: number | undefined;
       let side: FloatingSide = preferredSide;
+      let maxHeight: number | undefined;
 
       if (isVerticalSide) {
-        // Vertical sides (top/bottom): primary axis is Y, align is horizontal
+        const availableBelow = viewportHeight - anchorRect.bottom - VIEWPORT_PADDING;
+        const availableAbove = anchorRect.top - VIEWPORT_PADDING;
+
         if (preferredSide === 'bottom') {
           top = anchorRect.bottom;
-          if (top + contentHeight > viewportHeight - VIEWPORT_PADDING) {
-            const topPosition = anchorRect.top - contentHeight;
-            if (topPosition >= VIEWPORT_PADDING) {
-              top = topPosition;
-              side = 'top';
+          const overflowsBelow = top + contentHeight > viewportHeight - VIEWPORT_PADDING;
+          if (overflowsBelow) {
+            if (collisionStrategy === 'flip') {
+              const topPosition = anchorRect.top - contentHeight;
+              if (topPosition >= VIEWPORT_PADDING) {
+                top = topPosition;
+                side = 'top';
+              }
+            } else if (collisionStrategy === 'shrink') {
+              maxHeight = Math.max(0, availableBelow);
             }
           }
         } else {
           top = anchorRect.top - contentHeight;
-          if (top < VIEWPORT_PADDING) {
-            const bottomPosition = anchorRect.bottom;
-            if (bottomPosition + contentHeight <= viewportHeight - VIEWPORT_PADDING) {
-              top = bottomPosition;
-              side = 'bottom';
+          const overflowsAbove = top < VIEWPORT_PADDING;
+          if (overflowsAbove) {
+            if (collisionStrategy === 'flip') {
+              const bottomPosition = anchorRect.bottom;
+              if (bottomPosition + contentHeight <= viewportHeight - VIEWPORT_PADDING) {
+                top = bottomPosition;
+                side = 'bottom';
+              }
+            } else if (collisionStrategy === 'shrink') {
+              top = anchorRect.top - Math.max(0, availableAbove);
+              maxHeight = Math.max(0, availableAbove);
             }
           }
         }
@@ -114,10 +170,12 @@ export function useFloatingPosition({
           }
         }
       } else {
-        // Horizontal sides (left/right): primary axis is X, align is vertical
+        // ? Horizontal sides only honor 'flip'. 'shift' and 'shrink' collapse
+        // to "stay on preferred side" — width-clamping a submenu reads worse
+        // than letting it overflow.
         if (preferredSide === 'right') {
           left = anchorRect.right;
-          if (left + contentWidth > viewportWidth - VIEWPORT_PADDING) {
+          if (left + contentWidth > viewportWidth - VIEWPORT_PADDING && collisionStrategy === 'flip') {
             const leftPosition = anchorRect.left - contentWidth;
             if (leftPosition >= VIEWPORT_PADDING) {
               left = leftPosition;
@@ -126,7 +184,7 @@ export function useFloatingPosition({
           }
         } else {
           const leftPosition = anchorRect.left - contentWidth;
-          if (leftPosition < VIEWPORT_PADDING) {
+          if (leftPosition < VIEWPORT_PADDING && collisionStrategy === 'flip') {
             const rightPosition = anchorRect.right;
             if (rightPosition + contentWidth <= viewportWidth - VIEWPORT_PADDING) {
               left = rightPosition;
@@ -152,7 +210,15 @@ export function useFloatingPosition({
         }
       }
 
-      setPosition({ top, left, right, side });
+      setPosition({
+        top,
+        left,
+        right,
+        side,
+        preferredSide,
+        flipped: side !== preferredSide,
+        maxHeight,
+      });
     };
 
     updatePosition();
@@ -172,7 +238,7 @@ export function useFloatingPosition({
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
     };
-  }, [enabled, preferredSide, align, anchorRef, contentRef]);
+  }, [enabled, preferredSide, align, collisionStrategy, anchorRef, contentRef]);
 
   return position;
 }
