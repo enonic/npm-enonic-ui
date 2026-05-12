@@ -21,7 +21,7 @@ jobs:
       allowed: ${{ steps.contains.outputs.allowed }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -50,15 +50,17 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: package.json
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'pnpm'
@@ -87,7 +89,7 @@ jobs:
         run: pnpm publish --no-git-checks --tag ${{ contains(github.ref_name, '-') && 'beta' || 'latest' }}
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: Enonic UI ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-') }}
