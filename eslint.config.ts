@@ -28,7 +28,7 @@ export default [
   {
     files: ['**/*.tsx'],
     ...reactPlugin.configs.flat.recommended,
-    settings: { react: { version: 'detect', pragma: 'h' } },
+    settings: { react: { version: '18.0', pragma: 'h' } },
     rules: {
       ...reactPlugin.configs.flat.recommended.rules,
       'react/jsx-uses-react': 'off',
