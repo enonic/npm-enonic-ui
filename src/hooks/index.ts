@@ -1,5 +1,6 @@
 export { type UseActiveItemFocusConfig, useActiveItemFocus } from './use-active-item-focus';
 export { type UseActiveOnOpenConfig, useActiveOnOpen } from './use-active-on-open';
+export { type UseBlinkAttentionConfig, useBlinkAttention } from './use-blink-attention';
 export { type UseClickOutsideConfig, useClickOutside } from './use-click-outside';
 export { useControlledState } from './use-controlled-state';
 export { useControlledStateWithNull } from './use-controlled-state-with-null';

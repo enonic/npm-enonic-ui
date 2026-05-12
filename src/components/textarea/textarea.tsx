@@ -31,6 +31,8 @@ const textareaContainerVariants = cva(
         default: 'hover:-outline-offset-1 border-bdr-subtle hover:outline-2 hover:outline-bdr-subtle',
         error:
           'hover:-outline-offset-1 border-error focus-within:border-error focus-within:ring-error hover:outline-2 hover:outline-error',
+        processing:
+          'input-animated-border border-transparent [--shimmer-band-size:240px] focus-within:border-transparent hover:outline-none',
       },
       disabled: {
         true: 'select-none focus-within:outline-none hover:outline-none',
@@ -54,6 +56,17 @@ export type TextAreaProps = {
   error?: string;
   disabled?: boolean;
   readOnly?: boolean;
+  /**
+   * Indicates an in-flight async operation on the field. Forces read-only behavior,
+   * shows a progress cursor and an animated shimmer overlay, and suppresses the error display.
+   * Takes priority over `error`.
+   */
+  processing?: boolean;
+  /**
+   * Applies a one-shot attention-blink ring around the field (not the label/error). Pair with
+   * `useBlinkAttention` for the trigger logic.
+   */
+  highlight?: boolean;
   resizable?: boolean;
   /**
    * Enables automatic content-based sizing.
@@ -76,6 +89,8 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       id,
       disabled,
       readOnly,
+      processing,
+      highlight,
       resizable = false,
       autoSize = false,
       rows = 2,
@@ -84,7 +99,8 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     ref: ForwardedRef<HTMLTextAreaElement>,
   ) => {
     const textareaId = usePrefixedId(unwrap(id));
-    const state = error ? 'error' : 'default';
+    const effectiveReadOnly = readOnly || processing;
+    const state = processing ? 'processing' : error ? 'error' : 'default';
 
     const internalRef = useRef<HTMLTextAreaElement | null>(null);
     const composedRef = useComposedRefs(internalRef, ref);
@@ -137,7 +153,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             {label && (
               <label htmlFor={textareaId} className='block font-semibold text-base text-main'>
                 <div className='flex items-center gap-2'>
-                  {readOnly && <LockKeyhole size={16} strokeWidth={2.5} />}
+                  {readOnly && !processing && <LockKeyhole size={16} strokeWidth={2.5} />}
                   {label}
                 </div>
               </label>
@@ -146,11 +162,17 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             {description && <div className='text-sm text-subtle'>{description}</div>}
           </div>
         )}
-        <div className={cn(textareaContainerVariants({ state, disabled, readOnly }))}>
+        <div
+          className={cn(
+            textareaContainerVariants({ state, disabled, readOnly: effectiveReadOnly }),
+            highlight && 'input-blink-attention',
+          )}
+        >
           <textarea
             ref={composedRef}
             id={textareaId}
-            aria-invalid={!!error || undefined}
+            aria-invalid={!processing && error ? true : undefined}
+            aria-busy={processing || undefined}
             className={cn(
               'w-full flex-1 px-4.5 py-3 text-base',
               resizable ? 'resize-y' : 'resize-none',
@@ -158,18 +180,31 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
               'bg-surface-neutral text-main placeholder:text-subtle',
               'border-0 focus:outline-none',
               'enabled:read-only:bg-surface-primary disabled:select-none',
+              processing ? 'cursor-progress select-none' : readOnly && 'read-only:cursor-default',
             )}
             style={autoSize ? { fieldSizing: 'content' } : undefined}
             disabled={disabled}
-            readOnly={readOnly}
+            readOnly={effectiveReadOnly}
             rows={rows}
             {...props}
           />
 
           {endAddon}
+
+          {processing && (
+            <div
+              aria-hidden='true'
+              className={cn(
+                'pointer-events-none absolute inset-0 opacity-60',
+                'bg-[length:var(--shimmer-band-size)_100%] bg-no-repeat',
+                'bg-[linear-gradient(105deg,transparent_0%,var(--color-surface-shimmer)_50%,transparent_100%)]',
+                'animate-[skeleton-shimmer_1.6s_ease-in-out_infinite]',
+              )}
+            />
+          )}
         </div>
 
-        {error && (
+        {!processing && error && (
           <div className='mt-2 flex items-center gap-2 text-error leading-5'>
             <FilledOctagonAlert size={16} />
             {error}

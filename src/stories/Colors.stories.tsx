@@ -42,12 +42,7 @@ const ColorSwatch = ({ name, variable, description, size = 'md' }: ColorSwatchPr
       className='group hover:-translate-y-0.5 relative flex cursor-pointer flex-col overflow-hidden rounded-lg border border-bdr-soft bg-surface-neutral text-left transition-all duration-200 hover:border-bdr-strong hover:shadow-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset'
       title={`Click to copy: ${name}`}
     >
-      <div
-        className={`w-full ${sizeClasses[size]} relative overflow-hidden`}
-        style={{ backgroundColor: `var(${variable})` }}
-      >
-        <div className='absolute inset-0 bg-linear-to-br from-white/0 to-black/5 opacity-0 transition-opacity group-hover:opacity-100' />
-      </div>
+      <div className={`w-full ${sizeClasses[size]}`} style={{ backgroundColor: `var(${variable})` }} />
       <div className='flex flex-col gap-1 p-3'>
         <div className='font-bold font-mono text-main text-sm tracking-tight'>{name}</div>
         {description && <div className='text-subtle text-xs leading-tight'>{description}</div>}
@@ -159,6 +154,7 @@ export const BasicPalette: Story = {
             { name: 'black', variable: '--color-black' },
             { name: 'grey-950', variable: '--color-grey-950' },
             { name: 'grey-900', variable: '--color-grey-900' },
+            { name: 'grey-850', variable: '--color-grey-850' },
             { name: 'grey-800', variable: '--color-grey-800' },
             { name: 'grey-700', variable: '--color-grey-700' },
             { name: 'grey-600', variable: '--color-grey-600' },
@@ -293,6 +289,7 @@ export const SemanticColors: Story = {
             { name: 'surface-primary', variable: '--color-surface-primary', description: 'Elevation 1' },
             { name: 'surface-secondary', variable: '--color-surface-secondary', description: 'Elevation 2' },
             { name: 'surface-tertiary', variable: '--color-surface-tertiary', description: 'Elevation 3' },
+            { name: 'surface-shimmer', variable: '--color-surface-shimmer', description: 'Processing glaze' },
             { name: 'surface-info', variable: '--color-surface-info', description: 'Info background' },
             { name: 'surface-warn', variable: '--color-surface-warn', description: 'Warning background' },
             { name: 'surface-success', variable: '--color-surface-success', description: 'Success background' },
