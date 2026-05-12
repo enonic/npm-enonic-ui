@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [tailwindcss()],
   build: {
     emptyOutDir: false,
-    cssMinify: true,
+    cssMinify: false,
     rollupOptions: {
       input: {
         'styles/preset': path.resolve(__dirname, 'src/styles/preset.css'),
