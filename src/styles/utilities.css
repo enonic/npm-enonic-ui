@@ -12,10 +12,10 @@
 
 @keyframes skeleton-shimmer {
   0% {
-    background-position-x: calc(-1 * var(--shimmer-band-size));
+    background-position-x: calc(-1 * var(--shimmer-band-size, 200px));
   }
   100% {
-    background-position-x: calc(var(--shimmer-end, 100%) + var(--shimmer-band-size));
+    background-position-x: calc(var(--shimmer-end, 100%) + var(--shimmer-band-size, 200px));
   }
 }
 
@@ -30,5 +30,49 @@
   opacity: 0;
   &[data-ready='true'] {
     opacity: 1;
+  }
+}
+
+@keyframes input-blink-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-bdr-select) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@utility input-animated-border {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background-color: var(--color-bdr-subtle);
+    background-image: linear-gradient(90deg, transparent 0%, var(--color-bdr-select) 50%, transparent 100%);
+    background-size: var(--shimmer-band-size, 200px) 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    -webkit-mask-clip: content-box, border-box;
+    -webkit-mask-composite: xor;
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+@utility input-blink-attention {
+  animation: input-blink-ring 0.6s ease-out 2;
+  /* Doubled `:focus-within` bumps specificity above Tailwind's `focus-within:ring-*` so the blink ring isn't fighting the focus ring during the animation. */
+  &:focus-within:focus-within {
+    box-shadow: none;
   }
 }

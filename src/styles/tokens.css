@@ -34,6 +34,7 @@
   --color-surface-primary: var(--color-surface-primary);
   --color-surface-secondary: var(--color-surface-secondary);
   --color-surface-tertiary: var(--color-surface-tertiary);
+  --color-surface-shimmer: var(--color-surface-shimmer);
   --color-surface-info: var(--color-surface-info);
   --color-surface-warn: var(--color-surface-warn);
   --color-surface-success: var(--color-surface-success);

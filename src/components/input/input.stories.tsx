@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Calendar, Eye, EyeOff, Mail, Search, User } from 'lucide-react';
-import { useState } from 'react';
+import { type ReactElement, useRef, useState } from 'react';
 
+import { Button } from '@/components/button';
 import { Tooltip } from '@/components/tooltip';
+import { useBlinkAttention } from '@/hooks/use-blink-attention';
 import { cn } from '@/utils';
 
 import { Input, type InputProps } from './input';
@@ -40,6 +42,10 @@ export default {
     readOnly: {
       control: 'boolean',
       description: 'Makes field non-editable with readonly styling',
+    },
+    processing: {
+      control: 'boolean',
+      description: 'Shows in-flight async state — animated border, shimmer overlay, progress cursor',
     },
     type: {
       control: 'select',
@@ -171,6 +177,16 @@ export const States: Story = {
         <h3 className='mb-3 font-medium text-sm'>Read Only State</h3>
         <Input label='Read Only Input' value='This cannot be edited' readOnly />
       </div>
+
+      <div>
+        <h3 className='mb-3 font-medium text-sm'>Processing State</h3>
+        <Input label='Processing Input' value='Saving…' processing />
+      </div>
+
+      <div>
+        <h3 className='mb-3 font-medium text-sm'>Processing Overrides Error</h3>
+        <Input label='Processing Wins' value='In flight' error='Error is hidden while processing' processing />
+      </div>
     </div>
   ),
 };
@@ -190,6 +206,15 @@ export const ReadOnly: Story = {
     label: 'Read Only Field',
     value: 'This value cannot be changed',
     readOnly: true,
+  },
+};
+
+export const Processing: Story = {
+  name: 'States / Processing',
+  args: {
+    label: 'Processing Field',
+    value: 'Saving…',
+    processing: true,
   },
 };
 
@@ -460,4 +485,37 @@ export const Interactive: Story = {
     disabled: false,
     readOnly: false,
   },
+};
+
+function HighlightDemo(): ReactElement {
+  const [trigger, setTrigger] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const isBlinking = useBlinkAttention(inputRef, trigger);
+
+  return (
+    <div className='flex flex-col gap-y-3 p-4'>
+      <div className='max-w-120 text-sm text-subtle'>
+        Click the button to scroll the field into view and pulse the attention ring. Trigger logic lives in
+        <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>useBlinkAttention</code>; the field wears the
+        ring via the <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>highlight</code> prop so the pulse
+        stays around the input itself, not the label or error.
+      </div>
+      <Button onClick={() => setTrigger(t => t + 1)}>Highlight field</Button>
+      <div className='h-96' />
+      <Input
+        ref={inputRef}
+        label='Find me'
+        description='Label and error remain outside the blink ring'
+        value='Scroll target'
+        readOnly
+        highlight={isBlinking}
+      />
+      <div className='h-96' />
+    </div>
+  );
+}
+
+export const Highlight: Story = {
+  name: 'Features / Highlight',
+  render: () => <HighlightDemo />,
 };
