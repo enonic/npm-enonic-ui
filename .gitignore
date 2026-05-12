@@ -23,7 +23,6 @@ docs/
 # Build tools
 node_modules/
 .pnpm-store/
-pnpm-workspace.yaml
 
 # OS files
 .DS_Store
