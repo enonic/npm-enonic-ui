@@ -18,6 +18,7 @@ const inputContainerVariants = cva(
         default: 'border-bdr-subtle hover:outline-2 hover:outline-bdr-subtle hover:-outline-offset-1',
         error:
           'border-error focus-within:border-error focus-within:ring-error hover:outline-2 hover:outline-error hover:-outline-offset-1',
+        processing: 'input-animated-border border-transparent focus-within:border-transparent hover:outline-none',
       },
       disabled: {
         true: 'select-none focus-within:outline-none hover:outline-none',
@@ -72,16 +73,41 @@ export type InputProps = {
   endAddon?: string | ReactNode;
   disabled?: boolean;
   readOnly?: boolean;
+  /**
+   * Indicates an in-flight async operation on the field. Forces read-only behavior,
+   * shows a progress cursor and an animated shimmer overlay, and suppresses the error display.
+   * Takes priority over `error`.
+   */
+  processing?: boolean;
+  /**
+   * Applies a one-shot attention-blink ring around the field (not the label/error). Pair with
+   * `useBlinkAttention` for the trigger logic.
+   */
+  highlight?: boolean;
   className?: string;
 } & ComponentPropsWithoutRef<'input'>;
 
 const InputRoot = forwardRef<HTMLInputElement, InputProps>(
   (
-    { className, label, description, error, startAddon, endAddon, id, disabled, readOnly, ...props }: InputProps,
+    {
+      className,
+      label,
+      description,
+      error,
+      startAddon,
+      endAddon,
+      id,
+      disabled,
+      readOnly,
+      processing,
+      highlight,
+      ...props
+    }: InputProps,
     ref: ForwardedRef<HTMLInputElement>,
   ) => {
     const inputId = usePrefixedId(unwrap(id));
-    const state = error ? 'error' : 'default';
+    const effectiveReadOnly = readOnly || processing;
+    const state = processing ? 'processing' : error ? 'error' : 'default';
 
     return (
       <div data-component='Input' className={cn('w-full', disabled && 'opacity-30', className)}>
@@ -90,7 +116,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
             {label && (
               <label htmlFor={inputId} className='block font-semibold text-base text-main'>
                 <div className='flex items-center gap-2'>
-                  {readOnly && <LockKeyhole size={16} strokeWidth={2.5} />}
+                  {readOnly && !processing && <LockKeyhole size={16} strokeWidth={2.5} />}
                   {label}
                 </div>
               </label>
@@ -99,13 +125,20 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
             {description && <div className='text-sm text-subtle'>{description}</div>}
           </div>
         )}
-        <div className={cn(inputContainerVariants({ state, disabled, readOnly }))} data-state={state}>
+        <div
+          className={cn(
+            inputContainerVariants({ state, disabled, readOnly: effectiveReadOnly }),
+            highlight && 'input-blink-attention',
+          )}
+          data-state={state}
+        >
           {startAddon != null && (typeof startAddon === 'string' ? <InputAddon>{startAddon}</InputAddon> : startAddon)}
 
           <input
             ref={ref}
             id={inputId}
-            aria-invalid={!!error || undefined}
+            aria-invalid={!processing && error ? true : undefined}
+            aria-busy={processing || undefined}
             className={cn(
               'w-full flex-1 px-4.5 text-base',
               'bg-surface-neutral text-main placeholder:text-subtle',
@@ -113,16 +146,29 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
               'enabled:read-only:bg-surface-primary disabled:select-none',
               startAddon && 'rounded-l-none',
               endAddon && 'rounded-r-none',
+              processing ? 'cursor-progress select-none' : readOnly && 'read-only:cursor-default',
             )}
             disabled={disabled}
-            readOnly={readOnly}
+            readOnly={effectiveReadOnly}
             {...props}
           />
 
           {endAddon != null && (typeof endAddon === 'string' ? <InputAddon>{endAddon}</InputAddon> : endAddon)}
+
+          {processing && (
+            <div
+              aria-hidden='true'
+              className={cn(
+                'pointer-events-none absolute inset-0 opacity-60',
+                'bg-[length:var(--shimmer-band-size)_100%] bg-no-repeat',
+                'bg-[linear-gradient(90deg,transparent_0%,var(--color-surface-shimmer)_50%,transparent_100%)]',
+                'animate-[skeleton-shimmer_1.6s_ease-in-out_infinite]',
+              )}
+            />
+          )}
         </div>
 
-        {error && (
+        {!processing && error && (
           <div className='mt-2 flex items-center gap-2 text-error leading-5'>
             <FilledOctagonAlert size={16} />
             {error}
