@@ -28,6 +28,7 @@
     --color-surface-primary: var(--color-grey-900);
     --color-surface-secondary: var(--color-grey-700);
     --color-surface-tertiary: var(--color-grey-900);
+    --color-surface-shimmer: var(--color-grey-850);
     --color-surface-info: var(--color-fbk-info-surface-dark);
     --color-surface-warn: var(--color-fbk-warn-surface-dark);
     --color-surface-success: var(--color-fbk-success-surface-dark);
