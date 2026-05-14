@@ -83,7 +83,7 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
         data-component='Toast.Description'
         // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
-        className={cn('text-md', className)}
+        className={cn('overflow-hidden text-ellipsis text-md', className)}
         {...props}
       >
         {children}
