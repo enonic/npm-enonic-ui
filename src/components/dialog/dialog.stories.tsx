@@ -1243,3 +1243,42 @@ export const WithNotification: Story = {
     );
   },
 };
+
+export const NonModal: Story = {
+  name: 'Behavior / Non-Modal',
+  parameters: { layout: 'fullscreen' },
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [outside, setOutside] = useState('');
+    const [inside, setInside] = useState('');
+
+    return (
+      <div className='flex min-h-svh flex-col items-start gap-2.5 p-6'>
+        <div className='max-w-120 text-sm text-subtle'>
+          With <code>modal={'{false}'}</code> the focus trap is disabled and the dialog does not block the rest of the
+          page. The field below stays fully interactive — clickable, hoverable, typeable — while the dialog is open. A
+          non-modal dialog does not dismiss on outside click; close it with Escape or the close button.
+        </div>
+        <div className='w-80'>
+          <Input label='Outside field' value={outside} onChange={e => setOutside(e.currentTarget.value)} />
+        </div>
+        <Button variant='solid' onClick={() => setOpen(!open)} label='Open Non-Modal Dialog' />
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Content modal={false} className='w-120'>
+              <Dialog.DefaultHeader
+                title='Non-Modal Dialog'
+                description='Focus is not trapped — try the field outside'
+                withClose
+              />
+              <Dialog.Body className='-mx-3 px-3 pb-3'>
+                <Input label='Inside field' value={inside} onChange={e => setInside(e.currentTarget.value)} />
+              </Dialog.Body>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
