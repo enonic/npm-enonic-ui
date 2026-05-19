@@ -169,7 +169,7 @@ const AvatarFallback = forwardRef<HTMLSpanElement, AvatarFallbackProps>(
         ref={ref}
         className={cn(
           'flex h-full w-full items-center justify-center',
-          'cursor-default bg-surface-secondary font-medium text-alt uppercase',
+          'cursor-default bg-avatar-fallback font-medium text-alt uppercase',
           className,
         )}
         {...props}
