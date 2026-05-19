@@ -67,6 +67,9 @@
     --color-tooltip: var(--color-grey-800);
     --color-tooltip-foreground: var(--color-white);
 
+    /* Avatar */
+    --color-avatar-fallback: var(--color-grey-800);
+
     /* Overlay */
     --color-overlay: oklch(0 0 0 / 0.6);
 

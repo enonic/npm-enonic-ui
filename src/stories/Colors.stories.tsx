@@ -390,6 +390,17 @@ export const ComponentColors: Story = {
         <SectionDivider />
 
         <ColorGroup
+          title='Avatars'
+          description='Avatar color system'
+          columns={2}
+          colors={[
+            { name: 'avatar-fallback', variable: '--color-avatar-fallback', description: 'Fallback background' },
+          ]}
+        />
+
+        <SectionDivider />
+
+        <ColorGroup
           title='Overlay & Effects'
           description='Modal overlays and special visual effects'
           columns={2}

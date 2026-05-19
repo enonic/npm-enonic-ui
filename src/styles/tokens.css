@@ -74,6 +74,9 @@
   --color-tooltip: var(--color-tooltip);
   --color-tooltip-foreground: var(--color-tooltip-foreground);
 
+  /* Avatars */
+  --color-avatar-fallback: var(--color-avatar-fallback);
+
   /* Overlay */
   --color-overlay: var(--color-overlay);
 
