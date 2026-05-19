@@ -175,6 +175,8 @@ DialogOverlay.displayName = 'Dialog.Overlay';
 export type DialogContentProps = {
   className?: string;
   children?: ReactNode;
+  /** When false, the dialog is non-modal: no focus trap, no `aria-modal`, no scroll lock, and outside clicks pass through without dismissing it. Defaults to true. */
+  modal?: boolean;
   forceMount?: boolean;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
@@ -188,6 +190,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     {
       children,
       className,
+      modal = true,
       forceMount,
       onEscapeKeyDown,
       onPointerDownOutside,
@@ -203,6 +206,11 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     const [portalContainers, setPortalContainers] = useState<HTMLElement[]>([]);
 
     const composedRef = useComposedRefs(ref, contentRef);
+
+    const onOpenAutoFocusRef = useRef(onOpenAutoFocus);
+    const onCloseAutoFocusRef = useRef(onCloseAutoFocus);
+    onOpenAutoFocusRef.current = onOpenAutoFocus;
+    onCloseAutoFocusRef.current = onCloseAutoFocus;
 
     // Registry for portaled content (e.g., Combobox.Popup) to register with focus trap.
     // See rules/patterns.mdc — "Focus Trap with Portaled Content"
@@ -223,7 +231,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       return result.length > 0 ? result : undefined;
     }, [portalContainers]);
 
-    useScrollLock(open);
+    useScrollLock(open && modal);
 
     // Create refs from portal containers for click-outside exclusion
     const excludeRefs = useMemo(() => portalContainers.map(el => ({ current: el })), [portalContainers]);
@@ -248,6 +256,36 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       return () => document.removeEventListener('keydown', handleEscapeKey);
     }, [open, handleEscapeKey]);
 
+    // ? Auto-focus and focus restoration live here, not in the focus trap's lifecycle,
+    // ? so they keep working when the trap is inactive (modal={false}).
+    useEffect(() => {
+      if (!open) {
+        return;
+      }
+      const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+      const rafId = requestAnimationFrame(() => {
+        const event = new Event('openautofocus', { bubbles: true, cancelable: true });
+        onOpenAutoFocusRef.current?.(event);
+        if (!event.defaultPrevented) {
+          contentRef.current?.focus();
+        }
+      });
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        const event = new Event('closeautofocus', { bubbles: true, cancelable: true });
+        onCloseAutoFocusRef.current?.(event);
+        if (!event.defaultPrevented) {
+          // Defer past the focus trap teardown — while still listening, its focusout
+          // handler would catch this focus change and redirect to its fallback.
+          requestAnimationFrame(() => previouslyFocused?.focus());
+        }
+      };
+    }, [open]);
+
+    // A non-modal dialog is a persistent panel — outside-interaction callbacks still fire,
+    // but it never dismisses on outside click.
     useClickOutside({
       enabled: open,
       contentRef,
@@ -255,7 +293,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       onPointerDownOutside,
       onInteractOutside,
       closeOn: 'click',
-      onClose: () => setOpen(false),
+      onClose: modal ? () => setOpen(false) : undefined,
     });
 
     if (!forceMount && !open) {
@@ -265,39 +303,26 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     return (
       <FocusContainerContext.Provider value={focusContainerRegistry}>
         <FocusTrap
-          active={open}
+          active={open && modal}
           containerElements={containerElements}
           focusTrapOptions={{
             initialFocus: false,
             fallbackFocus: () => contentRef.current ?? document.body,
             escapeDeactivates: false,
             clickOutsideDeactivates: false,
-            returnFocusOnDeactivate: true,
+            returnFocusOnDeactivate: false,
             allowOutsideClick: true,
             preventScroll: false,
-            onActivate: () => {
-              requestAnimationFrame(() => {
-                const event = new Event('openautofocus', { bubbles: true, cancelable: true });
-                onOpenAutoFocus?.(event);
-                if (!event.defaultPrevented && contentRef.current) {
-                  contentRef.current.focus();
-                }
-              });
-            },
-            onDeactivate: () => {
-              requestAnimationFrame(() => {
-                const event = new Event('closeautofocus', { bubbles: true, cancelable: true });
-                onCloseAutoFocus?.(event);
-              });
-            },
           }}
         >
-          <div className='fixed inset-0 z-40 flex items-center justify-center p-4'>
+          <div
+            className={cn('fixed inset-0 z-40 flex items-center justify-center p-4', !modal && 'pointer-events-none')}
+          >
             <div
               data-component='Dialog.Content'
               ref={composedRef}
               role='dialog'
-              aria-modal='true'
+              aria-modal={modal}
               aria-labelledby={titleId}
               aria-describedby={descriptionId}
               data-state={open ? 'open' : 'closed'}
@@ -307,6 +332,8 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                 'flex max-h-[90vh] w-full max-w-lg flex-col gap-10 p-10',
                 'overflow-hidden border border-bdr-subtle outline-none',
                 'focus:outline-none focus:ring-0',
+                // Re-enable pointer events on the box; the wrapper disables them when modal={false}.
+                !modal && 'pointer-events-auto',
                 'data-[state=closed]:animate-out data-[state=open]:animate-in',
                 'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
                 'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
