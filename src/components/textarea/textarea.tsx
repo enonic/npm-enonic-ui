@@ -5,6 +5,7 @@ import {
   type ForwardedRef,
   forwardRef,
   type ReactNode,
+  type Ref,
   useLayoutEffect,
   useRef,
 } from 'react';
@@ -67,6 +68,12 @@ export type TextAreaProps = {
    * `useBlinkAttention` for the trigger logic.
    */
   highlight?: boolean;
+  /**
+   * Ref to the field's container element — the one that wears the blink ring. Pass the same ref
+   * to `useBlinkAttention` so the hook can restart the CSS animation directly via the DOM. When
+   * provided, `highlight` becomes optional; the hook drives the class on its own.
+   */
+  highlightRef?: Ref<HTMLDivElement>;
   resizable?: boolean;
   /**
    * Enables automatic content-based sizing.
@@ -91,6 +98,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       readOnly,
       processing,
       highlight,
+      highlightRef,
       resizable = false,
       autoSize = false,
       rows = 2,
@@ -163,6 +171,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           </div>
         )}
         <div
+          ref={highlightRef}
           className={cn(
             textareaContainerVariants({ state, disabled, readOnly: effectiveReadOnly }),
             highlight && 'input-blink-attention',

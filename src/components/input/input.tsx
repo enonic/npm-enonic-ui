@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 import { LockKeyhole } from 'lucide-react';
-import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactNode, type Ref } from 'react';
 import { FilledOctagonAlert } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
@@ -84,6 +84,12 @@ export type InputProps = {
    * `useBlinkAttention` for the trigger logic.
    */
   highlight?: boolean;
+  /**
+   * Ref to the field's container element — the one that wears the blink ring. Pass the same ref
+   * to `useBlinkAttention` so the hook can restart the CSS animation directly via the DOM. When
+   * provided, `highlight` becomes optional; the hook drives the class on its own.
+   */
+  highlightRef?: Ref<HTMLDivElement>;
   className?: string;
 } & ComponentPropsWithoutRef<'input'>;
 
@@ -101,6 +107,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
       readOnly,
       processing,
       highlight,
+      highlightRef,
       ...props
     }: InputProps,
     ref: ForwardedRef<HTMLInputElement>,
@@ -126,6 +133,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
           </div>
         )}
         <div
+          ref={highlightRef}
           className={cn(
             inputContainerVariants({ state, disabled, readOnly: effectiveReadOnly }),
             highlight && 'input-blink-attention',

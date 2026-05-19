@@ -489,26 +489,26 @@ export const Interactive: Story = {
 
 function HighlightDemo(): ReactElement {
   const [trigger, setTrigger] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const isBlinking = useBlinkAttention(inputRef, trigger);
+  const highlightRef = useRef<HTMLDivElement>(null);
+  useBlinkAttention(highlightRef, trigger);
 
   return (
     <div className='flex flex-col gap-y-3 p-4'>
       <div className='max-w-120 text-sm text-subtle'>
         Click the button to scroll the field into view and pulse the attention ring. Trigger logic lives in
         <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>useBlinkAttention</code>; the field wears the
-        ring via the <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>highlight</code> prop so the pulse
-        stays around the input itself, not the label or error.
+        ring via the <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>highlightRef</code> prop so the
+        pulse stays around the input itself, not the label or error. Clicking faster than the 1.2s animation restarts
+        the ring on every click.
       </div>
       <Button onClick={() => setTrigger(t => t + 1)}>Highlight field</Button>
       <div className='h-96' />
       <Input
-        ref={inputRef}
+        highlightRef={highlightRef}
         label='Find me'
         description='Label and error remain outside the blink ring'
         value='Scroll target'
         readOnly
-        highlight={isBlinking}
       />
       <div className='h-96' />
     </div>
