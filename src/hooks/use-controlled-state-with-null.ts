@@ -69,7 +69,11 @@ export function useControlledStateWithNull<T extends string>(
   defaultValue: T | undefined,
   onChange?: (value: T | null) => void,
 ): [T | undefined, (action: SetStateActionWithNull<T>) => void] {
-  // Convert external null to internal undefined for useControlledState
+  // ? Track controlledness from the external prop. null is controlled "no value",
+  // undefined is uncontrolled. We pass isControlled explicitly to useControlledState
+  // so that null collapses to internal undefined without flipping the hook into
+  // uncontrolled mode (which would leak the cached uncontrolledValue on transition).
+  const isControlled = controlledValue !== undefined;
   const internalControlled = controlledValue === null ? undefined : controlledValue;
 
   // Ref to track latest onChange for stable callback
@@ -82,7 +86,12 @@ export function useControlledStateWithNull<T extends string>(
     onChangeRef.current?.(value ?? null);
   }, []);
 
-  const [internalValue, setInternalValue] = useControlledState(internalControlled, defaultValue, internalOnChange);
+  const [internalValue, setInternalValue] = useControlledState(
+    internalControlled,
+    defaultValue,
+    internalOnChange,
+    isControlled,
+  );
 
   // Wrap setter to handle updater functions and convert null to undefined
   const setValue = useCallback(

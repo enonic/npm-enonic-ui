@@ -69,11 +69,13 @@ export function useControlledState<T>(
   controlledValue: T | undefined,
   defaultValue: T,
   onChange?: (value: T) => void,
+  // ? Override controlledness detection. Used by useControlledStateWithNull to mark
+  // controlled mode while passing undefined as the value (external null).
+  isControlled: boolean = controlledValue !== undefined,
 ): [T, (action: SetStateAction<T>) => void] {
   const [uncontrolledValue, setUncontrolledValue] = useState<T>(defaultValue);
 
-  const isControlled = controlledValue !== undefined;
-  const value = isControlled ? controlledValue : uncontrolledValue;
+  const value = (isControlled ? controlledValue : uncontrolledValue) as T;
 
   // Sync uncontrolled value when controlled value changes or when
   // transitioning between controlled/uncontrolled modes.
@@ -82,8 +84,8 @@ export function useControlledState<T>(
   const prevControlledRef = useRef(controlledValue);
   const prevIsControlledRef = useRef(isControlled);
   useEffect(() => {
-    // Sync when controlled value changes
-    if (isControlled && controlledValue !== prevControlledRef.current) {
+    // Sync when controlled value changes (skip undefined — controlled "no value" leaves the fallback alone)
+    if (isControlled && controlledValue !== prevControlledRef.current && controlledValue !== undefined) {
       setUncontrolledValue(controlledValue);
     }
     // Reset to default when transitioning from controlled → uncontrolled
