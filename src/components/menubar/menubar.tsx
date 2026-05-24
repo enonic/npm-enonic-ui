@@ -50,6 +50,7 @@ type MenubarContentContextValue = {
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
+  getItemElement: (id: string) => HTMLElement | null;
   active: string | undefined;
   setActive: (id: string | undefined) => void;
 };
@@ -110,7 +111,7 @@ const MenubarRoot = ({ defaultActive, onActiveChange, id, children }: MenubarRoo
     [onActiveChange],
   );
 
-  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+  const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
 
   // Track which menu (if any) is currently open for dropdown integration
   const [openMenuId, setOpenMenuId] = useState<string | undefined>(undefined);
@@ -123,12 +124,13 @@ const MenubarRoot = ({ defaultActive, onActiveChange, id, children }: MenubarRoo
       unregisterItem,
       getItems,
       isItemDisabled,
+      getItemElement,
       openMenuId,
       setOpenMenuId,
       menubarId,
       menubarRef,
     }),
-    [active, setActive, registerItem, unregisterItem, getItems, isItemDisabled, openMenuId, menubarId],
+    [active, setActive, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement, openMenuId, menubarId],
   );
 
   return <MenubarProvider value={value}>{children}</MenubarProvider>;
@@ -167,8 +169,17 @@ export type MenubarNavProps = {
 
 const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
   ({ 'aria-label': ariaLabel, loop = true, className, children, onKeyDown, onBlur, ...props }, ref): ReactElement => {
-    const { active, setActive, getItems, isItemDisabled, menubarId, menubarRef, setOpenMenuId, openMenuId } =
-      useMenubar();
+    const {
+      active,
+      setActive,
+      getItems,
+      isItemDisabled,
+      getItemElement,
+      menubarId,
+      menubarRef,
+      setOpenMenuId,
+      openMenuId,
+    } = useMenubar();
     const composedRefs = useComposedRefs(ref, menubarRef);
 
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
@@ -179,11 +190,7 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
       loop,
       orientation: 'horizontal',
       onSelect: id => {
-        // Trigger click on the active item
-        const itemElement = document.getElementById(id);
-        if (itemElement) {
-          itemElement.click();
-        }
+        getItemElement(id)?.click();
       },
     });
 
@@ -194,7 +201,7 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
         // ArrowDown opens menu if active item is a menu trigger
         const isActionKey = e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ';
         if (isActionKey && active) {
-          const activeElement = document.getElementById(active);
+          const activeElement = getItemElement(active);
           if (activeElement && activeElement.getAttribute('aria-haspopup') === 'menu') {
             e.preventDefault();
             setOpenMenuId(active);
@@ -204,7 +211,7 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
 
         // ArrowUp also opens menu (variant behavior)
         if (e.key === 'ArrowUp' && active) {
-          const activeElement = document.getElementById(active);
+          const activeElement = getItemElement(active);
           if (activeElement && activeElement.getAttribute('aria-haspopup') === 'menu') {
             e.preventDefault();
             setOpenMenuId(active);
@@ -214,7 +221,7 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
 
         handleNavKeyDown(e);
       },
-      [onKeyDown, handleNavKeyDown, active, setOpenMenuId],
+      [onKeyDown, handleNavKeyDown, active, setOpenMenuId, getItemElement],
     );
 
     const handleBlur = useCallback(
@@ -923,7 +930,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
     const [isPortalMode, setIsPortalMode] = useState(false);
 
     // Local item registry for menu items
-    const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+    const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
     const [active, setActive] = useState<string | undefined>(undefined);
     const position = useFloatingPosition({
       enabled: open,
@@ -950,11 +957,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       loop,
       orientation: 'vertical',
       onSelect: id => {
-        // Trigger click on the active item
-        const itemElement = document.getElementById(id);
-        if (itemElement) {
-          itemElement.click();
-        }
+        getItemElement(id)?.click();
       },
     });
 
@@ -1007,7 +1010,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
           setMenubarActive(nextMenuId);
 
           // Check if next item is a menu trigger
-          const nextElement = document.getElementById(nextMenuId);
+          const nextElement = menubarContext.getItemElement(nextMenuId);
           nextElement?.focus();
           if (nextElement && nextElement.getAttribute('aria-haspopup') === 'menu') {
             // Open next menu (this will close the current menu via MenubarMenu sync effect)
@@ -1065,10 +1068,11 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
         unregisterItem,
         getItems,
         isItemDisabled,
+        getItemElement,
         active,
         setActive,
       }),
-      [registerItem, unregisterItem, getItems, isItemDisabled, active],
+      [registerItem, unregisterItem, getItems, isItemDisabled, getItemElement, active],
     );
 
     // Don't render if menu is closed and not force-mounted
