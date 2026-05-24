@@ -60,7 +60,7 @@ const MenuRoot = ({
 
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const [active, setActive] = useState<string | undefined>(undefined);
-  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+  const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
 
   const value: MenuContextValue = useMemo(
     () => ({
@@ -73,9 +73,10 @@ const MenuRoot = ({
       unregisterItem,
       getItems,
       isItemDisabled,
+      getItemElement,
       triggerRef,
     }),
-    [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, setOpen],
+    [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement, setOpen],
   );
 
   const [hasOpened, setHasOpened] = useState(false);
@@ -204,7 +205,8 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     },
     ref,
   ): ReactElement | null => {
-    const { baseId, open, setOpen, active, setActive, getItems, isItemDisabled, triggerRef } = useMenu();
+    const { baseId, open, setOpen, active, setActive, getItems, isItemDisabled, getItemElement, triggerRef } =
+      useMenu();
     const menuId = `${baseId}-content`;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
@@ -253,10 +255,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       loop,
       orientation: 'vertical',
       onSelect: id => {
-        const itemElement = document.getElementById(id);
-        if (itemElement) {
-          itemElement.click();
-        }
+        getItemElement(id)?.click();
       },
     });
 
