@@ -234,7 +234,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     const [isPortalMode, setIsPortalMode] = useState(false);
 
     const [active, setActive] = useState<string | undefined>(undefined);
-    const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+    const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
     const safeAreaCheckRef = useRef<((x: number, y: number) => boolean) | null>(null);
 
     const computedPosition = usePointerPosition({
@@ -278,10 +278,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
       loop,
       orientation: 'vertical',
       onSelect: id => {
-        const itemElement = document.getElementById(id);
-        if (itemElement) {
-          itemElement.click();
-        }
+        getItemElement(id)?.click();
       },
     });
 
@@ -306,7 +303,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
         // ArrowRight on a SubTrigger opens its submenu (active stays tracked via aria-activedescendant,
         // so the real focused node is this menu container — we route through the active element's click).
         if (e.key === 'ArrowRight' && active) {
-          const activeElement = document.getElementById(active);
+          const activeElement = getItemElement(active);
           if (activeElement?.getAttribute('aria-haspopup') === 'menu') {
             e.preventDefault();
             activeElement.click();
@@ -316,7 +313,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
 
         handleNavKeyDown(e);
       },
-      [handleNavKeyDown, setOpen, onEscapeKeyDown, setIsUsingKeyboard, active],
+      [handleNavKeyDown, setOpen, onEscapeKeyDown, setIsUsingKeyboard, active, getItemElement],
     );
 
     // Suppress sibling-item hover while the pointer is inside an open submenu's
@@ -350,9 +347,10 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
         unregisterItem,
         getItems,
         isItemDisabled,
+        getItemElement,
         safeAreaCheckRef,
       }),
-      [active, registerItem, unregisterItem, getItems, isItemDisabled],
+      [active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement],
     );
 
     if (!forceMount && !open) {
@@ -766,7 +764,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
     const [isPortalMode, setIsPortalMode] = useState(false);
 
     const [active, setActive] = useState<string | undefined>(undefined);
-    const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+    const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
     const safeAreaCheckRef = useRef<((x: number, y: number) => boolean) | null>(null);
 
     const position = useFloatingPosition({
@@ -829,8 +827,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       loop,
       orientation: 'vertical',
       onSelect: id => {
-        const itemElement = document.getElementById(id);
-        if (itemElement) itemElement.click();
+        getItemElement(id)?.click();
       },
     });
 
@@ -870,7 +867,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         }
 
         if (e.key === 'ArrowRight' && active) {
-          const activeElement = document.getElementById(active);
+          const activeElement = getItemElement(active);
           if (activeElement?.getAttribute('aria-haspopup') === 'menu') {
             e.preventDefault();
             activeElement.click();
@@ -890,6 +887,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         subId,
         setIsUsingKeyboard,
         active,
+        getItemElement,
       ],
     );
 
@@ -923,9 +921,10 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         unregisterItem,
         getItems,
         isItemDisabled,
+        getItemElement,
         safeAreaCheckRef,
       }),
-      [active, registerItem, unregisterItem, getItems, isItemDisabled],
+      [active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement],
     );
 
     if (!forceMount && !open) {

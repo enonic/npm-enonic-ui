@@ -23,6 +23,7 @@ export type MenubarContextValue = {
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
+  getItemElement: (id: string) => HTMLElement | null;
 
   /**
    * ID of the currently open menu (if any).

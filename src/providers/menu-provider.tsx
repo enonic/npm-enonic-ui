@@ -10,6 +10,7 @@ export type MenuContextValue = {
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
+  getItemElement: (id: string) => HTMLElement | null;
   triggerRef: RefObject<HTMLButtonElement> | null;
 };
 

@@ -34,6 +34,18 @@ export type UseItemRegistryReturn = {
   isItemDisabled: (id: string) => boolean;
 
   /**
+   * Returns the registered DOM element for an item.
+   *
+   * Resolves through the in-memory registry so it works inside Shadow DOM
+   * (where `document.getElementById` does not pierce shadow root boundaries).
+   *
+   * @param id - Item ID to look up
+   * @returns The element passed to `registerItem`, or `null` if the item is
+   *   unregistered or was registered without an element reference
+   */
+  getItemElement: (id: string) => HTMLElement | null;
+
+  /**
    * Version counter that increments when items are registered or unregistered.
    * Use as a dependency in useEffect to react to item changes.
    */
@@ -168,11 +180,16 @@ export function useItemRegistry(): UseItemRegistryReturn {
     return itemsRef.current.get(id)?.disabled ?? false;
   }, []);
 
+  const getItemElement = useCallback((id: string): HTMLElement | null => {
+    return itemsRef.current.get(id)?.element ?? null;
+  }, []);
+
   return {
     registerItem,
     unregisterItem,
     getItems,
     isItemDisabled,
+    getItemElement,
     registryVersion,
   };
 }
