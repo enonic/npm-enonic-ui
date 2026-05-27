@@ -538,6 +538,7 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
       ref={composedRef}
       id={`${baseId}-input`}
       onKeyDown={keyHandler}
+      disabled={disabled}
       aria-disabled={disabled}
       aria-invalid={error ?? undefined}
       role='combobox'
