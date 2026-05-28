@@ -15,6 +15,7 @@
       "**/*.config.*.ts",
       "**/*.json",
       "**/src/**/*.css",
+      "!**/.claude",
       "!**/node_modules",
       "!**/dist",
       "!**/build",
