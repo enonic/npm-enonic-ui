@@ -2,7 +2,7 @@
   :root,
   :host {
     /* Neutrals */
-    --color-black: #000000;
+    --color-black: #1a1a1a;
     --color-grey-950: #242829;
     --color-grey-900: #3d4142;
     --color-grey-850: #4c5051;
@@ -19,7 +19,7 @@
 
     /* Feedback */
     --color-fbk-info: #0270a0;
-    --color-fbk-info-subtle: #208ebe;
+    --color-fbk-info-subtle: #329acb;
     --color-fbk-info-surface-light: #d7f3ff;
     --color-fbk-info-surface-dark: #1a5a6e;
 
@@ -28,12 +28,12 @@
     --color-fbk-warn-surface-light: #f7e5c4;
     --color-fbk-warn-surface-dark: #5c4422;
 
-    --color-fbk-success: #499349;
+    --color-fbk-success: #2c7f2e;
     --color-fbk-success-subtle: #67b167;
     --color-fbk-success-surface-light: #cee2ce;
     --color-fbk-success-surface-dark: #2d5a3d;
 
-    --color-fbk-danger: #d33030;
+    --color-fbk-danger: #cf2c2d;
     --color-fbk-danger-subtle: #f56262;
     --color-fbk-danger-surface-light: #f6d7d7;
     --color-fbk-danger-surface-dark: #5c3333;
