@@ -18,6 +18,16 @@ const preview: Preview = {
     docs: {
       theme: isDark ? themes.dark : themes.light,
     },
+    a11y: {
+      // Surface axe-core findings in the panel without failing anything. There is
+      // no test runner wired up yet, so 'error' would have no effect today; 'todo'
+      // documents the intent to fix without blocking the dev workflow.
+      test: 'todo',
+    },
+  },
+  initialGlobals: {
+    // Run the accessibility checks automatically on every story.
+    a11y: { manual: false },
   },
   decorators: [
     withThemeByClassName({

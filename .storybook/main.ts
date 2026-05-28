@@ -15,7 +15,7 @@ const reactDomShimAbsPath = createRequire(localRequire.resolve('@storybook/preac
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
-  addons: ['@storybook/addon-docs', '@storybook/addon-links', '@storybook/addon-themes'],
+  addons: ['@storybook/addon-docs', '@storybook/addon-a11y', '@storybook/addon-links', '@storybook/addon-themes'],
   framework: {
     name: '@storybook/preact-vite',
     options: {},

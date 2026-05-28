@@ -64,9 +64,6 @@
   --color-btn-error-hover: color-mix(in srgb, var(--color-fbk-danger), black 10%);
   --color-btn-error-active: color-mix(in srgb, var(--color-fbk-danger), black 19%);
 
-  /* Inputs */
-  --color-input-disabled: var(--color-input-disabled);
-
   /*Links*/
   --color-link-visited: var(--color-link-visited);
 
