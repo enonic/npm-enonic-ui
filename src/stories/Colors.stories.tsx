@@ -1,26 +1,203 @@
 import type { Meta, StoryObj } from '@storybook/preact-vite';
-import { BadgeInfo } from 'lucide-react';
-import { useCallback, useState } from 'preact/hooks';
+import { BadgeInfo, Check, X } from 'lucide-react';
 import type { ReactElement } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import {
+  contrastRatio,
+  isOpaque,
+  parseColor,
+  passesAA,
+  passesAAA,
+  passesNonText,
+  type ResolvedColor,
+  type Rgb,
+} from './contrast';
 
 export default {
   title: 'Design/Colors',
   parameters: {
     layout: 'fullscreen',
     controls: { disable: true },
+    a11y: {
+      // The swatches and contrast cells render deliberately low-contrast sample
+      // text purely to illustrate token legibility. Exclude them so axe-core
+      // audits the real page chrome instead of flagging the demonstrations.
+      context: { exclude: [['[data-a11y-demo]']] },
+    },
   },
 } satisfies Meta;
 
 type Story = StoryObj;
+
+//
+// * Contrast Hooks & Badges
+//
+
+// Resolve the rendered color of the element the returned callback ref is attached
+// to. A callback ref (not an object ref) guarantees the node is captured on attach —
+// object refs read inside a layout effect can be null depending on the surrounding
+// tree under preact/compat. Re-reads whenever the theme class on <html> changes.
+const useResolvedColor = (
+  property: 'backgroundColor' | 'color',
+): [(node: HTMLElement | null) => void, ResolvedColor | undefined] => {
+  const nodeRef = useRef<HTMLElement | null>(null);
+  const [color, setColor] = useState<ResolvedColor>();
+
+  const read = useCallback(() => {
+    if (nodeRef.current) setColor(parseColor(getComputedStyle(nodeRef.current)[property]));
+  }, [property]);
+
+  useEffect(() => {
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, [read]);
+
+  const ref = useCallback(
+    (node: HTMLElement | null) => {
+      nodeRef.current = node;
+      read();
+    },
+    [read],
+  );
+
+  return [ref, color];
+};
+
+// The text tokens a swatch is measured against, resolved from the live theme so
+// values track the toolbar. `main`/`rev` are the standard text color and its
+// reverse; `surfaceNeutral` is the page background a foreground token sits on.
+type ThemeColors = { main: Rgb; rev: Rgb; surfaceNeutral: Rgb };
+
+const useThemeColors = (): ThemeColors | undefined => {
+  const [colors, setColors] = useState<ThemeColors>();
+  useEffect(() => {
+    const read = (): void => {
+      const cs = getComputedStyle(document.documentElement);
+      const main = parseColor(cs.getPropertyValue('--color-main'));
+      const rev = parseColor(cs.getPropertyValue('--color-rev'));
+      const surfaceNeutral = parseColor(cs.getPropertyValue('--color-surface-neutral'));
+      if (main && rev && surfaceNeutral) {
+        setColors({ main: main.rgb, rev: rev.rgb, surfaceNeutral: surfaceNeutral.rgb });
+      }
+    };
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+  return colors;
+};
+
+// How a token is used determines which contrast question is meaningful:
+// - surface:    text sits ON this fill        → best of main/rev text, AA/AAA
+// - foreground: this IS text on the page      → token vs surface-neutral, AA/AAA
+// - non-text:   borders, focus rings, etc.    → token vs surface-neutral, WCAG 1.4.11 (3:1)
+// - disabled:   disabled-state tokens         → ratio shown, but WCAG-exempt (no pass/fail)
+// - none:       inverse/paired/translucent tokens best judged in the Contrast matrix
+type SwatchRole = 'surface' | 'foreground' | 'non-text' | 'disabled' | 'none';
+
+const ComplianceChip = ({ label, pass }: { label: string; pass: boolean }): ReactElement => (
+  <span
+    data-pass={pass}
+    className='inline-flex items-center gap-0.5 rounded border px-1 py-px font-mono font-semibold text-[9px] uppercase tracking-wide data-[pass=false]:border-error/30 data-[pass=true]:border-success/30 data-[pass=false]:text-error data-[pass=true]:text-success'
+  >
+    {label}
+    {pass ? <Check className='size-2.5' /> : <X className='size-2.5' />}
+  </span>
+);
+ComplianceChip.displayName = 'ComplianceChip';
+
+type BadgeMode = 'text' | 'non-text' | 'exempt';
+
+type ContrastBadgeProps = { ratio: number; mode?: BadgeMode; tag?: string; title?: string };
+
+const badgeChips = (ratio: number, mode: BadgeMode): ReactElement => {
+  if (mode === 'non-text') return <ComplianceChip label='UI 3:1' pass={passesNonText(ratio)} />;
+  if (mode === 'exempt') {
+    return (
+      <span className='inline-flex items-center rounded border border-bdr-soft px-1 py-px font-mono font-semibold text-[9px] text-subtle uppercase tracking-wide'>
+        exempt
+      </span>
+    );
+  }
+  return (
+    <>
+      <ComplianceChip label='AA' pass={passesAA(ratio)} />
+      <ComplianceChip label='AAA' pass={passesAAA(ratio)} />
+    </>
+  );
+};
+
+const ContrastBadge = ({ ratio, mode = 'text', tag, title }: ContrastBadgeProps): ReactElement => (
+  <div className='mt-0.5 flex items-center gap-1.5' title={title}>
+    {tag && <span className='font-mono text-[9px] text-subtle uppercase tracking-wider'>{tag}</span>}
+    <span className='font-mono text-[10px] text-subtle tabular-nums'>{ratio.toFixed(2)}:1</span>
+    {badgeChips(ratio, mode)}
+  </div>
+);
+ContrastBadge.displayName = 'ContrastBadge';
+
+//
+// * Swatches
+//
 
 type ColorSwatchProps = {
   name: string;
   variable: string;
   description?: string;
   size?: 'sm' | 'md' | 'lg';
+  usage?: SwatchRole;
 };
 
-const ColorSwatch = ({ name, variable, description, size = 'md' }: ColorSwatchProps): ReactElement => {
+// Resolve the right contrast question for a token's role. Returns the ratio, the
+// badge mode (text AA/AAA vs non-text 3:1) and a short tag explaining what's measured.
+const swatchContrast = (
+  role: SwatchRole,
+  fill: Rgb,
+  theme: ThemeColors,
+): { ratio: number; mode: BadgeMode; tag: string; title: string } | undefined => {
+  if (role === 'surface') {
+    const ratio = Math.max(contrastRatio(fill, theme.main), contrastRatio(fill, theme.rev));
+    return { ratio, mode: 'text', tag: 'on fill', title: 'Best contrast for main/rev text placed on this fill' };
+  }
+  if (role === 'foreground') {
+    return {
+      ratio: contrastRatio(fill, theme.surfaceNeutral),
+      mode: 'text',
+      tag: 'as text',
+      title: 'Contrast of this token used as text on surface-neutral',
+    };
+  }
+  if (role === 'non-text') {
+    return {
+      ratio: contrastRatio(fill, theme.surfaceNeutral),
+      mode: 'non-text',
+      tag: 'vs bg',
+      title: 'WCAG 1.4.11 non-text contrast against surface-neutral (3:1)',
+    };
+  }
+  if (role === 'disabled') {
+    return {
+      ratio: contrastRatio(fill, theme.surfaceNeutral),
+      mode: 'exempt',
+      tag: 'disabled',
+      title: 'Disabled-state token — exempt from WCAG contrast (1.4.3 / 1.4.11). Ratio shown for reference.',
+    };
+  }
+  return undefined;
+};
+
+const ColorSwatch = ({
+  name,
+  variable,
+  description,
+  size = 'md',
+  usage = 'surface',
+}: ColorSwatchProps): ReactElement => {
+  const [blockRef, resolved] = useResolvedColor('backgroundColor');
+  const theme = useThemeColors();
   const [copied, setCopied] = useState(false);
 
   const handleClick = useCallback(() => {
@@ -35,6 +212,10 @@ const ColorSwatch = ({ name, variable, description, size = 'md' }: ColorSwatchPr
     lg: 'h-24',
   };
 
+  // Translucent tokens (overlays) have no fixed contrast, so skip them entirely.
+  const opaque = resolved != null && isOpaque(resolved);
+  const badge = opaque && theme ? swatchContrast(usage, resolved.rgb, theme) : undefined;
+
   return (
     <button
       type='button'
@@ -42,11 +223,27 @@ const ColorSwatch = ({ name, variable, description, size = 'md' }: ColorSwatchPr
       className='group relative flex cursor-pointer flex-col overflow-hidden rounded-lg border border-bdr-soft bg-surface-neutral text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-bdr-strong hover:shadow-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset'
       title={`Click to copy: ${name}`}
     >
-      <div className={`w-full ${sizeClasses[size]}`} style={{ backgroundColor: `var(${variable})` }} />
+      <div
+        ref={blockRef}
+        className={`relative w-full ${sizeClasses[size]}`}
+        style={{ backgroundColor: `var(${variable})` }}
+      >
+        {usage === 'surface' && badge && (
+          <div
+            data-a11y-demo
+            aria-hidden='true'
+            className='pointer-events-none absolute inset-0 flex items-center justify-end gap-3 pe-3 font-semibold text-lg'
+          >
+            <span style={{ color: 'var(--color-main)' }}>Aa</span>
+            <span style={{ color: 'var(--color-rev)' }}>Aa</span>
+          </div>
+        )}
+      </div>
       <div className='flex flex-col gap-1 p-3'>
         <div className='font-bold font-mono text-main text-sm tracking-tight'>{name}</div>
         {description && <div className='text-subtle text-xs leading-tight'>{description}</div>}
-        <div className='font-mono text-[10px] text-subtle uppercase tracking-wider opacity-60'>{variable}</div>
+        <div className='font-mono text-[10px] text-subtle uppercase tracking-wider'>{variable}</div>
+        {badge && <ContrastBadge ratio={badge.ratio} mode={badge.mode} tag={badge.tag} title={badge.title} />}
       </div>
       {copied && (
         <div className='fade-in slide-in-from-top-1 absolute top-2 right-2 animate-in rounded-md bg-surface-success px-2.5 py-1 font-semibold text-success text-xs tracking-wide shadow-lg'>
@@ -61,27 +258,25 @@ type ColorGroupProps = {
   title: string;
   description?: string;
   badge?: string;
-  colors: { name: string; variable: string; description?: string }[];
-  columns?: 1 | 2 | 3 | 4 | 5 | 6;
+  colors: { name: string; variable: string; description?: string; usage?: SwatchRole }[];
   size?: 'sm' | 'md' | 'lg';
+  usage?: SwatchRole;
 };
 
-const ColorGroup = ({ title, description, badge, colors, columns = 6, size = 'md' }: ColorGroupProps): ReactElement => {
-  const gridCols = {
-    1: 'grid-cols-1',
-    2: 'grid-cols-1 sm:grid-cols-2',
-    3: 'grid-cols-2 sm:grid-cols-3',
-    4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
-    5: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5',
-    6: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6',
-  };
-
+const ColorGroup = ({
+  title,
+  description,
+  badge,
+  colors,
+  size = 'md',
+  usage = 'surface',
+}: ColorGroupProps): ReactElement => {
   return (
     <section className='mb-12'>
       <div className='mb-5 flex items-start justify-between gap-4'>
         <div className='flex-1'>
           <div className='mb-2 flex items-center gap-3'>
-            <h3 className='font-bold text-2xl text-main tracking-tight'>{title}</h3>
+            <h2 className='font-bold text-2xl text-main tracking-tight'>{title}</h2>
             {badge && (
               <span className='rounded-full border border-bdr-soft bg-surface-primary px-3 py-0.5 font-semibold text-subtle text-xs uppercase tracking-wider'>
                 {badge}
@@ -91,14 +286,171 @@ const ColorGroup = ({ title, description, badge, colors, columns = 6, size = 'md
           {description && <p className='max-w-2xl text-sm text-subtle leading-relaxed'>{description}</p>}
         </div>
       </div>
-      <div className={`grid gap-4 ${gridCols[columns]}`}>
-        {colors.map(color => (
-          <ColorSwatch key={color.variable} {...color} size={size} />
+      {/* Auto-fill keeps every swatch ≥ 240px so the contrast badge fits, and leaves
+          empty tracks (lone swatches stay one column wide rather than stretching full width). */}
+      <div className='grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4'>
+        {colors.map(({ usage: colorUsage, ...color }) => (
+          <ColorSwatch key={color.variable} {...color} size={size} usage={colorUsage ?? usage} />
         ))}
       </div>
     </section>
   );
 };
+
+//
+// * Contrast Matrix
+//
+
+type Token = { name: string; variable: string };
+type Pairing = { fg: Token; bg: Token; usage: string; large?: boolean };
+type PairingGroup = { title: string; description: string; pairs: Pairing[] };
+
+const pair = (fg: [string, string], bg: [string, string], usage: string, large = false): Pairing => ({
+  fg: { name: fg[0], variable: fg[1] },
+  bg: { name: bg[0], variable: bg[1] },
+  usage,
+  large,
+});
+
+// Pairings mirror how the tokens are actually combined in the components, not
+// every theoretical mix — so the ratios reflect real, shipped UI.
+const PAIRING_GROUPS: PairingGroup[] = [
+  {
+    title: 'Body Text on Surfaces',
+    description: 'The everyday reading pairs — body copy and links over neutral and elevated backgrounds.',
+    pairs: [
+      pair(['main', '--color-main'], ['surface-neutral', '--color-surface-neutral'], 'Primary body text'),
+      pair(['subtle', '--color-subtle'], ['surface-neutral', '--color-surface-neutral'], 'Secondary text'),
+      pair(['main', '--color-main'], ['surface-primary', '--color-surface-primary'], 'Text on elevated panels'),
+      pair(['main-hover', '--color-main-hover'], ['surface-neutral', '--color-surface-neutral'], 'Hovered / link text'),
+      pair(['link-visited', '--color-link-visited'], ['surface-neutral', '--color-surface-neutral'], 'Visited links'),
+    ],
+  },
+  {
+    title: 'Inline Feedback Text',
+    description: 'Status text and icons rendered directly on the page surface (the dominant feedback usage).',
+    pairs: [
+      pair(['info', '--color-info'], ['surface-neutral', '--color-surface-neutral'], 'Info text / icon'),
+      pair(['warn', '--color-warn'], ['surface-neutral', '--color-surface-neutral'], 'Warning text / icon'),
+      pair(['success', '--color-success'], ['surface-neutral', '--color-surface-neutral'], 'Success text / icon'),
+      pair(['error', '--color-error'], ['surface-neutral', '--color-surface-neutral'], 'Error text / icon'),
+    ],
+  },
+  {
+    title: 'Feedback on Tinted Surfaces',
+    description: 'Callouts and banners: feedback text over its matching subtle surface tint.',
+    pairs: [
+      pair(['info', '--color-info'], ['surface-info', '--color-surface-info'], 'Info callout'),
+      pair(['warn', '--color-warn'], ['surface-warn', '--color-surface-warn'], 'Warning callout'),
+      pair(['success', '--color-success'], ['surface-success', '--color-surface-success'], 'Success callout'),
+      pair(['error', '--color-error'], ['surface-error', '--color-surface-error'], 'Error callout'),
+    ],
+  },
+  {
+    title: 'Inverse & Active States',
+    description: 'White (alt) or reversed text over saturated fills and active highlights.',
+    pairs: [
+      pair(['alt', '--color-alt'], ['info', '--color-info'], 'Solid info fill'),
+      pair(['alt', '--color-alt'], ['success', '--color-success'], 'Solid success fill'),
+      pair(['alt', '--color-alt'], ['error', '--color-error'], 'Destructive button / tooltip'),
+      pair(['alt', '--color-alt'], ['btn-active', '--color-btn-active'], 'Active menu / list item'),
+      pair(['error-rev', '--color-error-rev'], ['btn-active', '--color-btn-active'], 'Active error item (light theme)'),
+      pair(['rev', '--color-rev'], ['main', '--color-main'], 'Link focus state'),
+    ],
+  },
+  {
+    title: 'Component Pairings',
+    description: 'Tokens that ship pre-paired inside a specific component.',
+    pairs: [
+      pair(['tooltip-foreground', '--color-tooltip-foreground'], ['tooltip', '--color-tooltip'], 'Tooltip text'),
+      pair(['alt', '--color-alt'], ['avatar-fallback', '--color-avatar-fallback'], 'Avatar initials'),
+    ],
+  },
+];
+
+const ContrastRow = ({ entry }: { entry: Pairing }): ReactElement => {
+  const [bgRef, bg] = useResolvedColor('backgroundColor');
+  const [fgRef, fg] = useResolvedColor('color');
+  const ratio = bg != null && fg != null ? contrastRatio(fg.rgb, bg.rgb) : undefined;
+
+  return (
+    <tr className='border-bdr-subtle border-b last:border-0'>
+      <td className='py-3 pe-4'>
+        <div
+          ref={bgRef}
+          data-a11y-demo
+          className='flex h-12 w-28 items-center justify-center rounded-md border border-bdr-soft'
+          style={{ backgroundColor: `var(${entry.bg.variable})` }}
+        >
+          <span ref={fgRef} className='font-semibold text-sm' style={{ color: `var(${entry.fg.variable})` }}>
+            Aa Bb Cc
+          </span>
+        </div>
+      </td>
+      <td className='py-3 pe-4 align-middle'>
+        <div className='flex flex-col gap-0.5 font-mono text-xs'>
+          <span className='text-main'>{entry.fg.name}</span>
+          <span className='text-subtle'>on {entry.bg.name}</span>
+        </div>
+      </td>
+      <td className='py-3 pe-4 align-middle text-subtle text-xs'>{entry.usage}</td>
+      <td className='py-3 pe-4 text-right align-middle font-mono text-main text-sm tabular-nums'>
+        {ratio != null ? `${ratio.toFixed(2)}:1` : '—'}
+      </td>
+      <td className='py-3 align-middle'>
+        {ratio != null && (
+          <div className='flex items-center gap-1.5'>
+            <ComplianceChip label={entry.large ? 'AA Lg' : 'AA'} pass={passesAA(ratio, entry.large)} />
+            <ComplianceChip label='AAA' pass={passesAAA(ratio, entry.large)} />
+          </div>
+        )}
+      </td>
+    </tr>
+  );
+};
+ContrastRow.displayName = 'ContrastRow';
+
+const ContrastMatrix = ({ title, description, pairs }: PairingGroup): ReactElement => (
+  <section className='mb-12'>
+    <div className='mb-5'>
+      <h2 className='font-bold text-2xl text-main tracking-tight'>{title}</h2>
+      <p className='mt-2 max-w-2xl text-sm text-subtle leading-relaxed'>{description}</p>
+    </div>
+    <div className='overflow-x-auto rounded-lg border border-bdr-soft bg-surface-neutral'>
+      <table className='w-full border-collapse px-4 text-left'>
+        <thead>
+          <tr className='border-bdr-soft border-b text-subtle text-xs uppercase tracking-wider'>
+            <th scope='col' className='py-2 ps-4 pe-4 font-semibold'>
+              Preview
+            </th>
+            <th scope='col' className='py-2 pe-4 font-semibold'>
+              Pairing
+            </th>
+            <th scope='col' className='py-2 pe-4 font-semibold'>
+              Usage
+            </th>
+            <th scope='col' className='py-2 pe-4 text-right font-semibold'>
+              Ratio
+            </th>
+            <th scope='col' className='py-2 pe-4 font-semibold'>
+              WCAG
+            </th>
+          </tr>
+        </thead>
+        <tbody className='[&_td:first-child]:ps-4 [&_td:last-child]:pe-4'>
+          {pairs.map(entry => (
+            <ContrastRow key={`${entry.fg.variable}-${entry.bg.variable}`} entry={entry} />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+);
+ContrastMatrix.displayName = 'ContrastMatrix';
+
+//
+// * Layout
+//
 
 const SectionDivider = (): ReactElement => (
   <div className='my-16 flex items-center gap-4'>
@@ -122,7 +474,6 @@ const PageHeader = ({ title, subtitle, note }: { title: string; subtitle: string
       <div className='relative overflow-hidden rounded-lg bg-surface-primary p-5'>
         <div className='absolute top-0 right-0 size-32 translate-x-16 -translate-y-16 rounded-full bg-info/10' />
         <div className='relative flex gap-3'>
-          {/* <div className='shrink-0 text-2xl'>💡</div> */}
           <BadgeInfo className='size-6 shrink-0 text-info' />
           <div>
             <div className='mb-1 font-bold text-main text-sm uppercase tracking-wider'>Important Note</div>
@@ -148,7 +499,6 @@ export const BasicPalette: Story = {
           title='Neutral Scale'
           description='Complete grayscale spectrum for text, backgrounds, and UI elements. Carefully balanced for optimal contrast and visual hierarchy.'
           badge='13 shades'
-          columns={6}
           size='lg'
           colors={[
             { name: 'black', variable: '--color-black' },
@@ -174,7 +524,6 @@ export const BasicPalette: Story = {
           title='Feedback System'
           description='Semantic colors for communicating status and user feedback with clarity and accessibility'
           badge='4 families'
-          columns={4}
           colors={[
             { name: 'info', variable: '--color-fbk-info', description: 'Base info' },
             { name: 'info-subtle', variable: '--color-fbk-info-subtle', description: 'Lighter variant' },
@@ -212,7 +561,6 @@ export const BasicPalette: Story = {
         <ColorGroup
           title='Accent Colors'
           description='Special purpose colors for unique interface elements'
-          columns={3}
           colors={[
             { name: 'purple', variable: '--color-purple', description: 'For visited links' },
             { name: 'purple-subtle', variable: '--color-purple-subtle', description: 'Lighter variant' },
@@ -233,21 +581,23 @@ export const SemanticColors: Story = {
         <PageHeader
           title='Semantic Tokens'
           subtitle='Theme-aware color tokens that intelligently adapt between light and dark modes. Use these for consistent, accessible theming across your application.'
+          note='Each contrast badge reflects how the token is used: surface fills show the best contrast for main/rev text placed on them (“on fill”); text tokens show their contrast as text on surface-neutral (“as text”); borders and focus rings use WCAG 1.4.11 non-text contrast (“vs bg”, 3:1); disabled-state tokens show the ratio but are WCAG-exempt (“exempt”). Inverse text, paired text (e.g. tooltip), and translucent tokens carry no badge — audited in the Contrast & Accessibility story instead.'
         />
 
         <ColorGroup
           title='Text & Elements'
           description='Primary color tokens for text content and interactive elements'
           badge='Theme-aware'
-          columns={3}
+          usage='foreground'
           colors={[
             { name: 'main', variable: '--color-main', description: 'Primary text' },
             { name: 'main-hover', variable: '--color-main-hover', description: 'Clickable text (links)' },
             { name: 'subtle', variable: '--color-subtle', description: 'Secondary text' },
-            { name: 'alt', variable: '--color-alt', description: 'Locked, never changes' },
-            { name: 'rev', variable: '--color-rev', description: 'Reversed version' },
-            { name: 'alt-rev', variable: '--color-alt-rev', description: 'Locked reversed' },
-            { name: 'muted', variable: '--color-muted', description: 'Non-interactive elements' },
+            // Inverse tokens — meant for dark/inverse surfaces, audited in the Contrast matrix.
+            { name: 'alt', variable: '--color-alt', description: 'Locked, never changes', usage: 'none' },
+            { name: 'rev', variable: '--color-rev', description: 'Reversed version', usage: 'none' },
+            { name: 'alt-rev', variable: '--color-alt-rev', description: 'Locked reversed', usage: 'none' },
+            { name: 'muted', variable: '--color-muted', description: 'Non-interactive elements', usage: 'disabled' },
           ]}
         />
 
@@ -257,16 +607,21 @@ export const SemanticColors: Story = {
           title='Feedback Tokens'
           description='Semantic feedback colors with automatic theme adaptation'
           badge='Theme-aware'
-          columns={4}
+          usage='foreground'
           colors={[
             { name: 'info', variable: '--color-info', description: 'Info text/icons' },
-            { name: 'info-rev', variable: '--color-info-rev', description: 'On info backgrounds' },
+            { name: 'info-rev', variable: '--color-info-rev', description: 'On info backgrounds', usage: 'none' },
             { name: 'warn', variable: '--color-warn', description: 'Warning text/icons' },
-            { name: 'warn-rev', variable: '--color-warn-rev', description: 'On warn backgrounds' },
+            { name: 'warn-rev', variable: '--color-warn-rev', description: 'On warn backgrounds', usage: 'none' },
             { name: 'success', variable: '--color-success', description: 'Success text/icons' },
-            { name: 'success-rev', variable: '--color-success-rev', description: 'On success backgrounds' },
+            {
+              name: 'success-rev',
+              variable: '--color-success-rev',
+              description: 'On success backgrounds',
+              usage: 'none',
+            },
             { name: 'error', variable: '--color-error', description: 'Error text/icons' },
-            { name: 'error-rev', variable: '--color-error-rev', description: 'On error backgrounds' },
+            { name: 'error-rev', variable: '--color-error-rev', description: 'On error backgrounds', usage: 'none' },
           ]}
         />
 
@@ -276,7 +631,6 @@ export const SemanticColors: Story = {
           title='Surface System'
           description='Layered background colors that create depth and visual hierarchy through elevation'
           badge='Elevation'
-          columns={4}
           colors={[
             { name: 'surface-neutral', variable: '--color-surface-neutral', description: 'Base level' },
             { name: 'surface-neutral-hover', variable: '--color-surface-neutral-hover', description: 'Neutral hover' },
@@ -304,7 +658,7 @@ export const SemanticColors: Story = {
           <ColorGroup
             title='Borders'
             description='Subtle to strong border emphasis'
-            columns={2}
+            usage='non-text'
             colors={[
               { name: 'bdr-subtle', variable: '--color-bdr-subtle', description: 'Low emphasis' },
               { name: 'bdr-soft', variable: '--color-bdr-soft', description: 'Medium emphasis' },
@@ -316,7 +670,7 @@ export const SemanticColors: Story = {
           <ColorGroup
             title='Focus Indicators'
             description='Accessible focus ring system'
-            columns={2}
+            usage='non-text'
             colors={[
               { name: 'ring', variable: '--color-ring', description: 'Focus ring color' },
               { name: 'ring-offset', variable: '--color-ring-offset', description: 'Matches element background' },
@@ -335,13 +689,13 @@ export const ComponentColors: Story = {
         <PageHeader
           title='Component Tokens'
           subtitle='Component-specific color tokens optimized for particular UI patterns and interactions.'
+          note='Each contrast badge reflects how the token is used: surface fills show the best contrast for main/rev text placed on them (“on fill”); text tokens show their contrast as text on surface-neutral (“as text”); borders and focus rings use WCAG 1.4.11 non-text contrast (“vs bg”, 3:1); disabled-state tokens show the ratio but are WCAG-exempt (“exempt”). Inverse text, paired text (e.g. tooltip), and translucent tokens carry no badge — audited in the Contrast & Accessibility story instead.'
         />
 
         <ColorGroup
           title='Button System'
           description='Comprehensive button variant colors mapped to specific interaction states'
           badge='11 tokens'
-          columns={4}
           colors={[
             { name: 'btn-primary', variable: '--color-btn-primary', description: 'Text/Outline variants' },
             { name: 'btn-primary-hover', variable: '--color-btn-primary-hover', description: 'Text/Outline hover' },
@@ -359,31 +713,27 @@ export const ComponentColors: Story = {
 
         <SectionDivider />
 
-        <div className='grid gap-12 lg:grid-cols-2'>
-          <ColorGroup
-            title='Form Controls'
-            description='Input and form element states'
-            columns={1}
-            colors={[{ name: 'input-disabled', variable: '--color-input-disabled', description: 'Disabled state' }]}
-          />
-
-          <ColorGroup
-            title='Links'
-            description='Hyperlink state colors'
-            columns={1}
-            colors={[{ name: 'link-visited', variable: '--color-link-visited', description: 'Visited state' }]}
-          />
-        </div>
+        <ColorGroup
+          title='Links'
+          description='Hyperlink state colors'
+          usage='foreground'
+          colors={[{ name: 'link-visited', variable: '--color-link-visited', description: 'Visited state' }]}
+        />
 
         <SectionDivider />
 
         <ColorGroup
           title='Tooltips'
           description='Tooltip color system'
-          columns={2}
           colors={[
             { name: 'tooltip', variable: '--color-tooltip', description: 'Background' },
-            { name: 'tooltip-foreground', variable: '--color-tooltip-foreground', description: 'Text' },
+            // Paired text — its real background is --color-tooltip, audited in the matrix.
+            {
+              name: 'tooltip-foreground',
+              variable: '--color-tooltip-foreground',
+              description: 'Text',
+              usage: 'none',
+            },
           ]}
         />
 
@@ -392,7 +742,6 @@ export const ComponentColors: Story = {
         <ColorGroup
           title='Avatars'
           description='Avatar color system'
-          columns={2}
           colors={[
             { name: 'avatar-fallback', variable: '--color-avatar-fallback', description: 'Fallback background' },
           ]}
@@ -403,12 +752,30 @@ export const ComponentColors: Story = {
         <ColorGroup
           title='Overlay & Effects'
           description='Modal overlays and special visual effects'
-          columns={2}
           colors={[
             { name: 'overlay', variable: '--color-overlay', description: 'Modal backdrop' },
             { name: 'docs', variable: '--color-docs', description: 'Not used yet' },
           ]}
         />
+      </div>
+    </div>
+  ),
+};
+
+export const ContrastAudit: Story = {
+  name: 'Contrast & Accessibility',
+  render: () => (
+    <div className='min-h-screen bg-surface-neutral p-8 md:p-12'>
+      <div className='mx-auto max-w-7xl'>
+        <PageHeader
+          title='Contrast & Accessibility'
+          subtitle="Live WCAG 2.x contrast ratios for the design system's real foreground/background pairings, computed from the resolved token values. Toggle the theme toolbar to audit light and dark independently."
+          note='Ratios use normal-size text thresholds (AA ≥ 4.5:1, AAA ≥ 7:1) unless marked “AA Lg” for large text or UI components (AA ≥ 3:1). The a11y panel (axe-core) audits the surrounding page; these preview cells are excluded because they intentionally demonstrate every pairing, including ones that fall short.'
+        />
+
+        {PAIRING_GROUPS.map(group => (
+          <ContrastMatrix key={group.title} {...group} />
+        ))}
       </div>
     </div>
   ),

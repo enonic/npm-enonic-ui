@@ -57,9 +57,6 @@
     --color-btn-active: var(--color-grey-800);
     --color-btn-active-hover: var(--color-grey-900);
 
-    /* Inputs */
-    --color-input-disabled: var(--color-grey-100);
-
     /*Links*/
     --color-link-visited: var(--color-purple);
 
