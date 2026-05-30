@@ -1,86 +1,77 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 10
     assignees:
-      - "edloidas"
+      - 'edloidas'
     reviewers:
-      - "edloidas"
+      - 'edloidas'
     groups:
       storybook:
         patterns:
-          - "storybook"
-          - "@storybook/*"
-          - "@chromatic-com/*"
+          - 'storybook'
+          - '@storybook/*'
+          - '@chromatic-com/*'
         update-types:
-          - "minor"
-          - "patch"
-      eslint:
-        patterns:
-          - "eslint"
-          - "@eslint/*"
-          - "eslint-plugin-*"
-          - "@typescript-eslint/*"
-          - "typescript-eslint"
-        update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       vite:
         patterns:
-          - "vite"
-          - "vite-plugin-*"
-          - "@preact/preset-vite"
-          - "rollup-plugin-*"
-          - "terser"
-          - "postcss"
+          - 'vite'
+          - 'vite-plus'
+          - 'vite-plugin-*'
+          - '@preact/preset-vite'
+          - 'rollup-plugin-*'
+          - 'terser'
+          - 'postcss'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       tailwind:
         patterns:
-          - "tailwindcss"
-          - "@tailwindcss/*"
-          - "tw-animate-css"
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'tw-animate-css'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       lucide:
         patterns:
-          - "lucide-*"
+          - 'lucide-*'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       types:
         patterns:
-          - "@types/*"
+          - '@types/*'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       size-limit:
         patterns:
-          - "size-limit"
-          - "@size-limit/*"
+          - 'size-limit'
+          - '@size-limit/*'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "monthly"
+      interval: 'monthly'
     open-pull-requests-limit: 10
     assignees:
-      - "edloidas"
+      - 'edloidas'
     reviewers:
-      - "edloidas"
+      - 'edloidas'
     groups:
       actions:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "major"
-          - "minor"
-          - "patch"
+          - 'major'
+          - 'minor'
+          - 'patch'
