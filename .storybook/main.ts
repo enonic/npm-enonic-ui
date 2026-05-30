@@ -27,6 +27,12 @@ const config: StorybookConfig = {
   viteFinal: config => {
     config.resolve ??= {};
 
+    // Drop library-only plugins (dts, visualizer) the root vite.config.ts merges in.
+    config.plugins = (config.plugins ?? []).filter(plugin => {
+      const name = plugin != null && typeof plugin === 'object' && 'name' in plugin ? plugin.name : undefined;
+      return name !== 'unplugin-dts' && name !== 'visualizer';
+    });
+
     type AliasEntry = { find: string | RegExp; replacement: string };
     const existing = config.resolve.alias;
     const srcAbs = path.resolve(process.cwd(), 'src');
