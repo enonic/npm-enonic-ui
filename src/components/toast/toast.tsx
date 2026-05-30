@@ -13,6 +13,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+
 import { Button } from '@/components/button';
 import { IconButton, type IconButtonProps } from '@/components/icon-button';
 import { Link, type LinkProps } from '@/components/link';
@@ -65,7 +66,7 @@ const ToastTitle = forwardRef<HTMLHeadingElement, { asChild?: boolean } & Compon
         data-component='Toast.Title'
         // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
-        className={cn('font-semibold text-alt text-lg', className)}
+        className={cn('text-alt text-lg font-semibold', className)}
         {...props}
       >
         {children}
@@ -83,7 +84,7 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
         data-component='Toast.Description'
         // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
-        className={cn('overflow-hidden text-ellipsis text-md', className)}
+        className={cn('text-md overflow-hidden text-ellipsis', className)}
         {...props}
       >
         {children}
@@ -100,7 +101,7 @@ const ToastLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...prop
       ref={ref}
       external={false}
       data-tone='inverse'
-      className={cn('w-fit text-md', className)}
+      className={cn('text-md w-fit', className)}
       {...props}
     />
   );
@@ -115,7 +116,7 @@ const ToastButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<typeo
         ref={ref}
         variant='outline'
         size='md'
-        className={cn('border-alt bg-transparent px-2 text-alt hover:bg-notification-secondary', className)}
+        className={cn('border-alt text-alt hover:bg-notification-secondary bg-transparent px-2', className)}
         {...props}
       >
         {children}
@@ -161,7 +162,7 @@ const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<Ic
         title='Close notification'
         variant='text'
         size='sm'
-        className={cn('bg-transparent text-alt hover:bg-btn-tertiary-hover hover:text-alt', className)}
+        className={cn('text-alt hover:bg-btn-tertiary-hover hover:text-alt bg-transparent', className)}
         onClick={handleClick}
         {...props}
       />
@@ -198,7 +199,7 @@ const ToastIcon = ({ tone, children, className }: ToastIconProps): null => {
 
     return (
       <div data-component='Toast.Icon' className={toastIconVariants({ variant: resolvedTone, className })}>
-        <IconComponent className='scale-125 text-surface-tertiary' size={24} strokeWidth={2} aria-hidden='true' />
+        <IconComponent className='text-surface-tertiary scale-125' size={24} strokeWidth={2} aria-hidden='true' />
       </div>
     );
   }, [children, resolvedTone, className]);
@@ -265,7 +266,7 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
             '[--color-ring-offset:var(--color-surface-tertiary)] [--color-ring:var(--color-ring-alt)]',
             'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center',
             'w-full max-w-130 gap-2.5 p-5',
-            'rounded-lg border border-bdr-soft bg-surface-tertiary text-alt',
+            'border-bdr-soft bg-surface-tertiary text-alt rounded-lg border',
             className,
           )}
           {...rest}

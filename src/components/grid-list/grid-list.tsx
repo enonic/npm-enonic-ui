@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { type ActiveCell, useActiveItemFocus, useControlledState, useGridNavigation } from '@/hooks';
 import {
   type GridListContextValue,
@@ -243,7 +244,6 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
     });
 
     // State invalidation when rows change (e.g., removed dynamically)
-    // biome-ignore lint/correctness/useExhaustiveDependencies: registryVersion triggers revalidation
     useEffect(() => {
       if (!activeCell) return;
 
@@ -258,6 +258,7 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
       if (!cellsRef.current.has(cellKey)) {
         setActiveCell(undefined);
       }
+      // oxlint-disable-next-line react-hooks/exhaustive-deps -- registryVersion triggers revalidation
     }, [registryVersion]);
 
     const contextValue = useMemo<GridListContextValue>(
@@ -305,8 +306,8 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
           id={`${gridBaseId}-grid`}
           className={cn(
             'flex flex-col outline-none',
-            'outline-none focus-within:ring-2 focus-within:ring-ring/10 focus-within:ring-inset',
-            disabled && 'pointer-events-none select-none opacity-30',
+            'focus-within:ring-ring/10 outline-none focus-within:ring-2 focus-within:ring-inset',
+            disabled && 'pointer-events-none opacity-30 select-none',
             className,
           )}
           role='grid'
@@ -500,8 +501,8 @@ const GridListCell = forwardRef<HTMLDivElement, GridListCellProps>(
         id={`${baseId}-cell-${rowId}-${colIndex}`}
         className={cn(
           'flex items-center',
-          'rounded-sm outline-none transition-highlight',
-          'focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+          'transition-highlight rounded-sm outline-none',
+          'focus-visible:ring-ring focus-visible:ring-offset-ring-offset focus-visible:ring-3 focus-visible:ring-offset-3',
           disabled && !rowDisabled && 'pointer-events-none opacity-30',
           className,
         )}

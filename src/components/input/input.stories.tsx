@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Calendar, Eye, EyeOff, Mail, Search, User } from 'lucide-react';
 import { type ReactElement, useRef, useState } from 'react';
 
@@ -6,6 +5,8 @@ import { Button } from '@/components/button';
 import { Tooltip } from '@/components/tooltip';
 import { useBlinkAttention } from '@/hooks/use-blink-attention';
 import { cn } from '@/utils';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Input, type InputProps } from './input';
 
@@ -102,7 +103,7 @@ export const FormExample: Story = {
   name: 'Examples / Form',
   render: () => (
     <div className='w-96 space-y-6 p-4'>
-      <h3 className='mb-4 font-medium text-lg'>User Registration</h3>
+      <h3 className='mb-4 text-lg font-medium'>User Registration</h3>
 
       <Input label='Full Name' description='Enter your first and last name' placeholder='John Doe' required />
 
@@ -154,37 +155,37 @@ export const States: Story = {
   render: () => (
     <div className='w-80 space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Default State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Default State</h3>
         <Input label='Default Input' placeholder='Enter text...' />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>With Value</h3>
+        <h3 className='mb-3 text-sm font-medium'>With Value</h3>
         <Input label='Filled Input' value='Sample text content' />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Error State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Error State</h3>
         <Input label='Invalid Input' placeholder='Enter valid data' error='This field is required' />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Disabled State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Disabled State</h3>
         <Input label='Disabled Input' placeholder='Cannot interact' disabled />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Read Only State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Read Only State</h3>
         <Input label='Read Only Input' value='This cannot be edited' readOnly />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Processing State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Processing State</h3>
         <Input label='Processing Input' value='Saving…' processing />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Processing Overrides Error</h3>
+        <h3 className='mb-3 text-sm font-medium'>Processing Overrides Error</h3>
         <Input label='Processing Wins' value='In flight' error='Error is hidden while processing' processing />
       </div>
     </div>
@@ -223,12 +224,12 @@ export const ReadOnlyStates: Story = {
   render: () => (
     <div className='w-96 space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Read Only - No Addons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Read Only - No Addons</h3>
         <Input label='User ID' description='This identifier cannot be changed' value='USR-12345' readOnly />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Read Only - Left Addon</h3>
+        <h3 className='mb-3 text-sm font-medium'>Read Only - Left Addon</h3>
         <Input
           label='System URL'
           description='This URL is automatically generated'
@@ -239,7 +240,7 @@ export const ReadOnlyStates: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Read Only - Both Addons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Read Only - Both Addons</h3>
         <Input
           label='Account Balance'
           description='Balance is updated automatically'
@@ -251,7 +252,7 @@ export const ReadOnlyStates: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Read Only - Icon Addons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Read Only - Icon Addons</h3>
         <Input
           label='Account Email'
           description='Email address from your profile settings'
@@ -271,7 +272,7 @@ export const ReadOnlyStates: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Read Only - Long Value</h3>
+        <h3 className='mb-3 text-sm font-medium'>Read Only - Long Value</h3>
         <Input
           label='API Token'
           description='Generated token for API access'
@@ -289,7 +290,7 @@ export const ErrorStates: Story = {
   render: () => (
     <div className='w-96 space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Error - No Addons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Error - No Addons</h3>
         <Input
           label='Email Address'
           placeholder='Enter your email'
@@ -300,7 +301,7 @@ export const ErrorStates: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Error - Left Addon</h3>
+        <h3 className='mb-3 text-sm font-medium'>Error - Left Addon</h3>
         <Input
           label='Website URL'
           placeholder='example.com'
@@ -311,7 +312,7 @@ export const ErrorStates: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Error - Both Addons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Error - Both Addons</h3>
         <Input
           label='Price Range'
           placeholder='100'
@@ -323,7 +324,7 @@ export const ErrorStates: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Error - Icon Addons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Error - Icon Addons</h3>
         <Input
           label='Search Query'
           placeholder='Search...'
@@ -350,15 +351,15 @@ export const WithStringAddons: Story = {
   render: () => (
     <div className='w-80 space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Start Addon</h3>
+        <h3 className='mb-3 text-sm font-medium'>Start Addon</h3>
         <Input label='Website URL' placeholder='example.com' startAddon='https://' />
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>End Addon</h3>
+        <h3 className='mb-3 text-sm font-medium'>End Addon</h3>
         <Input label='Price' placeholder='0.00' endAddon='USD' type='number' />
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Both Addons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Both Addons</h3>
         <Input label='Domain' placeholder='mysite' startAddon='https://' endAddon='.com' />
       </div>
     </div>
@@ -370,7 +371,7 @@ export const WithIconAddons: Story = {
   render: () => (
     <div className='w-80 space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Search Field</h3>
+        <h3 className='mb-3 text-sm font-medium'>Search Field</h3>
         <Input
           label='Search'
           placeholder='Search users...'
@@ -382,7 +383,7 @@ export const WithIconAddons: Story = {
         />
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Email Input</h3>
+        <h3 className='mb-3 text-sm font-medium'>Email Input</h3>
         <Input
           label='Email'
           placeholder='Enter your email'
@@ -395,7 +396,7 @@ export const WithIconAddons: Story = {
         />
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Password Input</h3>
+        <h3 className='mb-3 text-sm font-medium'>Password Input</h3>
         <Input
           label='Password'
           placeholder='Enter password'
@@ -446,7 +447,7 @@ export const CustomAddon: Story = {
             >
               <div
                 className={cn(
-                  'mr-4.5 flex cursor-default items-center text-sm text-subtle tabular-nums',
+                  'text-subtle mr-4.5 flex cursor-default items-center text-sm tabular-nums',
                   overLimit && 'text-error',
                 )}
               >
@@ -494,10 +495,10 @@ function HighlightDemo(): ReactElement {
 
   return (
     <div className='flex flex-col gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Click the button to scroll the field into view and pulse the attention ring. Trigger logic lives in
-        <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>useBlinkAttention</code>; the field wears the
-        ring via the <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>highlightRef</code> prop so the
+        <code className='bg-surface-primary mx-1 rounded-sm px-1 py-0.5'>useBlinkAttention</code>; the field wears the
+        ring via the <code className='bg-surface-primary mx-1 rounded-sm px-1 py-0.5'>highlightRef</code> prop so the
         pulse stays around the input itself, not the label or error. Clicking faster than the 1.2s animation restarts
         the ring on every click.
       </div>

@@ -13,12 +13,14 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
 import { usePrefixedId, useStepper } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { FocusContainerContext } from '@/providers/focus-container-provider';
 import { cn, useComposedRefs } from '@/utils';
+
 import { Button } from '../button';
 import { Stepper, type StepperDotsProps } from '../stepper';
 
@@ -156,7 +158,7 @@ const DialogOverlay = forwardRef<HTMLDivElement, DialogOverlayProps>(
         ref={ref}
         data-state={open ? 'open' : 'closed'}
         className={cn(
-          'fixed inset-0 z-30 bg-overlay backdrop-blur-xs',
+          'bg-overlay fixed inset-0 z-30 backdrop-blur-xs',
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           className,
@@ -328,10 +330,10 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
               data-state={open ? 'open' : 'closed'}
               tabIndex={-1}
               className={cn(
-                'relative rounded-lg bg-surface-neutral shadow-xl',
+                'bg-surface-neutral relative rounded-lg shadow-xl',
                 'flex max-h-[90vh] w-full max-w-lg flex-col gap-10 p-10',
-                'overflow-hidden border border-bdr-subtle outline-none',
-                'focus:outline-none focus:ring-0',
+                'border-bdr-subtle overflow-hidden border outline-none',
+                'focus:ring-0 focus:outline-none',
                 // Re-enable pointer events on the box; the wrapper disables them when modal={false}.
                 !modal && 'pointer-events-auto',
                 'data-[state=closed]:animate-out data-[state=open]:animate-in',
@@ -438,7 +440,7 @@ const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         id={titleId}
-        className={cn('font-semibold text-2xl', className)}
+        className={cn('text-2xl font-semibold', className)}
         {...props}
       >
         {children}
@@ -636,7 +638,7 @@ const DialogStepHeader = forwardRef<HTMLElement, DialogStepHeaderProps>((props, 
       {description && (
         <DialogDescription
           id={descriptionId}
-          className={cn('text-sm text-subtle', withClose && helper ? 'row-start-3' : 'row-start-2')}
+          className={cn('text-subtle text-sm', withClose && helper ? 'row-start-3' : 'row-start-2')}
         >
           {description}
         </DialogDescription>

@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import {
   useActiveItemFocus,
   useItemRegistry,
@@ -241,9 +242,9 @@ const ToolbarContainer = forwardRef<HTMLDivElement, ToolbarContainerProps>(
         aria-orientation={orientation}
         tabIndex={-1}
         className={cn(
-          'flex items-center gap-1.5 p-2 transition-highlight',
+          'transition-highlight flex items-center gap-1.5 p-2',
           // Thinner focus ring compared to menubar
-          'outline-none has-focus-visible:ring-2 has-focus-visible:ring-ring/10 has-focus-visible:ring-inset',
+          'has-focus-visible:ring-ring/10 outline-none has-focus-visible:ring-2 has-focus-visible:ring-inset',
           orientation === 'vertical' && 'flex-col',
           className,
         )}
@@ -423,7 +424,7 @@ const ToolbarSeparator = forwardRef<HTMLDivElement, ToolbarSeparatorProps>(
           ref={ref}
           role='separator'
           aria-orientation='horizontal'
-          className={cn('my-1 h-px w-full bg-bdr-subtle', className)}
+          className={cn('bg-bdr-subtle my-1 h-px w-full', className)}
           {...props}
         />
       );
@@ -436,7 +437,7 @@ const ToolbarSeparator = forwardRef<HTMLDivElement, ToolbarSeparatorProps>(
         ref={ref}
         role='separator'
         aria-orientation='vertical'
-        className={cn('mx-1 h-4 w-px bg-bdr-subtle', className)}
+        className={cn('bg-bdr-subtle mx-1 h-4 w-px', className)}
         {...props}
       />
     );

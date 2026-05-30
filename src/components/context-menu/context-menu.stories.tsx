@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   Archive,
   ArrowUpRight,
@@ -17,7 +16,10 @@ import {
 } from 'lucide-react';
 import { type ReactElement, type ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+
 import { Button } from '@/components/button';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { ContextMenu } from './context-menu';
 
@@ -38,8 +40,8 @@ export const Basic: Story = {
   name: 'Examples / Basic',
   render: () => (
     <ContextMenu>
-      <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-        <span className='cursor-default text-subtle'>Right click here</span>
+      <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+        <span className='text-subtle cursor-default'>Right click here</span>
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Content>
@@ -75,8 +77,8 @@ export const WithSections: Story = {
   name: 'Examples / With Sections',
   render: () => (
     <ContextMenu>
-      <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-        <span className='cursor-default text-subtle'>Right click for file options</span>
+      <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+        <span className='text-subtle cursor-default'>Right click for file options</span>
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
         <ContextMenu.Content>
@@ -118,12 +120,12 @@ export const WithDisabledItems: Story = {
   name: 'States / Disabled Items',
   render: () => (
     <div className='flex flex-col items-center gap-y-6 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Disabled items are skipped during keyboard navigation but remain visible and accessible to screen readers.
       </div>
       <ContextMenu>
-        <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-          <span className='cursor-default text-subtle'>Right click here</span>
+        <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+          <span className='text-subtle cursor-default'>Right click here</span>
         </ContextMenu.Trigger>
         <ContextMenu.Portal>
           <ContextMenu.Content>
@@ -159,13 +161,13 @@ export const AsChild: Story = {
   name: 'Features / AsChild Pattern',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         ContextMenu.Item with <code>asChild</code> allows rendering custom elements like links while maintaining menu
         behavior
       </div>
       <ContextMenu>
-        <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-          <span className='cursor-default text-subtle'>Right click for links</span>
+        <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+          <span className='text-subtle cursor-default'>Right click for links</span>
         </ContextMenu.Trigger>
         <ContextMenu.Portal>
           <ContextMenu.Content>
@@ -192,7 +194,7 @@ export const CustomTrigger: Story = {
   name: 'Features / Custom Trigger',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         ContextMenu.Trigger with <code>asChild</code> can wrap any element. Right-click the button below.
       </div>
       <ContextMenu>
@@ -233,8 +235,8 @@ export const Interactive: Story = {
         </div>
 
         <ContextMenu open={isOpen} onOpenChange={setIsOpen}>
-          <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-            <span className='cursor-default text-subtle'>Right click here</span>
+          <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+            <span className='text-subtle cursor-default'>Right click here</span>
           </ContextMenu.Trigger>
           <ContextMenu.Portal>
             <ContextMenu.Content>
@@ -270,7 +272,7 @@ export const RadioItems: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Radio items allow single selection within a group.
           <br />
           Selecting a radio item does NOT close the menu by default.
@@ -280,8 +282,8 @@ export const RadioItems: Story = {
           <span className='font-semibold'>{viewMode}</span>
         </div>
         <ContextMenu>
-          <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-            <span className='cursor-default text-subtle'>Right click to select view</span>
+          <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+            <span className='text-subtle cursor-default'>Right click to select view</span>
           </ContextMenu.Trigger>
           <ContextMenu.Portal>
             <ContextMenu.Content>
@@ -322,7 +324,7 @@ export const CloseOnSelect: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Use <code>closeOnSelect</code> prop on <code>ContextMenu.RadioGroup</code> to automatically close the menu
           after selecting a radio item.
         </div>
@@ -331,8 +333,8 @@ export const CloseOnSelect: Story = {
           <span className='font-semibold'>{options.find(o => o.value === sortBy)?.label}</span>
         </div>
         <ContextMenu>
-          <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-            <span className='cursor-default text-subtle'>Right click to sort</span>
+          <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+            <span className='text-subtle cursor-default'>Right click to sort</span>
           </ContextMenu.Trigger>
           <ContextMenu.Portal>
             <ContextMenu.Content>
@@ -360,7 +362,7 @@ export const Submenu: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Hover <strong>Share</strong> or <strong>Archive</strong> to reveal a submenu. Keyboard: ArrowDown to the row,
           ArrowRight to enter the submenu, ArrowLeft to return, Escape closes the submenu only.
         </div>
@@ -369,8 +371,8 @@ export const Submenu: Story = {
           <span className='font-semibold'>{lastAction}</span>
         </div>
         <ContextMenu>
-          <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-            <span className='cursor-default text-subtle'>Right click here</span>
+          <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+            <span className='text-subtle cursor-default'>Right click here</span>
           </ContextMenu.Trigger>
           <ContextMenu.Portal>
             <ContextMenu.Content>
@@ -497,7 +499,7 @@ export const InsideShadowRoot: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           The trigger and portaled content both live inside an open shadow root. Right-click the surface, then click a
           menu item — the item&apos;s action should fire instead of the menu dismissing silently. Regression guard for
           the <code className='mx-1'>useClickOutside</code> shadow-DOM retargeting bug.
@@ -509,8 +511,8 @@ export const InsideShadowRoot: Story = {
         <ShadowHost>
           {container => (
             <ContextMenu>
-              <ContextMenu.Trigger className='flex h-40 w-80 items-center justify-center rounded-md border-2 border-bdr-subtle border-dashed bg-surface-neutral-hover'>
-                <span className='cursor-default text-subtle'>Right click here (inside shadow root)</span>
+              <ContextMenu.Trigger className='border-bdr-subtle bg-surface-neutral-hover flex h-40 w-80 items-center justify-center rounded-md border-2 border-dashed'>
+                <span className='text-subtle cursor-default'>Right click here (inside shadow root)</span>
               </ContextMenu.Trigger>
               <ContextMenu.Portal container={container}>
                 <ContextMenu.Content>

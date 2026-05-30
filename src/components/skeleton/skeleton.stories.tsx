@@ -49,7 +49,7 @@ export const Basic: Story = {
 export const CardPlaceholder: Story = {
   name: 'Examples / Card Placeholder',
   render: () => (
-    <div className='w-72 rounded-lg border border-bdr-soft p-4'>
+    <div className='border-bdr-soft w-72 rounded-lg border p-4'>
       <div className='flex items-center gap-3'>
         <Skeleton shape='circle' size='md' />
         <div className='flex-1 space-y-2'>
@@ -106,7 +106,7 @@ export const Sizes: Story = {
   render: () => (
     <div className='space-y-6'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Rectangle Sizes</h3>
+        <h3 className='mb-3 text-sm font-medium'>Rectangle Sizes</h3>
         <div className='space-y-2'>
           <div className='flex items-center gap-3'>
             <Skeleton shape='rectangle' size='sm' />
@@ -123,7 +123,7 @@ export const Sizes: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Circle Sizes</h3>
+        <h3 className='mb-3 text-sm font-medium'>Circle Sizes</h3>
         <div className='flex items-end gap-4'>
           <div className='flex flex-col items-center gap-2'>
             <Skeleton shape='circle' size='sm' />
@@ -147,8 +147,8 @@ export const CustomSizing: Story = {
   name: 'Features / Custom Sizing',
   render: () => (
     <Container>
-      <p className='text-sm text-subtle'>
-        Use <code className='rounded bg-surface-primary px-1'>className</code> for custom dimensions:
+      <p className='text-subtle text-sm'>
+        Use <code className='bg-surface-primary rounded px-1'>className</code> for custom dimensions:
       </p>
       <Skeleton className='h-3 w-full' />
       <Skeleton className='h-6 w-1/2' />
@@ -161,7 +161,7 @@ export const CustomSizing: Story = {
 export const NoAnimation: Story = {
   name: 'Features / No Animation',
   render: () => (
-    <div className='w-72 rounded-lg border border-bdr-soft p-4'>
+    <div className='border-bdr-soft w-72 rounded-lg border p-4'>
       <div className='flex items-center gap-3'>
         <Skeleton animated={false} shape='circle' size='md' />
         <div className='flex-1 space-y-2'>
@@ -179,8 +179,8 @@ export const SynchronizedAnimation: Story = {
   render: () => (
     <div className='space-y-6'>
       <div>
-        <p className='mb-3 text-sm text-subtle'>
-          Without <code className='rounded bg-surface-primary px-1'>Skeleton.Group</code> (pulse animation):
+        <p className='text-subtle mb-3 text-sm'>
+          Without <code className='bg-surface-primary rounded px-1'>Skeleton.Group</code> (pulse animation):
         </p>
         <div className='flex items-center gap-3'>
           <Skeleton shape='circle' size='md' />
@@ -191,8 +191,8 @@ export const SynchronizedAnimation: Story = {
         </div>
       </div>
       <div>
-        <p className='mb-3 text-sm text-subtle'>
-          With <code className='rounded bg-surface-primary px-1'>Skeleton.Group</code> (synchronized shimmer):
+        <p className='text-subtle mb-3 text-sm'>
+          With <code className='bg-surface-primary rounded px-1'>Skeleton.Group</code> (synchronized shimmer):
         </p>
         <Skeleton.Group className='flex items-center gap-3'>
           <Skeleton shape='circle' size='md' />

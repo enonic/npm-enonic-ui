@@ -1,12 +1,14 @@
 import { Slot } from '@radix-ui/react-slot';
-import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 import { Fragment, forwardRef, useCallback, useEffect, useMemo, useRef } from 'react';
+
 import { useControlledState, useItemRegistry, useRovingTabIndex } from '@/hooks';
 import { useStepNavigation } from '@/hooks/use-step-navigation';
 import { usePrefixedId } from '@/providers';
 import { type StepperContextValue, StepperProvider, useStepper } from '@/providers/stepper-provider';
 import { cn, useComposedRefs } from '@/utils';
 import { fixedCountRangeAround } from '@/utils/array';
+
+import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 
 const getPanelId = (baseId: string, itemId: string): string => `${baseId}-panel-${itemId}`;
 const getButtonId = (baseId: string, itemId: string): string => `${baseId}-tab-${itemId}`;
@@ -123,10 +125,10 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
   const panelRef = useRef<HTMLDivElement>(null);
   const composedRef = useComposedRefs(ref, panelRef);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: locked is handled by the next effect to avoid unregister/re-register cycle that breaks Map insertion order
   useEffect(() => {
     registerItem(value, locked, panelRef.current);
     return () => unregisterItem(value);
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- locked is handled by the next effect to avoid unregister/re-register cycle that breaks Map insertion order
   }, [value, registerItem, unregisterItem]);
 
   useEffect(() => {
@@ -187,12 +189,12 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
         'hover:cursor-pointer focus-visible:outline-none',
         'after:size-2.5 after:rounded-full after:ring-[1.5px]',
         'after:transition-[scale,background-color,box-shadow] after:duration-300 after:ease-in-out',
-        'hover:after:outline-2 hover:after:outline-bdr-subtle',
+        'hover:after:outline-bdr-subtle hover:after:outline-2',
         isSelected
-          ? 'after:scale-120 after:bg-subtle after:ring-1 after:ring-subtle hover:after:outline-none'
+          ? 'after:bg-subtle after:ring-subtle after:scale-120 after:ring-1 hover:after:outline-none'
           : small
-            ? 'after:scale-80 after:bg-transparent after:ring-2 after:ring-bdr-subtle'
-            : 'after:scale-100 after:bg-transparent after:ring-bdr-subtle',
+            ? 'after:ring-bdr-subtle after:scale-80 after:bg-transparent after:ring-2'
+            : 'after:ring-bdr-subtle after:scale-100 after:bg-transparent',
         isDotDisabled && 'after:opacity-30 hover:cursor-default',
       );
     },
@@ -225,6 +227,7 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
     />
   );
 });
+StepperDot.displayName = 'Stepper.Dot';
 
 //
 // * Stepper.Dots
@@ -273,7 +276,7 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
       aria-disabled={disabled || undefined}
       className={cn(
         'mx-auto flex w-fit items-center justify-center gap-0 rounded-md p-2',
-        'has-focus-visible:ring-3 has-focus-visible:ring-ring has-focus-visible:ring-offset-3 has-focus-visible:ring-offset-ring-offset',
+        'has-focus-visible:ring-ring has-focus-visible:ring-offset-ring-offset has-focus-visible:ring-3 has-focus-visible:ring-offset-3',
         disabled && 'pointer-events-none',
         className,
       )}

@@ -1,4 +1,5 @@
 import { type RefObject, useEffect } from 'react';
+
 import { useFocusContainerRegistry } from '@/providers';
 
 /**

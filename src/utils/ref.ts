@@ -25,7 +25,7 @@ export function useComposedRefs<T>(...refs: (Ref<T> | undefined | null)[]): Forw
         setRef(ref, node);
       });
     },
-    // biome-ignore lint/correctness/useExhaustiveDependencies: refs is spread as deps for callback stability
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- refs is spread as deps for callback stability
     refs,
   );
 }

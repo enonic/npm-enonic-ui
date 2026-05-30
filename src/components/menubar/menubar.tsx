@@ -15,6 +15,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import {
   useActiveItemFocus,
   useClickOutside,
@@ -429,8 +430,8 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
         data-tone={isActive ? 'inverse' : undefined}
         className={cn(
           'group cursor-pointer rounded-sm px-4.5 py-2.5 text-sm outline-none',
-          'focus-visible:ring-3 focus-visible:ring-ring',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+          'focus-visible:ring-ring focus-visible:ring-3',
+          'focus-visible:ring-offset-ring-offset focus-visible:ring-offset-3',
           className,
         )}
         onClick={handleClick}
@@ -500,7 +501,7 @@ const MenubarSeparator = forwardRef<HTMLDivElement, MenubarSeparatorProps>(
           ref={ref}
           role='separator'
           aria-orientation='horizontal'
-          className={cn('my-1 h-px w-full bg-bdr-subtle', className)}
+          className={cn('bg-bdr-subtle my-1 h-px w-full', className)}
           {...props}
         />
       );
@@ -513,7 +514,7 @@ const MenubarSeparator = forwardRef<HTMLDivElement, MenubarSeparatorProps>(
         ref={ref}
         role='separator'
         aria-orientation='vertical'
-        className={cn('mx-1 h-4 w-px bg-bdr-subtle', className)}
+        className={cn('bg-bdr-subtle mx-1 h-4 w-px', className)}
         {...props}
       />
     );
@@ -786,7 +787,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         data-tone={isActive ? 'inverse' : undefined}
         className={cn(
           'group cursor-pointer rounded-sm px-4.5 py-2.5 text-sm outline-none',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset data-[tone=inverse]:focus-visible:ring-ring-alt data-[tone=inverse]:focus-visible:ring-offset-ring-offset-alt',
+          'focus-visible:ring-ring focus-visible:ring-offset-ring-offset data-[tone=inverse]:focus-visible:ring-ring-alt data-[tone=inverse]:focus-visible:ring-offset-ring-offset-alt focus-visible:ring-3 focus-visible:ring-offset-3 focus-visible:outline-none',
           open && 'bg-btn-active text-alt',
           disabled && 'pointer-events-none cursor-not-allowed opacity-30',
           className,
@@ -1094,7 +1095,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
           data-align={align}
           className={cn(
             'fixed z-40 mt-2 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
-            'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
+            'border-bdr-subtle bg-surface-neutral rounded-sm border shadow-lg outline-none',
             // Animations
             'data-[state=closed]:animate-out data-[state=open]:animate-in',
             'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',

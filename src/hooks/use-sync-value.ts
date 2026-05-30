@@ -1,6 +1,8 @@
-import type { Signalish } from 'preact';
 import { useEffect } from 'react';
+
 import { unwrap } from '@/utils';
+
+import type { Signalish } from 'preact';
 
 /**
  * Syncs a value related to a setter function with a value from arguments

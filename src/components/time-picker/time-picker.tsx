@@ -16,6 +16,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { IconButton } from '@/components/icon-button';
 import { Selector } from '@/components/selector';
 import {
@@ -209,7 +210,7 @@ const TimePickerHourSelect = forwardRef<HTMLButtonElement, TimePickerHourSelectP
         <Selector.Trigger
           data-component='TimePicker.HourSelect'
           ref={composedRefs}
-          className={cn('h-10 gap-1 bg-btn-primary px-3 font-normal text-sm', className)}
+          className={cn('bg-btn-primary h-10 gap-1 px-3 text-sm font-normal', className)}
           aria-label='Hour'
           tabIndex={tabIndex}
           data-registry-id={hourSelectId}
@@ -333,7 +334,7 @@ const TimePickerMinuteSelect = forwardRef<HTMLButtonElement, TimePickerMinuteSel
         <Selector.Trigger
           data-component='TimePicker.MinuteSelect'
           ref={composedRefs}
-          className={cn('h-10 gap-1 bg-btn-primary px-3 font-normal text-sm', className)}
+          className={cn('bg-btn-primary h-10 gap-1 px-3 text-sm font-normal', className)}
           aria-label='Minute'
           tabIndex={tabIndex}
           data-registry-id={minuteSelectId}
@@ -448,9 +449,9 @@ const TimePickerNativeInput = forwardRef<HTMLInputElement, TimePickerNativeInput
         ref={ref}
         type='time'
         className={cn(
-          'h-12 w-full rounded-sm border border-bdr-subtle bg-surface-neutral px-4 text-base text-main',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+          'border-bdr-subtle bg-surface-neutral text-main h-12 w-full rounded-sm border px-4 text-base',
+          'focus-visible:ring-ring focus-visible:ring-3 focus-visible:outline-none',
+          'focus-visible:ring-offset-ring-offset focus-visible:ring-offset-3',
           ariaInvalid && 'border-error focus-visible:border-error focus-visible:ring-error',
           className,
         )}
@@ -684,7 +685,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
     const content = children ?? (
       <>
         <TimePickerHourSelect />
-        <span className='text-base text-main'>:</span>
+        <span className='text-main text-base'>:</span>
         <TimePickerMinuteSelect />
         <TimePickerTimezone />
       </>
@@ -701,7 +702,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
         data-side={position?.side}
         onKeyDown={handleKeyDown}
         className={cn(
-          'fixed flex w-fit items-center gap-1.5 rounded-sm border border-bdr-subtle bg-surface-neutral p-3 shadow-md',
+          'border-bdr-subtle bg-surface-neutral fixed flex w-fit items-center gap-1.5 rounded-sm border p-3 shadow-md',
           'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           className,
         )}
@@ -952,7 +953,7 @@ const TimePickerRoot = ({
   const content = (
     <>
       <TimePickerHourSelect />
-      <span className='text-base text-main'>:</span>
+      <span className='text-main text-base'>:</span>
       <TimePickerMinuteSelect />
       <TimePickerTimezone />
     </>
@@ -964,7 +965,7 @@ const TimePickerRoot = ({
       <div
         data-component='TimePicker.Root'
         className={cn(
-          'flex w-fit items-center gap-2 rounded-sm border border-bdr-subtle bg-surface-neutral p-3',
+          'border-bdr-subtle bg-surface-neutral flex w-fit items-center gap-2 rounded-sm border p-3',
           shouldUseNative && 'border-none bg-transparent p-0',
           className,
         )}

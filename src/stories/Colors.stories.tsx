@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { BadgeInfo, Check, X } from 'lucide-react';
-import type { ReactElement } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+import type { ReactElement } from 'react';
 
 import {
   contrastRatio,
@@ -101,7 +102,7 @@ type SwatchRole = 'surface' | 'foreground' | 'non-text' | 'disabled' | 'none';
 const ComplianceChip = ({ label, pass }: { label: string; pass: boolean }): ReactElement => (
   <span
     data-pass={pass}
-    className='inline-flex items-center gap-0.5 rounded border px-1 py-px font-mono font-semibold text-[9px] uppercase tracking-wide data-[pass=false]:border-error/30 data-[pass=true]:border-success/30 data-[pass=false]:text-error data-[pass=true]:text-success'
+    className='data-[pass=false]:border-error/30 data-[pass=true]:border-success/30 data-[pass=false]:text-error data-[pass=true]:text-success inline-flex items-center gap-0.5 rounded border px-1 py-px font-mono text-[9px] font-semibold tracking-wide uppercase'
   >
     {label}
     {pass ? <Check className='size-2.5' /> : <X className='size-2.5' />}
@@ -117,7 +118,7 @@ const badgeChips = (ratio: number, mode: BadgeMode): ReactElement => {
   if (mode === 'non-text') return <ComplianceChip label='UI 3:1' pass={passesNonText(ratio)} />;
   if (mode === 'exempt') {
     return (
-      <span className='inline-flex items-center rounded border border-bdr-soft px-1 py-px font-mono font-semibold text-[9px] text-subtle uppercase tracking-wide'>
+      <span className='border-bdr-soft text-subtle inline-flex items-center rounded border px-1 py-px font-mono text-[9px] font-semibold tracking-wide uppercase'>
         exempt
       </span>
     );
@@ -132,8 +133,8 @@ const badgeChips = (ratio: number, mode: BadgeMode): ReactElement => {
 
 const ContrastBadge = ({ ratio, mode = 'text', tag, title }: ContrastBadgeProps): ReactElement => (
   <div className='mt-0.5 flex items-center gap-1.5' title={title}>
-    {tag && <span className='font-mono text-[9px] text-subtle uppercase tracking-wider'>{tag}</span>}
-    <span className='font-mono text-[10px] text-subtle tabular-nums'>{ratio.toFixed(2)}:1</span>
+    {tag && <span className='text-subtle font-mono text-[9px] tracking-wider uppercase'>{tag}</span>}
+    <span className='text-subtle font-mono text-[10px] tabular-nums'>{ratio.toFixed(2)}:1</span>
     {badgeChips(ratio, mode)}
   </div>
 );
@@ -220,7 +221,7 @@ const ColorSwatch = ({
     <button
       type='button'
       onClick={handleClick}
-      className='group relative flex cursor-pointer flex-col overflow-hidden rounded-lg border border-bdr-soft bg-surface-neutral text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-bdr-strong hover:shadow-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset'
+      className='group border-bdr-soft bg-surface-neutral hover:border-bdr-strong focus-visible:ring-ring focus-visible:ring-offset-ring-offset relative flex cursor-pointer flex-col overflow-hidden rounded-lg border text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-3 focus-visible:ring-offset-3 focus-visible:outline-none'
       title={`Click to copy: ${name}`}
     >
       <div
@@ -232,7 +233,7 @@ const ColorSwatch = ({
           <div
             data-a11y-demo
             aria-hidden='true'
-            className='pointer-events-none absolute inset-0 flex items-center justify-end gap-3 pe-3 font-semibold text-lg'
+            className='pointer-events-none absolute inset-0 flex items-center justify-end gap-3 pe-3 text-lg font-semibold'
           >
             <span style={{ color: 'var(--color-main)' }}>Aa</span>
             <span style={{ color: 'var(--color-rev)' }}>Aa</span>
@@ -240,13 +241,13 @@ const ColorSwatch = ({
         )}
       </div>
       <div className='flex flex-col gap-1 p-3'>
-        <div className='font-bold font-mono text-main text-sm tracking-tight'>{name}</div>
+        <div className='text-main font-mono text-sm font-bold tracking-tight'>{name}</div>
         {description && <div className='text-subtle text-xs leading-tight'>{description}</div>}
-        <div className='font-mono text-[10px] text-subtle uppercase tracking-wider'>{variable}</div>
+        <div className='text-subtle font-mono text-[10px] tracking-wider uppercase'>{variable}</div>
         {badge && <ContrastBadge ratio={badge.ratio} mode={badge.mode} tag={badge.tag} title={badge.title} />}
       </div>
       {copied && (
-        <div className='fade-in slide-in-from-top-1 absolute top-2 right-2 animate-in rounded-md bg-surface-success px-2.5 py-1 font-semibold text-success text-xs tracking-wide shadow-lg'>
+        <div className='fade-in slide-in-from-top-1 animate-in bg-surface-success text-success absolute top-2 right-2 rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide shadow-lg'>
           COPIED
         </div>
       )}
@@ -276,14 +277,14 @@ const ColorGroup = ({
       <div className='mb-5 flex items-start justify-between gap-4'>
         <div className='flex-1'>
           <div className='mb-2 flex items-center gap-3'>
-            <h2 className='font-bold text-2xl text-main tracking-tight'>{title}</h2>
+            <h2 className='text-main text-2xl font-bold tracking-tight'>{title}</h2>
             {badge && (
-              <span className='rounded-full border border-bdr-soft bg-surface-primary px-3 py-0.5 font-semibold text-subtle text-xs uppercase tracking-wider'>
+              <span className='border-bdr-soft bg-surface-primary text-subtle rounded-full border px-3 py-0.5 text-xs font-semibold tracking-wider uppercase'>
                 {badge}
               </span>
             )}
           </div>
-          {description && <p className='max-w-2xl text-sm text-subtle leading-relaxed'>{description}</p>}
+          {description && <p className='text-subtle max-w-2xl text-sm leading-relaxed'>{description}</p>}
         </div>
       </div>
       {/* Auto-fill keeps every swatch ≥ 240px so the contrast badge fits, and leaves
@@ -379,10 +380,10 @@ const ContrastRow = ({ entry }: { entry: Pairing }): ReactElement => {
         <div
           ref={bgRef}
           data-a11y-demo
-          className='flex h-12 w-28 items-center justify-center rounded-md border border-bdr-soft'
+          className='border-bdr-soft flex h-12 w-28 items-center justify-center rounded-md border'
           style={{ backgroundColor: `var(${entry.bg.variable})` }}
         >
-          <span ref={fgRef} className='font-semibold text-sm' style={{ color: `var(${entry.fg.variable})` }}>
+          <span ref={fgRef} className='text-sm font-semibold' style={{ color: `var(${entry.fg.variable})` }}>
             Aa Bb Cc
           </span>
         </div>
@@ -393,8 +394,8 @@ const ContrastRow = ({ entry }: { entry: Pairing }): ReactElement => {
           <span className='text-subtle'>on {entry.bg.name}</span>
         </div>
       </td>
-      <td className='py-3 pe-4 align-middle text-subtle text-xs'>{entry.usage}</td>
-      <td className='py-3 pe-4 text-right align-middle font-mono text-main text-sm tabular-nums'>
+      <td className='text-subtle py-3 pe-4 align-middle text-xs'>{entry.usage}</td>
+      <td className='text-main py-3 pe-4 text-right align-middle font-mono text-sm tabular-nums'>
         {ratio != null ? `${ratio.toFixed(2)}:1` : '—'}
       </td>
       <td className='py-3 align-middle'>
@@ -413,13 +414,13 @@ ContrastRow.displayName = 'ContrastRow';
 const ContrastMatrix = ({ title, description, pairs }: PairingGroup): ReactElement => (
   <section className='mb-12'>
     <div className='mb-5'>
-      <h2 className='font-bold text-2xl text-main tracking-tight'>{title}</h2>
-      <p className='mt-2 max-w-2xl text-sm text-subtle leading-relaxed'>{description}</p>
+      <h2 className='text-main text-2xl font-bold tracking-tight'>{title}</h2>
+      <p className='text-subtle mt-2 max-w-2xl text-sm leading-relaxed'>{description}</p>
     </div>
-    <div className='overflow-x-auto rounded-lg border border-bdr-soft bg-surface-neutral'>
+    <div className='border-bdr-soft bg-surface-neutral overflow-x-auto rounded-lg border'>
       <table className='w-full border-collapse px-4 text-left'>
         <thead>
-          <tr className='border-bdr-soft border-b text-subtle text-xs uppercase tracking-wider'>
+          <tr className='border-bdr-soft text-subtle border-b text-xs tracking-wider uppercase'>
             <th scope='col' className='py-2 ps-4 pe-4 font-semibold'>
               Preview
             </th>
@@ -454,30 +455,30 @@ ContrastMatrix.displayName = 'ContrastMatrix';
 
 const SectionDivider = (): ReactElement => (
   <div className='my-16 flex items-center gap-4'>
-    <div className='h-px flex-1 bg-linear-to-r from-transparent via-bdr-soft to-transparent' />
+    <div className='via-bdr-soft h-px flex-1 bg-linear-to-r from-transparent to-transparent' />
   </div>
 );
 
 const PageHeader = ({ title, subtitle, note }: { title: string; subtitle: string; note?: string }): ReactElement => (
-  <header className='mb-12 border-bdr-soft border-b pb-8'>
+  <header className='border-bdr-soft mb-12 border-b pb-8'>
     <div className='mb-6 flex items-start justify-between gap-8'>
       <div className='flex-1'>
-        <h1 className='mb-3 font-bold text-5xl text-main tracking-tight'>{title}</h1>
-        <p className='max-w-3xl text-lg text-subtle leading-relaxed'>{subtitle}</p>
+        <h1 className='text-main mb-3 text-5xl font-bold tracking-tight'>{title}</h1>
+        <p className='text-subtle max-w-3xl text-lg leading-relaxed'>{subtitle}</p>
       </div>
-      <div className='flex items-center gap-2 rounded-full border border-bdr-soft bg-surface-primary px-4 py-2'>
-        <div className='size-2 animate-pulse rounded-full bg-success' />
-        <span className='font-semibold text-subtle text-xs uppercase tracking-wider'>Interactive</span>
+      <div className='border-bdr-soft bg-surface-primary flex items-center gap-2 rounded-full border px-4 py-2'>
+        <div className='bg-success size-2 animate-pulse rounded-full' />
+        <span className='text-subtle text-xs font-semibold tracking-wider uppercase'>Interactive</span>
       </div>
     </div>
     {note && (
-      <div className='relative overflow-hidden rounded-lg bg-surface-primary p-5'>
-        <div className='absolute top-0 right-0 size-32 translate-x-16 -translate-y-16 rounded-full bg-info/10' />
+      <div className='bg-surface-primary relative overflow-hidden rounded-lg p-5'>
+        <div className='bg-info/10 absolute top-0 right-0 size-32 translate-x-16 -translate-y-16 rounded-full' />
         <div className='relative flex gap-3'>
-          <BadgeInfo className='size-6 shrink-0 text-info' />
+          <BadgeInfo className='text-info size-6 shrink-0' />
           <div>
-            <div className='mb-1 font-bold text-main text-sm uppercase tracking-wider'>Important Note</div>
-            <p className='text-sm text-subtle leading-relaxed'>{note}</p>
+            <div className='text-main mb-1 text-sm font-bold tracking-wider uppercase'>Important Note</div>
+            <p className='text-subtle text-sm leading-relaxed'>{note}</p>
           </div>
         </div>
       </div>
@@ -487,7 +488,7 @@ const PageHeader = ({ title, subtitle, note }: { title: string; subtitle: string
 
 export const BasicPalette: Story = {
   render: () => (
-    <div className='min-h-screen bg-surface-neutral p-8 md:p-12'>
+    <div className='bg-surface-neutral min-h-screen p-8 md:p-12'>
       <div className='mx-auto max-w-7xl'>
         <PageHeader
           title='Foundation Palette'
@@ -576,7 +577,7 @@ export const BasicPalette: Story = {
 
 export const SemanticColors: Story = {
   render: () => (
-    <div className='min-h-screen bg-surface-neutral p-8 md:p-12'>
+    <div className='bg-surface-neutral min-h-screen p-8 md:p-12'>
       <div className='mx-auto max-w-7xl'>
         <PageHeader
           title='Semantic Tokens'
@@ -684,7 +685,7 @@ export const SemanticColors: Story = {
 
 export const ComponentColors: Story = {
   render: () => (
-    <div className='min-h-screen bg-surface-neutral p-8 md:p-12'>
+    <div className='bg-surface-neutral min-h-screen p-8 md:p-12'>
       <div className='mx-auto max-w-7xl'>
         <PageHeader
           title='Component Tokens'
@@ -765,7 +766,7 @@ export const ComponentColors: Story = {
 export const ContrastAudit: Story = {
   name: 'Contrast & Accessibility',
   render: () => (
-    <div className='min-h-screen bg-surface-neutral p-8 md:p-12'>
+    <div className='bg-surface-neutral min-h-screen p-8 md:p-12'>
       <div className='mx-auto max-w-7xl'>
         <PageHeader
           title='Contrast & Accessibility'

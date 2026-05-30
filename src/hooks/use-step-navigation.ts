@@ -36,7 +36,7 @@ export function useStepNavigation(config: StepNavigationConfig): UseStepNavigati
     registryVersion: _registryVersion,
   } = config;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: registryVersion triggers revalidation;
+  // oxlint-disable-next-line react-hooks/exhaustive-deps -- registryVersion triggers revalidation;
   const items = useMemo(() => getItems(), [getItems, _registryVersion]);
 
   const onValueChangeAndFocus = useCallback(

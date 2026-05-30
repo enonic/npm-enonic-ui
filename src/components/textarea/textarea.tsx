@@ -9,6 +9,7 @@ import {
   useLayoutEffect,
   useRef,
 } from 'react';
+
 import { FilledOctagonAlert } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap, useComposedRefs } from '@/utils';
@@ -22,16 +23,16 @@ const adjustTextareaHeight = (el: HTMLTextAreaElement): void => {
 const textareaContainerVariants = cva(
   [
     'relative flex overflow-hidden rounded-sm',
-    'border focus-within:border-bdr-solid',
-    'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
+    'focus-within:border-bdr-solid border',
+    'focus-within:ring-ring focus-within:ring-offset-ring-offset focus-within:ring-3 focus-within:ring-offset-3 focus-within:outline-none',
     'transition-highlight',
   ],
   {
     variants: {
       state: {
-        default: 'border-bdr-subtle hover:outline-2 hover:outline-bdr-subtle hover:-outline-offset-1',
+        default: 'border-bdr-subtle hover:outline-bdr-subtle hover:outline-2 hover:-outline-offset-1',
         error:
-          'border-error focus-within:border-error focus-within:ring-error hover:outline-2 hover:outline-error hover:-outline-offset-1',
+          'border-error focus-within:border-error focus-within:ring-error hover:outline-error hover:outline-2 hover:-outline-offset-1',
         processing:
           'input-animated-border border-transparent [--shimmer-band-size:240px] focus-within:border-transparent hover:outline-none',
       },
@@ -39,7 +40,7 @@ const textareaContainerVariants = cva(
         true: 'select-none focus-within:outline-none hover:outline-none',
       },
       readOnly: {
-        true: 'hover:outline-none hover:outline-offset-0',
+        true: 'hover:outline-offset-0 hover:outline-none',
       },
     },
     defaultVariants: {
@@ -159,7 +160,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         {(!!label || !!description) && (
           <div className='mb-2'>
             {label && (
-              <label htmlFor={textareaId} className='block font-semibold text-base text-main'>
+              <label htmlFor={textareaId} className='text-main block text-base font-semibold'>
                 <div className='flex items-center gap-2'>
                   {readOnly && !processing && <LockKeyhole size={16} strokeWidth={2.5} />}
                   {label}
@@ -167,7 +168,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
               </label>
             )}
 
-            {description && <div className='text-sm text-subtle'>{description}</div>}
+            {description && <div className='text-subtle text-sm'>{description}</div>}
           </div>
         )}
         <div
@@ -214,7 +215,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         </div>
 
         {!processing && error && (
-          <div className='mt-2 flex items-center gap-2 text-error leading-5'>
+          <div className='text-error mt-2 flex items-center gap-2 leading-5'>
             <FilledOctagonAlert size={16} />
             {error}
           </div>

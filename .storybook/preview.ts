@@ -1,6 +1,7 @@
 import { withThemeByClassName } from '@storybook/addon-themes';
-import type { Preview } from '@storybook/preact-vite';
 import { themes } from 'storybook/theming';
+
+import type { Preview } from '@storybook/preact-vite';
 
 import '../src/styles/style.css';
 import './story.css';

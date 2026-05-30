@@ -1,7 +1,9 @@
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
-import type { LucideIcon } from '@/types';
+
 import { cn } from '@/utils';
+
+import type { LucideIcon } from '@/types';
 
 function isExternalHref(href: string): boolean {
   try {
@@ -51,9 +53,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
         href={href}
         className={cn(
           'inline-flex items-center gap-1 align-baseline',
-          'font-normal text-sm underline decoration-1 underline-offset-3',
+          'text-sm font-normal underline decoration-1 underline-offset-3',
           'visited:text-link-visited hover:text-main-hover',
-          'focus-visible:bg-main focus-visible:text-rev focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-main',
+          'focus-visible:bg-main focus-visible:text-rev focus-visible:ring-main focus-visible:ring-3 focus-visible:outline-none',
           'data-[tone=inverse]:text-alt data-[tone=inverse]:focus-visible:bg-alt data-[tone=inverse]:focus-visible:text-alt-rev data-[tone=inverse]:focus-visible:ring-alt',
           'transition-highlight',
           className,

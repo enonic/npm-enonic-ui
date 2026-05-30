@@ -13,6 +13,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { Listbox } from '@/components/listbox';
@@ -434,8 +435,8 @@ ComboboxContent.displayName = 'Combobox.Content';
 const comboboxControlVariants = cva(
   [
     'flex items-center gap-2.5',
-    'h-12 rounded-sm border bg-surface-neutral',
-    'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
+    'bg-surface-neutral h-12 rounded-sm border',
+    'focus-within:ring-ring focus-within:ring-offset-ring-offset focus-within:ring-3 focus-within:ring-offset-3 focus-within:outline-none',
     'transition-highlight',
   ],
   {
@@ -449,7 +450,7 @@ const comboboxControlVariants = cva(
         false: null,
       },
       disabled: {
-        true: 'pointer-events-none select-none opacity-30',
+        true: 'pointer-events-none opacity-30 select-none',
         false: null,
       },
     },
@@ -628,7 +629,7 @@ const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElem
       tabIndex={-1}
       iconClassName={cn('transition-transform duration-150', open && 'rotate-180')}
       className={cn(
-        'mr-1.25 shrink-0 rounded-[0.1875rem] text-subtle hover:bg-surface-neutral-hover',
+        'text-subtle hover:bg-surface-neutral-hover mr-1.25 shrink-0 rounded-[0.1875rem]',
         'relative z-0 overflow-visible after:absolute after:-inset-1 after:-z-10 after:rounded-sm after:content-[""]',
         !disabled && 'after:pointer-events-auto',
         'disabled:opacity-100',
@@ -902,7 +903,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
         data-combobox-popup=''
         data-side={isPortalMode ? position?.side : 'bottom'}
         className={cn(
-          'z-50 overflow-hidden rounded-sm bg-surface-neutral shadow-lg ring-1 ring-bdr-subtle',
+          'bg-surface-neutral ring-bdr-subtle z-50 overflow-hidden rounded-sm shadow-lg ring-1',
           'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           !isPortalMode && 'absolute right-0 left-0',
           isHidden && 'pointer-events-none opacity-0',

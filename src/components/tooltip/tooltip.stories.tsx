@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Info } from 'lucide-react';
 import { useState } from 'react';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Button } from '../button';
 import { IconButton } from '../icon-button';

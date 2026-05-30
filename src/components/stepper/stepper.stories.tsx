@@ -1,6 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ChevronLeft, ChevronRight } from 'lucide-preact';
 import { useCallback, useState } from 'react';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+
 import { Button } from '../button';
 import { Dialog } from '../dialog/dialog';
 import { IconButton } from '../icon-button';
@@ -27,7 +29,7 @@ export const Basic: Story = {
   render: () => {
     return (
       <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
-        <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+        <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
           <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
           <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
           <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -45,7 +47,7 @@ export const NavigationWithButtons: Story = {
   render: () => {
     return (
       <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
-        <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+        <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
           <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
           <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
           <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -71,7 +73,7 @@ export const NavigationWithButtonsAndDots: Story = {
   render: () => {
     return (
       <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
-        <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+        <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
           <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
           <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
           <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -106,10 +108,10 @@ export const DialogWithStepper: Story = {
 
         <Dialog.Portal>
           <Dialog.Overlay />
-          <Dialog.Content className='w-120 max-w-auto'>
+          <Dialog.Content className='max-w-auto w-120'>
             <Stepper.Root defaultValue='step1' smallOnEdges maxVisible={5}>
               <Dialog.Body className='flex size-full flex-col gap-4 p-1.5'>
-                <div className='flex h-48 w-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+                <div className='border-bdr-subtle flex h-48 w-full items-center justify-center rounded-md border border-dashed'>
                   <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
                   <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
                   <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -154,7 +156,7 @@ export const ControlledSteps: Story = {
     return (
       <div className='space-y-4'>
         <Stepper.Root value={step} onValueChange={setStep} className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -165,26 +167,26 @@ export const ControlledSteps: Story = {
           <button
             type='button'
             onClick={() => setStep('step1')}
-            className='rounded bg-surface-neutral-hover px-3 py-1 text-sm'
+            className='bg-surface-neutral-hover rounded px-3 py-1 text-sm'
           >
             Select step 1
           </button>
           <button
             type='button'
             onClick={() => setStep('step2')}
-            className='rounded bg-surface-neutral-hover px-3 py-1 text-sm'
+            className='bg-surface-neutral-hover rounded px-3 py-1 text-sm'
           >
             Select step 2
           </button>
           <button
             type='button'
             onClick={() => setStep('step3')}
-            className='rounded bg-surface-neutral-hover px-3 py-1 text-sm'
+            className='bg-surface-neutral-hover rounded px-3 py-1 text-sm'
           >
             Select step 3
           </button>
         </div>
-        <p className='text-center text-sm text-subtle'>
+        <p className='text-subtle text-center text-sm'>
           Current: <span className='font-semibold'>{step}</span>
         </p>
       </div>
@@ -212,7 +214,7 @@ export const ControlledLockedSteps: Story = {
     return (
       <div className='space-y-4'>
         <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             {steps.map(step => (
               <Stepper.Panel key={step} value={step} locked={lockedSteps.includes(step)}>
                 {step} content
@@ -227,7 +229,7 @@ export const ControlledLockedSteps: Story = {
               key={step}
               type='button'
               onClick={() => toggleLock(step)}
-              className='rounded bg-surface-neutral-hover px-3 py-1 text-sm'
+              className='bg-surface-neutral-hover rounded px-3 py-1 text-sm'
             >
               {lockedSteps.includes(step) ? `Unlock ${step}` : `Lock ${step}`}
             </button>
@@ -243,9 +245,9 @@ export const SmallOnEdges: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <p className='text-sm text-subtle'>Smaller dots on edges.</p>
+        <p className='text-subtle text-sm'>Smaller dots on edges.</p>
         <Stepper.Root defaultValue='step5' smallOnEdges maxVisible={5} className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -268,9 +270,9 @@ export const Locked: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <p className='text-sm text-subtle'>Steps 4 and 5 are locked.</p>
+        <p className='text-subtle text-sm'>Steps 4 and 5 are locked.</p>
         <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -293,9 +295,9 @@ export const MaxVisible: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <p className='text-sm text-subtle'>5 out of 10 dots visible at a time, active dot centered.</p>
+        <p className='text-subtle text-sm'>5 out of 10 dots visible at a time, active dot centered.</p>
         <Stepper.Root defaultValue='step4' maxVisible={5} className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -319,9 +321,9 @@ export const EvenMaxVisible: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <p className='text-sm text-subtle'>6 out of 10 dots visible, right side has one more dot.</p>
+        <p className='text-subtle text-sm'>6 out of 10 dots visible, right side has one more dot.</p>
         <Stepper.Root defaultValue='step4' maxVisible={6} className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -345,9 +347,9 @@ export const DisabledDots: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <p className='text-sm text-subtle'>All dots are disabled and non-interactive.</p>
+        <p className='text-subtle text-sm'>All dots are disabled and non-interactive.</p>
         <Stepper.Root defaultValue='step2' className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -366,9 +368,9 @@ export const DotsTooltip: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <p className='text-sm text-subtle'>Dots Tooltip.</p>
+        <p className='text-subtle text-sm'>Dots Tooltip.</p>
         <Stepper.Root defaultValue='step2' className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -393,9 +395,9 @@ export const DotsCustomTooltip: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <p className='text-sm text-subtle'>Custom Dots Tooltip.</p>
+        <p className='text-subtle text-sm'>Custom Dots Tooltip.</p>
         <Stepper.Root defaultValue='step2' className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>
@@ -420,26 +422,26 @@ export const KeyboardNavigation: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <div className='w-96 rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary w-96 rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> - Enter/exit the steps list
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Tab</kbd> - Enter/exit the steps list
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Left/Right</kbd> - Move between and select
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Left/Right</kbd> - Move between and select
               step
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> - Go to first enabled step
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Home</kbd> - Go to first enabled step
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Go to last enabled step
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>End</kbd> - Go to last enabled step
             </li>
           </ul>
         </div>
         <Stepper.Root defaultValue='step1' className='flex size-96 flex-col gap-4'>
-          <div className='flex size-full items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+          <div className='border-bdr-subtle flex size-full items-center justify-center rounded-md border border-dashed'>
             <Stepper.Panel value='step1'>Step 1 content</Stepper.Panel>
             <Stepper.Panel value='step2'>Step 2 content</Stepper.Panel>
             <Stepper.Panel value='step3'>Step 3 content</Stepper.Panel>

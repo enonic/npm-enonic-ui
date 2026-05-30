@@ -115,7 +115,9 @@ export default defineConfig({
       'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true, ignoreVoidOperator: true }],
       'typescript/no-mixed-enums': 'error',
 
-      'import/no-duplicates': 'error',
+      // `react` and `react-dom` both alias to `preact/compat` (tsconfig paths), so the resolver
+      // treats them as one module and false-flags every file importing both. Off for Preact compat.
+      'import/no-duplicates': 'off',
       'typescript/adjacent-overload-signatures': 'error',
       'typescript/ban-tslint-comment': 'error',
       'typescript/class-literal-property-style': 'error',
@@ -137,6 +139,8 @@ export default defineConfig({
         rules: {
           'react/display-name': 'off',
           'typescript/explicit-function-return-type': 'off',
+          // Storybook `render`/`play` arrows call hooks but aren't statically recognized as components.
+          'react-hooks/rules-of-hooks': 'off',
         },
       },
       {

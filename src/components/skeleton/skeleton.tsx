@@ -8,6 +8,7 @@ import {
   useLayoutEffect,
   useRef,
 } from 'react';
+
 import { cn } from '@/utils';
 
 const skeletonVariants = cva('bg-muted', {
@@ -73,6 +74,7 @@ const SkeletonGroup = ({ className, children, ...props }: SkeletonGroupProps): R
     if (group == null || overlay == null) return;
 
     const observedChildren = new Set<HTMLElement>();
+    // oxlint-disable-next-line prefer-const -- forward-declared; the ResizeObserver callback closes over it before assignment
     let resizeObserver: ResizeObserver;
 
     const sync = (): void => {
@@ -138,7 +140,7 @@ const SkeletonGroup = ({ className, children, ...props }: SkeletonGroupProps): R
         <div
           ref={overlayRef}
           aria-hidden='true'
-          className='pointer-events-none absolute inset-0 animate-skeleton-shimmer'
+          className='animate-skeleton-shimmer pointer-events-none absolute inset-0'
         />
       </div>
     </SkeletonContext.Provider>

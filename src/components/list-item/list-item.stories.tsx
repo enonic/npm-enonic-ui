@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   Bone,
   ChevronDown,
@@ -20,9 +19,12 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useState } from 'preact/hooks';
+
 import { Checkbox, type CheckboxChecked } from '@/components/checkbox';
 import { IconButton } from '@/components/icon-button';
 import { cn } from '@/utils';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { ListItem } from './list-item';
 
@@ -75,7 +77,7 @@ export const Selection: Story = {
 
     return (
       <div className='w-80 space-y-1'>
-        <h3 className='mb-3 font-semibold text-sm text-subtle'>Click to select items</h3>
+        <h3 className='text-subtle mb-3 text-sm font-semibold'>Click to select items</h3>
         {items.map((item, index) => (
           <ListItem
             key={item.label}
@@ -95,7 +97,7 @@ export const ContentVariations: Story = {
   name: 'Features / Content Variations',
   render: () => (
     <div className='w-80 space-y-2'>
-      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label Only</h3>
+      <h3 className='text-subtle mb-2 text-sm font-semibold'>Label Only</h3>
       <ListItem>
         <ListItem.DefaultContent label='Simple item' />
       </ListItem>
@@ -106,7 +108,7 @@ export const ContentVariations: Story = {
         <ListItem.DefaultContent label='Selected simple item' />
       </ListItem>
 
-      <h3 className='mt-4 mb-2 font-semibold text-sm text-subtle'>Label + Description</h3>
+      <h3 className='text-subtle mt-4 mb-2 text-sm font-semibold'>Label + Description</h3>
       <ListItem>
         <ListItem.DefaultContent label='Spreadsheet.xlsx' description='Financial Q4 report' />
       </ListItem>
@@ -125,7 +127,7 @@ export const ContentVariations: Story = {
         />
       </ListItem>
 
-      <h3 className='mt-4 mb-2 font-semibold text-sm text-subtle'>Label + Metadata</h3>
+      <h3 className='text-subtle mt-4 mb-2 text-sm font-semibold'>Label + Metadata</h3>
       <ListItem>
         <ListItem.DefaultContent label='Archive.zip' metadata='15.3 MB • ZIP Archive' />
       </ListItem>
@@ -136,7 +138,7 @@ export const ContentVariations: Story = {
         <ListItem.DefaultContent icon={<Video className='size-6' />} label='Video.mp4' metadata='156 MB • MP4 Video' />
       </ListItem>
 
-      <h3 className='mt-4 mb-2 font-semibold text-sm text-subtle'>Full Content</h3>
+      <h3 className='text-subtle mt-4 mb-2 text-sm font-semibold'>Full Content</h3>
       <ListItem>
         <ListItem.DefaultContent
           label='Design System'
@@ -180,7 +182,7 @@ export const WithIcons: Story = {
 
     return (
       <div className='w-80 space-y-2'>
-        <h3 className='mb-2 font-semibold text-sm text-subtle'>File Browser Example</h3>
+        <h3 className='text-subtle mb-2 text-sm font-semibold'>File Browser Example</h3>
 
         <ListItem>
           <ListItem.Left>
@@ -238,7 +240,7 @@ export const CustomContent: Story = {
   name: 'Features / Custom Content',
   render: () => (
     <div className='w-80 space-y-2'>
-      <h3 className='mb-2 font-semibold text-sm text-subtle'>Custom Styled Content</h3>
+      <h3 className='text-subtle mb-2 text-sm font-semibold'>Custom Styled Content</h3>
 
       <ListItem className='rounded-xl p-1.5 outline-1 outline-purple-200'>
         <ListItem.Content className='rounded-lg bg-linear-to-r from-blue-50 to-purple-50 p-2'>
@@ -248,7 +250,7 @@ export const CustomContent: Story = {
             </div>
             <div>
               <h3 className='font-bold text-blue-900'>Argus</h3>
-              <p className='text-blue-700 text-sm'>Good boy</p>
+              <p className='text-sm text-blue-700'>Good boy</p>
             </div>
             <div className='ml-auto flex gap-2'>
               <Bone className='size-5 text-slate-400' />

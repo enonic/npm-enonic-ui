@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import path from 'node:path';
+
 import type { StorybookConfig } from '@storybook/preact-vite';
 
 const localRequire = createRequire(import.meta.url);

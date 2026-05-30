@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { IconButton, type IconButtonProps } from '@/components/icon-button';
 import {
   TreeListRowContent,
@@ -31,10 +32,11 @@ import {
 import { useControlledState, useControlledStateWithNull, useVirtualizedKeyboardNavigation } from '@/hooks';
 import { CircleDisc, FilledSquareCheck } from '@/icons';
 import { usePrefixedId } from '@/providers';
-import type { RowClickSelection } from '@/providers/tree-list-provider';
 import { useVirtualizedTreeList, VirtualizedTreeListProvider } from '@/providers/virtualized-tree-list-provider';
-import type { ItemInteraction, LucideIcon } from '@/types';
 import { cn } from '@/utils';
+
+import type { RowClickSelection } from '@/providers/tree-list-provider';
+import type { ItemInteraction, LucideIcon } from '@/types';
 
 //
 // * Types
@@ -244,7 +246,7 @@ export type VirtualizedTreeListRootProps<TData = unknown> = {
 //
 
 const VirtualizedTreeListRoot = forwardRef(
-  <TData = unknown>(
+  <TData = unknown,>(
     {
       items,
       selection: controlledSelection,
@@ -447,7 +449,6 @@ const VirtualizedTreeListRoot = forwardRef(
     }, [actionModeRowId, baseId]);
 
     // State invalidation: clean up selection when items change
-    // biome-ignore lint/correctness/useExhaustiveDependencies: Only run when items array identity changes
     useEffect(() => {
       const currentIds = new Set(items.map(item => item.id));
 
@@ -483,6 +484,7 @@ const VirtualizedTreeListRoot = forwardRef(
           selectionAnchorRef.current = null;
         }
       }
+      // oxlint-disable-next-line react-hooks/exhaustive-deps -- only run when items array identity changes
     }, [items, preserveFilteredSelection]);
 
     const findNextEnabledIndex = useCallback(
@@ -895,7 +897,7 @@ const VirtualizedTreeListRoot = forwardRef(
           }}
           className={cn(
             // Soft focus ring on container (like Toolbar)
-            'outline-none focus-within:ring-2 focus-within:ring-ring/10 focus-within:ring-inset',
+            'focus-within:ring-ring/10 outline-none focus-within:ring-2 focus-within:ring-inset',
             className,
           )}
           onPointerDown={handleWrapperPointerDown}
@@ -969,7 +971,7 @@ const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRow
             disabled,
             selectable: selectable && !disabled,
           }),
-          showFocusRing && ['ring-3 ring-ring-offset ring-inset', 'ring-offset-3 ring-offset-ring'],
+          showFocusRing && ['ring-ring-offset ring-3 ring-inset', 'ring-offset-ring ring-offset-3'],
           className,
         )}
         {...props}
@@ -1062,7 +1064,7 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
         title={expanded ? 'Collapse' : 'Expand'}
         tabIndex={-1}
         className={cn(
-          'size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent active:text-main',
+          'active:text-main size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent',
           selected && 'text-alt hover:text-alt active:text-alt',
           expanded && 'rotate-90',
           className,

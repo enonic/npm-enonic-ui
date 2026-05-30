@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { IconButton } from '@/components/icon-button';
 import { useControlledState } from '@/hooks';
 import { type SearchFieldContextValue, SearchFieldProvider, usePrefixedId, useSearchField } from '@/providers';
@@ -71,13 +72,13 @@ const SearchFieldRoot = ({
         className={cn(
           'relative flex items-center gap-2.5 overflow-hidden rounded-sm',
           'h-11.5 px-4.5 py-3',
-          'border border-bdr-subtle',
-          'hover:outline-2 hover:outline-bdr-subtle',
-          'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
+          'border-bdr-subtle border',
+          'hover:outline-bdr-subtle hover:outline-2',
+          'focus-within:ring-ring focus-within:ring-offset-ring-offset focus-within:ring-3 focus-within:ring-offset-3 focus-within:outline-none',
           'transition-highlight',
           readOnly ? 'bg-surface-primary' : 'bg-surface-neutral',
-          readOnly && 'hover:outline-none hover:outline-offset-0',
-          disabled && 'pointer-events-none select-none opacity-30 focus-within:outline-none hover:outline-none',
+          readOnly && 'hover:outline-offset-0 hover:outline-none',
+          disabled && 'pointer-events-none opacity-30 select-none focus-within:outline-none hover:outline-none',
           className,
         )}
         {...props}
@@ -101,7 +102,7 @@ const SearchFieldIcon = ({ className, ...props }: SearchFieldIconProps): ReactEl
   return (
     <Search
       data-component='SearchField.Icon'
-      className={cn('flex size-5.5 shrink-0 items-center justify-center text-subtle', className)}
+      className={cn('text-subtle flex size-5.5 shrink-0 items-center justify-center', className)}
       strokeWidth={1.5}
       {...props}
     />
@@ -178,7 +179,7 @@ const SearchFieldClear = ({ className, ...props }: SearchFieldClearProps): React
   return (
     <IconButton
       data-component='SearchField.Clear'
-      className={cn('-mx-1.5 flex size-7 shrink-0 items-center justify-center text-subtle', className)}
+      className={cn('text-subtle -mx-1.5 flex size-7 shrink-0 items-center justify-center', className)}
       icon={X}
       title={clearLabel}
       onClick={handleClear}

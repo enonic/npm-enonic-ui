@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+
 import { type AvatarContextValue, type AvatarImageLoadingStatus, AvatarProvider, useAvatar } from '@/providers';
 import { cn } from '@/utils';
 
@@ -169,7 +170,7 @@ const AvatarFallback = forwardRef<HTMLSpanElement, AvatarFallbackProps>(
         ref={ref}
         className={cn(
           'flex h-full w-full items-center justify-center',
-          'cursor-default bg-avatar-fallback font-medium text-alt uppercase',
+          'bg-avatar-fallback text-alt cursor-default font-medium uppercase',
           className,
         )}
         {...props}

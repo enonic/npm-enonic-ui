@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ChevronDown, Download, Loader2, Monitor, RefreshCw, Save, Share, Trash2, Upload } from 'lucide-react';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Button, type ButtonProps } from './button';
 
@@ -79,7 +80,7 @@ export const AllVariantsComparison: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>All Variants - Medium Size</h3>
+        <h3 className='mb-3 text-sm font-medium'>All Variants - Medium Size</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Text' variant='text' />
           <Button label='Filled' variant='filled' />
@@ -88,7 +89,7 @@ export const AllVariantsComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>All Variants - Disabled</h3>
+        <h3 className='mb-3 text-sm font-medium'>All Variants - Disabled</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Text' variant='text' disabled />
           <Button label='Filled' variant='filled' disabled />
@@ -104,7 +105,7 @@ export const DisabledStates: Story = {
   name: 'States / Disabled',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>All Variants - Disabled</h3>
+      <h3 className='mb-3 text-sm font-medium'>All Variants - Disabled</h3>
       <div className='flex flex-wrap gap-3'>
         <Button label='Text' variant='text' disabled />
         <Button label='Filled' variant='filled' disabled />
@@ -142,7 +143,7 @@ export const TextSizes: Story = {
   name: 'Features / Text Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Text Variant - All Sizes</h3>
+      <h3 className='mb-3 text-sm font-medium'>Text Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <Button label='Small' variant='text' size='sm' />
         <Button label='Medium' variant='text' size='md' />
@@ -156,7 +157,7 @@ export const FilledSizes: Story = {
   name: 'Features / Filled Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Filled Variant - All Sizes</h3>
+      <h3 className='mb-3 text-sm font-medium'>Filled Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <Button label='Small' variant='filled' size='sm' />
         <Button label='Medium' variant='filled' size='md' />
@@ -170,7 +171,7 @@ export const SolidSizes: Story = {
   name: 'Features / Solid Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Solid Variant - All Sizes</h3>
+      <h3 className='mb-3 text-sm font-medium'>Solid Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <Button label='Small' variant='solid' size='sm' />
         <Button label='Medium' variant='solid' size='md' />
@@ -184,7 +185,7 @@ export const OutlineSizes: Story = {
   name: 'Features / Outline Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Outline Variant - All Sizes</h3>
+      <h3 className='mb-3 text-sm font-medium'>Outline Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <Button label='Small' variant='outline' size='sm' />
         <Button label='Medium' variant='outline' size='md' />
@@ -199,7 +200,7 @@ export const WithIcons: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Buttons with Left Icons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Buttons with Left Icons</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Monitor' variant='text' startIcon={Monitor} />
           <Button label='Save' variant='filled' startIcon={Save} />
@@ -208,7 +209,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Buttons with Right Icons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Buttons with Right Icons</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Options' variant='text' endIcon={ChevronDown} />
           <Button label='More Actions' variant='filled' endIcon={ChevronDown} />
@@ -217,7 +218,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Buttons with Both Icons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Buttons with Both Icons</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Export' variant='text' startIcon={Download} endIcon={ChevronDown} />
           <Button label='Import' variant='filled' startIcon={Upload} endIcon={ChevronDown} />
@@ -226,7 +227,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Icon Button Sizes</h3>
+        <h3 className='mb-3 text-sm font-medium'>Icon Button Sizes</h3>
         <div className='flex items-center gap-3'>
           <Button label='Small' variant='filled' size='sm' startIcon={Monitor} endIcon={ChevronDown} />
           <Button label='Medium' variant='filled' size='md' startIcon={Monitor} endIcon={ChevronDown} />
@@ -242,14 +243,14 @@ export const IconClasses: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Animated Start Icon (Spin)</h3>
+        <h3 className='mb-3 text-sm font-medium'>Animated Start Icon (Spin)</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Loading' variant='solid' startIcon={Loader2} startIconClassName='animate-spin' />
           <Button label='Syncing' variant='filled' startIcon={RefreshCw} startIconClassName='animate-spin' />
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Animated End Icon (Rotate)</h3>
+        <h3 className='mb-3 text-sm font-medium'>Animated End Icon (Rotate)</h3>
         <div className='flex flex-wrap gap-3'>
           <Button label='Closed' variant='outline' endIcon={ChevronDown} />
           <Button

@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   AlignCenter,
   AlignLeft,
@@ -17,11 +16,14 @@ import {
   Undo,
 } from 'lucide-react';
 import { useState } from 'react';
+
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
 import { Menu } from '@/components/menu';
 import { Toggle } from '@/components/toggle';
 import { Tooltip } from '@/components/tooltip';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Toolbar } from './toolbar';
 
@@ -80,13 +82,13 @@ export const WithSeparators: Story = {
   name: 'Examples / With Separators',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Separators provide visual grouping between toolbar items. They don&apos;t participate in keyboard navigation.
       </div>
       <Toolbar>
         <Toolbar.Container
           aria-label='Document actions'
-          className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+          className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
         >
           <Toolbar.Item asChild>
             <IconButton variant='outline' size='sm' icon={Save} aria-label='Save' />
@@ -122,13 +124,13 @@ export const ComplexComposition: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Complex toolbar mixing buttons, Toggle component, ToggleGroup, and dropdown menu with radio items.
         </div>
         <Toolbar>
           <Toolbar.Container
             aria-label='Text editing toolbar'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Toolbar.Item asChild>
               <Button variant='outline' size='sm'>
@@ -194,13 +196,13 @@ export const DisabledItems: Story = {
   name: 'States / Disabled Items',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Disabled items are skipped during keyboard navigation but remain visible and accessible to screen readers.
       </div>
       <Toolbar>
         <Toolbar.Container
           aria-label='Actions'
-          className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+          className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
         >
           <Toolbar.Item asChild>
             <IconButton variant='outline' size='sm' icon={Scissors} aria-label='Cut' />
@@ -231,13 +233,13 @@ export const ToggleGroupSingle: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Single selection toggle group allows only one item to be selected at a time.
         </div>
         <Toolbar>
           <Toolbar.Container
             aria-label='Text alignment'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Toolbar.ToggleGroup type='single' value={align} onValueChange={setAlign}>
               <Toolbar.ToggleItem value='left' aria-label='Align left'>
@@ -265,13 +267,13 @@ export const ToggleGroupMixed: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Mix of single and multiple selection toggle groups in one toolbar. Test keyboard navigation between groups.
         </div>
         <Toolbar>
           <Toolbar.Container
             aria-label='Text formatting'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Toolbar.ToggleGroup type='multiple' value={formatting} onValueChange={setFormatting}>
               <Toolbar.ToggleItem value='bold' aria-label='Bold'>
@@ -313,14 +315,14 @@ export const AllItemsWithTooltips: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Complete toolbar demonstrating all item types with tooltips: buttons, Toggle, ToggleGroup, and Menu. Hover
           over items to see tooltips.
         </div>
         <Toolbar>
           <Toolbar.Container
             aria-label='Full toolbar'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Tooltip value='Search' asChild>
               <Toolbar.Item asChild>
@@ -418,14 +420,14 @@ export const NoLoop: Story = {
   name: 'Behavior / No Loop',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-80 text-sm text-subtle'>
-        With <code className='rounded bg-surface-neutral px-1.5 py-0.5 font-mono text-xs'>loop=false</code>, arrow key
+      <div className='text-subtle max-w-80 text-sm'>
+        With <code className='bg-surface-neutral rounded px-1.5 py-0.5 font-mono text-xs'>loop=false</code>, arrow key
         navigation stops at first/last items. Press <kbd>←</kbd> or <kbd>→</kbd> to test.
       </div>
       <Toolbar loop={false}>
         <Toolbar.Container
           aria-label='No loop demo'
-          className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+          className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
         >
           <Toolbar.Item asChild>
             <IconButton variant='outline' size='sm' icon={Scissors} aria-label='First (stops here)' />
@@ -449,14 +451,14 @@ export const DynamicDisableStates: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Test keyboard navigation with dynamically changing disabled states. Toggle between modes to see how focus and
           navigation adapt. Press <kbd>←</kbd> or <kbd>→</kbd> to test keyboard navigation.
         </div>
         <Toolbar>
           <Toolbar.Container
             aria-label='Dynamic disable demo'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Toolbar.Item asChild disabled={disableMode === 'all-disabled' || disableMode === 'some-disabled'}>
               <Button
@@ -498,11 +500,11 @@ export const DynamicDisableStates: Story = {
           </Toolbar.Container>
         </Toolbar>
         <div className='mt-4 flex flex-col items-center gap-y-2'>
-          <div className='font-semibold text-sm'>Disable Mode</div>
+          <div className='text-sm font-semibold'>Disable Mode</div>
           <Toolbar>
             <Toolbar.Container
               aria-label='Disable mode selector'
-              className='rounded-xl border border-bdr-subtle bg-surface-neutral p-2 shadow-sm'
+              className='border-bdr-subtle bg-surface-neutral rounded-xl border p-2 shadow-sm'
             >
               <Toolbar.ToggleGroup
                 type='single'

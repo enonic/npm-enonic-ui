@@ -18,6 +18,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import { IconButton } from '@/components/icon-button';
 import { Selector } from '@/components/selector';
 import {
@@ -287,18 +288,18 @@ const DatePickerDay = forwardRef<HTMLButtonElement, DatePickerDayProps>(
         type='button'
         role={role ?? 'gridcell'}
         className={cn(
-          'flex size-7.5 items-center justify-center rounded-sm font-medium text-sm transition-highlight',
+          'transition-highlight flex size-7.5 items-center justify-center rounded-sm text-sm font-medium',
           !selected && !disabled && 'data-[active=true]:bg-surface-neutral-hover',
           'relative z-0 after:absolute after:-inset-x-1.25 after:-inset-y-1 after:-z-10 after:rounded-sm after:content-[""]',
           'after:pointer-events-auto',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+          'focus-visible:ring-ring focus-visible:ring-3 focus-visible:outline-none',
+          'focus-visible:ring-offset-ring-offset focus-visible:ring-offset-3',
           selected && 'bg-surface-selected text-alt hover:bg-surface-selected-hover',
           !selected && !disabled && 'hover:bg-surface-neutral-hover',
           !disabled && 'cursor-pointer',
           outside && !selected && 'text-subtle',
           isToday && 'font-bold',
-          isToday && !selected && 'border-[0.1rem] border-bdr-strong',
+          isToday && !selected && 'border-bdr-strong border-[0.1rem]',
           disabled && 'cursor-not-allowed opacity-30',
           className,
         )}
@@ -438,7 +439,7 @@ const DatePickerGrid = ({
       aria-rowcount={weeks.length}
       className={cn(
         'grid grid-cols-7 place-items-center gap-x-1.5 gap-y-1 rounded-sm outline-none',
-        'focus-visible:ring-2 focus-visible:ring-ring/10 focus-visible:ring-offset-2',
+        'focus-visible:ring-ring/10 focus-visible:ring-2 focus-visible:ring-offset-2',
         className,
       )}
       onKeyDown={handleKeyDown}
@@ -502,7 +503,7 @@ const DatePickerWeekdays = ({ className, ...props }: DatePickerWeekdaysProps): R
   return (
     <div data-component='DatePicker.Weekdays' className={cn('grid grid-cols-7 gap-1', className)} {...props}>
       {labels.map(label => (
-        <div key={label} className='flex items-center justify-center font-semibold text-subtle text-xs'>
+        <div key={label} className='text-subtle flex items-center justify-center text-xs font-semibold'>
           {label}
         </div>
       ))}
@@ -614,7 +615,7 @@ const DatePickerMonthSelect = forwardRef<HTMLButtonElement, DatePickerMonthSelec
           data-component='DatePicker.MonthSelect'
           ref={composedRefs}
           className={cn(
-            'h-10 gap-1 border-bdr-subtle bg-btn-primary px-3 font-normal text-sm hover:bg-btn-primary-hover',
+            'border-bdr-subtle bg-btn-primary hover:bg-btn-primary-hover h-10 gap-1 px-3 text-sm font-normal',
             className,
           )}
           aria-label='Month'
@@ -757,7 +758,7 @@ const DatePickerYearSelect = forwardRef<HTMLButtonElement, DatePickerYearSelectP
           data-component='DatePicker.YearSelect'
           ref={composedRefs}
           className={cn(
-            'h-10 gap-1 border-bdr-subtle bg-btn-primary px-3 font-normal text-sm hover:bg-btn-primary-hover',
+            'border-bdr-subtle bg-btn-primary hover:bg-btn-primary-hover h-10 gap-1 px-3 text-sm font-normal',
             className,
           )}
           aria-label='Year'
@@ -1077,7 +1078,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
         data-state={open ? 'open' : 'closed'}
         data-side={side}
         className={cn(
-          'fixed z-40 flex w-fit flex-col gap-4 rounded-sm border border-bdr-subtle bg-surface-neutral p-5',
+          'border-bdr-subtle bg-surface-neutral fixed z-40 flex w-fit flex-col gap-4 rounded-sm border p-5',
           'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
           'shadow-lg outline-none',
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
@@ -1238,9 +1239,9 @@ const DatePickerNativeInput = forwardRef<HTMLInputElement, DatePickerNativeInput
         ref={ref}
         type='date'
         className={cn(
-          'h-12 w-full rounded-sm border border-bdr-subtle bg-surface-neutral px-4 text-base text-main',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+          'border-bdr-subtle bg-surface-neutral text-main h-12 w-full rounded-sm border px-4 text-base',
+          'focus-visible:ring-ring focus-visible:ring-3 focus-visible:outline-none',
+          'focus-visible:ring-offset-ring-offset focus-visible:ring-offset-3',
           className,
         )}
         aria-label={props['aria-label'] ?? 'Select date'}
@@ -1529,7 +1530,7 @@ const DatePickerRoot = ({
         className={
           children
             ? className
-            : cn('flex w-fit flex-col gap-3 rounded-sm border border-bdr-subtle bg-surface-neutral p-3', className)
+            : cn('border-bdr-subtle bg-surface-neutral flex w-fit flex-col gap-3 rounded-sm border p-3', className)
         }
         onKeyDown={shouldUseNative ? onKeyDown : handleInlineKeyDown}
         {...props}

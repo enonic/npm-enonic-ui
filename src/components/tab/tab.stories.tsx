@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Bell, MessageSquare, Settings, User } from 'lucide-react';
 import { useState } from 'react';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Tab, type TabRootProps } from './tab';
 
@@ -39,13 +40,13 @@ export const Basic: Story = {
         <Tab.Trigger value='settings'>Settings</Tab.Trigger>
       </Tab.List>
       <Tab.Content value='account' className='p-4'>
-        <p className='text-sm text-subtle'>Manage your account settings and preferences.</p>
+        <p className='text-subtle text-sm'>Manage your account settings and preferences.</p>
       </Tab.Content>
       <Tab.Content value='password' className='p-4'>
-        <p className='text-sm text-subtle'>Change your password and security settings.</p>
+        <p className='text-subtle text-sm'>Change your password and security settings.</p>
       </Tab.Content>
       <Tab.Content value='settings' className='p-4'>
-        <p className='text-sm text-subtle'>Configure application settings.</p>
+        <p className='text-subtle text-sm'>Configure application settings.</p>
       </Tab.Content>
     </Tab.Root>
   ),
@@ -67,13 +68,13 @@ export const WithIcons: Story = {
         </Tab.DefaultTrigger>
       </Tab.List>
       <Tab.Content value='profile' className='p-4'>
-        <p className='text-sm text-subtle'>Profile content</p>
+        <p className='text-subtle text-sm'>Profile content</p>
       </Tab.Content>
       <Tab.Content value='messages' className='p-4'>
-        <p className='text-sm text-subtle'>Messages content</p>
+        <p className='text-subtle text-sm'>Messages content</p>
       </Tab.Content>
       <Tab.Content value='notifications' className='p-4'>
-        <p className='text-sm text-subtle'>Notifications content</p>
+        <p className='text-subtle text-sm'>Notifications content</p>
       </Tab.Content>
     </Tab.Root>
   ),
@@ -95,13 +96,13 @@ export const WithCount: Story = {
         </Tab.DefaultTrigger>
       </Tab.List>
       <Tab.Content value='tab1' className='p-4'>
-        <p className='text-sm text-subtle'>Tab 1 content with 7 items</p>
+        <p className='text-subtle text-sm'>Tab 1 content with 7 items</p>
       </Tab.Content>
       <Tab.Content value='tab2' className='p-4'>
-        <p className='text-sm text-subtle'>Tab 2 content with 24 items</p>
+        <p className='text-subtle text-sm'>Tab 2 content with 24 items</p>
       </Tab.Content>
       <Tab.Content value='tab3' className='p-4'>
-        <p className='text-sm text-subtle'>Tab 3 content with 99+ items</p>
+        <p className='text-subtle text-sm'>Tab 3 content with 99+ items</p>
       </Tab.Content>
     </Tab.Root>
   ),
@@ -121,13 +122,13 @@ export const LongText: Story = {
         </Tab.DefaultTrigger>
       </Tab.List>
       <Tab.Content value='text' className='p-4'>
-        <p className='text-sm text-subtle'>Text only tab content</p>
+        <p className='text-subtle text-sm'>Text only tab content</p>
       </Tab.Content>
       <Tab.Content value='icon-left' className='p-4'>
-        <p className='text-sm text-subtle'>Icon on left tab content</p>
+        <p className='text-subtle text-sm'>Icon on left tab content</p>
       </Tab.Content>
       <Tab.Content value='icon-count' className='p-4'>
-        <p className='text-sm text-subtle'>Icon and count tab content</p>
+        <p className='text-subtle text-sm'>Icon and count tab content</p>
       </Tab.Content>
     </Tab.Root>
   ),
@@ -149,25 +150,25 @@ export const Overflow: Story = {
         </Tab.List>
       </Tab.ListOverflow>
       <Tab.Content value='overview' className='p-4'>
-        <p className='text-sm text-subtle'>Overview content</p>
+        <p className='text-subtle text-sm'>Overview content</p>
       </Tab.Content>
       <Tab.Content value='activity' className='p-4'>
-        <p className='text-sm text-subtle'>Activity content</p>
+        <p className='text-subtle text-sm'>Activity content</p>
       </Tab.Content>
       <Tab.Content value='analytics' className='p-4'>
-        <p className='text-sm text-subtle'>Analytics content</p>
+        <p className='text-subtle text-sm'>Analytics content</p>
       </Tab.Content>
       <Tab.Content value='notifications' className='p-4'>
-        <p className='text-sm text-subtle'>Notifications content</p>
+        <p className='text-subtle text-sm'>Notifications content</p>
       </Tab.Content>
       <Tab.Content value='billing' className='p-4'>
-        <p className='text-sm text-subtle'>Billing content</p>
+        <p className='text-subtle text-sm'>Billing content</p>
       </Tab.Content>
       <Tab.Content value='team' className='p-4'>
-        <p className='text-sm text-subtle'>Team content</p>
+        <p className='text-subtle text-sm'>Team content</p>
       </Tab.Content>
       <Tab.Content value='integrations' className='p-4'>
-        <p className='text-sm text-subtle'>Integrations content</p>
+        <p className='text-subtle text-sm'>Integrations content</p>
       </Tab.Content>
     </Tab.Root>
   ),
@@ -176,7 +177,7 @@ export const Overflow: Story = {
 export const OverflowResizable: Story = {
   name: 'Examples / Overflow (Resizable)',
   render: () => (
-    <div className='w-120 resize-x overflow-auto rounded border border-border p-4'>
+    <div className='border-border w-120 resize-x overflow-auto rounded border p-4'>
       <Tab.Root defaultValue='overview'>
         <Tab.ListOverflow>
           <Tab.List aria-label='Resizable overflow tabs'>
@@ -190,25 +191,25 @@ export const OverflowResizable: Story = {
           </Tab.List>
         </Tab.ListOverflow>
         <Tab.Content value='overview' className='p-4'>
-          <p className='text-sm text-subtle'>Overview content</p>
+          <p className='text-subtle text-sm'>Overview content</p>
         </Tab.Content>
         <Tab.Content value='activity' className='p-4'>
-          <p className='text-sm text-subtle'>Activity content</p>
+          <p className='text-subtle text-sm'>Activity content</p>
         </Tab.Content>
         <Tab.Content value='analytics' className='p-4'>
-          <p className='text-sm text-subtle'>Analytics content</p>
+          <p className='text-subtle text-sm'>Analytics content</p>
         </Tab.Content>
         <Tab.Content value='notifications' className='p-4'>
-          <p className='text-sm text-subtle'>Notifications content</p>
+          <p className='text-subtle text-sm'>Notifications content</p>
         </Tab.Content>
         <Tab.Content value='billing' className='p-4'>
-          <p className='text-sm text-subtle'>Billing content</p>
+          <p className='text-subtle text-sm'>Billing content</p>
         </Tab.Content>
         <Tab.Content value='team' className='p-4'>
-          <p className='text-sm text-subtle'>Team content</p>
+          <p className='text-subtle text-sm'>Team content</p>
         </Tab.Content>
         <Tab.Content value='integrations' className='p-4'>
-          <p className='text-sm text-subtle'>Integrations content</p>
+          <p className='text-subtle text-sm'>Integrations content</p>
         </Tab.Content>
       </Tab.Root>
     </div>
@@ -220,7 +221,7 @@ export const OverflowMinWidth: Story = {
   render: () => (
     <div className='space-y-8'>
       <div>
-        <p className='mb-2 text-sm text-subtle'>Default (6.25rem) — short labels get padded out</p>
+        <p className='text-subtle mb-2 text-sm'>Default (6.25rem) — short labels get padded out</p>
         <Tab.Root defaultValue='a' className='w-96'>
           <Tab.ListOverflow>
             <Tab.List aria-label='Default min width'>
@@ -240,7 +241,7 @@ export const OverflowMinWidth: Story = {
       </div>
 
       <div>
-        <p className='mb-2 text-sm text-subtle'>Narrow (3rem) — tabs shrink closer to content</p>
+        <p className='text-subtle mb-2 text-sm'>Narrow (3rem) — tabs shrink closer to content</p>
         <Tab.Root defaultValue='a' className='w-96'>
           <Tab.ListOverflow minTabWidth='3rem'>
             <Tab.List aria-label='Narrow min width'>
@@ -260,7 +261,7 @@ export const OverflowMinWidth: Story = {
       </div>
 
       <div>
-        <p className='mb-2 text-sm text-subtle'>Wide (10rem) — tabs are wider, long labels fit</p>
+        <p className='text-subtle mb-2 text-sm'>Wide (10rem) — tabs are wider, long labels fit</p>
         <Tab.Root defaultValue='overview' className='w-96'>
           <Tab.ListOverflow minTabWidth='10rem'>
             <Tab.List aria-label='Wide min width'>
@@ -281,7 +282,7 @@ export const OverflowFewTabs: Story = {
   name: 'Examples / Overflow (No Overflow)',
   render: () => (
     <div className='w-96 space-y-4'>
-      <p className='text-sm text-subtle'>ListOverflow wrapper is present but tabs fit — no arrow buttons are shown.</p>
+      <p className='text-subtle text-sm'>ListOverflow wrapper is present but tabs fit — no arrow buttons are shown.</p>
       <Tab.Root defaultValue='tab1'>
         <Tab.ListOverflow>
           <Tab.List aria-label='Few tabs'>
@@ -291,13 +292,13 @@ export const OverflowFewTabs: Story = {
           </Tab.List>
         </Tab.ListOverflow>
         <Tab.Content value='tab1' className='p-4'>
-          <p className='text-sm text-subtle'>Tab 1 content</p>
+          <p className='text-subtle text-sm'>Tab 1 content</p>
         </Tab.Content>
         <Tab.Content value='tab2' className='p-4'>
-          <p className='text-sm text-subtle'>Tab 2 content</p>
+          <p className='text-subtle text-sm'>Tab 2 content</p>
         </Tab.Content>
         <Tab.Content value='tab3' className='p-4'>
-          <p className='text-sm text-subtle'>Tab 3 content</p>
+          <p className='text-subtle text-sm'>Tab 3 content</p>
         </Tab.Content>
       </Tab.Root>
     </div>
@@ -320,13 +321,13 @@ export const WithError: Story = {
         </Tab.DefaultTrigger>
       </Tab.List>
       <Tab.Content value='tab1' className='p-4'>
-        <p className='text-sm text-subtle'>Text only tab content</p>
+        <p className='text-subtle text-sm'>Text only tab content</p>
       </Tab.Content>
       <Tab.Content value='tab2' className='p-4'>
-        <p className='text-sm text-subtle'>Tab with icon content</p>
+        <p className='text-subtle text-sm'>Tab with icon content</p>
       </Tab.Content>
       <Tab.Content value='tab3' className='p-4'>
-        <p className='text-sm text-subtle'>Tab with icon and count content</p>
+        <p className='text-subtle text-sm'>Tab with icon and count content</p>
       </Tab.Content>
       <Tab.Content value='tab4' className='p-4'>
         <p className='text-error text-sm'>This tab has an error indicator!</p>
@@ -351,13 +352,13 @@ export const DisabledTab: Story = {
         <Tab.Trigger value='tab3'>Enabled</Tab.Trigger>
       </Tab.List>
       <Tab.Content value='tab1' className='p-4'>
-        <p className='text-sm text-subtle'>First tab content</p>
+        <p className='text-subtle text-sm'>First tab content</p>
       </Tab.Content>
       <Tab.Content value='tab2' className='p-4'>
-        <p className='text-sm text-subtle'>Second tab content (unreachable)</p>
+        <p className='text-subtle text-sm'>Second tab content (unreachable)</p>
       </Tab.Content>
       <Tab.Content value='tab3' className='p-4'>
-        <p className='text-sm text-subtle'>Third tab content</p>
+        <p className='text-subtle text-sm'>Third tab content</p>
       </Tab.Content>
     </Tab.Root>
   ),
@@ -381,32 +382,32 @@ export const Controlled: Story = {
             <Tab.Trigger value='tab3'>Tab 3</Tab.Trigger>
           </Tab.List>
           <Tab.Content value='tab1' className='p-4'>
-            <p className='text-sm text-subtle'>Content 1</p>
+            <p className='text-subtle text-sm'>Content 1</p>
           </Tab.Content>
           <Tab.Content value='tab2' className='p-4'>
-            <p className='text-sm text-subtle'>Content 2</p>
+            <p className='text-subtle text-sm'>Content 2</p>
           </Tab.Content>
           <Tab.Content value='tab3' className='p-4'>
-            <p className='text-sm text-subtle'>Content 3</p>
+            <p className='text-subtle text-sm'>Content 3</p>
           </Tab.Content>
         </Tab.Root>
         <div className='flex gap-2'>
           <button
             type='button'
             onClick={() => setValue('tab1')}
-            className='rounded bg-surface-neutral-hover px-3 py-1 text-sm'
+            className='bg-surface-neutral-hover rounded px-3 py-1 text-sm'
           >
             Select Tab 1
           </button>
           <button
             type='button'
             onClick={() => setValue('tab2')}
-            className='rounded bg-surface-neutral-hover px-3 py-1 text-sm'
+            className='bg-surface-neutral-hover rounded px-3 py-1 text-sm'
           >
             Select Tab 2
           </button>
         </div>
-        <p className='text-sm text-subtle'>
+        <p className='text-subtle text-sm'>
           Current: <span className='font-semibold'>{value}</span>
         </p>
       </div>
@@ -424,12 +425,12 @@ export const Interactive: Story = {
 
     return (
       <div className='w-96 space-y-6'>
-        <p className='text-sm text-subtle'>
+        <p className='text-subtle text-sm'>
           Activation mode: <span className='font-semibold'>{args.activationMode}</span>
           {args.activationMode === 'manual' && ' (arrow keys move focus, Enter/Space selects)'}
         </p>
 
-        <div className='rounded-lg border border-border p-6'>
+        <div className='border-border rounded-lg border p-6'>
           <Tab.Root value={value} onValueChange={setValue} activationMode={args.activationMode} className='w-full'>
             <Tab.List aria-label='Interactive tabs'>
               <Tab.DefaultTrigger value='tab1' icon={User}>
@@ -443,13 +444,13 @@ export const Interactive: Story = {
               </Tab.DefaultTrigger>
             </Tab.List>
             <Tab.Content value='tab1' className='p-4'>
-              <p className='text-sm text-subtle'>Account content</p>
+              <p className='text-subtle text-sm'>Account content</p>
             </Tab.Content>
             <Tab.Content value='tab2' className='p-4'>
-              <p className='text-sm text-subtle'>Settings content</p>
+              <p className='text-subtle text-sm'>Settings content</p>
             </Tab.Content>
             <Tab.Content value='tab3' className='p-4'>
-              <p className='text-sm text-subtle'>Disabled content</p>
+              <p className='text-subtle text-sm'>Disabled content</p>
             </Tab.Content>
           </Tab.Root>
         </div>
@@ -474,29 +475,29 @@ export const KeyboardNavigation: Story = {
   },
   render: args => (
     <div className='max-w-120 space-y-6'>
-      <div className='rounded bg-surface-neutral p-4'>
+      <div className='bg-surface-neutral rounded p-4'>
         <ul className='space-y-1 text-sm'>
           <li>
-            <kbd className='rounded bg-surface-neutral-hover px-1'>Tab</kbd> - Enter/exit the tab list
+            <kbd className='bg-surface-neutral-hover rounded px-1'>Tab</kbd> - Enter/exit the tab list
           </li>
           <li>
-            <kbd className='rounded bg-surface-neutral-hover px-1'>Arrow Left/Right</kbd> - Move between tabs
+            <kbd className='bg-surface-neutral-hover rounded px-1'>Arrow Left/Right</kbd> - Move between tabs
             {args.activationMode === 'automatic' && ' (and select)'}
           </li>
           <li>
-            <kbd className='rounded bg-surface-neutral-hover px-1'>Home</kbd> - Move to first tab
+            <kbd className='bg-surface-neutral-hover rounded px-1'>Home</kbd> - Move to first tab
           </li>
           <li>
-            <kbd className='rounded bg-surface-neutral-hover px-1'>End</kbd> - Move to last tab
+            <kbd className='bg-surface-neutral-hover rounded px-1'>End</kbd> - Move to last tab
           </li>
           {args.activationMode === 'manual' && (
             <li>
-              <kbd className='rounded bg-surface-neutral-hover px-1'>Enter/Space</kbd> - Select focused tab
+              <kbd className='bg-surface-neutral-hover rounded px-1'>Enter/Space</kbd> - Select focused tab
             </li>
           )}
         </ul>
       </div>
-      <p className='text-sm text-subtle'>
+      <p className='text-subtle text-sm'>
         Activation mode: <span className='font-semibold'>{args.activationMode}</span>
       </p>
       <Tab.Root defaultValue='tab1' activationMode={args.activationMode} className='w-96'>
@@ -509,16 +510,16 @@ export const KeyboardNavigation: Story = {
           <Tab.Trigger value='tab4'>Fourth</Tab.Trigger>
         </Tab.List>
         <Tab.Content value='tab1' className='p-4'>
-          <p className='text-sm text-subtle'>First tab content</p>
+          <p className='text-subtle text-sm'>First tab content</p>
         </Tab.Content>
         <Tab.Content value='tab2' className='p-4'>
-          <p className='text-sm text-subtle'>Second tab content</p>
+          <p className='text-subtle text-sm'>Second tab content</p>
         </Tab.Content>
         <Tab.Content value='tab3' className='p-4'>
-          <p className='text-sm text-subtle'>Third tab content</p>
+          <p className='text-subtle text-sm'>Third tab content</p>
         </Tab.Content>
         <Tab.Content value='tab4' className='p-4'>
-          <p className='text-sm text-subtle'>Fourth tab content</p>
+          <p className='text-subtle text-sm'>Fourth tab content</p>
         </Tab.Content>
       </Tab.Root>
     </div>

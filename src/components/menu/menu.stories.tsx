@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   Check,
   ChevronDown,
@@ -19,8 +18,11 @@ import {
   Upload,
 } from 'lucide-react';
 import { useCallback, useState } from 'preact/hooks';
+
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Menu } from './menu';
 
@@ -59,11 +61,11 @@ export const DefaultTrigger: Story = {
   name: 'Examples / Default Trigger',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Menu.Trigger without <code>asChild</code> renders a fallback button element
       </div>
       <Menu>
-        <Menu.Trigger className='cursor-pointer rounded-sm p-2 hover:bg-surface-neutral-hover'>Open Menu</Menu.Trigger>
+        <Menu.Trigger className='hover:bg-surface-neutral-hover cursor-pointer rounded-sm p-2'>Open Menu</Menu.Trigger>
         <Menu.Portal>
           <Menu.Content>
             <Menu.Item>Action 1</Menu.Item>
@@ -133,7 +135,7 @@ export const WithDisabledItems: Story = {
   name: 'States / Disabled Items',
   render: () => (
     <div className='flex flex-col items-center gap-y-6 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Disabled items are skipped during keyboard navigation but remain visible and accessible to screen readers. Test
         arrow keys, Home, and End.
       </div>
@@ -263,7 +265,7 @@ export const AlignEnd: Story = {
   name: 'Features / Align End',
   render: () => (
     <div className='flex flex-col items-end gap-y-3 p-4'>
-      <div className='text-sm text-subtle'>Menu aligned to the right edge of the trigger button</div>
+      <div className='text-subtle text-sm'>Menu aligned to the right edge of the trigger button</div>
       <Menu>
         <Menu.Trigger asChild>
           <Button variant='filled' endIcon={ChevronDown}>
@@ -288,7 +290,7 @@ export const AsChild: Story = {
   name: 'Features / AsChild Pattern',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Menu.Item with <code>asChild</code> allows rendering custom elements like links or buttons while maintaining
         menu behavior
       </div>
@@ -387,7 +389,7 @@ export const OpenMenuWithDependentGroup: Story = {
 
     return (
       <div className='flex w-96 flex-col gap-y-3 p-4'>
-        <div className='w-full rounded-sm border border-bdr-subtle bg-surface-neutral px-3 py-2 text-sm text-subtle'>
+        <div className='border-bdr-subtle bg-surface-neutral text-subtle w-full rounded-sm border px-3 py-2 text-sm'>
           This menu stays open while selecting content types. Bulk actions remain disabled until at least one type is
           selected, then all actions in the second group become enabled.
         </div>
@@ -417,21 +419,21 @@ export const OpenMenuWithDependentGroup: Story = {
               <Menu.Content>
                 <Menu.Label>Select content types</Menu.Label>
                 <Menu.Item onSelect={handleTypeToggle('Documents')}>
-                  <span className='inline-flex size-4 items-center justify-center rounded-xs border border-bdr-subtle'>
+                  <span className='border-bdr-subtle inline-flex size-4 items-center justify-center rounded-xs border'>
                     {selectedTypes.includes('Documents') && <Check className='size-3' />}
                   </span>
                   <FileText className='size-4' />
                   <span>Documents</span>
                 </Menu.Item>
                 <Menu.Item onSelect={handleTypeToggle('Images')}>
-                  <span className='inline-flex size-4 items-center justify-center rounded-xs border border-bdr-subtle'>
+                  <span className='border-bdr-subtle inline-flex size-4 items-center justify-center rounded-xs border'>
                     {selectedTypes.includes('Images') && <Check className='size-3' />}
                   </span>
                   <Image className='size-4' />
                   <span>Images</span>
                 </Menu.Item>
                 <Menu.Item onSelect={handleTypeToggle('Folders')}>
-                  <span className='inline-flex size-4 items-center justify-center rounded-xs border border-bdr-subtle'>
+                  <span className='border-bdr-subtle inline-flex size-4 items-center justify-center rounded-xs border'>
                     {selectedTypes.includes('Folders') && <Check className='size-3' />}
                   </span>
                   <Folder className='size-4' />
@@ -464,7 +466,7 @@ export const NoLoop: Story = {
   name: 'Behavior / No Loop',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='text-sm text-subtle'>Arrow key navigation stops at first/last item instead of looping</div>
+      <div className='text-subtle text-sm'>Arrow key navigation stops at first/last item instead of looping</div>
       <Menu>
         <Menu.Trigger asChild>
           <IconButton icon={RefreshCwOff} iconStrokeWidth={2} variant='filled' aria-label='Open no-loop menu' />
@@ -490,7 +492,7 @@ export const RadioItems: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Radio items allow single selection within a group.
           <br />
           Selecting a radio item does NOT close the menu.
@@ -542,7 +544,7 @@ export const MultipleRadioGroups: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Multiple radio groups can exist in the same menu. Each group maintains its own selection state independently.
         </div>
         <div className='flex flex-col gap-1 text-sm'>
@@ -610,7 +612,7 @@ export const RadioWithRegularItems: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Radio groups can be mixed with regular menu items and separators for flexible menu composition.
         </div>
         <div className='text-sm'>
@@ -667,7 +669,7 @@ export const CustomIndicators: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Indicators can be customized by passing children to <code>Menu.ItemIndicator</code>. Use custom icons,
           characters, or any React element.
         </div>
@@ -726,11 +728,11 @@ export const CloseOnSelect: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Use <code>closeOnSelect</code> prop on <code>Menu.RadioGroup</code> to automatically close the menu after
           selecting a radio item. Useful for simple dropdowns.
         </div>
-        <p className='font-semibold text-sm text-subtle'>Language</p>
+        <p className='text-subtle text-sm font-semibold'>Language</p>
         <Menu>
           <Menu.Trigger asChild>
             <Button variant='outline' endIcon={ChevronDown}>
@@ -779,11 +781,11 @@ export const DisabledRadioItems: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Radio items can be disabled individually. Disabled items are skipped during keyboard navigation and cannot be
           selected.
         </div>
-        <p className='font-semibold text-sm text-subtle'>Video quality</p>
+        <p className='text-subtle text-sm font-semibold'>Video quality</p>
         <Menu>
           <Menu.Trigger asChild>
             <Button variant='outline' endIcon={ChevronDown}>

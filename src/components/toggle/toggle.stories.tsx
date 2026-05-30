@@ -1,7 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Bold, Italic, Star, Underline } from 'lucide-react';
 import { useState } from 'react';
+
 import { cn } from '@/utils';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Button } from '../button';
 import { Toggle, type ToggleProps } from './toggle';
@@ -75,7 +77,7 @@ export const AllVariantsComparison: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>All Variants - Unpressed</h3>
+        <h3 className='mb-3 text-sm font-medium'>All Variants - Unpressed</h3>
         <div className='flex flex-wrap gap-3'>
           <Toggle label='Text' variant='text' />
           <Toggle label='Filled' variant='filled' />
@@ -84,7 +86,7 @@ export const AllVariantsComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>All Variants - Pressed</h3>
+        <h3 className='mb-3 text-sm font-medium'>All Variants - Pressed</h3>
         <div className='flex flex-wrap gap-3'>
           <Toggle label='Text' variant='text' defaultPressed />
           <Toggle label='Filled' variant='filled' defaultPressed />
@@ -101,7 +103,7 @@ export const SizeComparison: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Text Variant</h3>
+        <h3 className='mb-3 text-sm font-medium'>Text Variant</h3>
         <div className='flex items-center gap-3'>
           <Toggle label='Small' variant='text' size='sm' />
           <Toggle label='Medium' variant='text' size='md' />
@@ -109,7 +111,7 @@ export const SizeComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Filled Variant</h3>
+        <h3 className='mb-3 text-sm font-medium'>Filled Variant</h3>
         <div className='flex items-center gap-3'>
           <Toggle label='Small' variant='filled' size='sm' />
           <Toggle label='Medium' variant='filled' size='md' />
@@ -117,7 +119,7 @@ export const SizeComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Solid Variant</h3>
+        <h3 className='mb-3 text-sm font-medium'>Solid Variant</h3>
         <div className='flex items-center gap-3'>
           <Toggle label='Small' variant='solid' size='sm' />
           <Toggle label='Medium' variant='solid' size='md' />
@@ -125,7 +127,7 @@ export const SizeComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Outline Variant</h3>
+        <h3 className='mb-3 text-sm font-medium'>Outline Variant</h3>
         <div className='flex items-center gap-3'>
           <Toggle label='Small' variant='outline' size='sm' />
           <Toggle label='Medium' variant='outline' size='md' />
@@ -141,7 +143,7 @@ export const DisabledStates: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Disabled - Unpressed</h3>
+        <h3 className='mb-3 text-sm font-medium'>Disabled - Unpressed</h3>
         <div className='flex flex-wrap gap-3'>
           <Toggle label='Text' variant='text' disabled />
           <Toggle label='Filled' variant='filled' disabled />
@@ -150,7 +152,7 @@ export const DisabledStates: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Disabled - Pressed</h3>
+        <h3 className='mb-3 text-sm font-medium'>Disabled - Pressed</h3>
         <div className='flex flex-wrap gap-3'>
           <Toggle label='Text' variant='text' disabled defaultPressed />
           <Toggle label='Filled' variant='filled' disabled defaultPressed />
@@ -159,7 +161,7 @@ export const DisabledStates: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Disabled - With Icons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Disabled - With Icons</h3>
         <div className='flex flex-wrap gap-3'>
           <Toggle variant='text' startIcon={Bold} disabled aria-label='Bold' />
           <Toggle variant='filled' startIcon={Italic} disabled aria-label='Italic' />
@@ -179,10 +181,10 @@ export const Controlled: Story = {
     return (
       <div className='space-y-3 p-4'>
         <div>
-          <h3 className='mb-2 font-medium text-sm'>Controlled Toggle</h3>
+          <h3 className='mb-2 text-sm font-medium'>Controlled Toggle</h3>
           <Toggle label='Notifications' variant='outline' pressed={pressed} onPressedChange={setPressed} />
         </div>
-        <p className='text-sm text-subtle'>
+        <p className='text-subtle text-sm'>
           <strong>State:</strong> {pressed ? 'On' : 'Off'}
         </p>
         <Button variant='filled' size='sm' label='Toggle from outside' onClick={() => setPressed(!pressed)} />
@@ -197,7 +199,7 @@ export const Uncontrolled: Story = {
     return (
       <div className='space-y-4 p-4'>
         <div>
-          <h3 className='mb-3 font-medium text-sm'>Uncontrolled Toggle</h3>
+          <h3 className='mb-3 text-sm font-medium'>Uncontrolled Toggle</h3>
           <Toggle
             label='Notifications'
             variant='outline'
@@ -205,7 +207,7 @@ export const Uncontrolled: Story = {
             onPressedChange={pressed => console.log('Pressed changed to:', pressed)}
           />
         </div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           <p>Check the console to see state changes</p>
         </div>
       </div>
@@ -218,7 +220,7 @@ export const WithIcons: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Icon Only - All Variants</h3>
+        <h3 className='mb-3 text-sm font-medium'>Icon Only - All Variants</h3>
         <div className='flex flex-wrap gap-3'>
           <Toggle variant='text' startIcon={Bold} aria-label='Toggle bold' />
           <Toggle variant='filled' startIcon={Italic} aria-label='Toggle italic' />
@@ -227,7 +229,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Icon with Label</h3>
+        <h3 className='mb-3 text-sm font-medium'>Icon with Label</h3>
         <div className='flex flex-wrap gap-3'>
           <Toggle label='Bold' variant='text' startIcon={Bold} />
           <Toggle label='Italic' variant='filled' startIcon={Italic} />
@@ -236,7 +238,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Different Sizes</h3>
+        <h3 className='mb-3 text-sm font-medium'>Different Sizes</h3>
         <div className='flex items-center gap-3'>
           <Toggle variant='text' size='sm' startIcon={Bold} aria-label='Small bold' />
           <Toggle variant='text' size='md' startIcon={Bold} aria-label='Medium bold' />
@@ -254,7 +256,7 @@ export const CustomStyling: Story = {
 
     return (
       <div className='flex flex-col gap-y-3 p-4'>
-        <h3 className='font-medium text-sm'>Star Favorite - Custom Gold Fill</h3>
+        <h3 className='text-sm font-medium'>Star Favorite - Custom Gold Fill</h3>
         <div className='flex items-center gap-4'>
           <Toggle
             variant='text'
@@ -262,14 +264,14 @@ export const CustomStyling: Story = {
             pressed={favorite}
             onPressedChange={setFavorite}
             className={cn(
-              'size-10 p-0 hover:bg-initial active:bg-initial active:text-initial',
+              'hover:bg-initial active:bg-initial active:text-initial size-10 p-0',
               'hover:text-[goldenrod] data-[state=on]:bg-transparent data-[state=on]:text-[goldenrod]',
               'transition-highlight',
             )}
           >
             <Star fill={favorite ? 'currentColor' : 'none'} />
           </Toggle>
-          <span className='text-sm text-subtle'>{favorite ? 'Added to favorites' : 'Add to favorites'}</span>
+          <span className='text-subtle text-sm'>{favorite ? 'Added to favorites' : 'Add to favorites'}</span>
         </div>
       </div>
     );

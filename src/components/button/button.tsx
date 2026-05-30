@@ -1,18 +1,20 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef } from 'react';
-import type { LucideIcon } from '@/types';
+
 import { cn } from '@/utils';
+
+import type { LucideIcon } from '@/types';
 
 const buttonVariants = cva(
   [
     'inline-flex items-center justify-center',
-    'font-semibold text-main',
-    'box-border rounded-sm transition-highlight',
-    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+    'text-main font-semibold',
+    'transition-highlight box-border rounded-sm',
+    'focus-visible:ring-ring focus-visible:ring-offset-ring-offset focus-visible:ring-3 focus-visible:ring-offset-3 focus-visible:outline-none',
     // Override ring colors for inverse tone to match background
     'group-data-[tone=inverse]:[--color-ring-offset:var(--color-surface-selected)] group-data-[tone=inverse]:[--color-ring:var(--color-ring-alt)]',
     'active:bg-btn-active active:text-alt data-[active=true]:bg-btn-active data-[active=true]:text-alt',
-    'disabled:pointer-events-none disabled:select-none disabled:opacity-30',
+    'disabled:pointer-events-none disabled:opacity-30 disabled:select-none',
     'cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap',
   ],
   {
@@ -21,7 +23,7 @@ const buttonVariants = cva(
         text: 'bg-btn-primary hover:bg-btn-primary-hover hover:text-main',
         filled: 'bg-btn-secondary hover:bg-btn-secondary-hover hover:text-main',
         solid: 'bg-btn-tertiary text-alt hover:bg-btn-tertiary-hover',
-        outline: 'border border-bdr-strong bg-btn-primary hover:bg-btn-primary-hover',
+        outline: 'border-bdr-strong bg-btn-primary hover:bg-btn-primary-hover border',
       },
       size: {
         sm: 'h-9 gap-2 px-3.5 text-sm',

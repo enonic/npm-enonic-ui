@@ -1,4 +1,5 @@
 import { type RefObject, useLayoutEffect, useRef } from 'react';
+
 import { scrollIntoCenter } from '@/utils/scroll';
 
 export type UseActiveOnOpenConfig = {

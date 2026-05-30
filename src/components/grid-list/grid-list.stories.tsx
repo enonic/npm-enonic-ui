@@ -1,10 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Edit2, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useState } from 'preact/hooks';
+
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
 import { GridList, type GridListProps } from '@/components/grid-list/grid-list';
 import { IconButton } from '@/components/icon-button';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 type Story = StoryObj<GridListProps>;
 
@@ -58,7 +60,7 @@ export const Basic: Story = {
   render: ({ disabled, loop }) => {
     return (
       <div className='w-96 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Project List</h3>
+        <h3 className='mb-3 text-sm font-medium'>Project List</h3>
         <GridList label='Project list' className='gap-1.5 rounded-xl p-2' disabled={disabled} loop={loop}>
           {projects.map(project => (
             <GridList.Row key={project.id} id={project.id} className='flex gap-2.5'>
@@ -66,7 +68,7 @@ export const Basic: Story = {
                 <GridList.Action>
                   <button
                     type='button'
-                    className='cursor-pointer text-left font-medium text-sm hover:underline focus:outline-none'
+                    className='cursor-pointer text-left text-sm font-medium hover:underline focus:outline-none'
                     onClick={() => alert(`Open: ${project.name}`)}
                   >
                     {project.name}
@@ -91,7 +93,7 @@ export const Basic: Story = {
             </GridList.Row>
           ))}
         </GridList>
-        <p className='mt-3 text-sm text-subtle'>Tab into the list, then use arrow keys to navigate.</p>
+        <p className='text-subtle mt-3 text-sm'>Tab into the list, then use arrow keys to navigate.</p>
       </div>
     );
   },
@@ -110,7 +112,7 @@ export const DisabledRow: Story = {
   render: ({ disabled, loop }) => {
     return (
       <div className='w-96 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Middle row disabled</h3>
+        <h3 className='mb-3 text-sm font-medium'>Middle row disabled</h3>
         <GridList
           label='Project list with disabled row'
           className='gap-1.5 rounded-xl p-2'
@@ -123,7 +125,7 @@ export const DisabledRow: Story = {
                 <GridList.Action>
                   <button
                     type='button'
-                    className='cursor-pointer text-left font-medium text-sm hover:underline focus:outline-none'
+                    className='cursor-pointer text-left text-sm font-medium hover:underline focus:outline-none'
                     onClick={() => alert(`Open: ${project.name}`)}
                   >
                     {project.name}
@@ -148,7 +150,7 @@ export const DisabledRow: Story = {
             </GridList.Row>
           ))}
         </GridList>
-        <p className='mt-3 text-sm text-subtle'>Middle row is disabled and skipped during navigation.</p>
+        <p className='text-subtle mt-3 text-sm'>Middle row is disabled and skipped during navigation.</p>
       </div>
     );
   },
@@ -166,12 +168,12 @@ export const DisabledGrid: Story = {
   render: ({ disabled, loop }) => {
     return (
       <div className='w-96 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Entire grid disabled</h3>
+        <h3 className='mb-3 text-sm font-medium'>Entire grid disabled</h3>
         <GridList label='Disabled project list' className='gap-1.5 rounded-xl p-2' disabled={disabled} loop={loop}>
           {projects.slice(0, 3).map(project => (
             <GridList.Row key={project.id} id={project.id} className='flex gap-2.5'>
               <GridList.Cell interactive={false} className='flex-1'>
-                <span className='font-medium text-sm'>{project.name}</span>
+                <span className='text-sm font-medium'>{project.name}</span>
               </GridList.Cell>
               <GridList.Cell interactive={false}>
                 <span className={`rounded-full px-2 py-0.5 text-xs ${statusColors[project.status]}`}>
@@ -242,7 +244,7 @@ export const DynamicRows: Story = {
 
     return (
       <div className='w-96 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Task List</h3>
+        <h3 className='mb-3 text-sm font-medium'>Task List</h3>
         <div className='mb-3 flex gap-2'>
           <Button size='sm' variant='filled' onClick={addTask} disabled={visibleIds.size >= MAX_TASKS}>
             Add Task
@@ -259,7 +261,7 @@ export const DynamicRows: Story = {
                 <GridList.Action>
                   <button
                     type='button'
-                    className='cursor-pointer text-left font-medium text-sm hover:underline focus:outline-none'
+                    className='cursor-pointer text-left text-sm font-medium hover:underline focus:outline-none'
                     onClick={() => alert(`Open: ${task.name}`)}
                   >
                     {task.name}
@@ -280,7 +282,7 @@ export const DynamicRows: Story = {
           ))}
         </GridList>
 
-        <p className='mt-3 text-sm text-subtle'>
+        <p className='text-subtle mt-3 text-sm'>
           {visibleIds.size} of {MAX_TASKS} tasks shown. Active item is updated, when previous item removed.
         </p>
       </div>
@@ -299,7 +301,7 @@ export const KeyboardNavigation: Story = {
 
     return (
       <div className='w-110 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Keyboard Navigation Demo</h3>
+        <h3 className='mb-3 text-sm font-medium'>Keyboard Navigation Demo</h3>
         <GridList label='Keyboard navigation demo' className='gap-1.5 rounded-xl p-2' disabled={disabled} loop={loop}>
           {projects.map(project => (
             <GridList.Row
@@ -320,7 +322,7 @@ export const KeyboardNavigation: Story = {
                 <GridList.Action>
                   <button
                     type='button'
-                    className='text-left font-medium text-sm hover:underline focus:outline-none'
+                    className='text-left text-sm font-medium hover:underline focus:outline-none'
                     onClick={() => setLastAction(`Open: ${project.name}`)}
                   >
                     {project.name}
@@ -355,32 +357,32 @@ export const KeyboardNavigation: Story = {
           ))}
         </GridList>
 
-        <p className='mt-4 text-sm text-subtle'>Last action: {lastAction || 'None'}</p>
-        <div className='mt-2 rounded-sm bg-surface-primary p-3 text-sm'>
+        <p className='text-subtle mt-4 text-sm'>Last action: {lastAction || 'None'}</p>
+        <div className='bg-surface-primary mt-2 rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> - Enter/Exit list
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Tab</kbd> - Enter/Exit list
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>↑</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>↓</kbd> - Navigate rows
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>↑</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>↓</kbd> - Navigate rows
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>←</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>→</kbd> - Navigate cells
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>←</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>→</kbd> - Navigate cells
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - First/Last cell in row
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Home</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>End</kbd> - First/Last cell in row
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Ctrl+Home</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Ctrl+End</kbd> - First/Last cell in grid
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Ctrl+Home</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Ctrl+End</kbd> - First/Last cell in grid
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Enter</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Space</kbd> - Activate focused element
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Enter</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Space</kbd> - Activate focused element
             </li>
           </ul>
         </div>

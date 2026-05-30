@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import {
   Archive,
   Database,
@@ -24,7 +23,7 @@ import {
   SquareCode,
   SquarePlay,
 } from 'lucide-react';
-import type { ReactElement } from 'react';
+
 import { ListItem, type ListItemDefaultContentProps } from '@/components/list-item/list-item';
 import {
   CircleDiscIcon,
@@ -36,6 +35,9 @@ import {
   FilledSquareCheckIcon,
   FilledSquareMinusIcon,
 } from '@/icons';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+import type { ReactElement } from 'react';
 
 export default {
   title: 'Design/Icons',

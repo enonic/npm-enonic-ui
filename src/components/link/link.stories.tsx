@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ChevronRight, CornerUpRight, Download, FileText, Info, Mail, Phone } from 'lucide-react';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Link, type LinkProps } from './link';
 
@@ -102,7 +103,7 @@ export const AllStates: Story = {
     <div className='space-y-6 p-6'>
       <div className='grid grid-cols-2 gap-8'>
         <div>
-          <h3 className='mb-3 font-medium text-sm'>Internal Links</h3>
+          <h3 className='mb-3 text-sm font-medium'>Internal Links</h3>
           <div className='flex flex-col gap-3'>
             <Link href='/'>Simple internal</Link>
             <Link href='#section'>Hash link</Link>
@@ -115,7 +116,7 @@ export const AllStates: Story = {
           </div>
         </div>
         <div>
-          <h3 className='mb-3 font-medium text-sm'>External Links</h3>
+          <h3 className='mb-3 text-sm font-medium'>External Links</h3>
           <div className='flex flex-col gap-3'>
             <Link href='https://enonic.com'>Auto-detected external</Link>
             <Link href='https://github.com' leftIcon={true}>
@@ -137,7 +138,7 @@ export const LinkTypes: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Internal Links</h3>
+        <h3 className='mb-3 text-sm font-medium'>Internal Links</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='/'>Home</Link>
           <Link href='/about'>About</Link>
@@ -146,7 +147,7 @@ export const LinkTypes: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>External Links (auto-detected)</h3>
+        <h3 className='mb-3 text-sm font-medium'>External Links (auto-detected)</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='https://enonic.com'>Visit Enonic</Link>
           <Link href='https://github.com'>GitHub</Link>
@@ -154,14 +155,14 @@ export const LinkTypes: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Special Protocol Links</h3>
+        <h3 className='mb-3 text-sm font-medium'>Special Protocol Links</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='mailto:hello@example.com'>Email us</Link>
           <Link href='tel:+1234567890'>Call support</Link>
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Forced External/Internal</h3>
+        <h3 className='mb-3 text-sm font-medium'>Forced External/Internal</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='/about' external={true}>
             About (forced external)
@@ -180,7 +181,7 @@ export const WithIcons: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Left Icons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Left Icons</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='/docs' leftIcon={true}>
             Documentation
@@ -197,7 +198,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Right Icons (Auto for External)</h3>
+        <h3 className='mb-3 text-sm font-medium'>Right Icons (Auto for External)</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='https://github.com'>GitHub (auto icon)</Link>
           <Link href='/internal'>Internal link (no icon)</Link>
@@ -210,7 +211,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Both Icons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Both Icons</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='/docs/api' leftIcon={FileText} rightIcon={ChevronRight}>
             API Documentation
@@ -224,7 +225,7 @@ export const WithIcons: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Special Protocol Icons</h3>
+        <h3 className='mb-3 text-sm font-medium'>Special Protocol Icons</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='mailto:contact@example.com' leftIcon={Mail}>
             Email Support
@@ -243,7 +244,7 @@ export const LongText: Story = {
   render: () => (
     <div className='max-w-md space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Long Link Text</h3>
+        <h3 className='mb-3 text-sm font-medium'>Long Link Text</h3>
         <div className='space-y-3'>
           <Link href='#'>
             This is a very long link text that will wrap to multiple lines when the container is not wide enough
@@ -268,7 +269,7 @@ export const TruncatedLinks: Story = {
   render: () => (
     <div className='max-w-sm space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Regular Link</h3>
+        <h3 className='mb-3 text-sm font-medium'>Regular Link</h3>
         <div className='space-y-2'>
           <Link href='https://example.com/very/long/path/to/some/document.pdf' className='max-w-full'>
             <span className='truncate'>
@@ -278,7 +279,7 @@ export const TruncatedLinks: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>With Left Icon</h3>
+        <h3 className='mb-3 text-sm font-medium'>With Left Icon</h3>
         <div className='space-y-2'>
           <Link
             href='https://github.com/user/repository/blob/main/src/components/index.tsx'
@@ -292,7 +293,7 @@ export const TruncatedLinks: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>With Right Icon</h3>
+        <h3 className='mb-3 text-sm font-medium'>With Right Icon</h3>
         <div className='space-y-2'>
           <Link href='https://example.com/download/file.pdf' rightIcon={Download} className='max-w-full'>
             <span className='truncate'>
@@ -302,7 +303,7 @@ export const TruncatedLinks: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>With Both Icons</h3>
+        <h3 className='mb-3 text-sm font-medium'>With Both Icons</h3>
         <div className='space-y-2'>
           <Link href='#' leftIcon={Info} rightIcon={ChevronRight} className='max-w-full'>
             <span className='truncate'>Very long link text that should be truncated while preserving both icons</span>
@@ -318,9 +319,9 @@ export const CustomStyling: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Custom Classes</h3>
+        <h3 className='mb-3 text-sm font-medium'>Custom Classes</h3>
         <div className='flex flex-wrap gap-4'>
-          <Link href='#' className='font-bold text-lg'>
+          <Link href='#' className='text-lg font-bold'>
             Large Bold Link
           </Link>
           <Link href='#' className='text-xs'>
@@ -355,14 +356,14 @@ export const NewTabBehavior: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Default Behavior</h3>
+        <h3 className='mb-3 text-sm font-medium'>Default Behavior</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='/about'>Internal (same tab)</Link>
           <Link href='https://enonic.com'>External (new tab)</Link>
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Forced New Tab</h3>
+        <h3 className='mb-3 text-sm font-medium'>Forced New Tab</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='/about' newTab={true}>
             Internal (forced new tab)
@@ -373,7 +374,7 @@ export const NewTabBehavior: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Forced Same Tab</h3>
+        <h3 className='mb-3 text-sm font-medium'>Forced Same Tab</h3>
         <div className='flex flex-wrap gap-4'>
           <Link href='/about' newTab={false}>
             Internal (same tab)
