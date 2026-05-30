@@ -792,7 +792,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       }
       parentContent.safeAreaCheckRef.current = isInSafeArea;
       return () => {
-        // oxlint-disable-next-line react-hooks/exhaustive-deps -- intentional teardown of a stable context ref on unmount
+        // oxlint-disable-next-line react/exhaustive-deps -- intentional teardown of a stable context ref on unmount
         parentContent.safeAreaCheckRef.current = null;
       };
     }, [open, isInSafeArea, parentContent]);

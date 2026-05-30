@@ -355,7 +355,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       if (anchorId && !registeredDomIdSet.has(toDomId(anchorId))) {
         setAnchorId(active ? fromDomId(active) : undefined);
       }
-      // oxlint-disable-next-line react-hooks/exhaustive-deps -- registryVersion triggers revalidation; other deps would cause loops
+      // oxlint-disable-next-line react/exhaustive-deps -- registryVersion triggers revalidation; other deps would cause loops
     }, [registryVersion]);
 
     // Focusable elements selector for action mode

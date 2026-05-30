@@ -484,7 +484,7 @@ const VirtualizedTreeListRoot = forwardRef(
           selectionAnchorRef.current = null;
         }
       }
-      // oxlint-disable-next-line react-hooks/exhaustive-deps -- only run when items array identity changes
+      // oxlint-disable-next-line react/exhaustive-deps -- only run when items array identity changes
     }, [items, preserveFilteredSelection]);
 
     const findNextEnabledIndex = useCallback(

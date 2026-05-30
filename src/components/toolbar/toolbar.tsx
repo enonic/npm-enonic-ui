@@ -1,12 +1,10 @@
 import { Slot } from '@radix-ui/react-slot';
 import {
   type ComponentPropsWithoutRef,
-  createContext,
   forwardRef,
   type ReactElement,
   type ReactNode,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -20,45 +18,10 @@ import {
   useRovingTabIndex,
   useScrollActiveIntoView,
 } from '@/hooks';
-import { usePrefixedId } from '@/providers';
+import { type ToolbarContextValue, ToolbarProvider, usePrefixedId, useToolbar } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 
 import { ToolbarToggleGroup, ToolbarToggleItem } from './toolbar-toggle-group';
-
-//
-// * ToolbarContext
-//
-
-export type ToolbarContextValue = {
-  toolbarId: string;
-  toolbarRef: React.RefObject<HTMLDivElement>;
-  active: string | undefined;
-  setActive: (id: string | undefined) => void;
-  registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
-  unregisterItem: (id: string) => void;
-  getItems: () => string[];
-  isItemDisabled: (id: string) => boolean;
-  orientation: 'horizontal' | 'vertical';
-  loop: boolean;
-};
-
-const ToolbarContext = createContext<ToolbarContextValue | undefined>(undefined);
-
-export function useToolbar(): ToolbarContextValue {
-  const context = useContext(ToolbarContext);
-  if (!context) {
-    throw new Error('Toolbar components must be used within Toolbar.Root');
-  }
-  return context;
-}
-
-/**
- * Hook to optionally access Toolbar context.
- * Returns undefined if not within a Toolbar, allowing components to adapt their behavior.
- */
-export function useToolbarOptional(): ToolbarContextValue | undefined {
-  return useContext(ToolbarContext);
-}
 
 //
 // * Toolbar.Root
@@ -136,7 +99,7 @@ const ToolbarRoot = ({
     [toolbarId, active, setActive, registerItem, unregisterItem, getItems, isItemDisabled, orientation, loop],
   );
 
-  return <ToolbarContext.Provider value={value}>{children}</ToolbarContext.Provider>;
+  return <ToolbarProvider value={value}>{children}</ToolbarProvider>;
 };
 ToolbarRoot.displayName = 'Toolbar';
 

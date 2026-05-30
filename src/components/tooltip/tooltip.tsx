@@ -117,8 +117,7 @@ function useTooltipPosition(
     }
 
     setCoords(position);
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- triggerRef/tooltipRef are stable; .current is listed to recompute position once they attach
-  }, [isOpen, side, tooltipRef.current, triggerRef.current]);
+  }, [isOpen, side, triggerRef, tooltipRef]);
 
   return coords;
 }

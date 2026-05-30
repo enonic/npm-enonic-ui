@@ -345,7 +345,6 @@ export const SelectionModes: Story = {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
 
     // Reset selection when mode changes
-    // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally reset only when mode changes
     useEffect(() => {
       setSelection(new Set());
     }, [selectionMode]);

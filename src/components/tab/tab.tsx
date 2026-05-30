@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react';
 
-import { IconButton } from '@/components';
+import { IconButton } from '@/components/icon-button';
 import {
   useControlledState,
   useItemRegistry,

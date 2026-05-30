@@ -15,10 +15,8 @@ import {
 
 import { Button, type ButtonProps } from '@/components/button';
 import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
-import { usePrefixedId } from '@/providers';
+import { usePrefixedId, useToolbar } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
-
-import { useToolbar } from './toolbar';
 
 //
 // * ToolbarToggleGroupContext

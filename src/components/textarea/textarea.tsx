@@ -147,7 +147,6 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       };
     }, [useJsAutoSize]);
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: re-adjust height when controlled value changes
     useLayoutEffect(() => {
       if (!useJsAutoSize) return;
       const el = internalRef.current;

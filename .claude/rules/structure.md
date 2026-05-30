@@ -61,13 +61,13 @@ export const useMenu = (): MenuContextValue => {
 
 ## Import Patterns
 
-Import components from their folder, **not** from the barrel `@/components`. Barrel imports cause circular dependencies with Rollup chunking.
+Import components from their folder, **not** from the barrel `@/components` (enforced by `import/no-cycle`).
 
 ```typescript
 // ✅ Import from component folder
 import { IconButton } from '@/components/icon-button';
 
-// ❌ DON'T: Barrel import (causes circular deps in stories/tests)
+// ❌ DON'T: Barrel import
 import { IconButton } from '@/components';
 ```
 
