@@ -9,7 +9,13 @@ import EnvironmentPlugin from 'vite-plugin-environment';
 export default defineConfig({
   base: './',
   plugins: [
-    preact(),
+    // Library build is always production: drop prefresh HMR, and strip the devtools/
+    // hook-name plugins the preset always wires in — they inject nothing without an HTML
+    // entry but still run resolveId/transform on every module. Filtered by name; if the
+    // preset renames them this degrades to the old (working) overhead, not a breakage.
+    ...preact({ prefreshEnabled: false, devToolsEnabled: false }).filter(
+      p => p.name !== 'preact:devtools' && p.name !== 'preact:transform-hook-names',
+    ),
     tailwindcss(),
     EnvironmentPlugin('all'),
     dts({
