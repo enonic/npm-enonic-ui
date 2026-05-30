@@ -1,7 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ChevronDown, File, Folder, Globe, Printer, Save, Settings } from 'lucide-react';
 import { useState } from 'preact/hooks';
+
 import { Button } from '@/components/button';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Menubar } from './menubar';
 
@@ -48,13 +50,13 @@ export const WithIcons: Story = {
   name: 'Examples / With Icons',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Menubar with icon buttons. Use ArrowLeft/ArrowRight to navigate, Enter/Space to activate.
       </div>
       <Menubar.Root>
         <Menubar.Nav
           aria-label='Application actions'
-          className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+          className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
         >
           <Menubar.Button asChild>
             <Button className='bg-transparent' variant='text' startIcon={File}>
@@ -86,13 +88,13 @@ export const WithSeparators: Story = {
   name: 'Examples / With Separators',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Separators provide visual grouping between menubar items. They don’t participate in keyboard navigation.
       </div>
       <Menubar.Root>
         <Menubar.Nav
           aria-label='Actions with separators'
-          className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+          className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
         >
           <Menubar.Button asChild>
             <Button className='bg-transparent' variant='text' startIcon={File}>
@@ -131,14 +133,14 @@ export const WithDropdownMenus: Story = {
   name: 'Examples / With Dropdown Menus',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Complete menubar with dropdown menus. Click or press ArrowDown to open menus. Use ArrowLeft/Right to navigate
         between menus. Press Escape to close.
       </div>
       <Menubar.Root>
         <Menubar.Nav
           aria-label='Application menu'
-          className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+          className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
         >
           <Menubar.Menu>
             <Menubar.Trigger asChild>
@@ -203,12 +205,12 @@ export const WithDisabledItems: Story = {
   name: 'States / Disabled Items',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Disabled items are skipped during keyboard navigation but remain visible and accessible to screen readers. Test
         ArrowLeft/Right, Home, and End keys.
       </div>
       <Menubar.Root>
-        <Menubar.Nav aria-label='Actions' className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'>
+        <Menubar.Nav aria-label='Actions' className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'>
           <Menubar.Button asChild>
             <Button className='bg-transparent' variant='text' startIcon={File}>
               New
@@ -264,7 +266,7 @@ export const Interactive: Story = {
         <Menubar.Root onActiveChange={setActiveItem}>
           <Menubar.Nav
             aria-label='Actions'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Button asChild onSelect={() => handleSelect('New File')}>
               <Button className='bg-transparent' variant='text' startIcon={File}>
@@ -297,14 +299,14 @@ export const Styled: Story = {
   name: 'Features / Custom Styled',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Custom styling can be applied via className prop. This example shows a darker menubar with different button
         variants.
       </div>
       <Menubar.Root>
         <Menubar.Nav
           aria-label='Custom styled navigation'
-          className='rounded-xl border border-bdr-strong bg-surface-primary shadow-md'
+          className='border-bdr-strong bg-surface-primary rounded-xl border shadow-md'
         >
           <Menubar.Button asChild>
             <Button variant='solid' size='sm'>
@@ -336,13 +338,13 @@ export const MenusWithLabels: Story = {
   name: 'Features / Menus with Labels',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Dropdown menus can include labels to organize items into sections.
       </div>
       <Menubar.Root>
         <Menubar.Nav
           aria-label='File menu'
-          className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+          className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
         >
           <Menubar.Menu>
             <Menubar.Trigger asChild>
@@ -379,7 +381,7 @@ export const MixedMenubarButtonsAndMenus: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Menubars can mix regular buttons and dropdown menus. Conditional hover: hovering a trigger while another menu
           is open automatically switches to that menu.
         </div>
@@ -390,7 +392,7 @@ export const MixedMenubarButtonsAndMenus: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='Mixed menu'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Menu>
               <Menubar.Trigger asChild>
@@ -450,7 +452,7 @@ export const FocusNavigation: Story = {
   name: 'Behavior / Focus Navigation',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Test keyboard navigation: Tab moves focus out of the menubar entirely to the next focusable element.
         ArrowLeft/Right navigate within the menubar. First item is auto-activated on focus.
       </div>
@@ -459,7 +461,7 @@ export const FocusNavigation: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='Navigation'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Button asChild>
               <Button className='bg-transparent' variant='text'>
@@ -493,7 +495,7 @@ export const NoLoop: Story = {
   name: 'Behavior / No Loop',
   render: () => (
     <div className='flex flex-col items-center gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Arrow key navigation stops at first/last item instead of looping. Press ArrowLeft at the first item or
         ArrowRight at the last item to see the difference.
       </div>
@@ -501,7 +503,7 @@ export const NoLoop: Story = {
         <Menubar.Nav
           aria-label='Navigation'
           loop={false}
-          className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+          className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
         >
           <Menubar.Button asChild>
             <Button variant='text'>First</Button>
@@ -531,7 +533,7 @@ export const RadioItems: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Radio items in menubar dropdowns allow single selection within a group. Note that selecting a radio item does
           NOT close the menu, allowing users to see their selection.
         </div>
@@ -542,7 +544,7 @@ export const RadioItems: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='View settings'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Menu>
               <Menubar.Trigger asChild>
@@ -589,7 +591,7 @@ export const MultipleRadioGroupsInMenubar: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Multiple radio groups in a menubar dropdown. Each group maintains its own selection state independently. Test
           keyboard navigation across groups.
         </div>
@@ -606,7 +608,7 @@ export const MultipleRadioGroupsInMenubar: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='Preferences'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Menu>
               <Menubar.Trigger asChild>
@@ -664,7 +666,7 @@ export const RadioWithRegularItemsInMenubar: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Radio groups can be mixed with regular menu items and separators in menubar dropdowns for flexible
           composition.
         </div>
@@ -675,7 +677,7 @@ export const RadioWithRegularItemsInMenubar: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='View menu'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Menu>
               <Menubar.Trigger asChild>
@@ -726,7 +728,7 @@ export const CustomIndicatorsInMenubar: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Indicators can be customized by passing children to <code>Menubar.ItemIndicator</code>. Use custom icons,
           characters, or any React element.
         </div>
@@ -737,7 +739,7 @@ export const CustomIndicatorsInMenubar: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='Task priority'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Menu>
               <Menubar.Trigger asChild>
@@ -792,15 +794,15 @@ export const CloseOnSelectInMenubar: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Use <code>closeOnSelect</code> prop on <code>Menubar.RadioGroup</code> to automatically close the menu after
           selecting a radio item. Focus returns to the menubar trigger for continued navigation.
         </div>
-        <p className='font-semibold text-sm text-subtle'>Server Region: {selectedLabel}</p>
+        <p className='text-subtle text-sm font-semibold'>Server Region: {selectedLabel}</p>
         <Menubar.Root>
           <Menubar.Nav
             aria-label='Server settings'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Menu>
               <Menubar.Trigger asChild>
@@ -836,7 +838,7 @@ export const DisabledRadioItemsInMenubar: Story = {
 
     return (
       <div className='flex flex-col items-center gap-y-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Radio items in menubar dropdowns can be disabled individually. Disabled items are skipped during keyboard
           navigation and cannot be selected.
         </div>
@@ -847,7 +849,7 @@ export const DisabledRadioItemsInMenubar: Story = {
         <Menubar.Root>
           <Menubar.Nav
             aria-label='Playback settings'
-            className='rounded-xl border border-bdr-subtle bg-surface-neutral shadow-sm'
+            className='border-bdr-subtle bg-surface-neutral rounded-xl border shadow-sm'
           >
             <Menubar.Menu>
               <Menubar.Trigger asChild>

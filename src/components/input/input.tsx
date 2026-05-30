@@ -1,6 +1,7 @@
 import { cva } from 'class-variance-authority';
 import { LockKeyhole } from 'lucide-react';
 import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactNode, type Ref } from 'react';
+
 import { FilledOctagonAlert } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
@@ -8,23 +9,23 @@ import { cn, unwrap } from '@/utils';
 const inputContainerVariants = cva(
   [
     'group/input relative flex overflow-hidden rounded-sm',
-    'h-12 border focus-within:border-bdr-solid',
-    'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
+    'focus-within:border-bdr-solid h-12 border',
+    'focus-within:ring-ring focus-within:ring-offset-ring-offset focus-within:ring-3 focus-within:ring-offset-3 focus-within:outline-none',
     'transition-highlight',
   ],
   {
     variants: {
       state: {
-        default: 'border-bdr-subtle hover:outline-2 hover:outline-bdr-subtle hover:-outline-offset-1',
+        default: 'border-bdr-subtle hover:outline-bdr-subtle hover:outline-2 hover:-outline-offset-1',
         error:
-          'border-error focus-within:border-error focus-within:ring-error hover:outline-2 hover:outline-error hover:-outline-offset-1',
+          'border-error focus-within:border-error focus-within:ring-error hover:outline-error hover:outline-2 hover:-outline-offset-1',
         processing: 'input-animated-border border-transparent focus-within:border-transparent hover:outline-none',
       },
       disabled: {
         true: 'select-none focus-within:outline-none hover:outline-none',
       },
       readOnly: {
-        true: 'hover:outline-none hover:outline-offset-0',
+        true: 'hover:outline-offset-0 hover:outline-none',
       },
     },
     defaultVariants: {
@@ -48,9 +49,9 @@ const InputAddon = forwardRef<HTMLDivElement, InputAddonProps>(
       ref={ref}
       className={cn(
         'flex min-w-12 shrink-0 items-center justify-center px-4',
-        'bg-surface-primary text-sm text-subtle',
-        'first:rounded-l-sm first:border-bdr-subtle first:border-r',
-        'last:rounded-r-sm last:border-bdr-subtle last:border-l',
+        'bg-surface-primary text-subtle text-sm',
+        'first:border-bdr-subtle first:rounded-l-sm first:border-r',
+        'last:border-bdr-subtle last:rounded-r-sm last:border-l',
         'group-data-[state=error]/input:last:border-error group-data-[state=error]/input:first:border-error',
         className,
       )}
@@ -121,7 +122,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
         {(!!label || !!description) && (
           <div className='mb-2'>
             {label && (
-              <label htmlFor={inputId} className='block font-semibold text-base text-main'>
+              <label htmlFor={inputId} className='text-main block text-base font-semibold'>
                 <div className='flex items-center gap-2'>
                   {readOnly && !processing && <LockKeyhole size={16} strokeWidth={2.5} />}
                   {label}
@@ -129,7 +130,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
               </label>
             )}
 
-            {description && <div className='text-sm text-subtle'>{description}</div>}
+            {description && <div className='text-subtle text-sm'>{description}</div>}
           </div>
         )}
         <div
@@ -177,7 +178,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {!processing && error && (
-          <div className='mt-2 flex items-center gap-2 text-error leading-5'>
+          <div className='text-error mt-2 flex items-center gap-2 leading-5'>
             <FilledOctagonAlert size={16} />
             {error}
           </div>

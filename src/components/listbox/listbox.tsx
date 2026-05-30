@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import {
   type UseItemRegistryReturn,
   useActiveItemFocus,
@@ -250,7 +251,7 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
           'overflow-y-auto',
           'outline-none',
           'transition-highlight',
-          disabled && 'pointer-events-none select-none opacity-30',
+          disabled && 'pointer-events-none opacity-30 select-none',
           className,
         )}
         role='listbox'
@@ -278,7 +279,7 @@ ListboxContent.displayName = 'Listbox.Content';
 
 const listboxItemVariants = cva(
   [
-    'group relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-1 outline-none transition-highlight',
+    'group transition-highlight relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-1 outline-none',
     // Click target expansion: -inset-y-{n} where n = gap / 2
     'after:pointer-events-auto after:absolute after:inset-x-0 after:-inset-y-0.5 after:-z-10 after:rounded-sm after:content-[""]',
   ],
@@ -295,13 +296,13 @@ const listboxItemVariants = cva(
       focusMode: {
         'roving-tabindex': [
           // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+          'focus-visible:ring-ring-offset focus-visible:ring-3 focus-visible:ring-inset',
+          'focus-visible:ring-offset-ring focus-visible:ring-offset-3',
         ],
         activedescendant: [
           // Items never receive DOM focus — ring must be driven by data-active
-          'data-[active=true]:ring-3 data-[active=true]:ring-ring-offset data-[active=true]:ring-inset',
-          'data-[active=true]:ring-offset-3 data-[active=true]:ring-offset-ring',
+          'data-[active=true]:ring-ring-offset data-[active=true]:ring-3 data-[active=true]:ring-inset',
+          'data-[active=true]:ring-offset-ring data-[active=true]:ring-offset-3',
         ],
       },
     },

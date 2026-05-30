@@ -51,9 +51,8 @@ export function useOverflowDetection(containerRef: RefObject<HTMLElement | null>
     resizeObserver.observe(el);
 
     const observeChildren = (): void => {
-      for (let i = 0; i < el.children.length; i++) {
-        const child = el.children[i];
-        if (child) resizeObserver.observe(child);
+      for (const child of Array.from(el.children)) {
+        resizeObserver.observe(child);
       }
     };
 

@@ -1,10 +1,12 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useState } from 'preact/hooks';
+
 import { Checkbox } from '@/components/checkbox';
 import { IconButton } from '@/components/icon-button';
 import { Input } from '@/components/input';
 import { Listbox, type ListboxRootProps } from '@/components/listbox/listbox';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 type Story = StoryObj<ListboxRootProps>;
 
@@ -69,7 +71,7 @@ export const SingleSelection: Story = {
     const [selection, setSelection] = useState<readonly string[]>([]);
     return (
       <div className='min-w-45 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Select a framework</h3>
+        <h3 className='mb-3 text-sm font-medium'>Select a framework</h3>
         <Listbox selectionMode='single' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
           <Listbox.Content label='Select a framework'>
             {frameworks.map(({ id, name }) => (
@@ -79,7 +81,7 @@ export const SingleSelection: Story = {
             ))}
           </Listbox.Content>
         </Listbox>
-        <p className='mt-3 text-sm text-subtle'>
+        <p className='text-subtle mt-3 text-sm'>
           Selected: {selection.length > 0 ? frameworks.find(({ id }) => selection.includes(id))?.name : 'None'}
         </p>
       </div>
@@ -100,7 +102,7 @@ export const MultipleSelection: Story = {
     const [selection, setSelection] = useState<readonly string[]>([]);
     return (
       <div className='min-w-45 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Select cities to visit</h3>
+        <h3 className='mb-3 text-sm font-medium'>Select cities to visit</h3>
         <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
           <Listbox.Content label='Select cities to visit'>
             {cities.map(({ id, name }) => (
@@ -110,7 +112,7 @@ export const MultipleSelection: Story = {
             ))}
           </Listbox.Content>
         </Listbox>
-        <p className='mt-3 text-sm text-subtle'>
+        <p className='text-subtle mt-3 text-sm'>
           Selected {selection.length} {selection.length === 1 ? 'city' : 'cities'}
         </p>
       </div>
@@ -131,7 +133,7 @@ export const Preselected: Story = {
     const [selection, setSelection] = useState<readonly string[]>(['react', 'vue', 'svelte']);
     return (
       <div className='min-w-52 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Your favorite frameworks</h3>
+        <h3 className='mb-3 text-sm font-medium'>Your favorite frameworks</h3>
         <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
           <Listbox.Content label='Your favorite frameworks'>
             {frameworks.map(({ id, name }) => (
@@ -150,7 +152,7 @@ export const Uncontrolled: Story = {
   name: 'Examples / Uncontrolled',
   render: ({ selectionMode, disabled }) => (
     <div className='p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Uncontrolled listbox</h3>
+      <h3 className='mb-3 text-sm font-medium'>Uncontrolled listbox</h3>
       <Listbox selectionMode={selectionMode} disabled={disabled} defaultSelection={['react']}>
         <Listbox.Content>
           {frameworks.map(({ id, name }) => (
@@ -181,7 +183,7 @@ export const Disabled: Story = {
     const [selection, setSelection] = useState<readonly string[]>(['react', 'vue']);
     return (
       <div className='p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Disabled listbox</h3>
+        <h3 className='mb-3 text-sm font-medium'>Disabled listbox</h3>
         <Listbox
           selectionMode={selectionMode}
           disabled={disabled}
@@ -215,7 +217,7 @@ export const WithCheckboxes: Story = {
     const [selection, setSelection] = useState<readonly string[]>(['preact']);
     return (
       <div className='min-w-52 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Choose your frameworks</h3>
+        <h3 className='mb-3 text-sm font-medium'>Choose your frameworks</h3>
         <Listbox
           selectionMode={selectionMode}
           disabled={disabled}
@@ -260,7 +262,7 @@ export const LongList: Story = {
     return (
       <div className='flex flex-col gap-y-3 p-4'>
         <div className='flex flex-col items-center gap-y-3'>
-          <h3 className='font-medium text-sm'>Select a country</h3>
+          <h3 className='text-sm font-medium'>Select a country</h3>
           <Listbox selectionMode='single' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
             <Listbox.Content className='max-h-40 flex-auto' label='Select a country'>
               {countries.map(({ id, name }) => (
@@ -270,17 +272,17 @@ export const LongList: Story = {
               ))}
             </Listbox.Content>
           </Listbox>
-          <p className='text-sm text-subtle'>
+          <p className='text-subtle text-sm'>
             Selected: {selection.length > 0 ? countries.find(({ id }) => selection.includes(id))?.name : 'None'}
           </p>
         </div>
-        <p className='mt-3 text-sm text-subtle'>
+        <p className='text-subtle mt-3 text-sm'>
           {'Use '}
           <span className='inline-flex items-center gap-x-1 font-mono text-xs'>
-            <span className='rounded-sm border border-main/20 px-1'>↑</span>
-            <span className='rounded-sm border border-main/20 px-1'>↓</span>
-            <span className='rounded-sm border border-main/20 px-1'>Home</span>
-            <span className='rounded-sm border border-main/20 px-1'>End</span>
+            <span className='border-main/20 rounded-sm border px-1'>↑</span>
+            <span className='border-main/20 rounded-sm border px-1'>↓</span>
+            <span className='border-main/20 rounded-sm border px-1'>Home</span>
+            <span className='border-main/20 rounded-sm border px-1'>End</span>
           </span>
           {' keys to navigate'}
         </p>
@@ -321,10 +323,10 @@ export const WithCustomGroups: Story = {
 
     return (
       <div className='w-72 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Select frameworks (grouped)</h3>
+        <h3 className='mb-3 text-sm font-medium'>Select frameworks (grouped)</h3>
         <Listbox selectionMode='multiple' disabled={disabled} selection={selection} onSelectionChange={setSelection}>
           <Listbox.Content className='max-h-60' label='Select frameworks (grouped)'>
-            <div className='top-0 bg-surface-neutral px-1 pt-3 pb-1 font-semibold text-subtle text-xs uppercase'>
+            <div className='bg-surface-neutral text-subtle top-0 px-1 pt-3 pb-1 text-xs font-semibold uppercase'>
               UI Frameworks
             </div>
             {uiFrameworks.map(({ id, name }) => (
@@ -333,7 +335,7 @@ export const WithCustomGroups: Story = {
               </Listbox.Item>
             ))}
 
-            <div className='top-0 bg-surface-neutral px-1 pt-3 pb-1 font-semibold text-subtle text-xs uppercase'>
+            <div className='bg-surface-neutral text-subtle top-0 px-1 pt-3 pb-1 text-xs font-semibold uppercase'>
               JavaScript Frameworks
             </div>
             {jsFrameworks.map(({ id, name }) => (
@@ -342,7 +344,7 @@ export const WithCustomGroups: Story = {
               </Listbox.Item>
             ))}
 
-            <div className='sticky top-0 bg-surface-neutral px-1 pt-3 pb-1 font-semibold text-subtle text-xs uppercase'>
+            <div className='bg-surface-neutral text-subtle sticky top-0 px-1 pt-3 pb-1 text-xs font-semibold uppercase'>
               Experimental
             </div>
             {experimental.map(({ id, name }) => (
@@ -353,7 +355,7 @@ export const WithCustomGroups: Story = {
           </Listbox.Content>
         </Listbox>
 
-        <p className='mt-3 text-sm text-subtle'>Selected: {selection.length > 0 ? selection.join(', ') : 'None'}</p>
+        <p className='text-subtle mt-3 text-sm'>Selected: {selection.length > 0 ? selection.join(', ') : 'None'}</p>
       </div>
     );
   },
@@ -409,7 +411,7 @@ export const OuterNavigation: Story = {
           </Listbox.Content>
         </Listbox>
 
-        <h3 className='mt-3 text-sm text-subtle'>Navigate list using buttons</h3>
+        <h3 className='text-subtle mt-3 text-sm'>Navigate list using buttons</h3>
       </div>
     );
   },
@@ -458,7 +460,7 @@ export const ActiveDescendantMode: Story = {
 
     return (
       <div className='max-w-80 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Listbox with external input (aria-activedescendant)</h3>
+        <h3 className='mb-3 text-sm font-medium'>Listbox with external input (aria-activedescendant)</h3>
         <Input type='text' placeholder='Use arrow keys' onKeyDown={handleKeyDown} />
         <Listbox
           selectionMode='multiple'
@@ -476,7 +478,7 @@ export const ActiveDescendantMode: Story = {
             ))}
           </Listbox.Content>
         </Listbox>
-        <p className='mt-3 text-sm text-subtle'>
+        <p className='text-subtle mt-3 text-sm'>
           Input keeps focus, so listbox items are not focusable and don’t show focus ring.
         </p>
       </div>

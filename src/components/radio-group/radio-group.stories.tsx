@@ -1,5 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { useState } from 'react';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+
 import { Tooltip } from '../tooltip';
 import { RadioGroup, type RadioGroupRootProps } from './radio-group';
 
@@ -23,7 +25,7 @@ export const Default: Story = {
   render: () => {
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Default Radio Group</h3>
+        <h3 className='mb-3 text-sm font-medium'>Default Radio Group</h3>
         <RadioGroup.Root name='defaultAccessMode' defaultValue='public'>
           <RadioGroup.Item value='public'>
             <RadioGroup.Indicator />
@@ -52,7 +54,7 @@ export const Controlled: Story = {
 
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Controlled Radio Group</h3>
+        <h3 className='mb-3 text-sm font-medium'>Controlled Radio Group</h3>
         <RadioGroup.Root name='controlledAccessMode' value={value} onValueChange={setValue}>
           <RadioGroup.Item value='public'>
             <RadioGroup.Indicator />
@@ -69,7 +71,7 @@ export const Controlled: Story = {
             <span>Custom - Selected users can read content</span>
           </RadioGroup.Item>
         </RadioGroup.Root>
-        <p className='mt-3 text-sm text-subtle'>Selected: {value}</p>
+        <p className='text-subtle mt-3 text-sm'>Selected: {value}</p>
       </div>
     );
   },
@@ -80,7 +82,7 @@ export const HorizontalState: Story = {
   render: () => {
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Horizontal Radio Group</h3>
+        <h3 className='mb-3 text-sm font-medium'>Horizontal Radio Group</h3>
         <RadioGroup.Root name='horizontalAccessMode' defaultValue='public' orientation='horizontal'>
           <RadioGroup.Item value='public'>
             <RadioGroup.Indicator />
@@ -107,7 +109,7 @@ export const ErrorState: Story = {
   render: () => {
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Error Radio Group</h3>
+        <h3 className='mb-3 text-sm font-medium'>Error Radio Group</h3>
         <RadioGroup.Root name='errorAccessMode' defaultValue='public' error>
           <RadioGroup.Item value='public'>
             <RadioGroup.Indicator />
@@ -134,7 +136,7 @@ export const ErrorMessageState: Story = {
   render: () => {
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Error Radio Group with message</h3>
+        <h3 className='mb-3 text-sm font-medium'>Error Radio Group with message</h3>
         <RadioGroup.Root name='errorMessageAccessMode' defaultValue='public' error errorMessage='Error message'>
           <RadioGroup.Item value='public'>
             <RadioGroup.Indicator />
@@ -161,7 +163,7 @@ export const LoopState: Story = {
   render: () => {
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Radio Group with loop navigation</h3>
+        <h3 className='mb-3 text-sm font-medium'>Radio Group with loop navigation</h3>
         <RadioGroup.Root name='loopAccessMode' defaultValue='public' loop>
           <RadioGroup.Item value='public'>
             <RadioGroup.Indicator />
@@ -188,7 +190,7 @@ export const DisabledState: Story = {
   render: () => {
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Radio Group with disabled item</h3>
+        <h3 className='mb-3 text-sm font-medium'>Radio Group with disabled item</h3>
         <RadioGroup.Root name='disabledAccessMode' defaultValue='public'>
           <RadioGroup.Item value='public'>
             <RadioGroup.Indicator />
@@ -217,7 +219,7 @@ export const RequiredState: Story = {
 
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Required Radio Group</h3>
+        <h3 className='mb-3 text-sm font-medium'>Required Radio Group</h3>
         <RadioGroup.Root
           name='requiredAccessMode'
           value={value}
@@ -251,7 +253,7 @@ export const FeatureCustomItems: Story = {
   render: () => {
     return (
       <div className='space-y-4 p-4'>
-        <h3 className='mb-3 font-medium text-sm'>Radio Group with custom items</h3>
+        <h3 className='mb-3 text-sm font-medium'>Radio Group with custom items</h3>
         <RadioGroup.Root
           name='customItemsAccessMode'
           defaultValue='public'
@@ -288,7 +290,7 @@ export const UnselectedRadio: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <div className='w-96 rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary w-96 rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Radio Group with unselected radio:</p>
           <ul className='space-y-1 text-xs'>
             <li>Reachable via Keyboard Tab</li>
@@ -321,23 +323,23 @@ export const KeyboardNavigation: Story = {
   render: () => {
     return (
       <div className='flex flex-col gap-4'>
-        <div className='w-96 rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary w-96 rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> - Enter/exit the group
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Tab</kbd> - Enter/exit the group
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Left / Arrow Up</kbd> - Move backwards
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Left / Arrow Up</kbd> - Move backwards
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Right / Arrow Down</kbd> - Move forwards
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Right / Arrow Down</kbd> - Move forwards
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> - Go to first enabled radio
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Home</kbd> - Go to first enabled radio
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Go to last enabled radio
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>End</kbd> - Go to last enabled radio
             </li>
           </ul>
         </div>

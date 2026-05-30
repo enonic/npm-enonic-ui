@@ -1,8 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { type ChangeEvent, type FormEvent, useRef, useState } from 'react';
+
 import { Button } from '@/components/button';
 import { Dialog } from '@/components/dialog';
 import { Input } from '@/components/input';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+
 import { TimePicker } from './time-picker';
 
 export default {
@@ -49,11 +52,11 @@ export const Basic: Story = {
     const [value, setValue] = useState<string | null>(() => getNowValue(false));
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Basic time picker with hour and minute dropdowns separated by a colon.
         </div>
         <TimePicker onValueChange={setValue} />
-        <div className='text-sm text-subtle'>Current value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Current value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -65,12 +68,12 @@ export const WithTimezone: Story = {
     const [value, setValue] = useState<string | null>(() => getNowValue(true));
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           When timezone is enabled, the current timezone is displayed after the time, and the value is stored in UTC
           format with Z suffix.
         </div>
         <TimePicker timezone onValueChange={setValue} />
-        <div className='text-sm text-subtle'>Current value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Current value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -82,11 +85,11 @@ export const Controlled: Story = {
     const [value, setValue] = useState<string | null>('14:30');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Controlled time picker that displays the current value below.
         </div>
         <TimePicker value={value} onValueChange={setValue} />
-        <div className='text-sm text-subtle'>Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -98,12 +101,12 @@ export const ControlledWithTimezone: Story = {
     const [value, setValue] = useState<string | null>('12:00Z');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Controlled time picker with timezone. The value is in UTC format (ending with Z). The displayed time is
           converted to local time.
         </div>
         <TimePicker value={value} onValueChange={setValue} timezone />
-        <div className='text-sm text-subtle'>UTC Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>UTC Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -117,17 +120,17 @@ export const SideBySide: Story = {
 
     return (
       <div className='flex flex-col items-center gap-6 p-4'>
-        <div className='max-w-100 text-sm text-subtle'>
+        <div className='text-subtle max-w-100 text-sm'>
           Comparison of local time (left) vs UTC time with timezone (right). Both are set to represent the same moment.
         </div>
         <div className='flex gap-8'>
           <div className='flex flex-col items-center gap-2'>
-            <div className='font-semibold text-main text-sm'>Local Time</div>
+            <div className='text-main text-sm font-semibold'>Local Time</div>
             <TimePicker value={localValue} onValueChange={setLocalValue} />
             <div className='text-subtle text-xs'>Value: {localValue}</div>
           </div>
           <div className='flex flex-col items-center gap-2'>
-            <div className='font-semibold text-main text-sm'>UTC Time</div>
+            <div className='text-main text-sm font-semibold'>UTC Time</div>
             <TimePicker value={utcValue} onValueChange={setUtcValue} timezone />
             <div className='text-subtle text-xs'>Value: {utcValue}</div>
           </div>
@@ -172,7 +175,7 @@ export const TimeInput: Story = {
 
     return (
       <div className='flex w-80 flex-col gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Type a time or use the icon; the input and picker stay in sync. Press Escape to close the picker and return
           focus to the input.
         </div>
@@ -223,7 +226,7 @@ export const TimeInputInDialog: Story = {
 
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Time picker inside a dialog. The popup is portaled to the body but works correctly with the dialog&apos;s
           focus trap.
         </div>
@@ -284,9 +287,9 @@ export const DefaultValue: Story = {
     const [value, setValue] = useState<string | null>('09:15');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>Time picker initialized with a default value of 09:15.</div>
+        <div className='text-subtle max-w-80 text-sm'>Time picker initialized with a default value of 09:15.</div>
         <TimePicker defaultValue='09:15' onValueChange={setValue} />
-        <div className='text-sm text-subtle'>Current value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Current value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -298,11 +301,11 @@ export const DefaultValueWithTimezone: Story = {
     const [value, setValue] = useState<string | null>('08:00Z');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Time picker with timezone initialized with a UTC value. The time is displayed in local time.
         </div>
         <TimePicker defaultValue='08:00Z' timezone onValueChange={setValue} />
-        <div className='text-sm text-subtle'>Current value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Current value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -323,22 +326,22 @@ export const HiddenInput: Story = {
 
     return (
       <form onSubmit={handleSubmit} className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Hidden input keeps form submissions in sync with the selected time.
         </div>
         <TimePicker value={value} onValueChange={setValue} name='meetingTime' className='flex-col'>
           <div className='flex items-center gap-2'>
             <TimePicker.HourSelect className='w-20' />
-            <span className='font-bold text-lg text-main'>:</span>
+            <span className='text-main text-lg font-bold'>:</span>
             <TimePicker.MinuteSelect className='w-20' />
           </div>
           <TimePicker.HiddenInput />
         </TimePicker>
-        <div className='text-sm text-subtle'>Current value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Current value: {value ?? 'None'}</div>
         <Button type='submit' size='md'>
           Submit
         </Button>
-        <div className='text-sm text-subtle'>Submitted value: {submitted}</div>
+        <div className='text-subtle text-sm'>Submitted value: {submitted}</div>
       </form>
     );
   },
@@ -359,23 +362,23 @@ export const HiddenInputWithTimezone: Story = {
 
     return (
       <form onSubmit={handleSubmit} className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           With timezone enabled, the submitted value is in UTC format with Z suffix.
         </div>
         <TimePicker value={value} onValueChange={setValue} name='meetingTime' timezone className='flex-col'>
           <div className='flex items-center gap-2'>
             <TimePicker.HourSelect className='w-20' />
-            <span className='font-bold text-lg text-main'>:</span>
+            <span className='text-main text-lg font-bold'>:</span>
             <TimePicker.MinuteSelect className='w-20' />
           </div>
           <TimePicker.Timezone className='mt-2 text-center' />
           <TimePicker.HiddenInput />
         </TimePicker>
-        <div className='text-sm text-subtle'>Current value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Current value: {value ?? 'None'}</div>
         <Button type='submit' size='md'>
           Submit
         </Button>
-        <div className='text-sm text-subtle'>Submitted UTC value: {submitted}</div>
+        <div className='text-subtle text-sm'>Submitted UTC value: {submitted}</div>
       </form>
     );
   },
@@ -387,18 +390,18 @@ export const CustomLayout: Story = {
     const [value, setValue] = useState<string | null>(() => getNowValue(false));
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Custom layout using compound components for full control over the structure.
         </div>
         <TimePicker className='flex-col' onValueChange={setValue}>
           <div className='flex items-center gap-2'>
             <TimePicker.HourSelect className='w-20' />
-            <span className='font-bold text-lg text-main'>:</span>
+            <span className='text-main text-lg font-bold'>:</span>
             <TimePicker.MinuteSelect className='w-20' />
           </div>
           <TimePicker.Timezone className='mt-2 text-center' />
         </TimePicker>
-        <div className='text-sm text-subtle'>Current value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Current value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -410,18 +413,18 @@ export const CustomLayoutWithTimezone: Story = {
     const [value, setValue] = useState<string | null>(() => getNowValue(true));
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Custom vertical layout with timezone displayed below the time.
         </div>
         <TimePicker timezone className='flex-col' onValueChange={setValue}>
           <div className='flex items-center gap-2'>
             <TimePicker.HourSelect className='w-20' />
-            <span className='font-bold text-lg text-main'>:</span>
+            <span className='text-main text-lg font-bold'>:</span>
             <TimePicker.MinuteSelect className='w-20' />
           </div>
           <TimePicker.Timezone className='mt-2 text-center' />
         </TimePicker>
-        <div className='text-sm text-subtle'>Current value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Current value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -435,7 +438,7 @@ export const IncorrectValues: Story = {
 
     return (
       <div className='flex flex-col items-center gap-4 p-4'>
-        <div className='max-w-96 text-sm text-subtle'>
+        <div className='text-subtle max-w-96 text-sm'>
           Invalid values fall back to the current time display. Selecting a time updates the stored value.
         </div>
         <div className='flex flex-col items-center gap-2'>
@@ -459,7 +462,7 @@ export const InvalidState: Story = {
 
     return (
       <div className='flex flex-col items-center gap-4 p-4'>
-        <div className='max-w-96 text-sm text-subtle'>
+        <div className='text-subtle max-w-96 text-sm'>
           The <code className='text-subtle'>invalid</code> prop sets <code className='text-subtle'>aria-invalid</code>{' '}
           on interactive elements for accessibility. Use with validation libraries.
         </div>
@@ -469,7 +472,7 @@ export const InvalidState: Story = {
         </label>
         <TimePicker value={value} onValueChange={setValue} invalid={isInvalid} />
         <TimePicker value={value} onValueChange={setValue} invalid={isInvalid} native />
-        <div className='text-sm text-subtle'>Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -481,14 +484,14 @@ export const WithTrigger: Story = {
     const [value, setValue] = useState<string | null>('14:30');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Time picker with a trigger button. Click the clock icon to open the picker.
         </div>
         <TimePicker value={value} onValueChange={setValue}>
-          <TimePicker.Trigger className='rounded-sm border border-bdr-subtle' />
+          <TimePicker.Trigger className='border-bdr-subtle rounded-sm border' />
           <TimePicker.Content />
         </TimePicker>
-        <div className='text-sm text-subtle'>Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -500,14 +503,14 @@ export const WithTriggerAndTimezone: Story = {
     const [value, setValue] = useState<string | null>('12:00Z');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Trigger-based time picker with timezone support. The value is stored in UTC format.
         </div>
         <TimePicker value={value} onValueChange={setValue} timezone>
-          <TimePicker.Trigger className='rounded-sm border border-bdr-subtle' />
+          <TimePicker.Trigger className='border-bdr-subtle rounded-sm border' />
           <TimePicker.Content />
         </TimePicker>
-        <div className='text-sm text-subtle'>UTC Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>UTC Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -519,19 +522,19 @@ export const TriggerWithCustomContent: Story = {
     const [value, setValue] = useState<string | null>('09:45');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>Trigger with custom content layout inside the popup.</div>
+        <div className='text-subtle max-w-80 text-sm'>Trigger with custom content layout inside the popup.</div>
         <TimePicker value={value} onValueChange={setValue} timezone>
-          <TimePicker.Trigger className='rounded-sm border border-bdr-subtle' />
+          <TimePicker.Trigger className='border-bdr-subtle rounded-sm border' />
           <TimePicker.Content className='flex-col'>
             <div className='flex items-center gap-2'>
               <TimePicker.HourSelect className='w-20' />
-              <span className='font-bold text-lg text-main'>:</span>
+              <span className='text-main text-lg font-bold'>:</span>
               <TimePicker.MinuteSelect className='w-20' />
             </div>
             <TimePicker.Timezone className='mt-2 text-center' />
           </TimePicker.Content>
         </TimePicker>
-        <div className='text-sm text-subtle'>Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -543,7 +546,7 @@ export const CustomTrigger: Story = {
     const [value, setValue] = useState<string | null>('16:00');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Custom trigger button using the asChild pattern to render a Button component.
         </div>
         <TimePicker value={value} onValueChange={setValue}>
@@ -554,7 +557,7 @@ export const CustomTrigger: Story = {
           </TimePicker.Trigger>
           <TimePicker.Content />
         </TimePicker>
-        <div className='text-sm text-subtle'>Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -566,14 +569,14 @@ export const TriggerAlignEnd: Story = {
     const [value, setValue] = useState<string | null>('10:15');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>Content aligned to the end (right) of the trigger button.</div>
+        <div className='text-subtle max-w-80 text-sm'>Content aligned to the end (right) of the trigger button.</div>
         <div className='flex w-full justify-end'>
           <TimePicker value={value} onValueChange={setValue}>
-            <TimePicker.Trigger className='rounded-sm border border-bdr-subtle' />
+            <TimePicker.Trigger className='border-bdr-subtle rounded-sm border' />
             <TimePicker.Content align='end' />
           </TimePicker>
         </div>
-        <div className='text-sm text-subtle'>Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -598,7 +601,7 @@ export const ReferenceDateDST: Story = {
 
     return (
       <div className='flex flex-col items-center gap-4 p-4'>
-        <div className='max-w-96 text-sm text-subtle'>
+        <div className='text-subtle max-w-96 text-sm'>
           Select a summer or winter date to see how the timezone offset changes due to Daylight Saving Time (DST). The
           time picker uses the selected date as reference for UTC↔local conversion.
         </div>
@@ -655,7 +658,7 @@ export const Interactive: Story = {
 
     return (
       <div className='flex flex-col items-center gap-4 p-4'>
-        <div className='max-w-100 text-sm text-subtle'>
+        <div className='text-subtle max-w-100 text-sm'>
           Interactive playground to explore all TimePicker features: trigger mode, timezone, reference date for DST, and
           value presets.
         </div>
@@ -692,7 +695,7 @@ export const Interactive: Story = {
         {/* Time Picker */}
         {useTrigger ? (
           <TimePicker value={value} onValueChange={setValue} timezone={timezone} referenceDate={selectedDate}>
-            <TimePicker.Trigger className='rounded-sm border border-bdr-subtle' />
+            <TimePicker.Trigger className='border-bdr-subtle rounded-sm border' />
             <TimePicker.Content />
           </TimePicker>
         ) : (
@@ -716,7 +719,7 @@ export const Interactive: Story = {
         </div>
 
         {/* Value Display */}
-        <div className='text-sm text-subtle'>Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -728,12 +731,12 @@ export const NativeInput: Story = {
     const [value, setValue] = useState<string | null>('14:30');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Native time input using the built-in time picker. This is the default on mobile devices, or can be forced with
           the native prop.
         </div>
         <TimePicker value={value} onValueChange={setValue} native />
-        <div className='text-sm text-subtle'>Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>Value: {value ?? 'None'}</div>
       </div>
     );
   },
@@ -745,11 +748,11 @@ export const NativeInputWithTimezone: Story = {
     const [value, setValue] = useState<string | null>('12:00Z');
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-80 text-sm text-subtle'>
+        <div className='text-subtle max-w-80 text-sm'>
           Native time input with timezone support. The input shows local time, but the value is stored in UTC format.
         </div>
         <TimePicker value={value} onValueChange={setValue} native timezone />
-        <div className='text-sm text-subtle'>UTC Value: {value ?? 'None'}</div>
+        <div className='text-subtle text-sm'>UTC Value: {value ?? 'None'}</div>
       </div>
     );
   },

@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import {
   useClickOutside,
   useControlledState,
@@ -322,7 +323,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
         className={cn(
           'fixed z-40 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
           'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
-          'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
+          'border-bdr-subtle bg-surface-neutral rounded-sm border shadow-lg outline-none',
           // Animations
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',

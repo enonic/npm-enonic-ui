@@ -1,5 +1,7 @@
-import type { LucideIcon, LucideProps } from 'lucide-react';
 import { forwardRef } from 'react';
+
+import type { LucideIcon, LucideProps } from 'lucide-react';
+
 import { cn } from '../utils/cn';
 import { unwrap } from '../utils/unwrap';
 

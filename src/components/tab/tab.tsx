@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { IconButton } from '@/components';
 import {
   useControlledState,
@@ -22,8 +23,9 @@ import {
 } from '@/hooks';
 import { FilledOctagonAlert } from '@/icons';
 import { type TabContextValue, TabProvider, usePrefixedId, useTab } from '@/providers';
-import type { LucideIcon } from '@/types';
 import { cn, useComposedRefs } from '@/utils';
+
+import type { LucideIcon } from '@/types';
 
 //
 // * Tab.Root
@@ -237,16 +239,16 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
         onClick={handleClick}
         className={cn(
           'relative inline-flex h-10 flex-1 items-center justify-center gap-1.5',
-          'min-w-0 overflow-hidden whitespace-nowrap py-2.5',
-          'text-sm text-subtle transition-highlight',
+          'min-w-0 overflow-hidden py-2.5 whitespace-nowrap',
+          'text-subtle transition-highlight text-sm',
           'cursor-pointer',
           'after:absolute after:inset-x-0 after:bottom-0',
-          'after:h-px after:bg-bdr-soft after:transition-all',
+          'after:bg-bdr-soft after:h-px after:transition-all',
           'hover:text-default hover:after:h-0.5',
-          'data-[state=active]:font-semibold data-[state=active]:text-default',
-          'data-[state=active]:after:h-0.5 data-[state=active]:after:bg-bdr-strong',
+          'data-[state=active]:text-default data-[state=active]:font-semibold',
+          'data-[state=active]:after:bg-bdr-strong data-[state=active]:after:h-0.5',
           'data-disabled:pointer-events-none data-disabled:opacity-50',
-          'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+          'focus-visible:ring-ring focus-visible:ring-offset-ring-offset focus-visible:ring-3 focus-visible:ring-offset-3 focus-visible:outline-none',
           className,
         )}
         {...props}
@@ -289,9 +291,9 @@ const TabDefaultTrigger = forwardRef<HTMLButtonElement, TabDefaultTriggerProps>(
           </span>
         )}
         <span className='truncate'>{children}</span>
-        {error && <FilledOctagonAlert className='size-3 shrink-0 text-error' />}
+        {error && <FilledOctagonAlert className='text-error size-3 shrink-0' />}
         {!error && count !== undefined && (
-          <span className='min-w-5 shrink-0 rounded-full bg-surface-primary px-1.5 py-0.5 font-medium text-xs'>
+          <span className='bg-surface-primary min-w-5 shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium'>
             {count}
           </span>
         )}
@@ -404,7 +406,7 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
   }, [hasOverflow]);
 
   const arrowClassName = cn(
-    'flex shrink-0 cursor-pointer items-center justify-center p-1 text-subtle',
+    'text-subtle flex shrink-0 cursor-pointer items-center justify-center p-1',
     'hover:text-default disabled:pointer-events-none disabled:cursor-default disabled:opacity-30',
     !hasOverflow && 'pointer-events-none w-0 overflow-hidden opacity-0',
   );
@@ -433,8 +435,8 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
         ref={scrollRef}
         style={{ '--tab-min-w': minTabWidth }}
         className={cn(
-          'scrollbar-none -my-1.5 min-w-0 flex-1 scroll-px-1.5 overflow-x-auto py-1.5',
-          'outline-none focus-visible:ring-2 focus-visible:ring-ring/10 focus-visible:ring-inset',
+          '-my-1.5 min-w-0 flex-1 scroll-px-1.5 scrollbar-none overflow-x-auto py-1.5',
+          'focus-visible:ring-ring/10 outline-none focus-visible:ring-2 focus-visible:ring-inset',
           // Restyle Tab.List: switch from flex to inline-flex, auto width with min-w-full
           '**:[[role=tablist]]:inline-flex! **:[[role=tablist]]:w-auto! **:[[role=tablist]]:min-w-full **:[[role=tablist]]:px-1.5',
           // Restyle Tab.Trigger: enforce minimum width and tighter padding

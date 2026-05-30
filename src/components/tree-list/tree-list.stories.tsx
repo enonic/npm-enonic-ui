@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, Folder, Pencil, Trash2 } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
+
 import { Button, ListItem } from '@/components';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+
 import { TreeList } from './tree-list';
 
 type Story = StoryObj<typeof TreeList>;
@@ -44,7 +47,7 @@ export const FlatList: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Flat List</div>
-        <div className='text-sm text-subtle'>Simple list without hierarchy or expand controls</div>
+        <div className='text-subtle text-sm'>Simple list without hierarchy or expand controls</div>
         <TreeList
           className={treeListClass(TREE_HEIGHT_SM)}
           selection={selection}
@@ -81,7 +84,7 @@ export const FlatListLarge: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Flat List (500 Items)</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Large flat list with 500 items. Use PageUp/PageDown for fast navigation.
         </div>
         <TreeList
@@ -102,7 +105,7 @@ export const FlatListLarge: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>Active: {active || 'none'} (500 items total)</div>
+        <div className='text-subtle text-sm'>Active: {active || 'none'} (500 items total)</div>
       </div>
     );
   },
@@ -154,7 +157,7 @@ export const Basic: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Basic TreeList</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Hierarchical tree with expand/collapse. Data management handled externally.
         </div>
         <TreeList
@@ -225,29 +228,29 @@ export const MultipleSelection: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Multiple Selection</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Click</kbd> - Select item (replaces selection)
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Click</kbd> - Select item (replaces selection)
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Ctrl/Cmd+Click</kbd> - Toggle item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Ctrl/Cmd+Click</kbd> - Toggle item
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Shift+Click</kbd> - Range select
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Shift+Click</kbd> - Range select
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Shift+Arrow</kbd> - Extend range
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Shift+Arrow</kbd> - Extend range
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Ctrl/Cmd+A</kbd> - Select all / Deselect all
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Ctrl/Cmd+A</kbd> - Select all / Deselect all
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Space</kbd> - Toggle selection
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Space</kbd> - Toggle selection
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Escape</kbd> - Clear selection
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Escape</kbd> - Clear selection
             </li>
           </ul>
         </div>
@@ -288,7 +291,7 @@ export const MultipleSelection: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+        <div className='text-subtle text-sm'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },
@@ -309,7 +312,7 @@ export const CheckboxesOnRight: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Checkboxes on Right Side</div>
-        <div className='text-sm text-subtle'>Selection controls can be placed on either side</div>
+        <div className='text-subtle text-sm'>Selection controls can be placed on either side</div>
         <TreeList
           className={treeListClass(TREE_HEIGHT_SM)}
           selection={selection}
@@ -369,7 +372,7 @@ export const SelectionModes: Story = {
             <select
               value={selectionMode}
               onChange={e => setSelectionMode(e.currentTarget.value as 'single' | 'multiple')}
-              className='rounded border border-bdr-subtle bg-surface-primary px-2 py-1 text-sm'
+              className='border-bdr-subtle bg-surface-primary rounded border px-2 py-1 text-sm'
             >
               <option value='single'>Single</option>
               <option value='multiple'>Multiple</option>
@@ -380,7 +383,7 @@ export const SelectionModes: Story = {
             <select
               value={variant}
               onChange={e => setVariant(e.currentTarget.value as 'none' | 'checkbox' | 'radio')}
-              className='rounded border border-bdr-subtle bg-surface-primary px-2 py-1 text-sm'
+              className='border-bdr-subtle bg-surface-primary rounded border px-2 py-1 text-sm'
             >
               <option value='none'>None (background only)</option>
               <option value='checkbox'>Checkbox</option>
@@ -388,7 +391,7 @@ export const SelectionModes: Story = {
             </select>
           </label>
         </div>
-        <div className='mb-2 text-sm text-subtle'>
+        <div className='text-subtle mb-2 text-sm'>
           {variant === 'none' && 'Selection indicated by background styling only.'}
           {variant === 'checkbox' && 'Checkbox indicators for selection.'}
           {variant === 'radio' && 'Radio indicators for selection.'}
@@ -414,7 +417,7 @@ export const SelectionModes: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+        <div className='text-subtle text-sm'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },
@@ -439,14 +442,14 @@ export const ItemActivation: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Item Activation</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Activation triggers:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Enter</kbd> - Activate focused item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Enter</kbd> - Activate focused item
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Double-click</kbd> - Activate clicked item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Double-click</kbd> - Activate clicked item
             </li>
           </ul>
         </div>
@@ -467,7 +470,7 @@ export const ItemActivation: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Activated: <span className='font-medium'>{lastActivated ? getLabel(lastActivated) : 'none'}</span>
         </div>
       </div>
@@ -488,7 +491,7 @@ export const WithDisabledItems: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Disabled Items</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Items &quot;Work&quot; and &quot;Vacation&quot; are disabled. They are skipped during keyboard navigation and
           cannot be selected.
         </div>
@@ -540,7 +543,7 @@ export const MixedInteraction: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Mixed Interaction Levels</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Shows all interaction levels: loading/placeholder items are skipped, &quot;Work&quot; is focusable but not
           selectable (<code>&apos;navigate-only&apos;</code>), others are fully interactive.
         </div>
@@ -606,7 +609,7 @@ export const LoadingState: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Loading State</div>
-        <div className='text-sm text-subtle'>RowLoading shows spinner (customizable via children)</div>
+        <div className='text-subtle text-sm'>RowLoading shows spinner (customizable via children)</div>
         <TreeList
           className={treeListClass(TREE_HEIGHT_SM)}
           selection={selection}
@@ -626,7 +629,7 @@ export const LoadingState: Story = {
             </TreeList.Row>
             <TreeList.RowLoading />
             <TreeList.RowLoading>
-              <span className='text-sm text-subtle'>Custom loading text...</span>
+              <span className='text-subtle text-sm'>Custom loading text...</span>
             </TreeList.RowLoading>
           </TreeList.Container>
         </TreeList>
@@ -643,7 +646,7 @@ export const PlaceholderState: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Placeholder State</div>
-        <div className='text-sm text-subtle'>RowPlaceholder for known IDs with unknown data</div>
+        <div className='text-subtle text-sm'>RowPlaceholder for known IDs with unknown data</div>
         <TreeList
           className={treeListClass(TREE_HEIGHT_SM)}
           selection={selection}
@@ -741,21 +744,21 @@ export const TreeNavigation: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Tree Navigation</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Up/Down</kbd> - Navigate items
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Up/Down</kbd> - Navigate items
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Right</kbd> - Expand node / Move to child
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Right</kbd> - Expand node / Move to child
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Left</kbd> - Collapse node / Move to parent
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Left</kbd> - Collapse node / Move to parent
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Jump to first/last
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Home</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>End</kbd> - Jump to first/last
             </li>
           </ul>
         </div>
@@ -809,7 +812,7 @@ export const TreeNavigation: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>Active: {active || 'none'}</div>
+        <div className='text-subtle text-sm'>Active: {active || 'none'}</div>
       </div>
     );
   },
@@ -831,8 +834,8 @@ export const NavigationOnly: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Navigation Only</div>
-        <div className='text-sm text-subtle'>
-          With <code className='rounded bg-surface-neutral px-1 font-mono text-xs'>selectionMode=&quot;none&quot;</code>
+        <div className='text-subtle text-sm'>
+          With <code className='bg-surface-neutral rounded px-1 font-mono text-xs'>selectionMode=&quot;none&quot;</code>
           , items can be navigated but not selected.
         </div>
         <TreeList
@@ -851,7 +854,7 @@ export const NavigationOnly: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>Active: {active || 'none'}</div>
+        <div className='text-subtle text-sm'>Active: {active || 'none'}</div>
       </div>
     );
   },
@@ -872,19 +875,19 @@ export const PageNavigation: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Page Navigation</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>PageUp</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>PageDown</kbd> - Jump by page
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>PageUp</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>PageDown</kbd> - Jump by page
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Jump to first/last
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Home</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>End</kbd> - Jump to first/last
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Up/Down</kbd> - Navigate one item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Up/Down</kbd> - Navigate one item
             </li>
           </ul>
         </div>
@@ -906,7 +909,7 @@ export const PageNavigation: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>Active: {active || 'none'} (50 items total)</div>
+        <div className='text-subtle text-sm'>Active: {active || 'none'} (50 items total)</div>
       </div>
     );
   },
@@ -939,20 +942,20 @@ export const ActionMode: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Action Mode (F2)</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>F2</kbd> - Enter action mode (focus buttons in row)
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>F2</kbd> - Enter action mode (focus buttons in row)
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> - Cycle through buttons
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Tab</kbd> - Cycle through buttons
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> after last button - Exit action mode
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Tab</kbd> after last button - Exit action mode
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Escape</kbd> - Exit action mode immediately
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Escape</kbd> - Exit action mode immediately
             </li>
           </ul>
         </div>
@@ -966,12 +969,12 @@ export const ActionMode: Story = {
             {actionItems.map(item => (
               <TreeList.Row key={item.id} id={item.id}>
                 <TreeList.RowLeft>
-                  <File className='size-4 text-subtle group-data-[tone=inverse]:text-alt' />
+                  <File className='text-subtle group-data-[tone=inverse]:text-alt size-4' />
                 </TreeList.RowLeft>
                 <TreeList.RowContent>
                   <div className='flex flex-col'>
-                    <span className='font-medium text-sm'>{item.label}</span>
-                    <span className='text-subtle text-xs group-data-[tone=inverse]:text-alt'>{item.description}</span>
+                    <span className='text-sm font-medium'>{item.label}</span>
+                    <span className='text-subtle group-data-[tone=inverse]:text-alt text-xs'>{item.description}</span>
                   </div>
                 </TreeList.RowContent>
                 <TreeList.RowRight>
@@ -1002,9 +1005,9 @@ export const ActionMode: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='rounded-sm bg-surface-primary p-2'>
-          <div className='mb-1 font-medium text-xs'>Action Log:</div>
-          <pre className='h-20 overflow-auto text-subtle text-xs'>
+        <div className='bg-surface-primary rounded-sm p-2'>
+          <div className='mb-1 text-xs font-medium'>Action Log:</div>
+          <pre className='text-subtle h-20 overflow-auto text-xs'>
             {log.length > 0 ? log.join('\n') : '(no actions yet)'}
           </pre>
         </div>
@@ -1089,12 +1092,12 @@ export const ClearActiveOnReclick: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Clear Active On Reclick</div>
-        <div className='text-sm text-subtle'>
-          With <code className='rounded bg-surface-neutral px-1 font-mono text-xs'>clearActiveOnReclick=true</code>,
+        <div className='text-subtle text-sm'>
+          With <code className='bg-surface-neutral rounded px-1 font-mono text-xs'>clearActiveOnReclick=true</code>,
           single-clicking an already active item when selection is empty will clear the active state.
         </div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
-          <ul className='space-y-1 text-subtle text-xs'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>Click item → becomes active (highlighted)</li>
             <li>Click same item again → active clears (only when selection empty)</li>
             <li>Click checkbox → toggle selection</li>
@@ -1142,7 +1145,7 @@ export const ClearActiveOnReclick: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           <div>Active: {active || 'none'}</div>
           <div>Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}</div>
           <div>Double-clicked: {lastActivated || 'none'}</div>
@@ -1175,7 +1178,7 @@ export const RowClickSelectionModes: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Row Click Selection</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Controls how a plain row click affects selection. Shift+click, Ctrl/Cmd+click, and checkboxes are always
           independent of this prop.
         </div>
@@ -1194,9 +1197,9 @@ export const RowClickSelectionModes: Story = {
             </Button>
           ))}
         </div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-1 font-medium'>
-            <code className='rounded bg-bdr-subtle px-1 font-mono text-xs'>rowClickSelection=&quot;{mode}&quot;</code>
+            <code className='bg-bdr-subtle rounded px-1 font-mono text-xs'>rowClickSelection=&quot;{mode}&quot;</code>
           </p>
           <p className='text-subtle text-xs'>{descriptions[mode]}</p>
         </div>
@@ -1220,7 +1223,7 @@ export const RowClickSelectionModes: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
-        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+        <div className='text-subtle text-sm'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },
@@ -1255,7 +1258,7 @@ export const Invalidation: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>State Invalidation</div>
-        <div className='text-sm text-subtle'>When items are removed, active/selection state automatically updates</div>
+        <div className='text-subtle text-sm'>When items are removed, active/selection state automatically updates</div>
 
         <div className='flex flex-wrap gap-2'>
           <Button variant='outline' size='sm' onClick={() => active && removeItem(active)} disabled={!active}>
@@ -1277,7 +1280,7 @@ export const Invalidation: Story = {
           </Button>
         </div>
 
-        <div className='rounded-sm bg-surface-neutral-subtle p-2 text-sm'>
+        <div className='bg-surface-neutral-subtle rounded-sm p-2 text-sm'>
           <div>
             <strong>Active:</strong> {active ?? 'null'}
           </div>

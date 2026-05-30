@@ -1,13 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { BadgeInfo, ChevronLeft, ChevronRight, Loader2, Plus, TriangleAlert, User } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
 import { Input } from '@/components/input';
 import { Stepper } from '@/components/stepper';
 import { Toast } from '@/components/toast';
 import { Tooltip } from '@/components/tooltip';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+
 import { Dialog } from './dialog';
 
 const meta: Meta<typeof Dialog> = {
@@ -52,7 +55,7 @@ export const BasicDialog: Story = {
                     This is a basic dialog example using all default components. It includes a header with title and
                     description, a body section for content, and a footer with action buttons.
                   </p>
-                  <p className='text-sm text-subtle'>
+                  <p className='text-subtle text-sm'>
                     You can close this dialog by clicking outside, pressing Escape, or using the buttons below.
                   </p>
                 </div>
@@ -100,10 +103,10 @@ export const LoadingDialog: Story = {
             <Dialog.Overlay />
             <Dialog.Content className='w-100'>
               <Dialog.Body className='flex flex-col items-center justify-center space-y-4 py-8'>
-                <Loader2 className='size-12 animate-spin text-main' />
+                <Loader2 className='text-main size-12 animate-spin' />
                 <div className='space-y-2 text-center'>
                   <p className='font-semibold'>Processing your request</p>
-                  <p className='text-sm text-subtle'>Please wait while we sync your data...</p>
+                  <p className='text-subtle text-sm'>Please wait while we sync your data...</p>
                   <p className='text-subtle text-xs'>{progress}% complete</p>
                 </div>
               </Dialog.Body>
@@ -146,7 +149,7 @@ export const QuickConfirmation: Story = {
             <Dialog.Content className='w-96'>
               <Dialog.Body className='py-2 text-center'>
                 <p className='font-medium'>Enable experimental features?</p>
-                <p className='mt-1 text-sm text-subtle'>This may affect application stability.</p>
+                <p className='text-subtle mt-1 text-sm'>This may affect application stability.</p>
               </Dialog.Body>
               <Dialog.Footer className='justify-center'>
                 <Button variant='outline' size='lg' onClick={() => setOpen(false)} label='Cancel' />
@@ -295,7 +298,7 @@ export const OpenByDefault: Story = {
           <Dialog.Overlay />
           <Dialog.Content className='w-auto min-w-auto gap-5'>
             <Dialog.DefaultHeader title='Hey!' description='I was opened automatically' />
-            <Dialog.Body className='flex items-center gap-2 rounded-md bg-surface-info p-4 text-info'>
+            <Dialog.Body className='bg-surface-info text-info flex items-center gap-2 rounded-md p-4'>
               <BadgeInfo />
               <span>As soon as component mounted.</span>
             </Dialog.Body>
@@ -374,7 +377,7 @@ export const NestedConfirmation: Story = {
                   placeholder='Enter your email'
                 />
                 {isDirty && (
-                  <p className='pt-1 text-subtle text-xs'>
+                  <p className='text-subtle pt-1 text-xs'>
                     <TriangleAlert className='mr-1 inline size-3' />
                     You have unsaved changes
                   </p>
@@ -395,8 +398,8 @@ export const NestedConfirmation: Story = {
             <Dialog.Overlay className='z-40 bg-transparent' />
             <Dialog.Content className='w-96'>
               <Dialog.Body className='py-2'>
-                <h2 className='font-semibold text-lg'>Discard changes?</h2>
-                <p className='mt-2 text-sm text-subtle'>You have unsaved changes that will be lost.</p>
+                <h2 className='text-lg font-semibold'>Discard changes?</h2>
+                <p className='text-subtle mt-2 text-sm'>You have unsaved changes that will be lost.</p>
               </Dialog.Body>
               <Dialog.Footer>
                 <Button variant='outline' size='lg' onClick={() => setConfirmOpen(false)} label='Keep Editing' />
@@ -440,11 +443,11 @@ export const CustomHeader: Story = {
             <Dialog.Overlay />
             <Dialog.Content className='w-140'>
               <Dialog.Header className='flex flex-col gap-2.5'>
-                <Dialog.Title className='flex items-center gap-2 rounded-sm bg-surface-info px-4 py-3 text-info'>
+                <Dialog.Title className='bg-surface-info text-info flex items-center gap-2 rounded-sm px-4 py-3'>
                   <BadgeInfo strokeWidth={2} />
-                  <span className='flex-1 font-semibold text-sm uppercase'>Add new project?</span>
+                  <span className='flex-1 text-sm font-semibold uppercase'>Add new project?</span>
                   <Button
-                    className='border-info bg-transparent text-info hover:bg-info/10 active:bg-info'
+                    className='border-info text-info hover:bg-info/10 active:bg-info bg-transparent'
                     variant='outline'
                     onClick={handleNew}
                     label='Add'
@@ -452,7 +455,7 @@ export const CustomHeader: Story = {
                   />
                 </Dialog.Title>
                 <Dialog.Description>
-                  <h2 className='font-semibold text-2xl'>Project Manager</h2>
+                  <h2 className='text-2xl font-semibold'>Project Manager</h2>
                   <p>Manage and organize your active projects</p>
                 </Dialog.Description>
               </Dialog.Header>
@@ -461,7 +464,7 @@ export const CustomHeader: Story = {
                 {items.map(item => (
                   <div
                     key={item}
-                    className='flex items-center justify-between rounded-sm border border-bdr-subtle px-3 py-1'
+                    className='border-bdr-subtle flex items-center justify-between rounded-sm border px-3 py-1'
                   >
                     <span>{item}</span>
                   </div>
@@ -514,7 +517,7 @@ export const ScrollableContent: Story = {
                 {items.map(({ id, name }) => (
                   <Checkbox
                     key={id}
-                    className={'rounded-sm px-3 py-1 hover:bg-surface-neutral-hover'}
+                    className={'hover:bg-surface-neutral-hover rounded-sm px-3 py-1'}
                     label={name}
                     checked={selected.includes(id)}
                     onCheckedChange={() => toggleItem(id)}
@@ -551,7 +554,7 @@ export const LargeDialog: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='h-160 w-200 max-w-auto'>
+            <Dialog.Content className='max-w-auto h-160 w-200'>
               <Dialog.DefaultHeader
                 title='Project Overview'
                 description='Comprehensive view of project metrics and statistics'
@@ -559,26 +562,26 @@ export const LargeDialog: Story = {
               />
               <Dialog.Body className='space-y-6'>
                 <div className='grid grid-cols-3 gap-4'>
-                  <div className='rounded-lg border border-bdr-subtle p-4'>
-                    <p className='text-sm text-subtle'>Total Tasks</p>
-                    <p className='mt-1 font-bold text-3xl'>127</p>
+                  <div className='border-bdr-subtle rounded-lg border p-4'>
+                    <p className='text-subtle text-sm'>Total Tasks</p>
+                    <p className='mt-1 text-3xl font-bold'>127</p>
                   </div>
-                  <div className='rounded-lg border border-bdr-subtle p-4'>
-                    <p className='text-sm text-subtle'>Completed</p>
-                    <p className='mt-1 font-bold text-3xl text-success'>89</p>
+                  <div className='border-bdr-subtle rounded-lg border p-4'>
+                    <p className='text-subtle text-sm'>Completed</p>
+                    <p className='text-success mt-1 text-3xl font-bold'>89</p>
                   </div>
-                  <div className='rounded-lg border border-bdr-subtle p-4'>
-                    <p className='text-sm text-subtle'>Pending</p>
-                    <p className='mt-1 font-bold text-3xl text-warn'>38</p>
+                  <div className='border-bdr-subtle rounded-lg border p-4'>
+                    <p className='text-subtle text-sm'>Pending</p>
+                    <p className='text-warn mt-1 text-3xl font-bold'>38</p>
                   </div>
                 </div>
 
                 <div className='space-y-3'>
                   <h3 className='font-semibold'>Recent Activity</h3>
                   {Array.from({ length: 10 }, (_, i) => i + 1).map(key => (
-                    <div key={key} className='rounded-lg border border-bdr-subtle p-3'>
+                    <div key={key} className='border-bdr-subtle rounded-lg border p-3'>
                       <p className='font-medium'>Task #{key} completed</p>
-                      <p className='text-sm text-subtle'>2 hours ago by Team Member</p>
+                      <p className='text-subtle text-sm'>2 hours ago by Team Member</p>
                     </div>
                   ))}
                 </div>
@@ -587,13 +590,13 @@ export const LargeDialog: Story = {
                   <h3 className='font-semibold'>Team Members</h3>
                   <div className='grid grid-cols-2 gap-3'>
                     {Array.from({ length: 8 }, (_, i) => i + 1).map(key => (
-                      <div key={key} className='flex items-center gap-3 rounded-lg border border-bdr-subtle p-3'>
-                        <div className='flex size-10 items-center justify-center rounded-full bg-main/10'>
+                      <div key={key} className='border-bdr-subtle flex items-center gap-3 rounded-lg border p-3'>
+                        <div className='bg-main/10 flex size-10 items-center justify-center rounded-full'>
                           <User className='size-5' />
                         </div>
                         <div>
                           <p className='font-medium'>Member {key}</p>
-                          <p className='text-sm text-subtle'>Developer</p>
+                          <p className='text-subtle text-sm'>Developer</p>
                         </div>
                       </div>
                     ))}
@@ -684,7 +687,7 @@ export const MultiStepWizard: Story = {
                       onChange={e => setProjectName(e.currentTarget.value)}
                       placeholder='Enter project name'
                     />
-                    <p className='text-sm text-subtle'>
+                    <p className='text-subtle text-sm'>
                       Choose a descriptive name for your project. You can always change it later.
                     </p>
                   </div>
@@ -849,7 +852,7 @@ export const StepsDialog: Story = {
 
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='h-160 w-200 max-w-auto'>
+            <Dialog.Content className='max-w-auto h-160 w-200'>
               <Dialog.StepHeader
                 step='step1'
                 helper='Optional helper for first step'
@@ -872,7 +875,7 @@ export const StepsDialog: Story = {
                 withClose
               />
 
-              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+              <Dialog.Body className='border-bdr-subtle flex size-full flex-col items-center justify-center rounded-md border border-dashed'>
                 <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
@@ -917,7 +920,7 @@ export const DialogStepIndicatorWithTooltips: Story = {
 
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='h-160 w-200 max-w-auto'>
+            <Dialog.Content className='max-w-auto h-160 w-200'>
               <Dialog.StepHeader
                 step='step1'
                 helper='Optional helper for first step'
@@ -940,7 +943,7 @@ export const DialogStepIndicatorWithTooltips: Story = {
                 withClose
               />
 
-              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+              <Dialog.Body className='border-bdr-subtle flex size-full flex-col items-center justify-center rounded-md border border-dashed'>
                 <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
@@ -980,7 +983,7 @@ export const DisabledStepIndicator: Story = {
 
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='h-160 w-200 max-w-auto'>
+            <Dialog.Content className='max-w-auto h-160 w-200'>
               <Dialog.StepHeader
                 step='step1'
                 helper='Step 1 of 3'
@@ -1003,7 +1006,7 @@ export const DisabledStepIndicator: Story = {
                 withClose
               />
 
-              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+              <Dialog.Body className='border-bdr-subtle flex size-full flex-col items-center justify-center rounded-md border border-dashed'>
                 <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
@@ -1039,7 +1042,7 @@ export const PendingStepIndicator: Story = {
 
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='h-160 w-200 max-w-auto'>
+            <Dialog.Content className='max-w-auto h-160 w-200'>
               <Dialog.StepHeader
                 step='step1'
                 helper='Step 1 of 3'
@@ -1062,7 +1065,7 @@ export const PendingStepIndicator: Story = {
                 withClose
               />
 
-              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+              <Dialog.Body className='border-bdr-subtle flex size-full flex-col items-center justify-center rounded-md border border-dashed'>
                 <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
@@ -1100,7 +1103,7 @@ export const ControlledStepsDialog: Story = {
 
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='h-160 w-200 max-w-auto'>
+            <Dialog.Content className='max-w-auto h-160 w-200'>
               <Dialog.StepHeader
                 step='step1'
                 helper='Optional helper for first step'
@@ -1123,7 +1126,7 @@ export const ControlledStepsDialog: Story = {
                 withClose
               />
 
-              <Dialog.Body className='flex size-full flex-col items-center justify-center rounded-md border border-bdr-subtle border-dashed'>
+              <Dialog.Body className='border-bdr-subtle flex size-full flex-col items-center justify-center rounded-md border border-dashed'>
                 <Dialog.StepContent step='step1'>Step 1 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step2'>Step 2 Content</Dialog.StepContent>
                 <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
@@ -1131,7 +1134,7 @@ export const ControlledStepsDialog: Story = {
 
               <Dialog.Footer className='flex flex-col gap-5'>
                 <Dialog.StepIndicator previousLabel='Previous' nextLabel='Next' dots />
-                <p className='text-right text-subtle text-xs'>Current step: {step}</p>
+                <p className='text-subtle text-right text-xs'>Current step: {step}</p>
               </Dialog.Footer>
             </Dialog.Content>
           </Dialog.Portal>
@@ -1152,7 +1155,7 @@ export const NonDismissable: Story = {
 
     return (
       <div className='flex flex-col gap-2.5'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           This dialog cannot be closed by clicking outside. Use the close button or Escape key to dismiss it.
         </div>
         <Button variant='solid' onClick={() => setOpen(true)} label='Open Non-Dismissable Dialog' />
@@ -1254,7 +1257,7 @@ export const NonModal: Story = {
 
     return (
       <div className='flex min-h-svh flex-col items-start gap-2.5 p-6'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           With <code>modal={'{false}'}</code> the focus trap is disabled and the dialog does not block the rest of the
           page. The field below stays fully interactive — clickable, hoverable, typeable — while the dialog is open. A
           non-modal dialog does not dismiss on outside click; close it with Escape or the close button.

@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Edit, Heart, Monitor, Plus, Save, Search, Settings, Upload } from 'lucide-react';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { IconButton, type IconButtonProps } from './icon-button';
 
@@ -84,7 +85,7 @@ export const AllVariantsComparison: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>All Variants - Medium Size</h3>
+        <h3 className='mb-3 text-sm font-medium'>All Variants - Medium Size</h3>
         <div className='flex flex-wrap gap-3'>
           <IconButton icon={Monitor} variant='text' title='Text variant' />
           <IconButton icon={Save} variant='filled' title='Filled variant' />
@@ -93,7 +94,7 @@ export const AllVariantsComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>All Variants - Disabled</h3>
+        <h3 className='mb-3 text-sm font-medium'>All Variants - Disabled</h3>
         <div className='flex flex-wrap gap-3'>
           <IconButton icon={Monitor} variant='text' title='Text variant' disabled />
           <IconButton icon={Save} variant='filled' title='Filled variant' disabled />
@@ -110,7 +111,7 @@ export const DisabledStates: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Square - Disabled</h3>
+        <h3 className='mb-3 text-sm font-medium'>Square - Disabled</h3>
         <div className='flex flex-wrap gap-3'>
           <IconButton icon={Monitor} variant='text' shape='square' title='Text variant' disabled />
           <IconButton icon={Save} variant='filled' shape='square' title='Filled variant' disabled />
@@ -119,7 +120,7 @@ export const DisabledStates: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Round - Disabled</h3>
+        <h3 className='mb-3 text-sm font-medium'>Round - Disabled</h3>
         <div className='flex flex-wrap gap-3'>
           <IconButton icon={Monitor} variant='text' shape='round' title='Text variant' disabled />
           <IconButton icon={Save} variant='filled' shape='round' title='Filled variant' disabled />
@@ -135,7 +136,7 @@ export const TextSizes: Story = {
   name: 'Features / Text Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Text Variant - All Sizes</h3>
+      <h3 className='mb-3 text-sm font-medium'>Text Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <IconButton icon={Search} variant='text' size='sm' title='Small search' />
         <IconButton icon={Search} variant='text' size='md' title='Medium search' />
@@ -149,7 +150,7 @@ export const FilledSizes: Story = {
   name: 'Features / Filled Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Filled Variant - All Sizes</h3>
+      <h3 className='mb-3 text-sm font-medium'>Filled Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <IconButton icon={Plus} variant='filled' size='sm' title='Small add' />
         <IconButton icon={Plus} variant='filled' size='md' title='Medium add' />
@@ -163,7 +164,7 @@ export const SolidSizes: Story = {
   name: 'Features / Solid Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Solid Variant - All Sizes</h3>
+      <h3 className='mb-3 text-sm font-medium'>Solid Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <IconButton icon={Edit} variant='solid' size='sm' title='Small edit' />
         <IconButton icon={Edit} variant='solid' size='md' title='Medium edit' />
@@ -177,7 +178,7 @@ export const OutlineSizes: Story = {
   name: 'Features / Outline Sizes',
   render: () => (
     <div className='space-y-4 p-4'>
-      <h3 className='mb-3 font-medium text-sm'>Outline Variant - All Sizes</h3>
+      <h3 className='mb-3 text-sm font-medium'>Outline Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
         <IconButton icon={Heart} variant='outline' size='sm' title='Small heart' />
         <IconButton icon={Heart} variant='outline' size='md' title='Medium heart' />
@@ -192,7 +193,7 @@ export const ShapeComparison: Story = {
   render: () => (
     <div className='space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Square Shape (Default)</h3>
+        <h3 className='mb-3 text-sm font-medium'>Square Shape (Default)</h3>
         <div className='flex flex-wrap gap-3'>
           <IconButton icon={Monitor} variant='text' shape='square' title='Square text' />
           <IconButton icon={Save} variant='filled' shape='square' title='Square filled' />
@@ -201,7 +202,7 @@ export const ShapeComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Round Shape</h3>
+        <h3 className='mb-3 text-sm font-medium'>Round Shape</h3>
         <div className='flex flex-wrap gap-3'>
           <IconButton icon={Monitor} variant='text' shape='round' title='Round text' />
           <IconButton icon={Save} variant='filled' shape='round' title='Round filled' />
@@ -210,7 +211,7 @@ export const ShapeComparison: Story = {
         </div>
       </div>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Round Shape - All Sizes</h3>
+        <h3 className='mb-3 text-sm font-medium'>Round Shape - All Sizes</h3>
         <div className='flex items-center gap-3'>
           <IconButton icon={Heart} variant='filled' shape='round' size='sm' title='Small round' />
           <IconButton icon={Heart} variant='filled' shape='round' size='md' title='Medium round' />

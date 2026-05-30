@@ -1,6 +1,7 @@
 import { cva } from 'class-variance-authority';
 import { Square } from 'lucide-react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+
 import { useControlledState } from '@/hooks';
 import { FilledOctagonAlert, FilledSquareCheck, FilledSquareMinus } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
@@ -119,7 +120,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           onClickCapture={onClickCapture}
           onMouseDown={onMouseDown}
           className={cn(
-            'relative flex select-none items-center gap-2 rounded-xs leading-4 transition-highlight',
+            'transition-highlight relative flex items-center gap-2 rounded-xs leading-4 select-none',
             align === 'right' && 'flex-row-reverse justify-end',
             labeled && 'my-0.75',
             editable && [
@@ -128,7 +129,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
               state === 'error'
                 ? 'hover:[&_[data-slot=checkbox-indicator]]:outline-error'
                 : 'hover:[&_[data-slot=checkbox-indicator]]:outline-bdr-alt',
-              'focus-within:outline-none focus-within:ring-3 focus-within:ring-ring focus-within:ring-offset-3 focus-within:ring-offset-ring-offset',
+              'focus-within:ring-ring focus-within:ring-offset-ring-offset focus-within:ring-3 focus-within:ring-offset-3 focus-within:outline-none',
               // Override ring colors for inverse tone to match background
               'group-data-[tone=inverse]:[--color-ring-offset:var(--color-surface-selected)] group-data-[tone=inverse]:[--color-ring:var(--color-ring-alt)]',
             ],
@@ -164,7 +165,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             {isIndeterminate ? (
               <FilledSquareMinus
                 className={cn(
-                  'size-4 rounded-sm transition-highlight',
+                  'transition-highlight size-4 rounded-sm',
                   !editable && 'opacity-30',
                   state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
                 )}
@@ -173,7 +174,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             ) : isChecked ? (
               <FilledSquareCheck
                 className={cn(
-                  'size-4 rounded-sm transition-highlight',
+                  'transition-highlight size-4 rounded-sm',
                   !editable && 'opacity-30',
                   state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
                 )}
@@ -182,7 +183,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             ) : (
               <Square
                 className={cn(
-                  'size-4 rounded-sm transition-highlight focus:outline-none',
+                  'transition-highlight size-4 rounded-sm focus:outline-none',
                   !editable && 'opacity-30',
                   state === 'error' ? 'text-error' : 'text-main group-data-[tone=inverse]:text-alt',
                 )}
@@ -198,7 +199,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           )}
         </label>
         {state === 'error' && errorMessage && (
-          <div className={cn('flex items-center gap-2 text-error leading-5', disabled && 'opacity-30')}>
+          <div className={cn('text-error flex items-center gap-2 leading-5', disabled && 'opacity-30')}>
             <FilledOctagonAlert size={14} />
             {errorMessage}
           </div>

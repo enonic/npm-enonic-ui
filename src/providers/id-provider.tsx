@@ -1,5 +1,6 @@
-import type { ReactElement, ReactNode } from 'react';
 import { createContext, useContext, useId } from 'react';
+
+import type { ReactElement, ReactNode } from 'react';
 
 type IdContextValue = {
   prefix?: string;

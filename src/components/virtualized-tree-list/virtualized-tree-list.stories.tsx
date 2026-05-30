@@ -1,10 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, Folder, Pencil, Trash2 } from 'lucide-react';
-import type React from 'react';
 import { forwardRef, type ReactElement, useEffect, useMemo, useRef, useState } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
+
 import { Button, ListItem } from '@/components';
 import { cn } from '@/utils';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+import type React from 'react';
+
 import { type FlatNode, VirtualizedTreeList } from './virtualized-tree-list';
 
 type Story = StoryObj<typeof VirtualizedTreeList>;
@@ -258,7 +261,7 @@ export const FlatList: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Flat List</div>
-        <div className='text-sm text-subtle'>Simple virtualized list without hierarchy or expand controls</div>
+        <div className='text-subtle text-sm'>Simple virtualized list without hierarchy or expand controls</div>
         <VirtualizedTreeList
           items={flatItems}
           selection={selection}
@@ -305,7 +308,7 @@ export const FlatListLarge: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Flat List (1000 Items)</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Large flat list with 1000 items. Use PageUp/PageDown for fast navigation.
         </div>
         <VirtualizedTreeList
@@ -341,7 +344,7 @@ export const FlatListLarge: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>Active: {activeId ?? 'none'} (1000 items total)</div>
+        <div className='text-subtle text-sm'>Active: {activeId ?? 'none'} (1000 items total)</div>
       </div>
     );
   },
@@ -371,7 +374,7 @@ export const Basic: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Basic Virtualized TreeList</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Virtualized tree with keyboard navigation. Use arrow keys to navigate, Enter/Space to select.
         </div>
         <VirtualizedTreeList
@@ -433,7 +436,7 @@ export const LargeDataset: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Large Dataset</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           10,000 items demonstrating virtualization performance. Only visible items are rendered in the DOM.
         </div>
         <VirtualizedTreeList
@@ -469,7 +472,7 @@ export const LargeDataset: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Active: {activeId ?? 'none'} | Selected: {Array.from(selection).slice(0, 3).join(', ') || 'none'}
           {selection.size > 3 ? ` (+${selection.size - 3} more)` : ''}
         </div>
@@ -547,7 +550,7 @@ export const CheckboxesOnRight: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Checkboxes on Right Side</div>
-        <div className='text-sm text-subtle'>Click checkbox to toggle selection. Click row to set active.</div>
+        <div className='text-subtle text-sm'>Click checkbox to toggle selection. Click row to set active.</div>
         <VirtualizedTreeList
           items={items}
           selection={selection}
@@ -591,7 +594,7 @@ export const CheckboxesOnRight: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Active: {activeId ?? 'none'} | Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}
         </div>
       </div>
@@ -670,7 +673,7 @@ export const SelectionModes: Story = {
             <select
               value={selectionMode}
               onChange={e => setSelectionMode(e.currentTarget.value as 'single' | 'multiple')}
-              className='rounded border border-bdr-subtle bg-surface-primary px-2 py-1 text-sm'
+              className='border-bdr-subtle bg-surface-primary rounded border px-2 py-1 text-sm'
             >
               <option value='single'>Single</option>
               <option value='multiple'>Multiple</option>
@@ -681,7 +684,7 @@ export const SelectionModes: Story = {
             <select
               value={variant}
               onChange={e => setVariant(e.currentTarget.value as 'none' | 'checkbox' | 'radio')}
-              className='rounded border border-bdr-subtle bg-surface-primary px-2 py-1 text-sm'
+              className='border-bdr-subtle bg-surface-primary rounded border px-2 py-1 text-sm'
             >
               <option value='none'>None (background only)</option>
               <option value='checkbox'>Checkbox</option>
@@ -689,7 +692,7 @@ export const SelectionModes: Story = {
             </select>
           </label>
         </div>
-        <div className='mb-2 text-sm text-subtle'>
+        <div className='text-subtle mb-2 text-sm'>
           {variant === 'none' && 'Selection indicated by background styling only.'}
           {variant === 'checkbox' && 'Checkbox indicators for selection.'}
           {variant === 'radio' && 'Radio indicators for selection.'}
@@ -728,7 +731,7 @@ export const SelectionModes: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+        <div className='text-subtle text-sm'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },
@@ -786,7 +789,7 @@ export const WithLoading: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Loading Items</div>
-        <div className='text-sm text-subtle'>Some items are still loading and show a spinner</div>
+        <div className='text-subtle text-sm'>Some items are still loading and show a spinner</div>
         <VirtualizedTreeList
           items={items}
           selection={selection}
@@ -897,7 +900,7 @@ export const WithDisabledItems: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Disabled Items</div>
-        <div className='text-sm text-subtle'>Items &quot;Work&quot; and &quot;Vacation&quot; are disabled</div>
+        <div className='text-subtle text-sm'>Items &quot;Work&quot; and &quot;Vacation&quot; are disabled</div>
         <VirtualizedTreeList
           items={items}
           selection={selection}
@@ -1006,7 +1009,7 @@ export const MixedInteraction: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Mixed Interaction Levels</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Shows all interaction levels: loading/placeholder items are skipped, &quot;Work&quot; is focusable but not
           selectable (<code>&apos;navigate-only&apos;</code>), others are fully interactive.
         </div>
@@ -1080,7 +1083,7 @@ export const PlaceholderState: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Placeholder State</div>
-        <div className='text-sm text-subtle'>RowPlaceholder for known IDs with unknown data</div>
+        <div className='text-subtle text-sm'>RowPlaceholder for known IDs with unknown data</div>
         <VirtualizedTreeList
           items={items}
           selection={selection}
@@ -1147,7 +1150,7 @@ export const MultipleSelection: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Range Selection</div>
-        <div className='text-sm text-subtle'>Click to select, Shift+click for range, Ctrl/Cmd+click to toggle.</div>
+        <div className='text-subtle text-sm'>Click to select, Shift+click for range, Ctrl/Cmd+click to toggle.</div>
         <VirtualizedTreeList
           items={flatNodes}
           selection={selection}
@@ -1190,7 +1193,7 @@ export const MultipleSelection: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+        <div className='text-subtle text-sm'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },
@@ -1221,7 +1224,7 @@ export const CheckboxSelection: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Checkbox Selection</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Click checkbox to toggle selection. Click row to set active (no selection change).
         </div>
         <VirtualizedTreeList
@@ -1278,7 +1281,7 @@ export const CheckboxSelection: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Active: {activeId ?? 'none'} | Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}
         </div>
       </div>
@@ -1315,25 +1318,25 @@ export const KeyboardNavigation: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Keyboard Navigation</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Up/Down</kbd> - Move between items
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Up/Down</kbd> - Move between items
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Right</kbd> - Expand or move to first child
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Right</kbd> - Expand or move to first child
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Left</kbd> - Collapse or move to parent
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Left</kbd> - Collapse or move to parent
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Jump to first/last item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Home</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>End</kbd> - Jump to first/last item
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Enter</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Space</kbd> - Select item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Enter</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Space</kbd> - Select item
             </li>
           </ul>
         </div>
@@ -1381,7 +1384,7 @@ export const KeyboardNavigation: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Active: {activeId ?? 'none'} | Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}
         </div>
       </div>
@@ -1414,20 +1417,20 @@ export const KeyboardRangeSelection: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Keyboard Range Selection</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Shift+Arrow extends selection:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Click</kbd> - Set anchor item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Click</kbd> - Set anchor item
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Shift+Arrow Up/Down</kbd> - Extend selection
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Shift+Arrow Up/Down</kbd> - Extend selection
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Ctrl/Cmd+A</kbd> - Toggle select all
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Ctrl/Cmd+A</kbd> - Toggle select all
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Escape</kbd> - Clear selection
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Escape</kbd> - Clear selection
             </li>
           </ul>
         </div>
@@ -1475,7 +1478,7 @@ export const KeyboardRangeSelection: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Active: {activeId ?? 'none'} | Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}
         </div>
       </div>
@@ -1513,14 +1516,14 @@ export const ActivationCallback: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Activation Callback</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Activation triggers:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Enter</kbd> - Activate focused item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Enter</kbd> - Activate focused item
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Double-click</kbd> - Activate clicked item
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Double-click</kbd> - Activate clicked item
             </li>
           </ul>
         </div>
@@ -1569,7 +1572,7 @@ export const ActivationCallback: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Active: {activeId ?? 'none'} | Activated: {lastActivated ?? 'none'}
         </div>
       </div>
@@ -1601,8 +1604,8 @@ export const NavigationOnlyMode: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Navigation Only Mode</div>
-        <div className='text-sm text-subtle'>
-          With <code className='rounded bg-surface-neutral px-1 font-mono text-xs'>selectionMode=&quot;none&quot;</code>
+        <div className='text-subtle text-sm'>
+          With <code className='bg-surface-neutral rounded px-1 font-mono text-xs'>selectionMode=&quot;none&quot;</code>
           , items can be navigated but not selected.
         </div>
         <VirtualizedTreeList
@@ -1647,7 +1650,7 @@ export const NavigationOnlyMode: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>Active: {activeId ?? 'none'}</div>
+        <div className='text-subtle text-sm'>Active: {activeId ?? 'none'}</div>
       </div>
     );
   },
@@ -1755,20 +1758,20 @@ export const ActionMode: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Action Mode (F2)</div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>F2</kbd> - Enter action mode (focus buttons in row)
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>F2</kbd> - Enter action mode (focus buttons in row)
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> - Cycle through buttons
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Tab</kbd> - Cycle through buttons
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Tab</kbd> after last button - Exit action mode
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Tab</kbd> after last button - Exit action mode
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Escape</kbd> - Exit action mode immediately
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Escape</kbd> - Exit action mode immediately
             </li>
           </ul>
         </div>
@@ -1793,12 +1796,12 @@ export const ActionMode: Story = {
                 return (
                   <VirtualizedTreeList.Row {...itemProps}>
                     <VirtualizedTreeList.RowLeft>
-                      <File className='size-4 text-subtle group-data-[tone=inverse]:text-alt' />
+                      <File className='text-subtle group-data-[tone=inverse]:text-alt size-4' />
                     </VirtualizedTreeList.RowLeft>
                     <VirtualizedTreeList.RowContent>
                       <div className='flex flex-col'>
-                        <span className='font-medium text-sm'>{node.data.label}</span>
-                        <span className='text-subtle text-xs group-data-[tone=inverse]:text-alt'>
+                        <span className='text-sm font-medium'>{node.data.label}</span>
+                        <span className='text-subtle group-data-[tone=inverse]:text-alt text-xs'>
                           {node.data.description}
                         </span>
                       </div>
@@ -1833,9 +1836,9 @@ export const ActionMode: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='rounded-sm bg-surface-primary p-2'>
-          <div className='mb-1 font-medium text-xs'>Action Log:</div>
-          <pre className='h-20 overflow-auto text-subtle text-xs'>
+        <div className='bg-surface-primary rounded-sm p-2'>
+          <div className='mb-1 text-xs font-medium'>Action Log:</div>
+          <pre className='text-subtle h-20 overflow-auto text-xs'>
             {log.length > 0 ? log.join('\n') : '(no actions yet)'}
           </pre>
         </div>
@@ -1901,12 +1904,12 @@ export const ClearActiveOnReclick: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Clear Active On Reclick</div>
-        <div className='text-sm text-subtle'>
-          With <code className='rounded bg-surface-neutral px-1 font-mono text-xs'>clearActiveOnReclick=true</code>,
+        <div className='text-subtle text-sm'>
+          With <code className='bg-surface-neutral rounded px-1 font-mono text-xs'>clearActiveOnReclick=true</code>,
           single-clicking an already active item when selection is empty will clear the active state.
         </div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
-          <ul className='space-y-1 text-subtle text-xs'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>Click item → becomes active (highlighted)</li>
             <li>Click same item again → active clears (only when selection empty)</li>
             <li>Click checkbox → toggle selection</li>
@@ -1960,7 +1963,7 @@ export const ClearActiveOnReclick: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           <div>Active: {activeId ?? 'none'}</div>
           <div>Selected: {selection.size > 0 ? Array.from(selection).join(', ') : 'none'}</div>
           <div>Double-clicked: {lastActivated ?? 'none'}</div>
@@ -2029,7 +2032,7 @@ export const RowClickSelectionModes: Story = {
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Row Click Selection</div>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Controls how a plain row click affects selection. Shift+click, Ctrl/Cmd+click, and checkboxes are always
           independent of this prop.
         </div>
@@ -2048,9 +2051,9 @@ export const RowClickSelectionModes: Story = {
             </Button>
           ))}
         </div>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-1 font-medium'>
-            <code className='rounded bg-bdr-subtle px-1 font-mono text-xs'>rowClickSelection=&quot;{mode}&quot;</code>
+            <code className='bg-bdr-subtle rounded px-1 font-mono text-xs'>rowClickSelection=&quot;{mode}&quot;</code>
           </p>
           <p className='text-subtle text-xs'>{descriptions[mode]}</p>
         </div>
@@ -2089,7 +2092,7 @@ export const RowClickSelectionModes: Story = {
             />
           )}
         </VirtualizedTreeList>
-        <div className='text-sm text-subtle'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
+        <div className='text-subtle text-sm'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },

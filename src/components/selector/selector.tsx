@@ -13,6 +13,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import {
   useActiveOnOpen,
   useClickOutside,
@@ -189,11 +190,11 @@ SelectorRoot.displayName = 'Selector';
 const selectorTriggerVariants = cva(
   [
     'flex w-full items-center justify-between gap-2.5',
-    'h-12 rounded-sm border bg-surface-neutral px-4',
-    'cursor-pointer select-none text-left',
+    'bg-surface-neutral h-12 rounded-sm border px-4',
+    'cursor-pointer text-left select-none',
     'hover:outline-2 hover:-outline-offset-1',
-    'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring',
-    'focus-visible:ring-offset-3 focus-visible:ring-offset-ring-offset',
+    'focus-visible:ring-ring focus-visible:ring-3 focus-visible:outline-none',
+    'focus-visible:ring-offset-ring-offset focus-visible:ring-offset-3',
     'transition-highlight',
   ],
   {
@@ -207,7 +208,7 @@ const selectorTriggerVariants = cva(
         false: null,
       },
       disabled: {
-        true: 'pointer-events-none cursor-not-allowed select-none opacity-30 hover:outline-none focus-visible:outline-none',
+        true: 'pointer-events-none cursor-not-allowed opacity-30 select-none hover:outline-none focus-visible:outline-none',
         false: null,
       },
     },
@@ -348,7 +349,7 @@ const SelectorIcon = forwardRef<HTMLSpanElement, SelectorIconProps>(
         data-component='Selector.Icon'
         ref={ref}
         aria-hidden='true'
-        className={cn('shrink-0 text-subtle transition-transform', open && 'rotate-180', className)}
+        className={cn('text-subtle shrink-0 transition-transform', open && 'rotate-180', className)}
         {...props}
       >
         {children ?? <ChevronDown className='size-5' />}
@@ -466,7 +467,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
         className={cn(
           'fixed z-50 flex w-fit min-w-(--trigger-width) flex-col overflow-hidden',
           'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
-          'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
+          'border-bdr-subtle bg-surface-neutral rounded-sm border shadow-lg outline-none',
           'data-[state=closed]:animate-out data-[state=open]:animate-in',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -519,7 +520,7 @@ SelectorViewport.displayName = 'Selector.Viewport';
 
 const selectorItemVariants = cva(
   [
-    'group relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-2 outline-none transition-highlight',
+    'group transition-highlight relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-2 outline-none',
     // Click target expansion: -inset-y-{n} where n = gap / 2
     'after:pointer-events-auto after:absolute after:inset-x-0 after:-inset-y-0.5 after:-z-10 after:rounded-sm after:content-[""]',
   ],
@@ -747,7 +748,7 @@ const SelectorLabel = forwardRef<HTMLDivElement, SelectorLabelProps>(
       <div
         data-component='Selector.Label'
         ref={ref}
-        className={cn('px-4.5 py-1.5 font-semibold text-subtle text-xs', className)}
+        className={cn('text-subtle px-4.5 py-1.5 text-xs font-semibold', className)}
         {...props}
       >
         {children}
@@ -773,7 +774,7 @@ const SelectorSeparator = forwardRef<HTMLDivElement, SelectorSeparatorProps>(
         ref={ref}
         role='separator'
         aria-orientation='horizontal'
-        className={cn('my-1 h-px bg-bdr-subtle', className)}
+        className={cn('bg-bdr-subtle my-1 h-px', className)}
         {...props}
       />
     );
@@ -808,7 +809,7 @@ const SelectorHiddenSelect = forwardRef<HTMLSelectElement, SelectorHiddenSelectP
         tabIndex={-1}
         aria-hidden='true'
         className={cn(
-          'absolute h-px w-px overflow-hidden whitespace-nowrap border-0 p-0',
+          'absolute h-px w-px overflow-hidden border-0 p-0 whitespace-nowrap',
           '[clip:rect(0,0,0,0)]',
           className,
         )}

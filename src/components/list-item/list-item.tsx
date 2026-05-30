@@ -1,6 +1,7 @@
-import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 import { cn } from '@/utils';
 import { findComponentByType } from '@/utils/find';
+
+import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 
 export type ListItemProps = {
   className?: string;
@@ -64,14 +65,14 @@ export const ListItemDefaultContent = ({
       className={cn(icon && 'grid grid-cols-[auto_1fr] items-center gap-2.5', className)}
     >
       {icon && (
-        <div className='flex flex-shrink-0 items-center justify-center group-data-[tone=inverse]:text-alt'>{icon}</div>
+        <div className='group-data-[tone=inverse]:text-alt flex flex-shrink-0 items-center justify-center'>{icon}</div>
       )}
       <div className='min-w-0 text-left'>
-        {label && <h1 className='truncate font-semibold group-data-[tone=inverse]:text-alt'>{label}</h1>}
+        {label && <h1 className='group-data-[tone=inverse]:text-alt truncate font-semibold'>{label}</h1>}
         {description && (
-          <p className='truncate text-sm text-subtle group-data-[tone=inverse]:text-alt'>{description}</p>
+          <p className='text-subtle group-data-[tone=inverse]:text-alt truncate text-sm'>{description}</p>
         )}
-        {metadata && <p className='text-subtle text-xs group-data-[tone=inverse]:text-alt'>{metadata}</p>}
+        {metadata && <p className='text-subtle group-data-[tone=inverse]:text-alt text-xs'>{metadata}</p>}
       </div>
     </ListItemContent>
   );

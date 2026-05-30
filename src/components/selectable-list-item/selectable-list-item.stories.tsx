@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, FileText, Folder, Image, MoreVertical, Package, Pen, Settings, User, Video, X } from 'lucide-react';
 import { useEffect, useState } from 'preact/hooks';
+
 import { IconButton } from '@/components/icon-button';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+
 import { SelectableListItem } from './selectable-list-item';
 
 type Story = StoryObj<typeof SelectableListItem>;
@@ -92,25 +95,25 @@ export const ContentVariations: Story = {
   name: 'Features / Content Variations',
   render: () => (
     <div className='w-96 space-y-4'>
-      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label Only</h3>
+      <h3 className='text-subtle mb-2 text-sm font-semibold'>Label Only</h3>
       <div className='space-y-2'>
         <SelectableListItem label='Simple item' defaultChecked={false} />
         <SelectableListItem label='Selected item' defaultChecked={true} />
       </div>
 
-      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label + Icon</h3>
+      <h3 className='text-subtle mb-2 text-sm font-semibold'>Label + Icon</h3>
       <div className='space-y-2'>
         <SelectableListItem icon={<File className='size-6' />} label='Document.pdf' defaultChecked={false} />
         <SelectableListItem icon={<Folder className='size-6' />} label='Projects' defaultChecked={true} />
       </div>
 
-      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label + Description</h3>
+      <h3 className='text-subtle mb-2 text-sm font-semibold'>Label + Description</h3>
       <div className='space-y-2'>
         <SelectableListItem label='Meeting notes' description='Team sync discussion' defaultChecked={false} />
         <SelectableListItem label='Project plan' description='Q4 roadmap and goals' defaultChecked={true} />
       </div>
 
-      <h3 className='mb-2 font-semibold text-sm text-subtle'>Label + Description + Icon</h3>
+      <h3 className='text-subtle mb-2 text-sm font-semibold'>Label + Description + Icon</h3>
       <div className='space-y-2'>
         <SelectableListItem
           icon={<FileText className='size-6' />}
@@ -126,7 +129,7 @@ export const ContentVariations: Story = {
         />
       </div>
 
-      <h3 className='mb-2 font-semibold text-sm text-subtle'>All Elements</h3>
+      <h3 className='text-subtle mb-2 text-sm font-semibold'>All Elements</h3>
       <div className='space-y-2'>
         <SelectableListItem
           icon={<Video className='size-6' />}

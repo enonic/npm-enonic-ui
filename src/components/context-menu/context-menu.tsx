@@ -13,6 +13,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+
 import {
   useActiveItemFocus,
   useClickOutside,
@@ -370,7 +371,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
           data-state={open ? 'open' : 'closed'}
           className={cn(
             'fixed z-40 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
-            'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
+            'border-bdr-subtle bg-surface-neutral rounded-sm border shadow-lg outline-none',
             'data-[state=closed]:animate-out data-[state=open]:animate-in',
             'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
             'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -791,6 +792,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       }
       parentContent.safeAreaCheckRef.current = isInSafeArea;
       return () => {
+        // oxlint-disable-next-line react-hooks/exhaustive-deps -- intentional teardown of a stable context ref on unmount
         parentContent.safeAreaCheckRef.current = null;
       };
     }, [open, isInSafeArea, parentContent]);
@@ -950,7 +952,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
             data-side={position?.side ?? 'right'}
             className={cn(
               'fixed z-40 flex w-fit flex-col items-start gap-y-1 overflow-hidden p-1',
-              'rounded-sm border border-bdr-subtle bg-surface-neutral shadow-lg outline-none',
+              'border-bdr-subtle bg-surface-neutral rounded-sm border shadow-lg outline-none',
               'data-[state=closed]:animate-out data-[state=open]:animate-in',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
               'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',

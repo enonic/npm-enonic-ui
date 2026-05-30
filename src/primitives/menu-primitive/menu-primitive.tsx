@@ -13,6 +13,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
+
 import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
@@ -37,7 +38,7 @@ export type MenuContextOperations = {
 
 export const menuItemVariants = cva(
   [
-    'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
+    'transition-highlight relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none',
   ],
   {
     variants: {
@@ -46,7 +47,7 @@ export const menuItemVariants = cva(
         false: 'hover:bg-surface-neutral-hover',
       },
       disabled: {
-        true: 'pointer-events-none select-none opacity-30 hover:bg-transparent',
+        true: 'pointer-events-none opacity-30 select-none hover:bg-transparent',
         false: '',
       },
     },
@@ -56,8 +57,8 @@ export const menuItemVariants = cva(
         disabled: false,
         class: [
           // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+          'focus-visible:ring-ring-offset focus-visible:ring-3 focus-visible:ring-inset',
+          'focus-visible:ring-offset-ring focus-visible:ring-offset-3',
         ],
       },
     ],
@@ -219,7 +220,7 @@ export type MenuPrimitiveLabelProps = {
 export const MenuPrimitiveLabel = forwardRef<HTMLDivElement, MenuPrimitiveLabelProps>(
   ({ className, children, ...props }, ref): ReactElement => {
     return (
-      <div ref={ref} role='none' className={cn('px-3 py-1.5 font-semibold text-subtle text-xs', className)} {...props}>
+      <div ref={ref} role='none' className={cn('text-subtle px-3 py-1.5 text-xs font-semibold', className)} {...props}>
         {children}
       </div>
     );
@@ -242,7 +243,7 @@ export const MenuPrimitiveSeparator = forwardRef<HTMLDivElement, MenuPrimitiveSe
         ref={ref}
         role='separator'
         aria-orientation='horizontal'
-        className={cn('my-1 h-px bg-bdr-subtle', className)}
+        className={cn('bg-bdr-subtle my-1 h-px', className)}
         {...props}
       />
     );
@@ -341,7 +342,7 @@ MenuPrimitiveRadioGroup.displayName = 'MenuPrimitive.RadioGroup';
 
 export const menuRadioItemVariants = cva(
   [
-    'relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none transition-highlight',
+    'transition-highlight relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none',
   ],
   {
     variants: {
@@ -350,7 +351,7 @@ export const menuRadioItemVariants = cva(
         false: '',
       },
       disabled: {
-        true: 'pointer-events-none select-none opacity-30 hover:bg-transparent',
+        true: 'pointer-events-none opacity-30 select-none hover:bg-transparent',
         false: '',
       },
       checked: {
@@ -370,8 +371,8 @@ export const menuRadioItemVariants = cva(
         disabled: false,
         class: [
           // ring and offset colors are swapped for inset ring focus
-          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+          'focus-visible:ring-ring-offset focus-visible:ring-3 focus-visible:ring-inset',
+          'focus-visible:ring-offset-ring focus-visible:ring-offset-3',
         ],
       },
     ],

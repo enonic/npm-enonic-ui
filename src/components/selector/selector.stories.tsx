@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { useState } from 'preact/hooks';
 import { type ReactElement, useRef } from 'react';
+
 import { Selector } from '@/components/selector/selector';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+
 import { Button } from '../button';
 import { Input } from '../input';
 
@@ -69,8 +72,8 @@ export default {
 const ItemContent = ({ label, description }: { label: string; description?: string }): ReactElement => {
   return (
     <div className='flex w-full flex-col'>
-      <span className='font-medium text-sm'>{label}</span>
-      {description && <span className='text-subtle text-xs group-data-[state=selected]:text-alt'>{description}</span>}
+      <span className='text-sm font-medium'>{label}</span>
+      {description && <span className='text-subtle group-data-[state=selected]:text-alt text-xs'>{description}</span>}
     </div>
   );
 };
@@ -86,7 +89,7 @@ export const Basic: Story = {
 
     return (
       <div className='w-64 space-y-3'>
-        <h3 className='font-medium text-md'>Basic Selector</h3>
+        <h3 className='text-md font-medium'>Basic Selector</h3>
         <Selector.Root value={value} onValueChange={setValue}>
           <Selector.Trigger>
             <Selector.Value placeholder='Select a fruit'>{getLabel(fruits)}</Selector.Value>
@@ -116,8 +119,8 @@ export const WithPlaceholder: Story = {
 
     return (
       <div className='w-64 space-y-3'>
-        <h3 className='font-medium text-md'>With Placeholder</h3>
-        <p className='text-sm text-subtle'>Shows placeholder text when no value is selected</p>
+        <h3 className='text-md font-medium'>With Placeholder</h3>
+        <p className='text-subtle text-sm'>Shows placeholder text when no value is selected</p>
         <Selector.Root value={value} onValueChange={setValue}>
           <Selector.Trigger>
             <Selector.Value placeholder='Choose your favorite fruit...'>{getLabel(fruits)}</Selector.Value>
@@ -147,8 +150,8 @@ export const Preselected: Story = {
 
     return (
       <div className='w-64 space-y-3'>
-        <h3 className='font-medium text-md'>Preselected Value</h3>
-        <p className='text-sm text-subtle'>Opens with cherry already selected</p>
+        <h3 className='text-md font-medium'>Preselected Value</h3>
+        <p className='text-subtle text-sm'>Opens with cherry already selected</p>
         <Selector.Root value={value} onValueChange={setValue}>
           <Selector.Trigger>
             <Selector.Value placeholder='Select a fruit'>{v => items.find(i => i.value === v)?.label}</Selector.Value>
@@ -177,8 +180,8 @@ export const WithGroups: Story = {
 
     return (
       <div className='w-64 space-y-3'>
-        <h3 className='font-medium text-md'>Grouped Items</h3>
-        <p className='text-sm text-subtle'>Items organized in labeled groups</p>
+        <h3 className='text-md font-medium'>Grouped Items</h3>
+        <p className='text-subtle text-sm'>Items organized in labeled groups</p>
         <Selector.Root value={value} onValueChange={setValue}>
           <Selector.Trigger>
             <Selector.Value placeholder='Select food'>{getLabel(allFoods)}</Selector.Value>
@@ -236,7 +239,7 @@ export const Disabled: Story = {
   render: () => {
     return (
       <div className='w-64 space-y-3'>
-        <h3 className='font-medium text-md'>Disabled</h3>
+        <h3 className='text-md font-medium'>Disabled</h3>
         <Selector.Root disabled defaultValue='apple'>
           <Selector.Trigger>
             <Selector.Value placeholder='Select a fruit'>{getLabel(fruits)}</Selector.Value>
@@ -265,7 +268,7 @@ export const WithError: Story = {
 
     return (
       <div className='w-64 space-y-2'>
-        <h3 className='font-medium text-md'>Error State</h3>
+        <h3 className='text-md font-medium'>Error State</h3>
         <Selector.Root value={value} onValueChange={setValue} error>
           <Selector.Trigger>
             <Selector.Value placeholder='Select a fruit'>{getLabel(fruits)}</Selector.Value>
@@ -302,8 +305,8 @@ export const Required: Story = {
 
     return (
       <form ref={formRef} onSubmit={handleSubmit} className='w-64 space-y-3'>
-        <h3 className='font-medium text-md'>Required Field</h3>
-        <p className='text-sm text-subtle'>The hidden select enables native form validation</p>
+        <h3 className='text-md font-medium'>Required Field</h3>
+        <p className='text-subtle text-sm'>The hidden select enables native form validation</p>
         <Selector.Root value={value} onValueChange={setValue} name='fruit' required>
           <Selector.Trigger>
             <Selector.Value placeholder='Select a fruit *'>{getLabel(fruits)}</Selector.Value>
@@ -321,10 +324,10 @@ export const Required: Story = {
           </Selector.Content>
           <Selector.HiddenSelect />
         </Selector.Root>
-        <button type='submit' className='rounded-sm bg-btn-default px-4 py-2 text-on-dark text-sm hover:bg-btn-hover'>
+        <button type='submit' className='bg-btn-default text-on-dark hover:bg-btn-hover rounded-sm px-4 py-2 text-sm'>
           Submit
         </button>
-        {submitted && value && <p className='text-sm text-success'>Form submitted with: {value}</p>}
+        {submitted && value && <p className='text-success text-sm'>Form submitted with: {value}</p>}
       </form>
     );
   },
@@ -345,8 +348,8 @@ export const LongList: Story = {
 
     return (
       <div className='w-64 space-y-3'>
-        <h3 className='font-medium text-md'>Long List with Scrolling</h3>
-        <p className='text-sm text-subtle'>Use PageUp/PageDown to jump 10 items</p>
+        <h3 className='text-md font-medium'>Long List with Scrolling</h3>
+        <p className='text-subtle text-sm'>Use PageUp/PageDown to jump 10 items</p>
         <Selector.Root value={value} onValueChange={setValue}>
           <Selector.Trigger>
             <Selector.Value placeholder='Select an item'>{getLabel(longList)}</Selector.Value>
@@ -382,8 +385,8 @@ export const CustomItemContent: Story = {
 
     return (
       <div className='w-72 space-y-3'>
-        <h3 className='font-medium text-md'>Custom Item Content</h3>
-        <p className='text-sm text-subtle'>Items with rich content (label + description)</p>
+        <h3 className='text-md font-medium'>Custom Item Content</h3>
+        <p className='text-subtle text-sm'>Items with rich content (label + description)</p>
         <Selector.Root value={value} onValueChange={setValue}>
           <Selector.Trigger>
             <Selector.Value placeholder='Select status'>{getLabel(options)}</Selector.Value>
@@ -422,11 +425,11 @@ export const WithForm: Story = {
 
     return (
       <form onSubmit={handleSubmit} className='w-80 space-y-4'>
-        <h3 className='font-medium text-md'>Form Integration</h3>
-        <p className='text-sm text-subtle'>The hidden select works with native form submission</p>
+        <h3 className='text-md font-medium'>Form Integration</h3>
+        <p className='text-subtle text-sm'>The hidden select works with native form submission</p>
 
         <div className='space-y-2'>
-          <label htmlFor='name' className='block font-medium text-sm'>
+          <label htmlFor='name' className='block text-sm font-medium'>
             Name
           </label>
           <Input id='name' name='name' required placeholder='Enter your name' />
@@ -434,7 +437,7 @@ export const WithForm: Story = {
 
         <div className='space-y-2'>
           {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label className='block font-medium text-sm'>Favorite Fruit</label>
+          <label className='block text-sm font-medium'>Favorite Fruit</label>
           <Selector.Root name='fruit' required>
             <Selector.Trigger>
               <Selector.Value placeholder='Select a fruit'>{getLabel(fruits)}</Selector.Value>
@@ -457,9 +460,9 @@ export const WithForm: Story = {
         <Button variant='solid' type='submit' label='Submit Form' />
 
         {formData && (
-          <div className='rounded-sm bg-surface-primary p-3'>
-            <p className='font-medium text-sm'>Submitted Data:</p>
-            <pre className='mt-1 text-subtle text-xs'>{JSON.stringify(formData, null, 2)}</pre>
+          <div className='bg-surface-primary rounded-sm p-3'>
+            <p className='text-sm font-medium'>Submitted Data:</p>
+            <pre className='text-subtle mt-1 text-xs'>{JSON.stringify(formData, null, 2)}</pre>
           </div>
         )}
       </form>
@@ -475,8 +478,8 @@ export const Controlled: Story = {
 
     return (
       <div className='w-80 space-y-3'>
-        <h3 className='font-medium text-md'>Controlled State</h3>
-        <div className='rounded-sm bg-surface-primary p-3'>
+        <h3 className='text-md font-medium'>Controlled State</h3>
+        <div className='bg-surface-primary rounded-sm p-3'>
           <p className='text-sm'>
             <span className='font-medium'>Value:</span> {value ?? '(none)'}
           </p>
@@ -488,21 +491,21 @@ export const Controlled: Story = {
           <button
             type='button'
             onClick={() => setValue('cherry')}
-            className='rounded-sm bg-btn-default px-3 py-1.5 text-on-dark text-sm hover:bg-btn-hover'
+            className='bg-btn-default text-on-dark hover:bg-btn-hover rounded-sm px-3 py-1.5 text-sm'
           >
             Set Cherry
           </button>
           <button
             type='button'
             onClick={() => setValue(undefined)}
-            className='rounded-sm bg-surface-neutral-hover px-3 py-1.5 text-sm hover:bg-surface-neutral-pressed'
+            className='bg-surface-neutral-hover hover:bg-surface-neutral-pressed rounded-sm px-3 py-1.5 text-sm'
           >
             Clear
           </button>
           <button
             type='button'
             onClick={() => setOpen(!open)}
-            className='rounded-sm bg-surface-neutral-hover px-3 py-1.5 text-sm hover:bg-surface-neutral-pressed'
+            className='bg-surface-neutral-hover hover:bg-surface-neutral-pressed rounded-sm px-3 py-1.5 text-sm'
           >
             Toggle Open
           </button>
@@ -574,10 +577,10 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
     return (
       <div className='w-80 space-y-3'>
         <header>
-          <h3 className='font-medium text-md'>Playground</h3>
-          <p className='text-sm text-subtle'>Use the controls to configure the selector</p>
+          <h3 className='text-md font-medium'>Playground</h3>
+          <p className='text-subtle text-sm'>Use the controls to configure the selector</p>
         </header>
-        <div className='rounded-sm bg-surface-primary px-3 py-2'>
+        <div className='bg-surface-primary rounded-sm px-3 py-2'>
           <p className='text-sm'>
             <span className='font-medium'>Selected:</span> {value ?? '(none)'}
           </p>
@@ -623,27 +626,27 @@ export const KeyboardNavigation: Story = {
 
     return (
       <div className='w-80 space-y-3'>
-        <h3 className='font-medium text-md'>Keyboard Navigation</h3>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <h3 className='text-md font-medium'>Keyboard Navigation</h3>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Keyboard shortcuts:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Arrow Keys</kbd> - Navigate options
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Arrow Keys</kbd> - Navigate options
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Enter</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Space</kbd> - Select option
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Enter</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Space</kbd> - Select option
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Escape</kbd> - Close without selecting
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Escape</kbd> - Close without selecting
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>Home</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>End</kbd> - Jump to first/last
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>Home</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>End</kbd> - Jump to first/last
             </li>
             <li>
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>PageUp</kbd> /{' '}
-              <kbd className='rounded bg-bdr-subtle px-1 text-main'>PageDown</kbd> - Jump 10 items
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>PageUp</kbd> /{' '}
+              <kbd className='bg-bdr-subtle text-main rounded px-1'>PageDown</kbd> - Jump 10 items
             </li>
           </ul>
         </div>
@@ -675,13 +678,13 @@ export const TypeToSelect: Story = {
 
     return (
       <div className='w-80 space-y-3'>
-        <h3 className='font-medium text-md'>Type to Select</h3>
-        <div className='rounded-sm bg-surface-primary p-3 text-sm'>
+        <h3 className='text-md font-medium'>Type to Select</h3>
+        <div className='bg-surface-primary rounded-sm p-3 text-sm'>
           <p className='mb-2 font-medium'>Type-ahead behavior:</p>
-          <ul className='space-y-1 text-subtle text-xs'>
+          <ul className='text-subtle space-y-1 text-xs'>
             <li>Focus the selector and type letters to jump to matching options</li>
             <li>
-              Type <kbd className='rounded bg-bdr-subtle px-1 text-main'>b</kbd> repeatedly to cycle through items
+              Type <kbd className='bg-bdr-subtle text-main rounded px-1'>b</kbd> repeatedly to cycle through items
               starting with &quot;B&quot;
             </li>
             <li>Type quickly for multi-character search (e.g., &quot;str&quot; for Strawberry)</li>
@@ -704,7 +707,7 @@ export const TypeToSelect: Story = {
           </Selector.Content>
         </Selector.Root>
         {value && (
-          <p className='text-sm text-subtle'>
+          <p className='text-subtle text-sm'>
             Selected: <span className='font-medium'>{value}</span>
           </p>
         )}

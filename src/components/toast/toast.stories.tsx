@@ -1,7 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { Bell } from 'lucide-react';
 import { useState } from 'preact/hooks';
+
 import { Button } from '@/components/button';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Toast, type ToastProps } from './toast';
 
@@ -173,7 +175,7 @@ export const WithAction: Story = {
 export const InSmallContainer: Story = {
   name: 'Examples / In Small Container',
   render: () => (
-    <div className='w-64 border border-gray-400 border-dashed p-2'>
+    <div className='w-64 border border-dashed border-gray-400 p-2'>
       <Toast>
         <Toast.Icon tone='info' />
         <Toast.Description>Toast shrinks to fit the container width.</Toast.Description>

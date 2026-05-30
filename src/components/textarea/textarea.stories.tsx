@@ -1,9 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { type ReactElement, useRef, useState } from 'react';
+
 import { Button } from '@/components/button';
 import { Tooltip } from '@/components/tooltip';
 import { useBlinkAttention } from '@/hooks/use-blink-attention';
 import { cn } from '@/utils';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { TextArea, type TextAreaProps } from './textarea';
 
@@ -148,7 +150,7 @@ export const FormExample: Story = {
   name: 'Examples / Form',
   render: () => (
     <div className='w-96 space-y-6 p-4'>
-      <h3 className='mb-4 font-medium text-lg'>Feedback Form</h3>
+      <h3 className='mb-4 text-lg font-medium'>Feedback Form</h3>
 
       <TextArea label='Summary' description='Brief overview of your feedback' placeholder='Enter a short summary...' />
 
@@ -196,12 +198,12 @@ export const States: Story = {
   render: () => (
     <div className='w-80 space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Default State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Default State</h3>
         <TextArea label='Default TextArea' placeholder='Enter text...' />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>With Value</h3>
+        <h3 className='mb-3 text-sm font-medium'>With Value</h3>
         <TextArea
           label='Filled TextArea'
           value='Sample multiline text content that spans across multiple lines to demonstrate the textarea behavior.'
@@ -209,17 +211,17 @@ export const States: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Error State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Error State</h3>
         <TextArea label='Invalid TextArea' placeholder='Enter valid data' error='This field is required' />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Disabled State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Disabled State</h3>
         <TextArea label='Disabled TextArea' placeholder='Cannot interact' disabled />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Read Only State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Read Only State</h3>
         <TextArea
           label='Read Only TextArea'
           value='This content cannot be edited but can be selected and copied.'
@@ -228,12 +230,12 @@ export const States: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Processing State</h3>
+        <h3 className='mb-3 text-sm font-medium'>Processing State</h3>
         <TextArea label='Processing TextArea' value='Saving long-form content…' processing />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Processing Overrides Error</h3>
+        <h3 className='mb-3 text-sm font-medium'>Processing Overrides Error</h3>
         <TextArea label='Processing Wins' value='In flight' error='Error is hidden while processing' processing />
       </div>
     </div>
@@ -245,22 +247,22 @@ export const Resizing: Story = {
   render: () => (
     <div className='w-96 space-y-6 p-4'>
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Default (Not Resizable)</h3>
+        <h3 className='mb-3 text-sm font-medium'>Default (Not Resizable)</h3>
         <TextArea label='Notes' placeholder='This textarea cannot be resized' />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Resizable</h3>
+        <h3 className='mb-3 text-sm font-medium'>Resizable</h3>
         <TextArea label='Description' placeholder='Drag the bottom-right corner to resize' resizable />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Resizable with More Rows</h3>
+        <h3 className='mb-3 text-sm font-medium'>Resizable with More Rows</h3>
         <TextArea label='Content' placeholder='Starts with 4 rows, can be resized' rows={4} resizable />
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Auto-Size</h3>
+        <h3 className='mb-3 text-sm font-medium'>Auto-Size</h3>
         <TextArea
           label='Auto-sizing'
           placeholder='Grows automatically as you type (not supported in Firefox)'
@@ -269,7 +271,7 @@ export const Resizing: Story = {
       </div>
 
       <div>
-        <h3 className='mb-3 font-medium text-sm'>Auto-Size + Resizable</h3>
+        <h3 className='mb-3 text-sm font-medium'>Auto-Size + Resizable</h3>
         <TextArea label='Combined' placeholder='Auto-sizes but can also be manually resized' autoSize resizable />
       </div>
     </div>
@@ -295,10 +297,10 @@ function HighlightDemo(): ReactElement {
 
   return (
     <div className='flex flex-col gap-y-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Click the button to scroll the field into view and pulse the attention ring. Trigger logic lives in
-        <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>useBlinkAttention</code>; the field wears the
-        ring via the <code className='mx-1 rounded-sm bg-surface-primary px-1 py-0.5'>highlightRef</code> prop so the
+        <code className='bg-surface-primary mx-1 rounded-sm px-1 py-0.5'>useBlinkAttention</code>; the field wears the
+        ring via the <code className='bg-surface-primary mx-1 rounded-sm px-1 py-0.5'>highlightRef</code> prop so the
         pulse stays around the textarea itself, not the label or error. Clicking faster than the 1.2s animation restarts
         the ring on every click.
       </div>

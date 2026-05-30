@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { IconButton, type IconButtonProps } from '@/components/icon-button';
 import {
   useActiveItemFocus,
@@ -28,8 +29,9 @@ import {
   TreeListProvider,
   useTreeList,
 } from '@/providers/tree-list-provider';
-import type { ItemInteraction, LucideIcon } from '@/types';
 import { cn, setRef } from '@/utils';
+
+import type { ItemInteraction, LucideIcon } from '@/types';
 
 const calcSpacerWidth = (level: number, indent: number): number => indent * (level - 1) - 10;
 
@@ -39,7 +41,7 @@ const calcSpacerWidth = (level: number, indent: number): number => indent * (lev
 
 export const treeListRowVariants = cva(
   [
-    'group relative z-0 flex items-center gap-2.5 px-2.5 py-1 outline-none hover:bg-surface-neutral-hover',
+    'group hover:bg-surface-neutral-hover relative z-0 flex items-center gap-2.5 px-2.5 py-1 outline-none',
     // Click target expansion: -inset-y-{n} where n = gap / 2
     'after:pointer-events-auto after:absolute after:inset-x-0 after:-inset-y-0.75 after:-z-10 after:rounded-sm after:content-[""]',
   ],
@@ -66,8 +68,8 @@ export const treeListRowVariants = cva(
       {
         active: true,
         class: [
-          'focus-visible:ring-3 focus-visible:ring-ring-offset focus-visible:ring-inset',
-          'focus-visible:ring-offset-3 focus-visible:ring-offset-ring',
+          'focus-visible:ring-ring-offset focus-visible:ring-3 focus-visible:ring-inset',
+          'focus-visible:ring-offset-ring focus-visible:ring-offset-3',
         ],
       },
     ],
@@ -325,7 +327,6 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
     );
 
     // State invalidation when items change (e.g., removed, collapsed, filtered)
-    // biome-ignore lint/correctness/useExhaustiveDependencies: registryVersion triggers revalidation; other deps would cause loops
     useEffect(() => {
       const registeredDomIds = getItems();
       const registeredDomIdSet = new Set(registeredDomIds);
@@ -354,6 +355,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       if (anchorId && !registeredDomIdSet.has(toDomId(anchorId))) {
         setAnchorId(active ? fromDomId(active) : undefined);
       }
+      // oxlint-disable-next-line react-hooks/exhaustive-deps -- registryVersion triggers revalidation; other deps would cause loops
     }, [registryVersion]);
 
     // Focusable elements selector for action mode
@@ -741,7 +743,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           }}
           className={cn(
             // Soft focus ring on container (like Toolbar)
-            'outline-none focus-within:ring-2 focus-within:ring-ring/10 focus-within:ring-inset',
+            'focus-within:ring-ring/10 outline-none focus-within:ring-2 focus-within:ring-inset',
             className,
           )}
           role='tree'
@@ -1197,7 +1199,7 @@ export const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRo
         title={expanded ? 'Collapse' : 'Expand'}
         tabIndex={-1}
         className={cn(
-          'size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent active:text-main',
+          'active:text-main size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent',
           selected && 'text-alt hover:text-alt active:text-alt',
           expanded && 'rotate-90',
           className,
@@ -1338,7 +1340,7 @@ export const TreeListRowLoading = forwardRef<HTMLDivElement, TreeListRowLoadingP
       {...props}
     >
       <TreeListRowLevelSpacer level={level} levelIndent={levelIndent} />
-      {children ?? <Loader2 className='size-4 animate-spin text-subtle' />}
+      {children ?? <Loader2 className='text-subtle size-4 animate-spin' />}
     </div>
   ),
 );
@@ -1366,7 +1368,7 @@ export const TreeListRowPlaceholder = forwardRef<HTMLDivElement, TreeListRowPlac
       {...props}
     >
       <TreeListRowLevelSpacer level={level} levelIndent={levelIndent} />
-      {children ?? <span className='text-sm text-subtle italic'>Placeholder</span>}
+      {children ?? <span className='text-subtle text-sm italic'>Placeholder</span>}
     </div>
   ),
 );

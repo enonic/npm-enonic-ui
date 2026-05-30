@@ -1,10 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { type ChangeEvent, type FormEvent, useRef, useState } from 'react';
+
 import { Button } from '@/components/button';
 import { Dialog } from '@/components/dialog';
 import { Input } from '@/components/input';
 import { Selector } from '@/components/selector';
 import { TimePicker } from '@/components/time-picker';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
+
 import { DatePicker } from './date-picker';
 
 export default {
@@ -70,9 +73,9 @@ export const Basic: Story = {
   name: 'Examples / Basic',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>Click the calendar icon to open the date picker popover.</div>
+      <div className='text-subtle max-w-120 text-sm'>Click the calendar icon to open the date picker popover.</div>
       <DatePicker defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -106,7 +109,7 @@ export const DateInput: Story = {
 
     return (
       <div className='flex w-80 flex-col gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Type a date or use the icon; the input and picker stay in sync. Press Escape to close the picker and return
           focus to the input.
         </div>
@@ -166,7 +169,7 @@ export const DateInputInDialog: Story = {
 
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Date picker inside a dialog. The calendar popup is portaled to the body but works correctly with the
           dialog&apos;s focus trap.
         </div>
@@ -276,7 +279,7 @@ export const DateTimeInput: Story = {
 
     return (
       <div className='flex w-[360px] flex-col gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Combined picker with date selection on top and time selection below.
         </div>
         <DatePicker
@@ -322,9 +325,9 @@ export const DateTimeInput: Story = {
                     >
                       <div className='flex items-center gap-2'>
                         <TimePicker.HourSelect className='w-20' />
-                        <span className='font-bold text-lg text-main'>:</span>
+                        <span className='text-main text-lg font-bold'>:</span>
                         <TimePicker.MinuteSelect className='w-20' />
-                        <TimePicker.Timezone className='ml-1 text-subtle text-xs' />
+                        <TimePicker.Timezone className='text-subtle ml-1 text-xs' />
                       </div>
                     </TimePicker>
                     <Button size='sm' variant='solid' onClick={handleConfirm}>
@@ -336,7 +339,7 @@ export const DateTimeInput: Story = {
             </DatePicker.Content>
           </DatePicker.Portal>
         </DatePicker>
-        <div className='text-sm text-subtle'>Selected: {formatDateTimeValue(valueDate, valueTime) || 'None'}</div>
+        <div className='text-subtle text-sm'>Selected: {formatDateTimeValue(valueDate, valueTime) || 'None'}</div>
       </div>
     );
   },
@@ -394,7 +397,7 @@ export const DateTimeInDialog: Story = {
 
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>Combined date and time picker inside a dialog.</div>
+        <div className='text-subtle max-w-120 text-sm'>Combined date and time picker inside a dialog.</div>
         <Dialog>
           <Dialog.Trigger asChild>
             <Button variant='outline'>Open Dialog</Button>
@@ -449,9 +452,9 @@ export const DateTimeInDialog: Story = {
                           >
                             <div className='flex items-center gap-2'>
                               <TimePicker.HourSelect className='w-20' />
-                              <span className='font-bold text-lg text-main'>:</span>
+                              <span className='text-main text-lg font-bold'>:</span>
                               <TimePicker.MinuteSelect className='w-20' />
-                              <TimePicker.Timezone className='ml-1 text-subtle text-xs' />
+                              <TimePicker.Timezone className='text-subtle ml-1 text-xs' />
                             </div>
                           </TimePicker>
                           <Button size='sm' variant='solid' onClick={handleConfirm}>
@@ -533,7 +536,7 @@ export const DateTimeRangeInDialog: Story = {
 
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Two date-time pickers inside a dialog for selecting a range.
         </div>
         <Dialog>
@@ -589,9 +592,9 @@ export const DateTimeRangeInDialog: Story = {
                           >
                             <div className='flex items-center gap-2'>
                               <TimePicker.HourSelect className='w-20' />
-                              <span className='font-bold text-lg text-main'>:</span>
+                              <span className='text-main text-lg font-bold'>:</span>
                               <TimePicker.MinuteSelect className='w-20' />
-                              <TimePicker.Timezone className='ml-1 text-subtle text-xs' />
+                              <TimePicker.Timezone className='text-subtle ml-1 text-xs' />
                             </div>
                           </TimePicker>
                           <Button size='sm' variant='solid' onClick={handleFromConfirm}>
@@ -643,9 +646,9 @@ export const DateTimeRangeInDialog: Story = {
                           >
                             <div className='flex items-center gap-2'>
                               <TimePicker.HourSelect className='w-20' />
-                              <span className='font-bold text-lg text-main'>:</span>
+                              <span className='text-main text-lg font-bold'>:</span>
                               <TimePicker.MinuteSelect className='w-20' />
-                              <TimePicker.Timezone className='ml-1 text-subtle text-xs' />
+                              <TimePicker.Timezone className='text-subtle ml-1 text-xs' />
                             </div>
                           </TimePicker>
                           <Button size='sm' variant='solid' onClick={handleToConfirm}>
@@ -679,16 +682,16 @@ export const Controlled: Story = {
     const [value, setValue] = useState<Date | null>(new Date());
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           This story keeps the selected value controlled and renders it below.
         </div>
         <DatePicker value={value} onValueChange={setValue} defaultOpen={false} className='inline-flex items-center'>
-          <DatePicker.Trigger className='border border-bdr-subtle' />
+          <DatePicker.Trigger className='border-bdr-subtle border' />
           <DatePicker.Portal>
             <DatePicker.Content />
           </DatePicker.Portal>
         </DatePicker>
-        <div className='text-sm text-subtle'>Selected: {value ? value.toLocaleDateString() : 'None'}</div>
+        <div className='text-subtle text-sm'>Selected: {value ? value.toLocaleDateString() : 'None'}</div>
       </div>
     );
   },
@@ -698,7 +701,7 @@ export const Trigger: Story = {
   name: 'Examples / Inline',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Inline mode renders the full date picker without a trigger button.
       </div>
       <DatePicker />
@@ -710,9 +713,9 @@ export const DefaultMonth: Story = {
   name: 'Features / Default Month',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>The popover opens to January 2027 when no value is selected.</div>
+      <div className='text-subtle max-w-120 text-sm'>The popover opens to January 2027 when no value is selected.</div>
       <DatePicker defaultMonth={new Date(2027, 0, 1)} defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -729,7 +732,7 @@ export const ControlledMonth: Story = {
 
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           The visible month is controlled externally while the selected date can change independently.
         </div>
         <DatePicker
@@ -740,12 +743,12 @@ export const ControlledMonth: Story = {
           defaultOpen={false}
           className='inline-flex items-center'
         >
-          <DatePicker.Trigger className='border border-bdr-subtle' />
+          <DatePicker.Trigger className='border-bdr-subtle border' />
           <DatePicker.Portal>
             <DatePicker.Content />
           </DatePicker.Portal>
         </DatePicker>
-        <div className='text-sm text-subtle'>
+        <div className='text-subtle text-sm'>
           Visible month: {month.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
         </div>
       </div>
@@ -767,11 +770,11 @@ export const Locale: Story = {
 
     return (
       <div className='flex w-96 flex-col items-center gap-4 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Weekday labels, month names, and week start follow the selected locale when supported.
         </div>
-        <div className='flex w-full flex-col gap-2 rounded-sm border border-bdr-subtle bg-surface-neutral p-3'>
-          <div className='font-semibold text-main text-sm'>Locale</div>
+        <div className='border-bdr-subtle bg-surface-neutral flex w-full flex-col gap-2 rounded-sm border p-3'>
+          <div className='text-main text-sm font-semibold'>Locale</div>
           <Selector.Root value={locale} onValueChange={setLocale}>
             <Selector.Trigger>
               <Selector.Value placeholder='Select locale'>
@@ -793,7 +796,7 @@ export const Locale: Story = {
           </Selector.Root>
         </div>
         <DatePicker locale={locale} weekStartsOn='locale' defaultOpen={false} className='inline-flex items-center'>
-          <DatePicker.Trigger className='border border-bdr-subtle' />
+          <DatePicker.Trigger className='border-bdr-subtle border' />
           <DatePicker.Portal>
             <DatePicker.Content />
           </DatePicker.Portal>
@@ -807,9 +810,9 @@ export const AlignEnd: Story = {
   name: 'Features / Align End',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>The popover aligns its right edge to the trigger.</div>
+      <div className='text-subtle max-w-120 text-sm'>The popover aligns its right edge to the trigger.</div>
       <DatePicker defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content align='end' />
         </DatePicker.Portal>
@@ -822,9 +825,9 @@ export const NoNavigation: Story = {
   name: 'Features / No Navigation',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>Hide the previous/next month buttons in the header.</div>
+      <div className='text-subtle max-w-120 text-sm'>Hide the previous/next month buttons in the header.</div>
       <DatePicker showNavigation={false} defaultOpen={false} className='inline-flex items-center' monthFormat={'long'}>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -837,11 +840,11 @@ export const StayOpen: Story = {
   name: 'Features / Stay Open',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Disable close-on-select to keep the picker open after choosing a date.
       </div>
       <DatePicker closeOnSelect={false} defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -854,11 +857,11 @@ export const CustomDropdownWidth: Story = {
   name: 'Features / Custom Dropdown Width',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         A custom header layout lets you set wider month/year dropdown menus.
       </div>
       <DatePicker defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content>
             <div className='grid gap-3'>
@@ -882,9 +885,9 @@ export const LongMonthLabels: Story = {
   name: 'Features / Long Month Labels',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>Month names use the long format instead of the short one.</div>
+      <div className='text-subtle max-w-120 text-sm'>Month names use the long format instead of the short one.</div>
       <DatePicker monthFormat='long' defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -897,9 +900,9 @@ export const MinMaxYears: Story = {
   name: 'Features / Min Max Years',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>The year dropdown is limited to 2020–2026.</div>
+      <div className='text-subtle max-w-120 text-sm'>The year dropdown is limited to 2020–2026.</div>
       <DatePicker minYear={2020} maxYear={2026} defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -912,9 +915,9 @@ export const MinYearOnly: Story = {
   name: 'Features / Min Year Only',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>Only a minimum year is set; max defaults to the current year.</div>
+      <div className='text-subtle max-w-120 text-sm'>Only a minimum year is set; max defaults to the current year.</div>
       <DatePicker minYear={2018} defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -927,9 +930,9 @@ export const MaxYearOnly: Story = {
   name: 'Features / Max Year Only',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>Only a maximum year is set; min defaults to the current year.</div>
+      <div className='text-subtle max-w-120 text-sm'>Only a maximum year is set; min defaults to the current year.</div>
       <DatePicker maxYear={2027} defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -942,7 +945,7 @@ export const NativeInput: Story = {
   name: 'Features / Native Input',
   render: () => (
     <div className='flex w-72 flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>
+      <div className='text-subtle max-w-120 text-sm'>
         Forces the native date input (useful for mobile-first experiences).
       </div>
       <DatePicker native nativeInputProps={{ 'aria-label': 'Select date' }} />
@@ -965,11 +968,11 @@ export const HiddenInput: Story = {
 
     return (
       <form onSubmit={handleSubmit} className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           Hidden input keeps form submissions in sync with the selected date.
         </div>
         <DatePicker value={value} onValueChange={setValue} defaultOpen={false} className='inline-flex items-center'>
-          <DatePicker.Trigger className='border border-bdr-subtle' />
+          <DatePicker.Trigger className='border-bdr-subtle border' />
           <DatePicker.Portal>
             <DatePicker.Content />
           </DatePicker.Portal>
@@ -978,7 +981,7 @@ export const HiddenInput: Story = {
         <Button type='submit' size='md'>
           Submit
         </Button>
-        <div className='text-sm text-subtle'>Submitted value: {submitted}</div>
+        <div className='text-subtle text-sm'>Submitted value: {submitted}</div>
       </form>
     );
   },
@@ -988,9 +991,9 @@ export const WeekStartsSunday: Story = {
   name: 'Features / Week Starts Sunday',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>The week starts on Sunday instead of Monday.</div>
+      <div className='text-subtle max-w-120 text-sm'>The week starts on Sunday instead of Monday.</div>
       <DatePicker weekStartsOn={0} defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -1003,9 +1006,9 @@ export const HideOutsideDays: Story = {
   name: 'Features / Hide Outside Days',
   render: () => (
     <div className='flex flex-col items-center gap-3 p-4'>
-      <div className='max-w-120 text-sm text-subtle'>Days outside the current month are hidden in the grid.</div>
+      <div className='text-subtle max-w-120 text-sm'>Days outside the current month are hidden in the grid.</div>
       <DatePicker showOutsideDays={false} defaultOpen={false} className='inline-flex items-center'>
-        <DatePicker.Trigger className='border border-bdr-subtle' />
+        <DatePicker.Trigger className='border-bdr-subtle border' />
         <DatePicker.Portal>
           <DatePicker.Content />
         </DatePicker.Portal>
@@ -1021,16 +1024,16 @@ export const ForceMount: Story = {
 
     return (
       <div className='flex flex-col items-center gap-3 p-4'>
-        <div className='max-w-120 text-sm text-subtle'>
+        <div className='text-subtle max-w-120 text-sm'>
           The content stays mounted even when closed, which helps with animations or measurements.
         </div>
         <DatePicker open={open} onOpenChange={setOpen} defaultOpen={false} className='inline-flex items-center'>
-          <DatePicker.Trigger className='border border-bdr-subtle' />
+          <DatePicker.Trigger className='border-bdr-subtle border' />
           <DatePicker.Portal>
             <DatePicker.Content forceMount />
           </DatePicker.Portal>
         </DatePicker>
-        <div className='text-sm text-subtle'>Open state: {open ? 'Open' : 'Closed'}</div>
+        <div className='text-subtle text-sm'>Open state: {open ? 'Open' : 'Closed'}</div>
       </div>
     );
   },

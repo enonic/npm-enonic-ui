@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/preact-vite';
 import { File, Folder, ListTree } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { forwardRef, type ReactElement, type RefObject, useRef } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
+
 import { Button } from '@/components/button';
 import { Combobox } from '@/components/combobox/combobox';
 import { Dialog } from '@/components/dialog/dialog';
@@ -11,6 +11,8 @@ import { Toggle } from '@/components/toggle';
 import { type FlatNode, VirtualizedTreeList } from '@/components/virtualized-tree-list/virtualized-tree-list';
 import { useCombobox } from '@/providers';
 import { cn } from '@/utils';
+
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 type Story = StoryObj;
 
@@ -52,8 +54,8 @@ const createInputRefAndFocus = (): RefObject<HTMLInputElement> => {
 const ListboxItemContent = ({ name, language }: Omit<Option, 'id'>): ReactElement => {
   return (
     <div className='flex w-full flex-col justify-between'>
-      <div className='font-medium text-sm group-data-[tone=inverse]:text-alt'>{name}</div>
-      <div className='text-subtle text-xs group-data-[tone=inverse]:text-alt'>{language}</div>
+      <div className='group-data-[tone=inverse]:text-alt text-sm font-medium'>{name}</div>
+      <div className='text-subtle group-data-[tone=inverse]:text-alt text-xs'>{language}</div>
     </div>
   );
 };
@@ -73,7 +75,7 @@ export const Basic: Story = {
 
     return (
       <div className='relative space-y-3'>
-        <h3 className='font-medium text-md'>Basic Combobox</h3>
+        <h3 className='text-md font-medium'>Basic Combobox</h3>
         <Combobox.Root value={value} onChange={setValue}>
           <Combobox.Content>
             <Combobox.Control>
@@ -115,7 +117,7 @@ export const Multi: Story = {
 
     return (
       <div className='relative space-y-3'>
-        <h3 className='font-medium text-md'>Multiple Selection</h3>
+        <h3 className='text-md font-medium'>Multiple Selection</h3>
         <Combobox.Root value={value} onChange={setValue} selectionMode={'multiple'}>
           <Combobox.Content>
             <Combobox.Control>
@@ -158,7 +160,7 @@ export const Preselected: Story = {
 
     return (
       <div className='relative space-y-3'>
-        <h3 className='font-medium text-md'>Some items are preselected</h3>
+        <h3 className='text-md font-medium'>Some items are preselected</h3>
         <Combobox.Root
           value={value}
           onChange={setValue}
@@ -218,7 +220,7 @@ export const ToggleWithValue: Story = {
                   {selectedFramework ? (
                     <span className='flex items-center gap-2'>
                       <span className='font-medium'>{selectedFramework.name}</span>
-                      <span className='text-sm text-subtle'>{selectedFramework.language}</span>
+                      <span className='text-subtle text-sm'>{selectedFramework.language}</span>
                     </span>
                   ) : (
                     <span className='text-subtle'>Select a framework</span>
@@ -369,11 +371,11 @@ export const WithLeftToggleButton: Story = {
 
     return (
       <div className='relative w-80 space-y-3'>
-        <h3 className='font-medium text-md'>Toggle Button in Icon Position</h3>
-        <p className='text-sm text-subtle'>
+        <h3 className='text-md font-medium'>Toggle Button in Icon Position</h3>
+        <p className='text-subtle text-sm'>
           View mode: <span className='font-semibold'>{isTreeView ? 'Tree' : 'List'}</span>
           {' · '}
-          <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>⌘/Ctrl+Shift+V</kbd>
+          <kbd className='bg-surface-primary rounded px-1 font-mono text-xs'>⌘/Ctrl+Shift+V</kbd>
         </p>
         <Combobox.Root value={value} onChange={setValue} contentType={isTreeView ? 'tree' : 'auto'}>
           <Combobox.Content onKeyDown={handleKeyDown}>
@@ -388,7 +390,7 @@ export const WithLeftToggleButton: Story = {
                   onPressedChange={() => setIsTreeView(prev => !prev)}
                   tabIndex={-1}
                   className={cn(
-                    'ml-1.25 size-9 shrink-0 rounded-[0.1875rem] p-0 text-subtle hover:bg-surface-neutral-hover',
+                    'text-subtle hover:bg-surface-neutral-hover ml-1.25 size-9 shrink-0 rounded-[0.1875rem] p-0',
                     'relative z-0 overflow-visible after:pointer-events-auto after:absolute after:-inset-1.25 after:-z-10 after:rounded-sm after:content-[""]',
                   )}
                 />
@@ -438,7 +440,7 @@ export const WithLeftToggleButton: Story = {
                               </VirtualizedTreeList.RowLeft>
                               <VirtualizedTreeList.RowContent>
                                 <div className='flex items-center gap-2'>
-                                  <span className='shrink-0 text-subtle group-data-[tone=inverse]:text-alt'>
+                                  <span className='text-subtle group-data-[tone=inverse]:text-alt shrink-0'>
                                     {getIcon(node.data.icon)}
                                   </span>
                                   <span className='truncate text-sm'>{node.data.label}</span>
@@ -473,7 +475,7 @@ export const Disabled: Story = {
   render: () => {
     return (
       <div className='relative space-y-3'>
-        <h3 className='font-medium text-md'>Disabled</h3>
+        <h3 className='text-md font-medium'>Disabled</h3>
         <Combobox.Root disabled>
           <Combobox.Content>
             <Combobox.Control>
@@ -514,7 +516,7 @@ export const WithError: Story = {
 
     return (
       <div className='relative space-y-3'>
-        <h3 className='font-medium text-md'>Has errors</h3>
+        <h3 className='text-md font-medium'>Has errors</h3>
         <Combobox.Root value={value} onChange={setValue} error>
           <Combobox.Content>
             <Combobox.Control>
@@ -554,7 +556,7 @@ export const LongList: Story = {
 
     return (
       <div className='relative space-y-3'>
-        <h3 className='font-medium text-md'>Long list, stays open on blur</h3>
+        <h3 className='text-md font-medium'>Long list, stays open on blur</h3>
         <Combobox.Root value={value} onChange={setValue} closeOnBlur={false}>
           <Combobox.Content>
             <Combobox.Control>
@@ -593,7 +595,7 @@ export const CustomFiltering: Story = {
 
     return (
       <div className='relative space-y-3'>
-        <h3 className='font-medium text-md'>Custom Filtering</h3>
+        <h3 className='text-md font-medium'>Custom Filtering</h3>
         <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
           <Combobox.Content>
             <Combobox.Control>
@@ -615,8 +617,8 @@ export const CustomFiltering: Story = {
             </Combobox.Popup>
           </Combobox.Content>
         </Combobox.Root>
-        <div className='rounded-sm bg-surface-primary px-3 py-2'>
-          <p className='text-sm text-subtle'>
+        <div className='bg-surface-primary rounded-sm px-3 py-2'>
+          <p className='text-subtle text-sm'>
             <span className='font-semibold'>Selected:</span> {selection}
           </p>
         </div>
@@ -641,9 +643,9 @@ export const Staged: Story = {
     return (
       <div className='relative w-80 space-y-3'>
         <header>
-          <h3 className='font-medium text-md'>Need to confirm selection changes</h3>
-          <p className='text-sm text-subtle'>
-            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>Enter</kbd>
+          <h3 className='text-md font-medium'>Need to confirm selection changes</h3>
+          <p className='text-subtle text-sm'>
+            Apply with button or <kbd className='bg-surface-primary rounded px-1 font-mono text-xs'>Enter</kbd>
           </p>
         </header>
         <Combobox.Root value={value} onChange={setValue} selectionMode={'staged'} closeOnBlur={false}>
@@ -690,9 +692,9 @@ export const StagedPreselected: Story = {
     return (
       <div className='relative w-80 space-y-3'>
         <header>
-          <h3 className='font-medium text-md'>Confirm selection changes</h3>
-          <p className='text-sm text-subtle'>
-            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>Enter</kbd>
+          <h3 className='text-md font-medium'>Confirm selection changes</h3>
+          <p className='text-subtle text-sm'>
+            Apply with button or <kbd className='bg-surface-primary rounded px-1 font-mono text-xs'>Enter</kbd>
           </p>
         </header>
         <Combobox.Root
@@ -791,11 +793,11 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
     return (
       <div className='relative w-96 space-y-3'>
         <header>
-          <h3 className='font-medium text-md'>Playground</h3>
-          <p className='text-sm text-subtle'>Try different configurations</p>
+          <h3 className='text-md font-medium'>Playground</h3>
+          <p className='text-subtle text-sm'>Try different configurations</p>
         </header>
-        <div className='rounded-sm bg-surface-primary px-3 py-2'>
-          <h6 className='mb-2 font-medium text-sm'>Current State:</h6>
+        <div className='bg-surface-primary rounded-sm px-3 py-2'>
+          <h6 className='mb-2 text-sm font-medium'>Current State:</h6>
           <p className='text-subtle text-xs'>
             <span className='font-semibold'>Search Value:</span> {value ?? '(empty)'}
           </p>
@@ -837,7 +839,7 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
                     </Listbox.Item>
                   ))
                 ) : (
-                  <div className='px-4 py-3 text-sm text-subtle'>No frameworks found</div>
+                  <div className='text-subtle px-4 py-3 text-sm'>No frameworks found</div>
                 )}
               </Listbox.Content>
             </Combobox.Popup>
@@ -997,8 +999,8 @@ export const TreeContent: Story = {
 
     return (
       <div className='relative w-80 space-y-3'>
-        <h3 className='font-medium text-md'>Combobox with Tree Content</h3>
-        <p className='text-sm text-subtle'>Uses VirtualizedTreeList for hierarchical content</p>
+        <h3 className='text-md font-medium'>Combobox with Tree Content</h3>
+        <p className='text-subtle text-sm'>Uses VirtualizedTreeList for hierarchical content</p>
         <Combobox.Root
           value={value}
           onChange={setValue}
@@ -1055,7 +1057,7 @@ export const TreeContent: Story = {
                             </VirtualizedTreeList.RowLeft>
                             <VirtualizedTreeList.RowContent>
                               <div className='flex items-center gap-2'>
-                                <span className='shrink-0 text-subtle group-data-[tone=inverse]:text-alt'>
+                                <span className='text-subtle group-data-[tone=inverse]:text-alt shrink-0'>
                                   {getIcon(node.data.icon)}
                                 </span>
                                 <span className='truncate text-sm'>{node.data.label}</span>
@@ -1074,8 +1076,8 @@ export const TreeContent: Story = {
             </Combobox.Popup>
           </Combobox.Content>
         </Combobox.Root>
-        <div className='rounded-sm bg-surface-primary px-3 py-2'>
-          <p className='text-sm text-subtle'>
+        <div className='bg-surface-primary rounded-sm px-3 py-2'>
+          <p className='text-subtle text-sm'>
             <span className='font-semibold'>Selected:</span> {Array.from(selection).join(', ') || '(none)'}
           </p>
         </div>
@@ -1152,7 +1154,7 @@ const StagedTreeContent = ({
                   </VirtualizedTreeList.RowLeft>
                   <VirtualizedTreeList.RowContent>
                     <div className='flex items-center gap-2'>
-                      <span className='shrink-0 text-subtle group-data-[tone=inverse]:text-alt'>
+                      <span className='text-subtle group-data-[tone=inverse]:text-alt shrink-0'>
                         {getIcon(node.data.icon)}
                       </span>
                       <span className='truncate text-sm'>{node.data.label}</span>
@@ -1227,9 +1229,9 @@ export const TreeContentStaged: Story = {
     return (
       <div className='relative w-80 space-y-3'>
         <header>
-          <h3 className='font-medium text-md'>Tree with Staged Selection</h3>
-          <p className='text-sm text-subtle'>
-            Apply with button or <kbd className='rounded bg-surface-primary px-1 font-mono text-xs'>Enter</kbd>
+          <h3 className='text-md font-medium'>Tree with Staged Selection</h3>
+          <p className='text-subtle text-sm'>
+            Apply with button or <kbd className='bg-surface-primary rounded px-1 font-mono text-xs'>Enter</kbd>
           </p>
         </header>
         <Combobox.Root
@@ -1264,8 +1266,8 @@ export const TreeContentStaged: Story = {
             </Combobox.Popup>
           </Combobox.Content>
         </Combobox.Root>
-        <div className='rounded-sm bg-surface-primary px-3 py-2'>
-          <p className='text-sm text-subtle'>
+        <div className='bg-surface-primary rounded-sm px-3 py-2'>
+          <p className='text-subtle text-sm'>
             <span className='font-semibold'>Applied:</span> {appliedSelection.join(', ') || '(none)'}
           </p>
         </div>
@@ -1294,18 +1296,18 @@ export const Portal: Story = {
     return (
       <div className='mx-auto max-w-md space-y-6'>
         <div>
-          <h3 className='font-medium text-md'>Portal Mode</h3>
-          <p className='text-sm text-subtle'>
-            The dropdown renders in <code className='rounded bg-surface-primary px-1 text-xs'>document.body</code>,
+          <h3 className='text-md font-medium'>Portal Mode</h3>
+          <p className='text-subtle text-sm'>
+            The dropdown renders in <code className='bg-surface-primary rounded px-1 text-xs'>document.body</code>,
             escaping overflow containers.
           </p>
         </div>
 
         <div
-          className='relative mx-auto h-32 w-80 overflow-hidden rounded-md border border-bdr-subtle border-dashed p-4'
+          className='border-bdr-subtle relative mx-auto h-32 w-80 overflow-hidden rounded-md border border-dashed p-4'
           style={{ overflow: 'hidden' }}
         >
-          <p className='mb-2 text-subtle text-xs'>Container with overflow: hidden</p>
+          <p className='text-subtle mb-2 text-xs'>Container with overflow: hidden</p>
 
           <Combobox.Root value={value} onChange={setValue} selection={selection} onSelectionChange={setSelection}>
             <Combobox.Content>
@@ -1332,8 +1334,8 @@ export const Portal: Story = {
           </Combobox.Root>
         </div>
 
-        <div className='mx-auto w-80 rounded-sm bg-surface-primary px-3 py-2'>
-          <p className='text-sm text-subtle'>
+        <div className='bg-surface-primary mx-auto w-80 rounded-sm px-3 py-2'>
+          <p className='text-subtle text-sm'>
             <span className='font-semibold'>Selected:</span> {selectionDisplay}
           </p>
         </div>
@@ -1375,8 +1377,8 @@ export const DialogWithPortal: Story = {
     return (
       <div className='space-y-6'>
         <div>
-          <h3 className='font-medium text-md'>Dialog with Portaled Combobox</h3>
-          <p className='text-sm text-subtle'>
+          <h3 className='text-md font-medium'>Dialog with Portaled Combobox</h3>
+          <p className='text-subtle text-sm'>
             Focus trap extends to the portaled popup. Tab cycles through Dialog + Popup.
           </p>
         </div>
