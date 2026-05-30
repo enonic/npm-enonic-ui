@@ -258,7 +258,7 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
       if (!cellsRef.current.has(cellKey)) {
         setActiveCell(undefined);
       }
-      // oxlint-disable-next-line react-hooks/exhaustive-deps -- registryVersion triggers revalidation
+      // oxlint-disable-next-line react/exhaustive-deps -- registryVersion triggers revalidation
     }, [registryVersion]);
 
     const contextValue = useMemo<GridListContextValue>(

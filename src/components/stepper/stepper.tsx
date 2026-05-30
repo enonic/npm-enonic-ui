@@ -128,7 +128,7 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
   useEffect(() => {
     registerItem(value, locked, panelRef.current);
     return () => unregisterItem(value);
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- locked is handled by the next effect to avoid unregister/re-register cycle that breaks Map insertion order
+    // oxlint-disable-next-line react/exhaustive-deps -- locked is handled by the next effect to avoid unregister/re-register cycle that breaks Map insertion order
   }, [value, registerItem, unregisterItem]);
 
   useEffect(() => {

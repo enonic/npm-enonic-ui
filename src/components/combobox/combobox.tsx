@@ -413,7 +413,6 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
     );
 
     return (
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <div
         data-component='Combobox.Content'
         ref={useComposedRefs(ref, innerRef)}
@@ -890,7 +889,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
           left: position?.left !== undefined ? `${position.left}px` : undefined,
           right: position?.right !== undefined ? `${position.right}px` : undefined,
           width: portalWidth,
-          // eslint-disable-next-line @typescript-eslint/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
+          // eslint-disable-next-line typescript/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
           ...styleOverride,
         }
       : styleOverride;

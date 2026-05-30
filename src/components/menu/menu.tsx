@@ -305,7 +305,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
 
     const contentStyle = {
       ...positionStyle,
-      // eslint-disable-next-line @typescript-eslint/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
+      // eslint-disable-next-line typescript/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
       ...styleOverride,
     };
 

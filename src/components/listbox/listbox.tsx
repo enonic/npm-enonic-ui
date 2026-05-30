@@ -241,7 +241,6 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
 
     return (
       // tabIndex for aria-activedescendant is properly managed based on focusMode and disabled state
-      // eslint-disable-next-line jsx-a11y/aria-activedescendant-has-tabindex, jsx-a11y/interactive-supports-focus
       <div
         data-component='Listbox.Content'
         ref={useComposedRefs(ref, innerRef)}
@@ -379,7 +378,7 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
 
   return (
     // ARIA listbox pattern: supports both roving tabindex and aria-activedescendant
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
       data-component='Listbox.Item'
       ref={itemRef}

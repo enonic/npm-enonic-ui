@@ -119,5 +119,5 @@ export type RadioItemProps = Omit<
 ## Imports & Exports
 
 - Named exports preferred; no default exports in component files
-- Import from component folder (`@/components/icon-button`), not from barrel (`@/components`) — barrel imports cause circular deps in stories
+- Import from component folder (`@/components/icon-button`), not from barrel (`@/components`); enforced by `import/no-cycle`
 - Use `@/` alias for cross-directory imports; relative paths only within the same directory

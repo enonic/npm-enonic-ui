@@ -25,7 +25,6 @@ export type ItemInteraction = 'full' | 'navigate-only' | 'none';
  * @see https://caniuse.com/mdn-api_htmlelement_focus_options_focusvisible_parameter
  */
 declare global {
-  // biome-ignore lint/style/useConsistentTypeDefinitions: declaration merging requires interface
   interface FocusOptions {
     /**
      * Whether to show focus-visible styling when programmatically focusing.

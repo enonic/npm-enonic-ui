@@ -75,7 +75,6 @@ const getLocaleWeekStart = (locale?: Intl.LocalesArgument): number | undefined =
   if (!locale) return undefined;
   if (typeof Intl === 'undefined' || !('Locale' in Intl)) return undefined;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const localeValue = Array.isArray(locale) ? locale[0] : locale;
 
   try {
@@ -428,7 +427,6 @@ const DatePickerGrid = ({
   const activeId = getDayId(baseId, activeDate);
 
   return (
-    // eslint-disable-next-line jsx-a11y/aria-activedescendant-has-tabindex
     <div
       data-component='DatePicker.Grid'
       role='grid'
@@ -1067,7 +1065,6 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
     const positionStyle: Pick<CSSProperties, 'top' | 'left' | 'right'> = { top, left, right };
 
     return (
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
         data-component='DatePicker.Content'
         ref={composedRefs}

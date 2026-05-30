@@ -113,16 +113,18 @@ useEffect(() => {
 
 ## Refs in Dependency Arrays
 
+oxlint's `exhaustive-deps` requires the **ref object** in the deps array (it's stable, so it never triggers extra runs) — it only rejects `.current`. This differs from React's official rule, which lets you omit refs entirely.
+
 ```typescript
 // ❌ DON'T: Put ref.current in dependency arrays
 useEffect(() => {
   contentRef.current?.focus();
 }, [contentRef.current]); // Wrong! .current changes don't trigger re-render
 
-// ✅ DO: Omit from deps, check .current inside
+// ✅ DO: List the stable ref object, read .current inside
 useEffect(() => {
   contentRef.current?.focus();
-}, []);
+}, [contentRef]);
 
 // ❌ DON'T: Wrap rest-param array in another array
 function useComposedRefs<T>(...refs: Ref<T>[]) {

@@ -62,8 +62,8 @@ export default defineConfig({
         },
       ],
       'typescript/restrict-template-expressions': ['error', { allowNumber: true }],
-      'react/exhaustive-deps': 'error',
-      'jsx-a11y/prefer-tag-over-role': 'warn',
+      // Off: every hit is an intentional ARIA role on an unstyled widget, not a native-tag candidate.
+      'jsx-a11y/prefer-tag-over-role': 'off',
 
       'no-console': 'warn',
       'no-empty': 'error',
@@ -74,8 +74,8 @@ export default defineConfig({
       'prefer-const': 'error',
       'prefer-rest-params': 'error',
       'prefer-spread': 'error',
-      // Preact uses non-standard DOM properties (e.g. onDblClick); disabled to avoid false positives.
-      'react/no-unknown-property': 'off',
+      // Allow-list Preact's non-standard DOM props instead of disabling the rule.
+      'react/no-unknown-property': ['error', { ignore: ['onDblClick'] }],
       'typescript/explicit-function-return-type': [
         'error',
         { allowExpressions: true, allowConciseArrowFunctionExpressionsStartingWithVoid: true },
@@ -93,12 +93,15 @@ export default defineConfig({
       'no-useless-constructor': 'error',
       'import/no-named-as-default': 'error',
       'import/no-named-as-default-member': 'error',
+      // Forbid barrel-import cycles that break Rollup chunking.
+      'import/no-cycle': 'error',
       'react/jsx-no-comment-textnodes': 'error',
       'typescript/no-confusing-non-null-assertion': 'error',
       'typescript/no-extraneous-class': 'error',
       'typescript/no-unnecessary-boolean-literal-compare': 'error',
       'typescript/no-unnecessary-template-expression': 'error',
       'typescript/no-unnecessary-type-arguments': 'warn',
+      'typescript/no-unnecessary-type-assertion': 'error',
       'typescript/no-unnecessary-type-constraint': 'error',
       'typescript/no-unsafe-enum-comparison': 'error',
 
@@ -115,16 +118,15 @@ export default defineConfig({
       'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true, ignoreVoidOperator: true }],
       'typescript/no-mixed-enums': 'error',
 
-      // `react` and `react-dom` both alias to `preact/compat` (tsconfig paths), so the resolver
-      // treats them as one module and false-flags every file importing both. Off for Preact compat.
+      // Off: react and react-dom both alias to preact/compat, so the resolver false-flags dual imports.
       'import/no-duplicates': 'off',
       'typescript/adjacent-overload-signatures': 'error',
       'typescript/ban-tslint-comment': 'error',
-      'typescript/class-literal-property-style': 'error',
+      'typescript/class-literal-property-style': 'off',
       'typescript/consistent-generic-constructors': 'error',
       'typescript/consistent-indexed-object-style': 'error',
       'typescript/consistent-type-assertions': 'error',
-      'typescript/no-inferrable-types': 'error',
+      'typescript/no-inferrable-types': 'off',
       'typescript/prefer-find': 'error',
       'typescript/prefer-for-of': 'error',
       'typescript/prefer-function-type': 'error',
@@ -140,7 +142,9 @@ export default defineConfig({
           'react/display-name': 'off',
           'typescript/explicit-function-return-type': 'off',
           // Storybook `render`/`play` arrows call hooks but aren't statically recognized as components.
-          'react-hooks/rules-of-hooks': 'off',
+          'react/rules-of-hooks': 'off',
+          // Demo handlers log freely; console is dropped from the library build.
+          'no-console': 'off',
         },
       },
       {
