@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-preact';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 import type { Meta, StoryObj } from '@storybook/preact-vite';
