@@ -40,4 +40,4 @@ pnpm-debug.log*
 .cache/
 .temp/
 .tmp/
-.eslintcache
+.oxlintcache

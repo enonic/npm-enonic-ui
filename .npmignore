@@ -4,12 +4,11 @@ src/
 !*.d.ts
 
 # Config files
-.eslintrc*
-.prettierrc*
+.oxlintrc*
+.oxfmtrc*
 *.config.js
 *.config.ts
 tsconfig*.json
-eslint.config.ts
 vite.config.ts
 vite.config.css.ts
 
@@ -68,7 +67,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Misc
-.husky/
+.vite-hooks/
 .env*
 .cache/
 .temp/

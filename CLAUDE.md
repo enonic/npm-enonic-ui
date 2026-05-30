@@ -1,14 +1,17 @@
 # @enonic/ui
 
-UI Component Library. Preact 10, TypeScript, Vite, Tailwind CSS v4, Storybook.
+UI Component Library. Preact 10, TypeScript, Vite+ (oxc), Tailwind CSS v4, Storybook.
 
 ## Commands
 
 ```bash
-pnpm check:fix  # Typecheck + lint + format with auto-fix. Run after making changes.
+pnpm check:fix  # vp check --fix (oxc format + lint), then typecheck. Run after making changes.
 pnpm typecheck  # TypeScript only
-pnpm lint:fix   # Biome + ESLint with fixes
+pnpm lint:fix   # oxlint with fixes (vp lint --fix)
+pnpm format     # oxfmt write (vp fmt)
 ```
+
+Linting and formatting run through Vite+ (`vp`); config lives in `vite.config.ts` (`lint`/`fmt`/`staged`).
 
 `pnpm test` is a no-op — tests not implemented.
 
@@ -29,6 +32,7 @@ No conventional commit prefixes. Plain descriptive language throughout.
 
 - **Title**: 80 chars or less. Component-specific: `Button: add disabled state`. General: `Add MyComponent`
 - **Body**:
+
   ```
   <4–8 sentence description: what, what's affected, how to reproduce, impact>
 
@@ -51,6 +55,7 @@ No conventional commit prefixes. Plain descriptive language throughout.
 
 - **Title**: `<Issue Title> #<number>` — matches the commit title
 - **Body**:
+
   ```
   <summary of changes>
 

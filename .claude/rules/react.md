@@ -131,9 +131,9 @@ function useComposedRefs<T>(...refs: Ref<T>[]) {
   }, [refs]); // Wrong! [refs] !== [refs] on every render
 }
 
-// ✅ DO: Use the array directly as deps (with biome-ignore if needed)
+// ✅ DO: Use the array directly as deps (with an oxlint-disable if needed)
 function useComposedRefs<T>(...refs: Ref<T>[]) {
-  // biome-ignore lint/correctness/useExhaustiveDependencies: refs spread as deps
+  // oxlint-disable-next-line react/exhaustive-deps -- refs spread as deps
   return useCallback((node: T) => {
     refs.forEach(ref => setRef(ref, node));
   }, refs);
