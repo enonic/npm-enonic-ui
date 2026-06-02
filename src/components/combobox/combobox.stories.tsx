@@ -648,7 +648,7 @@ export const Staged: Story = {
             Apply with button or <kbd className='bg-surface-primary rounded px-1 font-mono text-xs'>Enter</kbd>
           </p>
         </header>
-        <Combobox.Root value={value} onChange={setValue} selectionMode={'staged'} closeOnBlur={false}>
+        <Combobox.Root value={value} onChange={setValue} selectionMode={'staged'}>
           <Combobox.Content>
             <Combobox.Control>
               <Combobox.Search>
@@ -703,7 +703,6 @@ export const StagedPreselected: Story = {
           selection={selection}
           onSelectionChange={setSelection}
           selectionMode={'staged'}
-          closeOnBlur={false}
         >
           <Combobox.Content>
             <Combobox.Control>
@@ -1241,7 +1240,6 @@ export const TreeContentStaged: Story = {
           onSelectionChange={setAppliedSelection}
           selectionMode='staged'
           contentType='tree'
-          closeOnBlur={false}
         >
           <Combobox.Content>
             <Combobox.Control>

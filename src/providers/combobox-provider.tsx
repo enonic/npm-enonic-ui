@@ -1,13 +1,21 @@
 import { createContext, type ReactElement, type ReactNode, type RefObject, useContext } from 'react';
 
 export type ContentType = 'listbox' | 'tree' | 'auto';
+export type ComboboxOpenOptions = {
+  restoreFocus?: boolean;
+};
 
 export type ComboboxContextValue = {
   baseId: string;
+  contentRef: RefObject<HTMLDivElement>;
   controlRef: RefObject<HTMLDivElement> | null;
+  applyRef: RefObject<HTMLButtonElement>;
+  popupRef: RefObject<HTMLDivElement>;
+  restoreFocusOnCloseRef: RefObject<boolean>;
+  ignoreFocusExitCloseRef: RefObject<boolean>;
 
   open: boolean;
-  setOpen: (next: boolean) => void;
+  setOpen: (next: boolean, options?: ComboboxOpenOptions) => void;
   closeOnBlur: boolean;
 
   inputValue: string;
