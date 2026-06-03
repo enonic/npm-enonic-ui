@@ -70,6 +70,7 @@ export type InputProps = {
   label?: string;
   description?: ReactNode;
   error?: string;
+  showErrorMessage?: boolean;
   startAddon?: string | ReactNode;
   endAddon?: string | ReactNode;
   disabled?: boolean;
@@ -101,6 +102,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
       label,
       description,
       error,
+      showErrorMessage = true,
       startAddon,
       endAddon,
       id,
@@ -177,7 +179,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
 
-        {!processing && error && (
+        {showErrorMessage && !processing && error && (
           <div className='text-error mt-2 flex items-center gap-2 leading-5'>
             <FilledOctagonAlert size={16} />
             {error}

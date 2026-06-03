@@ -56,6 +56,7 @@ export type TextAreaProps = {
   description?: ReactNode;
   endAddon?: ReactNode;
   error?: string;
+  showErrorMessage?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
   /**
@@ -94,6 +95,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       description,
       endAddon,
       error,
+      showErrorMessage = true,
       id,
       disabled,
       readOnly,
@@ -213,7 +215,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           )}
         </div>
 
-        {!processing && error && (
+        {showErrorMessage && !processing && error && (
           <div className='text-error mt-2 flex items-center gap-2 leading-5'>
             <FilledOctagonAlert size={16} />
             {error}
