@@ -3,7 +3,7 @@
   "version": "0.50.1",
   "description": "Enonic UI Component Library",
   "author": "Enonic",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "homepage": "https://github.com/enonic/npm-enonic-ui#readme",
   "repository": {
     "type": "git",
