@@ -139,6 +139,40 @@ export const WithDelay: Story = {
   ),
 };
 
+export const TriggerModes: Story = {
+  name: 'Features / Trigger Modes',
+  render: () => (
+    <div className='flex gap-4'>
+      <Tooltip value='Shows on hover and focus' trigger='hover-focus'>
+        <Button label='Hover + focus' />
+      </Tooltip>
+
+      <Tooltip value='Shows on hover only' trigger='hover'>
+        <Button label='Hover only' />
+      </Tooltip>
+
+      <Tooltip value='Shows on focus only' trigger='focus'>
+        <Button label='Focus only' />
+      </Tooltip>
+    </div>
+  ),
+};
+
+export const AsChildWithExistingId: Story = {
+  name: 'Features / AsChild With Existing Id',
+  render: () => (
+    <Tooltip value='The trigger keeps its existing id'>
+      <button
+        id='tooltip-trigger-with-own-id'
+        type='button'
+        className='rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600'
+      >
+        Existing trigger id
+      </button>
+    </Tooltip>
+  ),
+};
+
 export const AsChildFalse: Story = {
   name: 'Features / AsChild False',
   render: () => (
