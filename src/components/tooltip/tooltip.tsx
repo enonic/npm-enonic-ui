@@ -6,6 +6,7 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useRef,
   useState,
@@ -14,6 +15,7 @@ import {
 import { cn } from '@/utils';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
+export type TooltipTrigger = 'hover' | 'focus' | 'hover-focus';
 
 type TooltipCoordinates = {
   top: number;
@@ -32,6 +34,7 @@ export type TooltipProps = {
   className?: string;
   asChild?: boolean;
   delay?: number;
+  trigger?: TooltipTrigger;
 };
 
 const oppositeSide = {
@@ -124,6 +127,7 @@ function useTooltipPosition(
 
 type TooltipContentProps = {
   children: ReactNode;
+  id: string;
   actualSide: TooltipSide;
   className?: string;
   position: TooltipPosition;
@@ -135,10 +139,11 @@ type TooltipTriggerProps = {
   asChild: boolean;
   triggerRef: RefObject<HTMLDivElement>;
   isOpen: boolean;
-  onMouseEnter: (e?: React.MouseEvent<HTMLElement>) => void;
-  onMouseLeave: (e?: React.MouseEvent<HTMLElement>) => void;
-  onFocus: (e?: React.FocusEvent<HTMLElement>) => void;
-  onBlur: (e?: React.FocusEvent<HTMLElement>) => void;
+  tooltipId: string;
+  onMouseEnter?: (e?: React.MouseEvent<HTMLElement>) => void;
+  onMouseLeave?: (e?: React.MouseEvent<HTMLElement>) => void;
+  onFocus?: (e?: React.FocusEvent<HTMLElement>) => void;
+  onBlur?: (e?: React.FocusEvent<HTMLElement>) => void;
 };
 
 function TooltipTrigger({
@@ -146,6 +151,7 @@ function TooltipTrigger({
   asChild,
   triggerRef,
   isOpen,
+  tooltipId,
   onMouseEnter,
   onMouseLeave,
   onFocus,
@@ -161,7 +167,7 @@ function TooltipTrigger({
       onMouseLeave={onMouseLeave}
       onFocus={onFocus}
       onBlur={onBlur}
-      aria-describedby={isOpen ? 'tooltip' : undefined}
+      aria-describedby={isOpen ? tooltipId : undefined}
       {...(!asChild && {
         className: 'inline-flex',
         role: 'button',
@@ -175,6 +181,7 @@ function TooltipTrigger({
 
 function TooltipContent({
   children,
+  id,
   actualSide,
   className,
   position,
@@ -183,6 +190,7 @@ function TooltipContent({
   return (
     <div
       data-component='Tooltip.Content'
+      id={id}
       ref={tooltipRef}
       role='tooltip'
       className={cn('pointer-events-none fixed z-50 select-none', !position.transformOrigin && 'opacity-0')}
@@ -227,7 +235,9 @@ export function Tooltip({
   side = 'bottom',
   asChild = true,
   delay = 0,
+  trigger = 'hover-focus',
 }: TooltipProps): ReactElement<TooltipProps> {
+  const tooltipId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -262,6 +272,8 @@ export function Tooltip({
     if (!isEmpty) setIsOpen(true);
   }, [isEmpty]);
   const handleBlur = useCallback(() => setIsOpen(false), []);
+  const hasHoverTrigger = trigger === 'hover' || trigger === 'hover-focus';
+  const hasFocusTrigger = trigger === 'focus' || trigger === 'hover-focus';
 
   return (
     <>
@@ -269,16 +281,18 @@ export function Tooltip({
         asChild={asChild}
         triggerRef={triggerRef}
         isOpen={isOpen}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
+        tooltipId={tooltipId}
+        onMouseEnter={hasHoverTrigger ? handleMouseEnter : undefined}
+        onMouseLeave={hasHoverTrigger ? handleMouseLeave : undefined}
+        onFocus={hasFocusTrigger ? handleFocus : undefined}
+        onBlur={hasFocusTrigger ? handleBlur : undefined}
       >
         {children}
       </TooltipTrigger>
       {canShow &&
         createPortal(
           <TooltipContent
+            id={tooltipId}
             actualSide={coords.actualSide}
             className={className}
             position={coords}
