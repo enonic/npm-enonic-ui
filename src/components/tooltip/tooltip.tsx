@@ -126,7 +126,7 @@ function useTooltipPosition(
 
 type TooltipContentProps = {
   children: ReactNode;
-  id: string;
+  id?: string;
   actualSide: TooltipSide;
   className?: string;
   position: TooltipPosition;
@@ -137,8 +137,7 @@ type TooltipTriggerProps = {
   children: ReactNode;
   asChild: boolean;
   triggerRef: RefObject<HTMLDivElement>;
-  isOpen: boolean;
-  tooltipId: string;
+  describedById?: string;
   onMouseEnter?: (e?: React.MouseEvent<HTMLElement>) => void;
   onMouseLeave?: (e?: React.MouseEvent<HTMLElement>) => void;
   onFocus?: (e?: React.FocusEvent<HTMLElement>) => void;
@@ -149,8 +148,7 @@ function TooltipTrigger({
   children,
   asChild,
   triggerRef,
-  isOpen,
-  tooltipId,
+  describedById,
   onMouseEnter,
   onMouseLeave,
   onFocus,
@@ -166,7 +164,7 @@ function TooltipTrigger({
       onMouseLeave={onMouseLeave}
       onFocus={onFocus}
       onBlur={onBlur}
-      aria-describedby={isOpen ? tooltipId : undefined}
+      aria-describedby={describedById}
       {...(!asChild && {
         className: 'inline-flex',
         role: 'button',
@@ -186,12 +184,14 @@ function TooltipContent({
   position,
   tooltipRef,
 }: TooltipContentProps): ReactElement<TooltipContentProps> {
+  // id set → described element; unset → decorative copy (the sr-only node carries the value).
   return (
     <div
       data-component='Tooltip.Content'
       id={id}
       ref={tooltipRef}
-      role='tooltip'
+      role={id == null ? undefined : 'tooltip'}
+      aria-hidden={id == null ? 'true' : undefined}
       className={cn('pointer-events-none fixed z-50 select-none', !position.transformOrigin && 'opacity-0')}
       style={{
         top: `${position.top}px`,
@@ -274,13 +274,19 @@ export function Tooltip({
   const hasHoverTrigger = trigger === 'hover' || trigger === 'hover-focus';
   const hasFocusTrigger = trigger === 'focus' || trigger === 'hover-focus';
 
+  // Plain-text values get a persistent sr-only description (read in any trigger mode,
+  // incl. hover-only, and while closed). Rich content is described by the visible node
+  // only while open — duplicating it would create phantom tab stops / duplicate ids.
+  const isTextValue = typeof value === 'string' || typeof value === 'number';
+  const hasPersistentDescription = !isEmpty && isTextValue;
+  const describedById = hasPersistentDescription || (!isEmpty && isOpen) ? tooltipId : undefined;
+
   return (
     <>
       <TooltipTrigger
         asChild={asChild}
         triggerRef={triggerRef}
-        isOpen={isOpen}
-        tooltipId={tooltipId}
+        describedById={describedById}
         onMouseEnter={hasHoverTrigger ? handleMouseEnter : undefined}
         onMouseLeave={hasHoverTrigger ? handleMouseLeave : undefined}
         onFocus={hasFocusTrigger ? handleFocus : undefined}
@@ -288,10 +294,15 @@ export function Tooltip({
       >
         {children}
       </TooltipTrigger>
+      {hasPersistentDescription && (
+        <div id={tooltipId} role='tooltip' className='sr-only'>
+          {value}
+        </div>
+      )}
       {canShow &&
         createPortal(
           <TooltipContent
-            id={tooltipId}
+            id={hasPersistentDescription ? undefined : tooltipId}
             actualSide={coords.actualSide}
             className={className}
             position={coords}
