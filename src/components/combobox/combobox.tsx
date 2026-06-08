@@ -97,14 +97,19 @@ const useComboboxApplyTabBridge = (
 
   const onKeyDownCapture = useCallback(
     (event: React.KeyboardEvent<HTMLElement>): void => {
-      if (event.key !== 'Tab' || event.shiftKey || !stagingEnabled || !hasStagedChanges || !focusApply()) {
+      if (event.key !== 'Tab' || event.shiftKey || !stagingEnabled || !hasStagedChanges) {
+        return;
+      }
+
+      // Apply already focused (only when nested in Popup): let Tab leave, don't re-trap.
+      if (document.activeElement === applyRef.current || !focusApply()) {
         return;
       }
 
       event.preventDefault();
       event.stopPropagation();
     },
-    [stagingEnabled, hasStagedChanges, focusApply],
+    [stagingEnabled, hasStagedChanges, applyRef, focusApply],
   );
 
   // Dialog focus traps can handle Tab before React portal handlers; capture on window first.
@@ -120,8 +125,11 @@ const useComboboxApplyTabBridge = (
 
       const activeElement = document.activeElement;
 
-      if (activeElement === applyRef.current && closeOnBlur) {
-        setOpen(false, { restoreFocus: false });
+      // Return regardless of closeOnBlur, else a popup-nested Apply falls through below and re-traps.
+      if (activeElement === applyRef.current) {
+        if (closeOnBlur) {
+          setOpen(false, { restoreFocus: false });
+        }
         return;
       }
 

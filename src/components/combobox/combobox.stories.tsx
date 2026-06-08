@@ -730,6 +730,74 @@ export const StagedPreselected: Story = {
   },
 };
 
+// Hides the bordered footer entirely when Apply has nothing to render
+const PopupApplyBar = (): ReactElement | null => {
+  const { stagingEnabled, hasStagedChanges } = useCombobox();
+
+  if (!stagingEnabled || !hasStagedChanges) {
+    return null;
+  }
+
+  return (
+    <div className='border-bdr-subtle flex justify-end border-t p-2'>
+      <Combobox.Apply />
+    </div>
+  );
+};
+PopupApplyBar.displayName = 'PopupApplyBar';
+
+export const StagedApplyInPopup: Story = {
+  name: 'Behavior / Staged Apply In Popup',
+  render: () => {
+    const [value, setValue] = useState<string | undefined>();
+
+    const filtered = value
+      ? frameworks.filter(
+          f =>
+            f.name.toLowerCase().includes(value.toLowerCase()) ||
+            f.language.toLowerCase().includes(value.toLowerCase()),
+        )
+      : frameworks;
+
+    return (
+      <div className='relative w-80 space-y-3'>
+        <header>
+          <h3 className='text-md font-medium'>Apply lives inside the popup</h3>
+          <p className='text-subtle text-sm'>
+            Stage a change, then <kbd className='bg-surface-primary rounded px-1 font-mono text-xs'>Tab</kbd> to Apply
+            and <kbd className='bg-surface-primary rounded px-1 font-mono text-xs'>Tab</kbd> again — focus must escape.
+          </p>
+        </header>
+        <Combobox.Root value={value} onChange={setValue} selectionMode={'staged'}>
+          <Combobox.Content>
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.SearchIcon />
+                <Combobox.Input ref={createInputRefAndFocus()} placeholder='Search frameworks' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+
+            <Combobox.Popup>
+              <Listbox.Content className='rounded-sm'>
+                {filtered.map(({ id, ...rest }) => (
+                  <Listbox.Item key={id} value={id}>
+                    <ListboxItemContent {...rest} />
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+              <PopupApplyBar />
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+        <button type='button' data-testid='after-combobox' className='rounded border px-2 py-1 text-sm'>
+          After combobox
+        </button>
+      </div>
+    );
+  },
+};
+
 type PlaygroundArgs = {
   selectionMode: 'single' | 'multiple' | 'staged';
   closeOnBlur: boolean;
