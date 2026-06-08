@@ -39,6 +39,113 @@ const updateArrayIfChanged =
   (prev: readonly T[]): readonly T[] =>
     areArraysEquals(prev, next) ? prev : next;
 
+const containsFocusTarget = (ref: React.RefObject<HTMLElement>, target: EventTarget | null): boolean => {
+  return target instanceof Node && !!ref.current?.contains(target);
+};
+
+const useComboboxFocusBoundary = (): {
+  closeOnFocusExit: (event: React.FocusEvent<HTMLElement>) => void;
+} => {
+  const { setOpen, closeOnBlur, contentRef, popupRef, applyRef, ignoreFocusExitCloseRef } = useCombobox();
+
+  const containsFocus = useCallback(
+    (target: EventTarget | null): boolean =>
+      containsFocusTarget(contentRef, target) ||
+      containsFocusTarget(popupRef, target) ||
+      containsFocusTarget(applyRef, target),
+    [contentRef, popupRef, applyRef],
+  );
+
+  const closeOnFocusExit = useCallback(
+    (event: React.FocusEvent<HTMLElement>): void => {
+      if (event.defaultPrevented || !closeOnBlur) {
+        return;
+      }
+
+      window.setTimeout(() => {
+        if (ignoreFocusExitCloseRef.current) {
+          return;
+        }
+        if (!containsFocus(document.activeElement)) {
+          setOpen(false, { restoreFocus: false });
+        }
+      }, 0);
+    },
+    [setOpen, closeOnBlur, containsFocus, ignoreFocusExitCloseRef],
+  );
+
+  return { closeOnFocusExit };
+};
+
+const useComboboxApplyTabBridge = (
+  isPortalMode: boolean,
+): {
+  onKeyDownCapture: (event: React.KeyboardEvent<HTMLElement>) => void;
+} => {
+  const { open, setOpen, closeOnBlur, stagingEnabled, hasStagedChanges, popupRef, applyRef } = useCombobox();
+
+  const focusApply = useCallback((): boolean => {
+    const applyButton = applyRef.current;
+    if (!applyButton || applyButton.disabled) {
+      return false;
+    }
+
+    applyButton.focus({ focusVisible: true });
+    return true;
+  }, [applyRef]);
+
+  const onKeyDownCapture = useCallback(
+    (event: React.KeyboardEvent<HTMLElement>): void => {
+      if (event.key !== 'Tab' || event.shiftKey || !stagingEnabled || !hasStagedChanges) {
+        return;
+      }
+
+      // Apply already focused (only when nested in Popup): let Tab leave, don't re-trap.
+      if (document.activeElement === applyRef.current || !focusApply()) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    [stagingEnabled, hasStagedChanges, applyRef, focusApply],
+  );
+
+  // Dialog focus traps can handle Tab before React portal handlers; capture on window first.
+  useEffect(() => {
+    if (!open || !isPortalMode || !stagingEnabled || !hasStagedChanges) {
+      return;
+    }
+
+    const handleWindowKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Tab' || event.shiftKey) {
+        return;
+      }
+
+      const activeElement = document.activeElement;
+
+      // Return regardless of closeOnBlur, else a popup-nested Apply falls through below and re-traps.
+      if (activeElement === applyRef.current) {
+        if (closeOnBlur) {
+          setOpen(false, { restoreFocus: false });
+        }
+        return;
+      }
+
+      if (containsFocusTarget(popupRef, activeElement) && focusApply()) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      }
+    };
+
+    window.addEventListener('keydown', handleWindowKeyDown, true);
+    return () => window.removeEventListener('keydown', handleWindowKeyDown, true);
+  }, [open, isPortalMode, stagingEnabled, hasStagedChanges, popupRef, applyRef, closeOnBlur, setOpen, focusApply]);
+
+  return { onKeyDownCapture };
+};
+
 //
 // * Root
 //
@@ -96,11 +203,23 @@ const ComboboxRoot = ({
   contentType = 'auto',
 }: ComboboxRootProps): ReactElement => {
   const baseId = usePrefixedId();
+  const contentRef = useRef<HTMLDivElement>(null);
   const controlRef = useRef<HTMLDivElement>(null);
+  const applyRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const restoreFocusOnCloseRef = useRef(true);
+  const ignoreFocusExitCloseRef = useRef(false);
 
   // Controlled/uncontrolled state using shared hook
   const [open, setOpenInternal] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const [inputValue, setInputValueInternal] = useControlledState(value, defaultValue, onChange);
+
+  useEffect(() => {
+    if (open) {
+      restoreFocusOnCloseRef.current = true;
+      ignoreFocusExitCloseRef.current = false;
+    }
+  }, [open]);
 
   const isMultipleSelection = selectionMode !== 'single';
   const stagingEnabled = selectionMode === 'staged';
@@ -153,13 +272,15 @@ const ComboboxRoot = ({
   const setInputValue = useCallback(
     (next: string) => {
       setInputValueInternal(next);
+      restoreFocusOnCloseRef.current = true;
       setOpenInternal(true);
     },
     [setInputValueInternal, setOpenInternal],
   );
 
   const setOpen = useCallback(
-    (next: boolean) => {
+    (next: boolean, options?: { restoreFocus?: boolean }) => {
+      restoreFocusOnCloseRef.current = next || options?.restoreFocus !== false;
       setOpenInternal(next);
       if (!next) {
         resetStagedSelection();
@@ -199,6 +320,8 @@ const ComboboxRoot = ({
     if (!stagingEnabled) {
       return;
     }
+    ignoreFocusExitCloseRef.current = true;
+    restoreFocusOnCloseRef.current = true;
     if (!areArraysEquals(stagedSelection, appliedSelection)) {
       commitSelection(stagedSelection);
     }
@@ -250,7 +373,7 @@ const ComboboxRoot = ({
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
         if (!open) {
-          setOpenInternal(true);
+          setOpen(true);
         }
         if (contentType === 'tree') {
           focusTreeContainer();
@@ -266,17 +389,7 @@ const ComboboxRoot = ({
         return;
       }
     },
-    [
-      disabled,
-      open,
-      setOpenInternal,
-      setOpen,
-      contentType,
-      focusTreeContainer,
-      focusListboxItem,
-      stagingEnabled,
-      applyStagedSelection,
-    ],
+    [disabled, open, setOpen, contentType, focusTreeContainer, focusListboxItem, stagingEnabled, applyStagedSelection],
   );
 
   const context = useMemo<ComboboxContextValue>(
@@ -286,7 +399,12 @@ const ComboboxRoot = ({
       inputValue,
       setInputValue,
       baseId,
+      contentRef,
       controlRef,
+      applyRef,
+      popupRef,
+      restoreFocusOnCloseRef,
+      ignoreFocusExitCloseRef,
       active: activeInternal,
       setActive: setActiveInternal,
       disabled,
@@ -383,42 +501,26 @@ export type ComboboxContentProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
-  ({ className, children, ...props }, ref): ReactElement => {
-    const innerRef = useRef<HTMLDivElement>(null);
-
-    const { setOpen, closeOnBlur } = useCombobox();
+  ({ className, children, onBlur, ...props }, ref): ReactElement => {
+    const { contentRef } = useCombobox();
+    const { closeOnFocusExit } = useComboboxFocusBoundary();
 
     const handleOnBlur = useCallback(
       (e: React.FocusEvent<HTMLDivElement>): void => {
-        if (!closeOnBlur) {
-          return;
-        }
-
-        const { relatedTarget } = e;
-
-        // Check if focus moved within the content
-        if (relatedTarget instanceof Node && innerRef.current?.contains(relatedTarget)) {
-          return;
-        }
-
-        // Check if focus moved to the portal popup (rendered outside content)
-        if (relatedTarget instanceof Element && relatedTarget.closest('[data-combobox-popup]')) {
-          return;
-        }
-
-        setOpen(false);
+        onBlur?.(e);
+        closeOnFocusExit(e);
       },
-      [setOpen, closeOnBlur],
+      [closeOnFocusExit, onBlur],
     );
 
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <div
         data-component='Combobox.Content'
-        ref={useComposedRefs(ref, innerRef)}
+        ref={useComposedRefs(ref, contentRef)}
         className={cn('relative', className)}
-        onBlur={handleOnBlur}
         {...props}
+        onBlur={handleOnBlur}
       >
         {children}
       </div>
@@ -510,7 +612,7 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
   const innerRef = useRef<HTMLInputElement>(null);
   const composedRef = useComposedRefs(ref, innerRef);
 
-  const { open, keyHandler, baseId, disabled, error, contentType, hasValue } = useCombobox();
+  const { open, keyHandler, baseId, disabled, error, contentType, hasValue, restoreFocusOnCloseRef } = useCombobox();
 
   useEffect(() => {
     if (open && !disabled) {
@@ -523,11 +625,11 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
   // input unmounts in that case and Value's own effect refocuses the button.
   const prevOpenRef = useRef(open);
   useEffect(() => {
-    if (prevOpenRef.current && !open && !disabled) {
+    if (prevOpenRef.current && !open && !disabled && restoreFocusOnCloseRef.current) {
       innerRef.current?.focus({ focusVisible: true });
     }
     prevOpenRef.current = open;
-  }, [open, disabled]);
+  }, [open, disabled, restoreFocusOnCloseRef]);
 
   // Hide when Value is present and closed
   if (hasValue && !open) return null;
@@ -650,7 +752,7 @@ export type ComboboxValueProps = {
 } & Omit<ComponentPropsWithoutRef<'button'>, 'children'>;
 
 const ComboboxValue = ({ className, children, ...props }: ComboboxValueProps): ReactElement | null => {
-  const { open, setOpen, disabled, setHasValue } = useCombobox();
+  const { open, setOpen, disabled, setHasValue, restoreFocusOnCloseRef } = useCombobox();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const prevOpenRef = useRef(open);
 
@@ -662,11 +764,11 @@ const ComboboxValue = ({ className, children, ...props }: ComboboxValueProps): R
 
   // Focus button when combobox closes (open: true → false)
   useEffect(() => {
-    if (prevOpenRef.current && !open) {
+    if (prevOpenRef.current && !open && restoreFocusOnCloseRef.current) {
       buttonRef.current?.focus();
     }
     prevOpenRef.current = open;
-  }, [open]);
+  }, [open, restoreFocusOnCloseRef]);
 
   const handleClick = useCallback(() => {
     if (!disabled) setOpen(true);
@@ -713,25 +815,29 @@ export type ComboboxApplyProps = {
   className?: string;
 } & ComponentPropsWithoutRef<typeof Button>;
 
-const ComboboxApply = ({ className, label = 'Apply', ...props }: ComboboxApplyProps): ReactElement | null => {
-  const { stagingEnabled, hasStagedChanges, applyStagedSelection } = useCombobox();
+const ComboboxApply = forwardRef<HTMLButtonElement, ComboboxApplyProps>(
+  ({ className, label = 'Apply', ...props }, ref): ReactElement | null => {
+    const { stagingEnabled, hasStagedChanges, applyStagedSelection, applyRef } = useCombobox();
+    const composedRef = useComposedRefs(ref, applyRef);
 
-  if (!stagingEnabled || !hasStagedChanges) {
-    return null;
-  }
+    if (!stagingEnabled || !hasStagedChanges) {
+      return null;
+    }
 
-  return (
-    <Button
-      data-component='Combobox.Apply'
-      className={cn('h-7 min-w-14 gap-2 px-2.5 text-xs', className)}
-      type='button'
-      label={label}
-      variant='outline'
-      onClick={applyStagedSelection}
-      {...props}
-    />
-  );
-};
+    return (
+      <Button
+        data-component='Combobox.Apply'
+        ref={composedRef}
+        className={cn('h-7 min-w-14 gap-2 px-2.5 text-xs', className)}
+        type='button'
+        label={label}
+        variant='outline'
+        onClick={applyStagedSelection}
+        {...props}
+      />
+    );
+  },
+);
 ComboboxApply.displayName = 'Combobox.Apply';
 
 //
@@ -770,11 +876,12 @@ export type ComboboxPopupProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
-  ({ children, className, style, ...props }, ref): ReactElement | null => {
+  ({ children, className, style, onBlur, ...props }, ref): ReactElement | null => {
     const {
       open,
       setOpen,
       controlRef,
+      popupRef,
       closeOnBlur,
       contentType,
       baseId,
@@ -783,8 +890,10 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       selectionMode,
     } = useCombobox();
     const innerRef = useRef<HTMLDivElement>(null);
-    const composedRefs = useComposedRefs(ref, innerRef);
+    const composedRefs = useComposedRefs(ref, innerRef, popupRef);
     const [isPortalMode, setIsPortalMode] = useState(false);
+    const { closeOnFocusExit } = useComboboxFocusBoundary();
+    const { onKeyDownCapture: onApplyTabKeyDownCapture } = useComboboxApplyTabBridge(isPortalMode);
 
     // Detect portal mode synchronously before paint to avoid flash
     useLayoutEffect(() => {
@@ -811,13 +920,23 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       enabled: open && isPortalMode && closeOnBlur,
       contentRef: innerRef,
       excludeRefs: controlRef ? [controlRef] : undefined,
-      onClose: () => setOpen(false),
+      onClose: () => setOpen(false, { restoreFocus: false }),
     });
 
     const focusInput = useCallback(() => {
       const input = document.getElementById(`${baseId}-input`);
       input?.focus({ focusVisible: true });
     }, [baseId]);
+
+    const handleBlur = useCallback(
+      (e: React.FocusEvent<HTMLDivElement>): void => {
+        onBlur?.(e);
+        if (isPortalMode) {
+          closeOnFocusExit(e);
+        }
+      },
+      [isPortalMode, closeOnFocusExit, onBlur],
+    );
 
     // Capture phase: intercept Escape and Enter before Listbox.Content's
     // bubble-phase handler runs.
@@ -828,6 +947,11 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     //              which triggers single-mode auto-close
     const handleKeyDownCapture = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        onApplyTabKeyDownCapture(e);
+        if (e.defaultPrevented) {
+          return;
+        }
+
         if (contentType === 'tree') return;
 
         if (e.key === 'Escape') {
@@ -851,7 +975,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
           focusInput();
         }
       },
-      [contentType, setOpen, focusInput, stagingEnabled, applyStagedSelection, selectionMode],
+      [contentType, setOpen, focusInput, stagingEnabled, onApplyTabKeyDownCapture, applyStagedSelection, selectionMode],
     );
 
     // Bubble phase: redirect printable keys (and Backspace) back to the input
@@ -907,6 +1031,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
           className,
         )}
         style={popupStyle}
+        onBlur={handleBlur}
         onKeyDownCapture={handleKeyDownCapture}
         onKeyDown={handleKeyDown}
         {...props}
