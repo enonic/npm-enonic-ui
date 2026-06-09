@@ -1029,7 +1029,7 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
       expanded = false,
       hasChildren = false,
       onToggle,
-      onMouseDown,
+      onPointerDown,
       icon = ChevronRight,
       selected = false,
       className,
@@ -1044,12 +1044,13 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
       return <span className='size-5 shrink-0' />;
     }
 
-    const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>): void => {
+      // ? preventDefault stops the button stealing focus, so the tree keeps it for keyboard nav
       e.preventDefault();
 
       const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
       tree?.focus();
-      onMouseDown?.(e);
+      onPointerDown?.(e);
     };
 
     const setActiveFromEvent = (e: React.MouseEvent<HTMLButtonElement>): void => {
@@ -1088,7 +1089,7 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
           expanded && 'rotate-90',
           className,
         )}
-        onMouseDown={handleMouseDown}
+        onPointerDown={handlePointerDown}
         onClick={handleClick}
         // Preact/React dual event handler. See architecture.md for details.
         onDblClick={e => e.stopPropagation()}
