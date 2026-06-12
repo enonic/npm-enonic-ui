@@ -12,6 +12,12 @@ export type KeyboardNavigationConfig = {
   isItemDisabled: (id: string) => boolean;
 
   /**
+   * Check if an item is visible/focusable. Failing items are skipped during
+   * navigation, like disabled items. Defaults to always visible.
+   */
+  isItemVisible?: (id: string) => boolean;
+
+  /**
    * Currently active item ID
    */
   active: string | undefined;
@@ -95,6 +101,7 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
   const {
     getItems,
     isItemDisabled,
+    isItemVisible = () => true,
     active,
     setActive,
     loop = false,
@@ -102,6 +109,13 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
     onSelect,
     onEscape,
   } = config;
+
+  // Navigable = not disabled and not hidden. Hidden items stay registered (to
+  // preserve DOM order) but `.focus()` no-ops on them, so navigation must skip them.
+  const isItemNavigable = useCallback(
+    (id: string): boolean => !isItemDisabled(id) && isItemVisible(id),
+    [isItemDisabled, isItemVisible],
+  );
 
   const moveActive = useCallback(
     (delta: number): void => {
@@ -138,9 +152,9 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
           }
         }
 
-        // Check if item is not disabled
+        // Check if item is navigable (not disabled, not hidden)
         const item = items[newIndex];
-        if (item && !isItemDisabled(item)) {
+        if (item && isItemNavigable(item)) {
           setActive(item);
           return;
         }
@@ -150,9 +164,9 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
         attempts++;
       }
 
-      // All items are disabled, do nothing
+      // All items are disabled or hidden, do nothing
     },
-    [getItems, active, setActive, loop, isItemDisabled],
+    [getItems, active, setActive, loop, isItemNavigable],
   );
 
   const handleKeyDown = useCallback(
@@ -180,9 +194,9 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
         case 'Home':
           e.preventDefault();
           {
-            const firstEnabled = items.find(id => !isItemDisabled(id));
-            if (firstEnabled) {
-              setActive(firstEnabled);
+            const firstNavigable = items.find(isItemNavigable);
+            if (firstNavigable) {
+              setActive(firstNavigable);
             }
           }
           break;
@@ -190,9 +204,9 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
         case 'End':
           e.preventDefault();
           {
-            const lastEnabled = [...items].reverse().find(id => !isItemDisabled(id));
-            if (lastEnabled) {
-              setActive(lastEnabled);
+            const lastNavigable = [...items].reverse().find(isItemNavigable);
+            if (lastNavigable) {
+              setActive(lastNavigable);
             }
           }
           break;
@@ -214,7 +228,7 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
         // See: https://www.w3.org/WAI/ARIA/apg/patterns/listbox/#keyboard-interaction
       }
     },
-    [getItems, active, moveActive, setActive, isItemDisabled, orientation, onSelect, onEscape],
+    [getItems, active, moveActive, setActive, isItemDisabled, isItemNavigable, orientation, onSelect, onEscape],
   );
 
   return {
