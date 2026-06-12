@@ -9,6 +9,7 @@ export type ToolbarContextValue = {
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
+  getItemElement: (id: string) => HTMLElement | null;
   orientation: 'horizontal' | 'vertical';
   loop: boolean;
 };
