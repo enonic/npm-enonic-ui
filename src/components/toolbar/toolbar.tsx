@@ -21,6 +21,7 @@ import {
 } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
+import { isElementVisible } from '@/utils/is';
 
 import { ToolbarToggleGroup, ToolbarToggleItem } from './toolbar-toggle-group';
 
@@ -37,6 +38,7 @@ export type ToolbarContextValue = {
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
+  getItemElement: (id: string) => HTMLElement | null;
   orientation: 'horizontal' | 'vertical';
   loop: boolean;
 };
@@ -117,7 +119,7 @@ const ToolbarRoot = ({
     [onActiveChange],
   );
 
-  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+  const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
 
   const value: ToolbarContextValue = useMemo(
     () => ({
@@ -129,10 +131,22 @@ const ToolbarRoot = ({
       unregisterItem,
       getItems,
       isItemDisabled,
+      getItemElement,
       orientation,
       loop,
     }),
-    [toolbarId, active, setActive, registerItem, unregisterItem, getItems, isItemDisabled, orientation, loop],
+    [
+      toolbarId,
+      active,
+      setActive,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
+      getItemElement,
+      orientation,
+      loop,
+    ],
   );
 
   return <ToolbarContext.Provider value={value}>{children}</ToolbarContext.Provider>;
@@ -168,12 +182,17 @@ export type ToolbarContainerProps = {
 
 const ToolbarContainer = forwardRef<HTMLDivElement, ToolbarContainerProps>(
   ({ 'aria-label': ariaLabel, className, children, onKeyDown, onBlur, ...props }, ref): ReactElement => {
-    const { active, setActive, getItems, isItemDisabled, toolbarId, toolbarRef, orientation, loop } = useToolbar();
+    const { active, setActive, getItems, isItemDisabled, getItemElement, toolbarId, toolbarRef, orientation, loop } =
+      useToolbar();
     const composedRefs = useComposedRefs(ref, toolbarRef);
+
+    // Skip items whose element can't take focus, so arrow nav never dead-ends.
+    const isItemVisible = useCallback((id: string): boolean => isElementVisible(getItemElement(id)), [getItemElement]);
 
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
       getItems,
       isItemDisabled,
+      isItemVisible,
       active,
       setActive,
       loop,
