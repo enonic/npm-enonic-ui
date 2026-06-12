@@ -692,6 +692,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
     );
 
     return (
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
         data-component='TimePicker.Content'
         ref={composedRefs}

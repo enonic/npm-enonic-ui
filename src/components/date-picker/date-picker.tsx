@@ -1065,6 +1065,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
     const positionStyle: Pick<CSSProperties, 'top' | 'left' | 'right'> = { top, left, right };
 
     return (
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
         data-component='DatePicker.Content'
         ref={composedRefs}

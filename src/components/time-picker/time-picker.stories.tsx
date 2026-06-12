@@ -467,7 +467,12 @@ export const InvalidState: Story = {
           on interactive elements for accessibility. Use with validation libraries.
         </div>
         <label className='flex items-center gap-2 text-sm'>
-          <input type='checkbox' checked={isInvalid} onChange={e => setIsInvalid(e.currentTarget.checked)} />
+          <input
+            type='checkbox'
+            aria-label='Mark as invalid'
+            checked={isInvalid}
+            onChange={e => setIsInvalid(e.currentTarget.checked)}
+          />
           Mark as invalid
         </label>
         <TimePicker value={value} onValueChange={setValue} invalid={isInvalid} />
@@ -668,6 +673,7 @@ export const Interactive: Story = {
           <label className='flex items-center gap-2'>
             <input
               type='checkbox'
+              aria-label='Use Trigger'
               checked={useTrigger}
               onChange={e => setUseTrigger(e.currentTarget.checked)}
               className='size-4'
@@ -675,7 +681,13 @@ export const Interactive: Story = {
             <span>Use Trigger</span>
           </label>
           <label className='flex items-center gap-2'>
-            <input type='checkbox' checked={timezone} onChange={handleTimezoneChange} className='size-4' />
+            <input
+              type='checkbox'
+              aria-label='Timezone'
+              checked={timezone}
+              onChange={handleTimezoneChange}
+              className='size-4'
+            />
             <span>Timezone</span>
           </label>
         </div>
