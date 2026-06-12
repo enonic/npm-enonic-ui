@@ -376,6 +376,7 @@ const ContrastRow = ({ entry }: { entry: Pairing }): ReactElement => {
 
   return (
     <tr className='border-bdr-subtle border-b last:border-0'>
+      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <td className='py-3 pe-4'>
         <div
           ref={bgRef}
@@ -388,6 +389,7 @@ const ContrastRow = ({ entry }: { entry: Pairing }): ReactElement => {
           </span>
         </div>
       </td>
+      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <td className='py-3 pe-4 align-middle'>
         <div className='flex flex-col gap-0.5 font-mono text-xs'>
           <span className='text-main'>{entry.fg.name}</span>

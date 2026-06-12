@@ -218,6 +218,7 @@ const ToggleGroupRootMultiple = forwardRef<HTMLDivElement, ToggleGroupRootMultip
 
   return (
     <ToggleGroupProvider value={contextValue}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         data-component='ToggleGroup.Root'
         ref={composedRef}

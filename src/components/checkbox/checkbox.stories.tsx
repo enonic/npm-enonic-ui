@@ -267,7 +267,12 @@ export const UnlabeledClickArea: Story = {
         {/* Debug toggle */}
         <div className='flex items-center gap-2'>
           <label className='flex items-center gap-2 text-sm'>
-            <input type='checkbox' checked={showDebug} onChange={e => setShowDebug(e.currentTarget.checked)} />
+            <input
+              type='checkbox'
+              aria-label='Show click areas (debug)'
+              checked={showDebug}
+              onChange={e => setShowDebug(e.currentTarget.checked)}
+            />
             Show click areas (debug)
           </label>
         </div>
