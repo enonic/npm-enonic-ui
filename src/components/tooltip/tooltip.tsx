@@ -6,11 +6,11 @@ import {
   type RefObject,
   useCallback,
   useEffect,
-  useId,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
+import { usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
@@ -236,7 +236,7 @@ export function Tooltip({
   delay = 0,
   trigger = 'hover-focus',
 }: TooltipProps): ReactElement<TooltipProps> {
-  const tooltipId = useId();
+  const tooltipId = usePrefixedId(undefined, 'tooltip');
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
