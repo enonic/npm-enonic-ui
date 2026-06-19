@@ -788,9 +788,8 @@ export const AutoFocusInput: Story = {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleOpenAutoFocus = (event: Event): void => {
-      // Prevent default focus on dialog content
+      // Keep ownership of custom focus behavior after Dialog.Content gets baseline focus.
       event.preventDefault();
-      // Focus the input instead
       inputRef.current?.focus();
     };
 

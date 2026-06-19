@@ -8,6 +8,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -260,22 +261,17 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 
     // ? Auto-focus and focus restoration live here, not in the focus trap's lifecycle,
     // ? so they keep working when the trap is inactive (modal={false}).
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (!open) {
         return;
       }
       const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
-      const rafId = requestAnimationFrame(() => {
-        const event = new Event('openautofocus', { bubbles: true, cancelable: true });
-        onOpenAutoFocusRef.current?.(event);
-        if (!event.defaultPrevented) {
-          contentRef.current?.focus();
-        }
-      });
+      contentRef.current?.focus();
+      const event = new Event('openautofocus', { bubbles: true, cancelable: true });
+      onOpenAutoFocusRef.current?.(event);
 
       return () => {
-        cancelAnimationFrame(rafId);
         const event = new Event('closeautofocus', { bubbles: true, cancelable: true });
         onCloseAutoFocusRef.current?.(event);
         if (!event.defaultPrevented) {
