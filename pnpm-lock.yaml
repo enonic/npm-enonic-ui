@@ -25,7 +25,7 @@ importers:
         version: 2.1.1
       lucide-react:
         specifier: ^1.16.0
-        version: 1.17.0(react@19.2.7)
+        version: 1.21.0(react@19.2.7)
       preact:
         specifier: '>=10.0.0'
         version: 10.27.2
@@ -79,8 +79,8 @@ importers:
         specifier: ^12.0.2
         version: 12.0.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       lucide-preact:
-        specifier: ~1.17.0
-        version: 1.17.0(preact@10.27.2)
+        specifier: ~1.21.0
+        version: 1.21.0(preact@10.27.2)
       react-virtuoso:
         specifier: ^4.18.7
         version: 4.18.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -2007,13 +2007,13 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-preact@1.17.0:
-    resolution: {integrity: sha512-QoHqgMY9WJanT+zd8x5Hq9quOqY/MHt7oTpuPAZzCkfUhfxsTJ+L0CFnUaBBh+H54OySAElm2+UQ1JwQ2CDPmg==}
+  lucide-preact@1.21.0:
+    resolution: {integrity: sha512-GUJs/vYSHNM5HU0UwNADfKvDbNDQ7i6vciniCvtpRVMsXy+FOcaRHgRhqVcY/CiORqA6oMC8xK5JJ7Wvb1r1Sw==}
     peerDependencies:
       preact: ^10.27.2
 
-  lucide-react@1.17.0:
-    resolution: {integrity: sha512-9FA9evdox/JQL5PT57fdA1x/yg8T7knJ98+zjTL3UfKza6pflQUUh3XtaQIHKvnsJw1lmsEyHVlt5jchYxOQ5w==}
+  lucide-react@1.21.0:
+    resolution: {integrity: sha512-reEZMXq8Qdd5jg5XYkQ5TR1fB/GiQ7ih4vcrthYDtgjSDwh0i6/YLiGjsWsIwgN49gpAnd4J2elSNzncMEEUUQ==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -3881,11 +3881,11 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-preact@1.17.0(preact@10.27.2):
+  lucide-preact@1.21.0(preact@10.27.2):
     dependencies:
       preact: 10.27.2
 
-  lucide-react@1.17.0(react@19.2.7):
+  lucide-react@1.21.0(react@19.2.7):
     dependencies:
       react: 19.2.7
 
