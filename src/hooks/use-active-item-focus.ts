@@ -28,6 +28,12 @@ export type UseActiveItemFocusConfig = {
     /** ARIA role of the container to check (e.g., 'listbox', 'menu') */
     containerRole: string;
   };
+  /**
+   * Invoked synchronously right before the programmatic `.focus()` call, so a
+   * consumer's `onFocus` handler can distinguish hook-driven focus from a user
+   * gesture and skip redundant state updates.
+   */
+  onProgrammaticFocus?: () => void;
 };
 
 /**
@@ -88,6 +94,7 @@ export function useActiveItemFocus({
   disabled,
   focusMode = 'roving-tabindex',
   checkFocusWithin,
+  onProgrammaticFocus,
 }: UseActiveItemFocusConfig): void {
   useEffect(() => {
     if (!ref?.current) {
@@ -123,6 +130,7 @@ export function useActiveItemFocus({
     // Ensure the element is focusable before calling focus()
     // When using Slot with asChild, the ref might point to a non-focusable element
     if (typeof ref.current.focus === 'function') {
+      onProgrammaticFocus?.();
       // ? focusVisible:true preserves the focus ring across keyboard moves —
       //   without it, browsers may drop :focus-visible on programmatic .focus().
       ref.current.focus({ focusVisible: true });
@@ -131,5 +139,13 @@ export function useActiveItemFocus({
     //   itself. Callers pass an inline object literal — using its identity in
     //   deps re-runs the effect every render, which fires `.focus()` during
     //   intermediate renders where `isActive` is stale and yanks focus away.
-  }, [isActive, disabled, focusMode, checkFocusWithin?.enabled, checkFocusWithin?.containerRole, ref]);
+  }, [
+    isActive,
+    disabled,
+    focusMode,
+    checkFocusWithin?.enabled,
+    checkFocusWithin?.containerRole,
+    ref,
+    onProgrammaticFocus,
+  ]);
 }
