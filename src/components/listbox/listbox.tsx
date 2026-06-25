@@ -340,6 +340,10 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
 
   const itemRef = useRef<HTMLDivElement>(null);
 
+  // Set by useActiveItemFocus right before it focuses this item, so handleFocus
+  // can skip the redundant setActive that the resulting focus event would fire.
+  const programmaticFocusRef = useRef(false);
+
   useEffect(() => {
     registerItem(value, isDisabled, itemRef.current);
     return () => unregisterItem(value);
@@ -354,6 +358,10 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
     focusMode,
   });
 
+  const markProgrammaticFocus = useCallback(() => {
+    programmaticFocusRef.current = true;
+  }, []);
+
   useActiveItemFocus({
     ref: itemRef,
     isActive,
@@ -363,6 +371,7 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
       enabled: true,
       containerRole: 'listbox',
     },
+    onProgrammaticFocus: markProgrammaticFocus,
   });
 
   const handleClick = useCallback(() => {
@@ -373,6 +382,12 @@ const ListboxItem = ({ value, disabled = false, children, className, ...props }:
 
   const handleFocus = useCallback(() => {
     if (isDisabled) return;
+    // Programmatic focus from useActiveItemFocus: active already points here, so
+    // skip the redundant setActive.
+    if (programmaticFocusRef.current) {
+      programmaticFocusRef.current = false;
+      return;
+    }
     setActive(value);
   }, [isDisabled, setActive, value]);
 
