@@ -614,7 +614,7 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
 
   const { open, keyHandler, baseId, disabled, error, contentType, hasValue, restoreFocusOnCloseRef } = useCombobox();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (open && !disabled) {
       innerRef.current?.focus();
     }
