@@ -415,6 +415,110 @@ export const Controlled: Story = {
   },
 };
 
+export const AutoFocusTrigger: Story = {
+  name: 'Features / Auto-focus Trigger',
+  render: () => {
+    const [autoFocusTrigger, setAutoFocusTrigger] = useState(false);
+    const [value, setValue] = useState('tab1');
+    const [mountKey, setMountKey] = useState(0);
+    const [focusedElement, setFocusedElement] = useState('Outside this demo');
+
+    const selectNextTab = (): void => {
+      setValue(currentValue => (currentValue === 'tab1' ? 'tab2' : 'tab1'));
+    };
+
+    return (
+      <div
+        className='w-120 space-y-5'
+        onFocusCapture={event => {
+          const target = event.target as HTMLElement;
+          setFocusedElement(target.dataset.focusLabel ?? target.textContent?.trim() ?? target.tagName.toLowerCase());
+        }}
+      >
+        <div className='space-y-2'>
+          <h2 className='text-lg font-semibold'>Focus behavior</h2>
+          <ol className='text-subtle list-decimal space-y-1 pl-5 text-sm'>
+            <li>With auto-focus off, select the next tab. Focus stays on the button.</li>
+            <li>Turn auto-focus on and repeat. Focus moves to the selected tab.</li>
+            <li>Arrow, Home, and End always move focus between tabs.</li>
+          </ol>
+        </div>
+
+        <label
+          htmlFor='auto-focus-trigger-toggle'
+          aria-label='Auto-focus selected tab'
+          className='border-border flex cursor-pointer items-center justify-between rounded border p-3'
+        >
+          <span>
+            <span className='block font-medium'>Auto-focus selected tab</span>
+            <code className='text-subtle text-xs'>autoFocusTrigger={String(autoFocusTrigger)}</code>
+          </span>
+          <input
+            id='auto-focus-trigger-toggle'
+            type='checkbox'
+            checked={autoFocusTrigger}
+            onChange={event => setAutoFocusTrigger(event.currentTarget.checked)}
+            aria-label='Auto-focus selected tab'
+            data-focus-label='Auto-focus toggle'
+            className='size-4'
+          />
+        </label>
+
+        <div className='bg-surface-neutral-subtle grid grid-cols-2 gap-3 rounded p-3 text-sm' aria-live='polite'>
+          <p>
+            Selected tab: <strong>{value === 'tab1' ? 'Overview' : 'Details'}</strong>
+          </p>
+          <p>
+            Focus: <strong>{focusedElement}</strong>
+          </p>
+        </div>
+
+        <Tab.Root
+          key={mountKey}
+          value={value}
+          onValueChange={setValue}
+          autoFocusTrigger={autoFocusTrigger}
+          className='w-full'
+        >
+          <Tab.List aria-label='Auto-focus behavior'>
+            <Tab.Trigger value='tab1' data-focus-label='Overview tab'>
+              Overview
+            </Tab.Trigger>
+            <Tab.Trigger value='tab2' data-focus-label='Details tab'>
+              Details
+            </Tab.Trigger>
+          </Tab.List>
+          <Tab.Content value='tab1' className='p-4'>
+            <p className='text-subtle text-sm'>Overview content</p>
+          </Tab.Content>
+          <Tab.Content value='tab2' className='p-4'>
+            <p className='text-subtle text-sm'>Details content</p>
+          </Tab.Content>
+        </Tab.Root>
+
+        <div className='flex gap-2'>
+          <button
+            type='button'
+            onClick={selectNextTab}
+            data-focus-label='Select next tab'
+            className='bg-surface-neutral-hover rounded px-3 py-2 text-sm'
+          >
+            Select next tab
+          </button>
+          <button
+            type='button'
+            onClick={() => setMountKey(currentKey => currentKey + 1)}
+            data-focus-label='Remount tabs'
+            className='bg-surface-neutral-hover rounded px-3 py-2 text-sm'
+          >
+            Remount tabs
+          </button>
+        </div>
+      </div>
+    );
+  },
+};
+
 export const Interactive: Story = {
   name: 'Features / Interactive',
   args: {

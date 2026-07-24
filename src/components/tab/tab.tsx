@@ -40,6 +40,11 @@ export type TabRootProps = {
   onValueChange?: (value: string) => void;
   /** When 'automatic', tabs activate on focus. When 'manual', tabs activate on Enter/Space */
   activationMode?: 'automatic' | 'manual';
+  /**
+   * Whether the selected trigger receives focus on initial mount and value changes.
+   * @default true
+   */
+  autoFocusTrigger?: boolean;
   /** Content */
   children?: ReactNode;
 } & Omit<ComponentPropsWithoutRef<'div'>, 'defaultValue'>;
@@ -50,6 +55,7 @@ const TabRoot = forwardRef<HTMLDivElement, TabRootProps>((props, ref): ReactElem
     defaultValue,
     onValueChange,
     activationMode = 'automatic',
+    autoFocusTrigger = true,
     children,
     className,
     ...restProps
@@ -57,7 +63,7 @@ const TabRoot = forwardRef<HTMLDivElement, TabRootProps>((props, ref): ReactElem
 
   const baseId = usePrefixedId(undefined, 'tab');
 
-  const { registerItem, unregisterItem, getItems, isItemDisabled } = useItemRegistry();
+  const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
 
   const [value, setValue] = useControlledState<string>(controlledValue, defaultValue ?? '', onValueChange);
   const [active, setActive] = useState<string | undefined>(value || undefined);
@@ -78,14 +84,28 @@ const TabRoot = forwardRef<HTMLDivElement, TabRootProps>((props, ref): ReactElem
       value,
       onValueChange: handleValueChange,
       activationMode,
+      autoFocusTrigger,
       registerItem,
       unregisterItem,
       getItems,
       isItemDisabled,
+      getItemElement,
       active,
       setActive,
     }),
-    [baseId, value, handleValueChange, activationMode, registerItem, unregisterItem, getItems, isItemDisabled, active],
+    [
+      baseId,
+      value,
+      handleValueChange,
+      activationMode,
+      autoFocusTrigger,
+      registerItem,
+      unregisterItem,
+      getItems,
+      isItemDisabled,
+      getItemElement,
+      active,
+    ],
   );
 
   return (
@@ -113,7 +133,8 @@ const TabList = forwardRef<HTMLDivElement, TabListProps>((props, ref): ReactElem
   const { loop = true, children, className, ...restProps } = props;
 
   const context = useTab();
-  const { baseId, activationMode, getItems, isItemDisabled, active, setActive, onValueChange } = context;
+  const { baseId, activationMode, getItems, isItemDisabled, getItemElement, active, setActive, onValueChange } =
+    context;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const composedRef = useComposedRefs(ref, containerRef);
@@ -127,16 +148,25 @@ const TabList = forwardRef<HTMLDivElement, TabListProps>((props, ref): ReactElem
     [activationMode, onValueChange],
   );
 
+  const handleActiveChange = useCallback(
+    (id: string | undefined) => {
+      setActive(id);
+      if (!id) return;
+
+      if (activationMode === 'automatic') {
+        onValueChange(id);
+      }
+
+      getItemElement?.(id)?.focus();
+    },
+    [activationMode, getItemElement, onValueChange, setActive],
+  );
+
   const { handleKeyDown } = useKeyboardNavigation({
     getItems,
     isItemDisabled,
     active,
-    setActive: id => {
-      setActive(id);
-      if (activationMode === 'automatic' && id) {
-        onValueChange(id);
-      }
-    },
+    setActive: handleActiveChange,
     loop,
     orientation: 'horizontal',
     onSelect: handleSelect,
@@ -183,11 +213,13 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
       unregisterItem,
       getItems,
       isItemDisabled,
+      autoFocusTrigger = true,
       active,
       setActive,
     } = context;
 
     const triggerRef = useRef<HTMLButtonElement>(null);
+    const autoFocusTriggerRef = useRef(autoFocusTrigger);
     const composedRef = useComposedRefs(ref, triggerRef);
 
     const triggerId = `${baseId}-trigger-${value}`;
@@ -216,6 +248,12 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
     });
 
     useEffect(() => {
+      autoFocusTriggerRef.current = autoFocusTrigger;
+    }, [autoFocusTrigger]);
+
+    useEffect(() => {
+      if (!autoFocusTriggerRef.current) return;
+
       if (active === value && triggerRef.current) {
         if (document.activeElement !== triggerRef.current) {
           triggerRef.current.focus();
