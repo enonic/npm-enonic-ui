@@ -5,12 +5,12 @@ export type TabContextValue = {
   value: string | undefined;
   onValueChange: (value: string) => void;
   activationMode: 'automatic' | 'manual';
-  autoFocusTrigger?: boolean;
+  autoFocusTrigger: boolean;
   registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;
   unregisterItem: (id: string) => void;
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
-  getItemElement?: (id: string) => HTMLElement | null;
+  getItemElement: (id: string) => HTMLElement | null;
   active: string | undefined;
   setActive: (id: string | undefined) => void;
 };

@@ -447,7 +447,7 @@ export const AutoFocusTrigger: Story = {
         <label
           htmlFor='auto-focus-trigger-toggle'
           aria-label='Auto-focus selected tab'
-          className='border-border flex cursor-pointer items-center justify-between rounded border p-3'
+          className='border-bdr-subtle flex cursor-pointer items-center justify-between rounded border p-3'
         >
           <span>
             <span className='block font-medium'>Auto-focus selected tab</span>
@@ -464,7 +464,7 @@ export const AutoFocusTrigger: Story = {
           />
         </label>
 
-        <div className='bg-surface-neutral-subtle grid grid-cols-2 gap-3 rounded p-3 text-sm' aria-live='polite'>
+        <div className='bg-surface-secondary grid grid-cols-2 gap-3 rounded p-3 text-sm' aria-live='polite'>
           <p>
             Selected tab: <strong>{value === 'tab1' ? 'Overview' : 'Details'}</strong>
           </p>

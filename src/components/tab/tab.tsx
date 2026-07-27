@@ -42,6 +42,13 @@ export type TabRootProps = {
   activationMode?: 'automatic' | 'manual';
   /**
    * Whether the selected trigger receives focus on initial mount and value changes.
+   *
+   * Set to `false` to keep focus on an external control that drives the tab selection.
+   * Keyboard navigation inside the list (arrows, Home, End) still moves focus either way.
+   *
+   * With `false`, an external value change is not announced to screen readers — focus does
+   * not move and `Tab.Content` is not a live region, so the consumer must announce it.
+   *
    * @default true
    */
   autoFocusTrigger?: boolean;
@@ -157,7 +164,7 @@ const TabList = forwardRef<HTMLDivElement, TabListProps>((props, ref): ReactElem
         onValueChange(id);
       }
 
-      getItemElement?.(id)?.focus();
+      getItemElement(id)?.focus({ focusVisible: true });
     },
     [activationMode, getItemElement, onValueChange, setActive],
   );
@@ -213,12 +220,14 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
       unregisterItem,
       getItems,
       isItemDisabled,
-      autoFocusTrigger = true,
+      autoFocusTrigger,
       active,
       setActive,
     } = context;
 
     const triggerRef = useRef<HTMLButtonElement>(null);
+    // ? Kept in a ref so `autoFocusTrigger` stays out of the focus effect's deps —
+    //   listing it there would steal focus when it flips false -> true on an already active trigger.
     const autoFocusTriggerRef = useRef(autoFocusTrigger);
     const composedRef = useComposedRefs(ref, triggerRef);
 
