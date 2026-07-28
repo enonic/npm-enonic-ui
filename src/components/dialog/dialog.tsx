@@ -327,7 +327,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
               tabIndex={-1}
               className={cn(
                 'bg-surface-neutral relative rounded-lg shadow-xl',
-                'flex max-h-[90vh] w-full max-w-lg flex-col gap-10 p-10',
+                'flex max-h-[90vh] w-full max-w-lg flex-col gap-5 p-5 md:gap-10 md:p-10',
                 'border-bdr-subtle overflow-hidden border outline-none',
                 'focus:ring-0 focus:outline-none',
                 // Re-enable pointer events on the box; the wrapper disables them when modal={false}.
