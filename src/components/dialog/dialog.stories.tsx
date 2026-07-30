@@ -880,13 +880,95 @@ export const StepsDialog: Story = {
                 <Dialog.StepContent step='step3'>Step 3 Content</Dialog.StepContent>
               </Dialog.Body>
 
-              <Dialog.Footer className='flex flex-col'>
+              <Dialog.Footer>
                 <Dialog.StepIndicator
                   previousLabel='Previous'
                   nextLabel='Next'
                   lastStepLabel='Submit'
                   onLastStep={handleLastStep}
                   dots
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
+export const ResponsiveStepIndicator: Story = {
+  name: 'Features / Responsive Step Indicator',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Toggle between compact and wide dialog widths to verify that navigation responds to its own container, not the viewport. Navigate to the last step and click Create Project to review the check-to-spinner transition.',
+      },
+    },
+  },
+  render: () => {
+    const [compact, setCompact] = useState(true);
+    const [pending, setPending] = useState(false);
+
+    const handleLastStep = (): void => {
+      setPending(true);
+      setTimeout(() => setPending(false), 2000);
+    };
+
+    const contentClassName = compact ? 'max-w-auto h-160 w-100' : 'max-w-auto h-160 w-200';
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Button
+          variant='outline'
+          label={compact ? 'Use wide dialog' : 'Use compact dialog'}
+          onClick={() => setCompact(value => !value)}
+        />
+        <Dialog defaultStep='step2'>
+          <Dialog.Trigger asChild>
+            <Button variant='solid' label='Open responsive steps dialog' />
+          </Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className={contentClassName}>
+              <Dialog.StepHeader
+                step='step1'
+                helper='Step 1 of 3'
+                title='1. Project details'
+                description='Enter the basic project information'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step2'
+                helper='Step 2 of 3'
+                title='2. Project settings'
+                description='Configure how the project should behave'
+                withClose
+              />
+              <Dialog.StepHeader
+                step='step3'
+                helper='Step 3 of 3'
+                title='3. Review project'
+                description='Confirm the details before creating the project'
+                withClose
+              />
+
+              <Dialog.Body className='border-bdr-subtle flex size-full flex-col items-center justify-center rounded-md border border-dashed'>
+                <Dialog.StepContent step='step1'>Project details</Dialog.StepContent>
+                <Dialog.StepContent step='step2'>Project settings</Dialog.StepContent>
+                <Dialog.StepContent step='step3'>Project review</Dialog.StepContent>
+              </Dialog.Body>
+
+              <Dialog.Footer className='flex flex-col'>
+                <Dialog.StepIndicator
+                  previousLabel='Previous'
+                  nextLabel='Next'
+                  lastStepLabel='Create Project'
+                  onLastStep={handleLastStep}
+                  dots
+                  pending={pending}
                 />
               </Dialog.Footer>
             </Dialog.Content>
