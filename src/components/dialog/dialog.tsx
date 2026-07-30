@@ -1,6 +1,6 @@
 import { Slot } from '@radix-ui/react-slot';
 import { FocusTrap } from 'focus-trap-react';
-import { Loader2, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Loader2, X } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -670,9 +670,15 @@ DialogStepContent.displayName = 'Dialog.StepContent';
 // * Dialog.StepIndicator
 //
 
+const STEP_INDICATOR_BUTTON_CLASS_NAME = 'w-11.5 px-0 @sm:w-auto @sm:px-4';
+const STEP_INDICATOR_ICON_CLASS_NAME = '@sm:hidden';
+// Labels need an element so container variants can hide them; a bare text node cannot be styled.
+const STEP_INDICATOR_LABEL_CLASS_NAME = '@max-sm:sr-only';
+
 export type DialogStepIndicatorProps = {
   previousLabel: string;
   nextLabel: string;
+  /** Label for the final action. Compact layouts represent every final action with a check icon. */
   lastStepLabel?: string;
   onLastStep?: () => void;
   dots?: boolean;
@@ -700,32 +706,46 @@ const DialogStepIndicator = ({
   return (
     <div
       data-component='Dialog.StepIndicator'
-      className={cn('items-center', dots ? 'grid grid-cols-[1fr_auto_1fr]' : 'flex justify-between')}
+      className={cn('@container w-full items-center', dots ? 'grid grid-cols-[1fr_auto_1fr]' : 'flex justify-between')}
     >
       <Stepper.Previous asChild disabled={isDisabled}>
         <Button
           size='lg'
           variant='outline'
-          label={previousLabel}
-          className={cn('justify-self-start', isFirst && 'invisible')}
-        />
+          aria-label={previousLabel}
+          startIcon={ChevronLeft}
+          startIconClassName={cn(STEP_INDICATOR_ICON_CLASS_NAME, 'rtl:rotate-180')}
+          className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-start', isFirst && 'invisible')}
+        >
+          <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{previousLabel}</span>
+        </Button>
       </Stepper.Previous>
       {dots && <Stepper.Dots disabled={isDisabled} renderDot={renderDot} />}
       {isLast && lastStepLabel ? (
         <Button
           size='lg'
           variant='solid'
-          label={lastStepLabel}
+          aria-label={lastStepLabel}
           disabled={isDisabled}
           onClick={onLastStep}
-          className='justify-self-end'
-          startIcon={pending ? Loader2 : undefined}
-          startIconClassName='animate-spin'
-          iconSize='sm'
-        />
+          className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-end')}
+          startIcon={pending ? Loader2 : Check}
+          startIconClassName={pending ? 'animate-spin @sm:size-3.5' : STEP_INDICATOR_ICON_CLASS_NAME}
+        >
+          <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{lastStepLabel}</span>
+        </Button>
       ) : (
         <Stepper.Next asChild disabled={isDisabled}>
-          <Button size='lg' variant='solid' label={nextLabel} className='justify-self-end' />
+          <Button
+            size='lg'
+            variant='solid'
+            aria-label={nextLabel}
+            endIcon={ChevronRight}
+            endIconClassName={cn(STEP_INDICATOR_ICON_CLASS_NAME, 'rtl:rotate-180')}
+            className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-end')}
+          >
+            <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{nextLabel}</span>
+          </Button>
         </Stepper.Next>
       )}
     </div>
