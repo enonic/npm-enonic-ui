@@ -15,9 +15,8 @@ jobs:
         id: meta
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
 
-      # A 0.x minor is breaking by convention but reports as `semver-minor`, so the
-      # update-type gate alone would auto-merge it. There is no test suite behind
-      # this, so 0.x packages are held back for review.
+      # A 0.x minor is breaking by convention but reports as `semver-minor`,
+      # so the update-type gate alone would auto-merge it.
       - name: Enable auto-merge for patch and minor updates
         if: |
           (steps.meta.outputs.update-type == 'version-update:semver-patch' ||

@@ -5,8 +5,7 @@ updates:
     schedule:
       interval: 'monthly'
     open-pull-requests-limit: 5
-    # Only widen a published range when the new version needs it. The default
-    # (`increase`) keeps raising the floors consumers have to satisfy.
+    # The default, `increase`, would keep raising published range floors.
     versioning-strategy: 'increase-if-necessary'
     assignees:
       - 'edloidas'
