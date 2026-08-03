@@ -192,9 +192,8 @@ export default defineConfig({
     tailwindcss(),
     EnvironmentPlugin('all'),
     dts({
-      tsconfigPath: './tsconfig.app.json',
+      tsconfigPath: './tsconfig.build.json',
       outDirs: 'dist/types',
-      entryRoot: 'src',
       aliasesExclude: ['react', 'react-dom', 'react-dom/test-utils'],
       exclude: ['**/*.stories.tsx', '.storybook/**/*'],
     }),
