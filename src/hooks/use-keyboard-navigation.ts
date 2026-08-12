@@ -220,8 +220,10 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
           break;
 
         case 'Escape':
-          e.preventDefault();
-          onEscape?.();
+          if (onEscape) {
+            e.preventDefault();
+            onEscape();
+          }
           break;
 
         // TODO: Implement type-ahead search (ARIA optional feature)

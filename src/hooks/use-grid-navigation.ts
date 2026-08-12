@@ -353,8 +353,10 @@ export function useGridNavigation(config: GridNavigationConfig): UseGridNavigati
           break;
 
         case 'Escape':
-          e.preventDefault();
-          onEscape?.();
+          if (onEscape) {
+            e.preventDefault();
+            onEscape();
+          }
           break;
       }
     },

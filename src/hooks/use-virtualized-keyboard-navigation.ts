@@ -291,8 +291,10 @@ export function useVirtualizedKeyboardNavigation<TNode extends FlatNodeBase>(
           break;
 
         case 'Escape':
-          e.preventDefault();
-          onEscape?.();
+          if (onEscape) {
+            e.preventDefault();
+            onEscape();
+          }
           break;
       }
     },
