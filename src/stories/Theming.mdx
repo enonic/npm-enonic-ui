@@ -1,0 +1,106 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title='Getting Started/Theming' />
+
+# Theming
+
+Colours are two layers. A fixed palette (`--color-grey-800`, `--color-fbk-info`, …) holds the raw
+values. Semantic tokens (`--color-main`, `--color-surface-neutral`, `--color-bdr-strong`, …) point at
+palette entries and are remapped per theme. Components only ever reference semantic tokens, which is
+what makes a theme swap a change of variables rather than a change of classes.
+
+Tailwind sees the semantic layer through `@theme`, so every token is also a utility: `--color-main`
+gives you `text-main`, `--color-surface-neutral` gives you `bg-surface-neutral`.
+
+Browse the full set with live contrast ratios under **Design → Colors**.
+
+## Dark mode
+
+Both themes ship as CSS variables switched by a class. Add `dark` to a root element and every token
+updates:
+
+```html
+<html class="dark">
+  <!-- ... -->
+</html>
+```
+
+```ts
+document.documentElement.classList.toggle('dark', isDark);
+```
+
+The variant is declared as:
+
+```css
+@custom-variant dark (&:where(.dark, .dark *));
+```
+
+That matches `.dark` and everything inside it, so `dark:` works in your own markup as usual.
+
+### Shadow DOM
+
+The variant selector cannot cross a shadow boundary, so `dark:` utilities inside a shadow root do not
+respond to a `dark` class on the host. Token switching does: `light.css` and `dark.css` select `:host`
+and `:host(.dark)` alongside `:root` and `.dark`, so putting `dark` on the host remaps every token
+inside that root.
+
+Components reference tokens only — none of them uses a `dark:` utility — so they theme correctly inside
+a shadow root. Keep to tokens in your own shadow-root markup and you get the same result.
+
+### Following the system preference
+
+Nothing reads `prefers-color-scheme` for you — the class is the only switch. Wire it up yourself so
+you keep control over an explicit user choice:
+
+```ts
+const media = matchMedia('(prefers-color-scheme: dark)');
+const apply = (dark: boolean) => document.documentElement.classList.toggle('dark', dark);
+
+apply(media.matches);
+media.addEventListener('change', event => apply(event.matches));
+```
+
+## Overriding tokens
+
+Redefine any semantic token to retheme every component that uses it. Put the overrides in the
+`overrides` layer so they win over the package's `base` layer:
+
+```css
+@layer theme, base, components, utilities, overrides;
+
+/* …Tailwind and @enonic/ui imports… */
+
+@layer overrides {
+  :root {
+    --color-surface-primary: var(--color-grey-100);
+    --color-bdr-strong: var(--color-blue);
+  }
+
+  .dark {
+    --color-surface-primary: var(--color-grey-900);
+    --color-bdr-strong: var(--color-blue-subtle);
+  }
+}
+```
+
+Override the semantic layer, not the palette. Changing `--color-grey-800` moves every token that
+points at it, in both themes at once.
+
+The palette is deliberately small: black and white, a grey ramp (`--color-grey-50` … `--color-grey-950`),
+`--color-blue` and `--color-purple` with their `-subtle` variants, and the four `--color-fbk-*` feedback
+families. Any value outside it goes in as a literal.
+
+Layer order matters more than specificity here: `@enonic/ui` defines its tokens inside `@layer base`,
+so an unlayered `:root { … }` block in your stylesheet does win — but declaring `overrides` last keeps
+the intent explicit and survives import reordering.
+
+## Scoping a theme to part of the page
+
+The `dark` class works at any depth, not just on `<html>`. This renders a dark panel inside a light
+page:
+
+```tsx
+<div className='dark bg-surface-primary'>
+  <Button variant='filled'>Dark in a light page</Button>
+</div>
+```

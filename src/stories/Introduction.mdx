@@ -1,0 +1,42 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title='Getting Started/Introduction' />
+
+# @enonic/ui
+
+UI components for Preact and React, styled with Tailwind CSS v4. Components ship with keyboard
+navigation, focus management, and ARIA wiring; theming runs on CSS custom properties with a light and
+a dark palette.
+
+This Storybook is the component reference. Every story is interactive — change props in the
+**Controls** panel, switch theme with the toolbar toggle, and read the axe-core results in the
+**Accessibility** panel.
+
+## How this is organized
+
+- **Getting Started** — install the package, wire up the styles, theme it.
+- **Components** — one page per component, with a props table and one story per variant and state.
+- **Design** — the colour tokens with live contrast ratios, and the bundled icon set.
+
+## What you get
+
+Components are built on native elements and a small set of internal hooks rather than a headless
+component framework. Radix is used for one thing only: `@radix-ui/react-slot`, which backs the
+`asChild` prop.
+
+Keyboard navigation, roving tabindex, type-ahead, floating positioning, and scroll locking are
+implemented as hooks in this package — and they are exported, so you can build components of your own
+on the same primitives. Focus trapping in overlays delegates to `focus-trap-react`.
+
+## Preact and React
+
+The library is authored in Preact 10 against `preact/compat`, and published with `react` and
+`react-dom` left external. React 19 apps consume it directly. Preact apps alias those two to
+`preact/compat` — which `@preact/preset-vite` already does for you. Icon props accept both
+`lucide-react` and `lucide-preact` icons.
+
+## Links
+
+- [GitHub repository](https://github.com/enonic/npm-enonic-ui)
+- [npm package](https://www.npmjs.com/package/@enonic/ui)
+- [Report an issue](https://github.com/enonic/npm-enonic-ui/issues)

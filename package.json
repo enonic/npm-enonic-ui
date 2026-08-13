@@ -71,7 +71,6 @@
     "release:dry": "pnpm publish --dry-run --no-git-checks",
     "analyze": "pnpm build && open dist/stats.html",
     "size": "size-limit",
-    "preview": "pnpm dlx serve . -p 4000",
     "prepare": "vp config"
   },
   "dependencies": {

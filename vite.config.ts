@@ -21,7 +21,6 @@ const IGNORE_PATTERNS = [
   'coverage/',
   'reports/',
   'storybook-static/',
-  'examples/',
   '.claude/',
   '.playwright-mcp/',
   '.tmp/',

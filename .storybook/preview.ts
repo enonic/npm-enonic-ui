@@ -10,6 +10,11 @@ const isDark = 'matchMedia' in globalThis && globalThis.matchMedia('(prefers-col
 
 const preview: Preview = {
   parameters: {
+    options: {
+      storySort: {
+        order: ['Getting Started', ['Introduction', 'Installation', 'Theming'], 'Components', 'Design'],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
