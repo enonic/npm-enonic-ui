@@ -15,7 +15,6 @@ vite.config.css.ts
 # Development files
 .storybook/
 storybook-static/
-examples/
 docs/
 *.stories.tsx
 *.stories.ts
