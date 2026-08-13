@@ -11,6 +11,10 @@ updates:
       - 'edloidas'
     cooldown:
       default-days: 3
+    ignore:
+      # Types track the Node release line; raise this ceiling when .nvmrc moves.
+      - dependency-name: '@types/node'
+        versions: ['>=25']
     groups:
       dependencies:
         patterns:
