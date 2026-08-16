@@ -3,6 +3,8 @@ import { createContext, type ReactElement, type ReactNode, type RefObject, useCo
 export type ContentType = 'listbox' | 'tree' | 'auto';
 export type ComboboxOpenOptions = {
   restoreFocus?: boolean;
+  /** Whether this interaction should focus the input on open or restore it on close. */
+  focusInput?: boolean;
 };
 
 export type ComboboxContextValue = {
@@ -12,6 +14,7 @@ export type ComboboxContextValue = {
   applyRef: RefObject<HTMLButtonElement>;
   popupRef: RefObject<HTMLDivElement>;
   restoreFocusOnCloseRef: RefObject<boolean>;
+  inputFocusIntentRef: RefObject<boolean>;
   ignoreFocusExitCloseRef: RefObject<boolean>;
 
   open: boolean;
