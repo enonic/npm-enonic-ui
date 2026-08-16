@@ -29,7 +29,14 @@ import {
   useItemRegistry,
   usePortalFocusContainer,
 } from '@/hooks';
-import { type ComboboxContextValue, ComboboxProvider, type ContentType, useCombobox, usePrefixedId } from '@/providers';
+import {
+  type ComboboxContextValue,
+  type ComboboxOpenOptions,
+  ComboboxProvider,
+  type ContentType,
+  useCombobox,
+  usePrefixedId,
+} from '@/providers';
 import { cn } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
 import { useComposedRefs } from '@/utils/ref';
@@ -212,6 +219,7 @@ const ComboboxRoot = ({
   const applyRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const restoreFocusOnCloseRef = useRef(true);
+  const inputFocusIntentRef = useRef(true);
   const ignoreFocusExitCloseRef = useRef(false);
 
   // Controlled/uncontrolled state using shared hook
@@ -283,7 +291,10 @@ const ComboboxRoot = ({
   );
 
   const setOpen = useCallback(
-    (next: boolean, options?: { restoreFocus?: boolean }) => {
+    (next: boolean, options?: ComboboxOpenOptions) => {
+      if (next || options?.focusInput !== undefined) {
+        inputFocusIntentRef.current = options?.focusInput !== false;
+      }
       restoreFocusOnCloseRef.current = next || options?.restoreFocus !== false;
       setOpenInternal(next);
       if (!next) {
@@ -408,6 +419,7 @@ const ComboboxRoot = ({
       applyRef,
       popupRef,
       restoreFocusOnCloseRef,
+      inputFocusIntentRef,
       ignoreFocusExitCloseRef,
       active: activeInternal,
       setActive: setActiveInternal,
@@ -615,24 +627,39 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
   const innerRef = useRef<HTMLInputElement>(null);
   const composedRef = useComposedRefs(ref, innerRef);
 
-  const { open, keyHandler, baseId, disabled, error, contentType, hasValue, restoreFocusOnCloseRef } = useCombobox();
+  const {
+    open,
+    keyHandler,
+    baseId,
+    disabled,
+    error,
+    contentType,
+    hasValue,
+    restoreFocusOnCloseRef,
+    inputFocusIntentRef,
+  } = useCombobox();
 
   useLayoutEffect(() => {
-    if (open && !disabled) {
+    if (!open) return;
+
+    if (!disabled && inputFocusIntentRef.current) {
       innerRef.current?.focus();
     }
-  }, [open, disabled]);
+  }, [open, disabled, inputFocusIntentRef]);
 
   // Return focus to the input when the popup closes (mirrors Combobox.Value's
   // close-effect). Only fires when no Combobox.Value is rendered, since the
   // input unmounts in that case and Value's own effect refocuses the button.
   const prevOpenRef = useRef(open);
   useEffect(() => {
-    if (prevOpenRef.current && !open && !disabled && restoreFocusOnCloseRef.current) {
-      innerRef.current?.focus({ focusVisible: true });
+    if (prevOpenRef.current && !open) {
+      if (!disabled && restoreFocusOnCloseRef.current && inputFocusIntentRef.current) {
+        innerRef.current?.focus({ focusVisible: true });
+      }
+      inputFocusIntentRef.current = true;
     }
     prevOpenRef.current = open;
-  }, [open, disabled, restoreFocusOnCloseRef]);
+  }, [open, disabled, restoreFocusOnCloseRef, inputFocusIntentRef]);
 
   // Hide when Value is present and closed
   if (hasValue && !open) return null;
@@ -714,8 +741,9 @@ export type ComboboxToggleProps = {
   className?: string;
 } & Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon'>;
 
-const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElement => {
+const ComboboxToggle = ({ className, onClick, onPointerDown, ...props }: ComboboxToggleProps): ReactElement => {
   const { open, setOpen, disabled } = useCombobox();
+  const pointerTypeRef = useRef<string | undefined>(undefined);
 
   return (
     <IconButton
@@ -726,8 +754,19 @@ const ComboboxToggle = ({ className, ...props }: ComboboxToggleProps): ReactElem
       iconSize='lg'
       icon={ChevronDown}
       aria-label='Toggle'
-      onClick={() => {
-        if (!disabled) setOpen(!open);
+      onPointerDown={event => {
+        pointerTypeRef.current = event.pointerType;
+        onPointerDown?.(event);
+      }}
+      onClick={event => {
+        onClick?.(event);
+
+        const isTouch = event.detail > 0 && pointerTypeRef.current === 'touch';
+        pointerTypeRef.current = undefined;
+
+        if (!event.defaultPrevented && !disabled) {
+          setOpen(!open, { focusInput: !isTouch });
+        }
       }}
       disabled={disabled}
       tabIndex={-1}
