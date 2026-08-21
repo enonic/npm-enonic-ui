@@ -39,13 +39,39 @@ That matches `.dark` and everything inside it, so `dark:` works in your own mark
 
 ### Shadow DOM
 
-The variant selector cannot cross a shadow boundary, so `dark:` utilities inside a shadow root do not
-respond to a `dark` class on the host. Token switching does: `light.css` and `dark.css` select `:host`
-and `:host(.dark)` alongside `:root` and `.dark`, so putting `dark` on the host remaps every token
-inside that root.
+A shadow root does not pick up the document's theme, even though custom properties do cross the
+boundary. The adopted sheet declares the light tokens on `:host`, and a declaration on the host always
+beats a value inherited into it, so a mount stays light until something **inside** the root says
+otherwise. `AppRoot` is what says it:
 
-Components reference tokens only — none of them uses a `dark:` utility — so they theme correctly inside
-a shadow root. Keep to tokens in your own shadow-root markup and you get the same result.
+```tsx
+import { AppRoot } from '@enonic/ui';
+
+<AppRoot theme={isDark ? 'dark' : 'light'} stylesheets={sheets}>
+  <App />
+</AppRoot>;
+```
+
+`'light'` emits nothing, since that is the state a root is already in. `'dark'` puts the class on the
+wrapper and mirrors it onto the portal layer, so dialogs, menus and tooltips — attached to the shadow
+root rather than nested in your markup — theme along with everything else.
+
+Putting `dark` on the shadow host works too: `dark.css` selects `:host(.dark)`, which outranks the
+`:host` default. But it leaves `dark:` utilities in your own markup unmatched — the variant compiles to
+`&:where(.dark, .dark *)`, and `.dark *` cannot see an ancestor that lives in the outer tree. The class
+`AppRoot` places sits inside the root, so tokens and `dark:` utilities both behave as they do at
+document level.
+
+Which CSS goes into `stylesheets` follows the path you took in Installation. On Tailwind v4, pass your
+own compiled CSS — `@enonic/ui/preset.css` and the mandatory `@source` already put this package's
+tokens and utilities in it. Without Tailwind, pass the prebuilt `@enonic/ui/style.css`.
+
+Not both. The prebuilt sheet comes from a separate scan of the library, so adopting it alongside your
+own build duplicates preflight and tokens, and your theme overrides end up competing with it.
+
+Either way, do not build sheets from `@enonic/ui/tokens.css` or `@enonic/ui/utilities.css`: those are
+Tailwind source entries carrying `@theme`, `@custom-variant` and `@utility`, which a constructed
+stylesheet cannot act on.
 
 ### Following the system preference
 

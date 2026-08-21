@@ -72,6 +72,9 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
     ...restProps
   } = props;
 
+  const rootRef = useRef<HTMLDivElement>(null);
+  const composedRef = useComposedRefs(ref, rootRef);
+
   const baseId = usePrefixedId(name, 'radio-group');
   const { registerItem, unregisterItem, getItems, registryVersion, isItemDisabled } = useItemRegistry();
   const [value, setValue] = useControlledState<string>(controlledValue, defaultValue ?? '', onValueChange);
@@ -103,6 +106,7 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
     baseId,
     getItems,
     getItemId: getRadioId,
+    rootRef,
     onValueChange: handleValueChange,
     value,
     loop,
@@ -115,7 +119,7 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
     <RadioGroupProvider value={contextValue}>
       <div
         data-component='RadioGroup.Root'
-        ref={ref}
+        ref={composedRef}
         role='radiogroup'
         tabIndex={-1}
         className={cn(

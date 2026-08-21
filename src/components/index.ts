@@ -1,3 +1,4 @@
+export * from './app-root';
 export * from './avatar';
 export * from './button';
 export * from './checkbox';

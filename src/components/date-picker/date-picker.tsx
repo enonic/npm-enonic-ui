@@ -33,7 +33,13 @@ import {
   usePortalFocusContainer,
   useRovingTabIndex,
 } from '@/hooks';
-import { type DatePickerContextValue, DatePickerProvider, useDatePicker, usePrefixedId } from '@/providers';
+import {
+  type DatePickerContextValue,
+  DatePickerProvider,
+  useDatePicker,
+  usePortalContainer,
+  usePrefixedId,
+} from '@/providers';
 import { cn, getIsMobile, subscribeToMobileChanges, useComposedRefs } from '@/utils';
 
 const DAYS_IN_WEEK = 7;
@@ -1021,11 +1027,13 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
     const triggerId = `${baseId}-trigger`;
     const labelledBy = triggerRef.current ? triggerId : undefined;
 
+    const portalContainer = usePortalContainer();
+
     // Detect portal mode
     useLayoutEffect(() => {
       if (!open || !contentRef.current) return;
-      setIsPortalMode(contentRef.current.parentElement === document.body);
-    }, [open]);
+      setIsPortalMode(contentRef.current.parentElement === portalContainer);
+    }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
     usePortalFocusContainer(contentRef, isPortalMode);
@@ -1212,17 +1220,18 @@ export type DatePickerPortalProps = {
 
 const DatePickerPortal = ({ container, forceMount, children }: DatePickerPortalProps): ReactElement | null => {
   const { open } = useDatePicker();
+  const resolvedContainer = usePortalContainer(container);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || (!forceMount && !open)) {
+  if (!mounted || resolvedContainer == null || (!forceMount && !open)) {
     return null;
   }
 
-  return createPortal(children, container ?? document.body);
+  return createPortal(children, resolvedContainer);
 };
 
 DatePickerPortal.displayName = 'DatePicker.Portal';

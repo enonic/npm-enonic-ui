@@ -14,11 +14,12 @@ import { useFocusContainerRegistry } from '@/providers';
  * ```tsx
  * const contentRef = useRef<HTMLDivElement>(null);
  * const [isPortalMode, setIsPortalMode] = useState(false);
+ * const portalContainer = usePortalContainer();
  *
  * useLayoutEffect(() => {
  *   if (!open || !contentRef.current) return;
- *   setIsPortalMode(contentRef.current.parentElement === document.body);
- * }, [open]);
+ *   setIsPortalMode(contentRef.current.parentElement === portalContainer);
+ * }, [open, portalContainer]);
  *
  * usePortalFocusContainer(contentRef, isPortalMode);
  * ```

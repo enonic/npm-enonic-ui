@@ -23,7 +23,7 @@ import {
 } from '@/hooks';
 import { FilledOctagonAlert } from '@/icons';
 import { type TabContextValue, TabProvider, usePrefixedId, useTab } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
+import { cn, getActiveElement, useComposedRefs } from '@/utils';
 
 import type { LucideIcon } from '@/types';
 
@@ -264,7 +264,7 @@ const TabTrigger = forwardRef<HTMLButtonElement, TabTriggerProps>(
       if (!autoFocusTriggerRef.current) return;
 
       if (active === value && triggerRef.current) {
-        if (document.activeElement !== triggerRef.current) {
+        if (getActiveElement() !== triggerRef.current) {
           triggerRef.current.focus();
         }
       }

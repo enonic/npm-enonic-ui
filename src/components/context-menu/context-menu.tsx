@@ -55,6 +55,7 @@ import {
   useContextMenuContent,
   useContextMenuSub,
   useContextMenuSubOptional,
+  usePortalContainer,
   usePrefixedId,
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
@@ -167,7 +168,7 @@ export type ContextMenuPortalProps = {
 };
 
 /**
- * Portal that renders context menu content to a container (defaults to document.body).
+ * Portal that renders context menu content into the nearest `PortalProvider` layer, else `document.body`.
  *
  * When nested inside a `ContextMenu.Sub`, it keys off the submenu's open state
  * instead of the root menu's — matching Radix's API where `<ContextMenu.Portal>`
@@ -175,6 +176,7 @@ export type ContextMenuPortalProps = {
  */
 const ContextMenuPortal = ({ container, forceMount, children }: ContextMenuPortalProps): ReactElement | null => {
   const { open: rootOpen } = useContextMenu();
+  const resolvedContainer = usePortalContainer(container);
   const sub = useContextMenuSubOptional();
   const open = sub ? sub.open : rootOpen;
 
@@ -184,11 +186,11 @@ const ContextMenuPortal = ({ container, forceMount, children }: ContextMenuPorta
     setMounted(true);
   }, []);
 
-  if (!mounted || (!forceMount && !open)) {
+  if (!mounted || resolvedContainer == null || (!forceMount && !open)) {
     return null;
   }
 
-  return createPortal(children, container ?? document.body);
+  return createPortal(children, resolvedContainer);
 };
 ContextMenuPortal.displayName = 'ContextMenu.Portal';
 
@@ -246,11 +248,13 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
       contentRef,
     });
 
+    const portalContainer = usePortalContainer();
+
     // Detect portal mode
     useLayoutEffect(() => {
       if (!open || !contentRef.current) return;
-      setIsPortalMode(contentRef.current.parentElement === document.body);
-    }, [open]);
+      setIsPortalMode(contentRef.current.parentElement === portalContainer);
+    }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
     usePortalFocusContainer(contentRef, isPortalMode);
@@ -810,10 +814,12 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       };
     }, [open, isInSafeArea, parentContent]);
 
+    const portalContainer = usePortalContainer();
+
     useLayoutEffect(() => {
       if (!open || !contentRef.current) return;
-      setIsPortalMode(contentRef.current.parentElement === document.body);
-    }, [open]);
+      setIsPortalMode(contentRef.current.parentElement === portalContainer);
+    }, [open, portalContainer]);
 
     usePortalFocusContainer(contentRef, isPortalMode);
 

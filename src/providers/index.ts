@@ -12,6 +12,7 @@ export * from './listbox-provider';
 export * from './menu-provider';
 export * from './menubar-menu-provider';
 export * from './menubar-provider';
+export * from './portal-provider';
 export * from './radio-provider';
 export * from './search-field-provider';
 export * from './selector-provider';

@@ -26,7 +26,13 @@ import {
   useScrollActiveIntoView,
   useSelectorKeyboard,
 } from '@/hooks';
-import { type SelectorContextValue, SelectorProvider, usePrefixedId, useSelector } from '@/providers';
+import {
+  type SelectorContextValue,
+  SelectorProvider,
+  usePortalContainer,
+  usePrefixedId,
+  useSelector,
+} from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 
 //
@@ -367,7 +373,7 @@ SelectorIcon.displayName = 'Selector.Icon';
 export type SelectorContentProps = {
   className?: string;
   children?: ReactNode;
-  /** Whether to render in a portal to document.body. Defaults to true. Set to false when used inside another portaled component (e.g., DatePicker/TimePicker inside Dialog). */
+  /** Whether to render in a portal. Defaults to true. Set to false when used inside another portaled component (e.g., DatePicker/TimePicker inside Dialog). */
   portal?: boolean;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
@@ -412,11 +418,13 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
       setMounted(true);
     }, []);
 
+    const portalContainer = usePortalContainer();
+
     // Detect portal mode (only when portal prop is true)
     useLayoutEffect(() => {
       if (!portal || !open || !contentRef.current) return;
-      setIsPortalMode(contentRef.current.parentElement === document.body);
-    }, [portal, open]);
+      setIsPortalMode(contentRef.current.parentElement === portalContainer);
+    }, [portal, open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
     usePortalFocusContainer(contentRef, portal && isPortalMode);
@@ -492,7 +500,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
       </div>
     );
 
-    return portal ? createPortal(content, document.body) : content;
+    return portal && portalContainer != null ? createPortal(content, portalContainer) : content;
   },
 );
 SelectorContent.displayName = 'Selector.Content';

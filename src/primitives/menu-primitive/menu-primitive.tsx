@@ -16,7 +16,7 @@ import {
 
 import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
 import { usePrefixedId } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
+import { cn, getActiveElement, useComposedRefs } from '@/utils';
 
 //
 // * Shared Context Operations Type
@@ -150,7 +150,7 @@ export const MenuPrimitiveItem = forwardRef<HTMLDivElement, MenuPrimitiveItemPro
     const handlePointerLeave = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
-        if (document.activeElement !== itemRef.current) {
+        if (getActiveElement() !== itemRef.current) {
           setActive(undefined);
         }
       },
@@ -491,7 +491,7 @@ export const MenuPrimitiveRadioItem = forwardRef<HTMLDivElement, MenuPrimitiveRa
     const handlePointerLeave = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
-        if (document.activeElement !== itemRef.current) {
+        if (getActiveElement() !== itemRef.current) {
           setActive(undefined);
         }
       },

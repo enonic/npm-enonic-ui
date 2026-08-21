@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react';
 
-import { usePrefixedId } from '@/providers';
+import { usePortalContainer, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
@@ -238,6 +238,7 @@ export function Tooltip({
   trigger = 'hover-focus',
 }: TooltipProps): ReactElement<TooltipProps> {
   const tooltipId = usePrefixedId(undefined, 'tooltip');
+  const portalContainer = usePortalContainer();
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -301,6 +302,7 @@ export function Tooltip({
         </div>
       )}
       {canShow &&
+        portalContainer != null &&
         createPortal(
           <TooltipContent
             id={hasPersistentDescription ? undefined : tooltipId}
@@ -311,7 +313,7 @@ export function Tooltip({
           >
             {value}
           </TooltipContent>,
-          document.body,
+          portalContainer,
         )}
     </>
   );

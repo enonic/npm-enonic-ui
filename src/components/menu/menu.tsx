@@ -37,7 +37,7 @@ import {
   type MenuRadioGroupOwnProps,
   type MenuRadioItemOwnProps,
 } from '@/primitives/menu-primitive';
-import { type MenuContextValue, MenuProvider, useMenu, usePrefixedId } from '@/providers';
+import { type MenuContextValue, MenuProvider, useMenu, usePortalContainer, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 
 //
@@ -162,17 +162,18 @@ export type MenuPortalProps = {
 
 const MenuPortal = ({ container, forceMount, children }: MenuPortalProps): ReactElement | null => {
   const { open } = useMenu();
+  const resolvedContainer = usePortalContainer(container);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || (!forceMount && !open)) {
+  if (!mounted || resolvedContainer == null || (!forceMount && !open)) {
     return null;
   }
 
-  return createPortal(children, container ?? document.body);
+  return createPortal(children, resolvedContainer);
 };
 MenuPortal.displayName = 'Menu.Portal';
 
@@ -225,11 +226,13 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       collisionStrategy,
     });
 
+    const portalContainer = usePortalContainer();
+
     // Detect portal mode
     useLayoutEffect(() => {
       if (!open || !contentRef.current) return;
-      setIsPortalMode(contentRef.current.parentElement === document.body);
-    }, [open]);
+      setIsPortalMode(contentRef.current.parentElement === portalContainer);
+    }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
     usePortalFocusContainer(contentRef, isPortalMode);
