@@ -259,13 +259,30 @@ export function useFloatingPosition({
     resizeObserver.observe(contentRef.current);
     resizeObserver.observe(anchorRef.current);
 
+    // ! `scroll` is not a composed event: its path stops at each shadow boundary and never reaches
+    // `window`. Every root between the anchor and the document has to be listened to separately.
+    const shadowRoots: ShadowRoot[] = [];
+    let node: Node | null = anchorRef.current;
+    while (node != null) {
+      const root = node.getRootNode();
+      if (!(root instanceof ShadowRoot)) break;
+      shadowRoots.push(root);
+      node = root.host;
+    }
+
     window.addEventListener('resize', updatePosition);
     window.addEventListener('scroll', updatePosition, true);
+    for (const root of shadowRoots) {
+      root.addEventListener('scroll', updatePosition, true);
+    }
 
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
+      for (const root of shadowRoots) {
+        root.removeEventListener('scroll', updatePosition, true);
+      }
     };
   }, [enabled, preferredSide, align, collisionStrategy, anchorRef, contentRef]);
 

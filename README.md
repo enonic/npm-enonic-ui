@@ -125,7 +125,7 @@ document.documentElement.classList.toggle('dark', isDark);
 
 The variant is `@custom-variant dark (&:where(.dark, .dark *))`, so `dark:` matches `.dark` and anything inside it. Use it in your own markup as usual.
 
-Shadow DOM is handled by the token stylesheets rather than the variant: they select `:host(.dark)` alongside `.dark`, so putting `dark` on a shadow host remaps every token inside that root. Components reference tokens only and use no `dark:` utilities, so they follow the host. Your own `dark:` utilities inside a shadow root will not — that selector cannot cross the boundary.
+Inside a shadow root the document's theme does not reach in, even though custom properties cross the boundary: the adopted sheet declares the light tokens on `:host`, and a declaration on the host beats a value inherited into it. Mount through `AppRoot` and let it switch — `<AppRoot theme='dark' stylesheets={sheets}>`. `theme='light'` emits nothing, being the state a root is already in. A `dark` class on the host works too, since `:host(.dark)` outranks `:host`, but it leaves your own `dark:` utilities unmatched because `.dark *` cannot see an ancestor in the outer tree; the class `AppRoot` places sits inside the root, and it mirrors it onto the portal layer so overlays follow. `stylesheets` expects constructed sheets: on Tailwind v4 your own compiled CSS, which already carries the package's tokens and utilities via `preset.css` and `@source`; without Tailwind the prebuilt `@enonic/ui/style.css`. Not both, and never `tokens.css`/`utilities.css`, which are Tailwind source entries.
 
 ## Icons
 

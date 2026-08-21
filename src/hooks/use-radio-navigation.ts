@@ -1,4 +1,6 @@
-import { useCallback } from 'react';
+import { type RefObject, useCallback } from 'react';
+
+import { getRoot } from '@/utils';
 
 import { useKeyboardNavigation } from './use-keyboard-navigation';
 
@@ -6,6 +8,7 @@ export type RadioNavigationConfig = {
   baseId: string;
   getItems: () => string[];
   getItemId?: (baseId: string, itemId: string) => string;
+  rootRef?: RefObject<HTMLElement>;
   value: string | undefined;
   onValueChange: (value: string) => void;
   isItemDisabled: (id: string) => boolean;
@@ -23,6 +26,7 @@ export function useRadioNavigation(config: RadioNavigationConfig): UseRadioNavig
     baseId,
     getItems,
     getItemId,
+    rootRef,
     value,
     onValueChange,
     isItemDisabled,
@@ -38,10 +42,10 @@ export function useRadioNavigation(config: RadioNavigationConfig): UseRadioNavig
       if (!getItemId) return;
 
       requestAnimationFrame(() => {
-        document.getElementById(getItemId(baseId, newValue))?.focus();
+        getRoot(rootRef?.current)?.getElementById(getItemId(baseId, newValue))?.focus();
       });
     },
-    [baseId, onValueChange, getItemId],
+    [baseId, onValueChange, getItemId, rootRef],
   );
 
   const { handleKeyDown } = useKeyboardNavigation({

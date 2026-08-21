@@ -5,7 +5,7 @@ import { useControlledState, useItemRegistry, useRovingTabIndex } from '@/hooks'
 import { useStepNavigation } from '@/hooks/use-step-navigation';
 import { usePrefixedId } from '@/providers';
 import { type StepperContextValue, StepperProvider, useStepper } from '@/providers/stepper-provider';
-import { cn, useComposedRefs } from '@/utils';
+import { cn, getRoot, useComposedRefs } from '@/utils';
 import { fixedCountRangeAround } from '@/utils/array';
 
 import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
@@ -254,10 +254,14 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
     registryVersion,
   } = useStepper();
 
+  const dotsRef = useRef<HTMLDivElement>(null);
+  const composedRef = useComposedRefs(ref, dotsRef);
+
   const { items, handleKeyDown, currentIndex, goTo } = useStepNavigation({
     baseId,
     getItems,
     getNextFocusable: getButtonId,
+    rootRef: dotsRef,
     onValueChange,
     value: selectedValue,
     isItemDisabled,
@@ -269,7 +273,7 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
   return (
     <div
       data-component='Stepper.Dots'
-      ref={ref}
+      ref={composedRef}
       role='tablist'
       aria-label='Step navigation'
       aria-orientation='horizontal'
@@ -355,8 +359,9 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
     const beforePrev = items[currentIndex - 2];
     const willBeDisabled = beforePrev == null || isItemDisabled(beforePrev);
     if (willBeDisabled) {
+      const root = getRoot(e.currentTarget);
       requestAnimationFrame(() => {
-        document.getElementById(getPanelId(baseId, prevValue))?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
+        root?.getElementById(getPanelId(baseId, prevValue))?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
       });
     }
   };
@@ -416,8 +421,9 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
     const afterNext = items[currentIndex + 2];
     const willBeDisabled = afterNext == null || isItemDisabled(afterNext);
     if (willBeDisabled) {
+      const root = getRoot(e.currentTarget);
       requestAnimationFrame(() => {
-        document.getElementById(getPanelId(baseId, nextValue))?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
+        root?.getElementById(getPanelId(baseId, nextValue))?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
       });
     }
   };

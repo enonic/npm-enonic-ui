@@ -17,10 +17,10 @@ import { createPortal } from 'react-dom';
 
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
-import { usePrefixedId, useStepper } from '@/providers';
+import { usePortalContainer, usePrefixedId, useStepper } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { FocusContainerContext } from '@/providers/focus-container-provider';
-import { cn, useComposedRefs } from '@/utils';
+import { cn, getActiveElement, useComposedRefs } from '@/utils';
 
 import { Button } from '../button';
 import { Stepper, type StepperDotsProps } from '../stepper';
@@ -122,17 +122,18 @@ export type DialogPortalProps = {
 
 const DialogPortal = ({ children, container, forceMount }: DialogPortalProps): ReactElement | null => {
   const { open } = useDialog();
+  const resolvedContainer = usePortalContainer(container);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || (!forceMount && !open)) {
+  if (!mounted || resolvedContainer == null || (!forceMount && !open)) {
     return null;
   }
 
-  return createPortal(children, container ?? document.body);
+  return createPortal(children, resolvedContainer);
 };
 DialogPortal.displayName = 'Dialog.Portal';
 
@@ -265,7 +266,8 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       if (!open) {
         return;
       }
-      const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      const activeElement = getActiveElement();
+      const previouslyFocused = activeElement instanceof HTMLElement ? activeElement : null;
 
       contentRef.current?.focus();
       const event = new Event('openautofocus', { bubbles: true, cancelable: true });
@@ -311,6 +313,8 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
             returnFocusOnDeactivate: false,
             allowOutsideClick: true,
             preventScroll: false,
+            // ? Lets the trap see tabbable elements inside nested shadow roots; inert without them.
+            tabbableOptions: { getShadowRoot: true },
           }}
         >
           <div

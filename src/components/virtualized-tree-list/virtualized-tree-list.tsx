@@ -33,7 +33,7 @@ import { useControlledState, useControlledStateWithNull, useVirtualizedKeyboardN
 import { CircleDisc, FilledSquareCheck } from '@/icons';
 import { usePrefixedId } from '@/providers';
 import { useVirtualizedTreeList, VirtualizedTreeListProvider } from '@/providers/virtualized-tree-list-provider';
-import { cn } from '@/utils';
+import { cn, getActiveElement, getRoot } from '@/utils';
 
 import type { RowClickSelection } from '@/providers/tree-list-provider';
 import type { ItemInteraction, LucideIcon } from '@/types';
@@ -427,7 +427,7 @@ const VirtualizedTreeListRoot = forwardRef(
 
       // Use MutationObserver to detect when the row is removed from DOM
       const observer = new MutationObserver(() => {
-        const rowElement = document.getElementById(rowId);
+        const rowElement = getRoot(innerRef.current)?.getElementById(rowId);
         if (!rowElement) {
           // Row was virtualized away - exit action mode and restore focus
           setActionModeRowId(undefined);
@@ -542,7 +542,7 @@ const VirtualizedTreeListRoot = forwardRef(
           // Wait for render, then focus first interactive element
           requestAnimationFrame(() => {
             const rowId = `${baseId}-item-${activeItem.id}`;
-            const rowElement = document.getElementById(rowId);
+            const rowElement = getRoot(innerRef.current)?.getElementById(rowId);
             if (!rowElement) return;
 
             const focusables = rowElement.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
@@ -561,7 +561,7 @@ const VirtualizedTreeListRoot = forwardRef(
           e.preventDefault();
 
           const rowId = `${baseId}-item-${actionModeRowId}`;
-          const rowElement = document.getElementById(rowId);
+          const rowElement = getRoot(innerRef.current)?.getElementById(rowId);
           if (!rowElement) {
             exitActionMode();
             return;
@@ -573,7 +573,7 @@ const VirtualizedTreeListRoot = forwardRef(
             return;
           }
 
-          const currentIndex = focusables.indexOf(document.activeElement as HTMLElement);
+          const currentIndex = focusables.indexOf(getActiveElement() as HTMLElement);
 
           if (e.shiftKey) {
             if (currentIndex <= 0) {

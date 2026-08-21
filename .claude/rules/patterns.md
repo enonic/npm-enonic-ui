@@ -72,14 +72,55 @@ When adding new portaled components inside dialogs:
 ```tsx
 const contentRef = useRef<HTMLDivElement>(null);
 const [isPortalMode, setIsPortalMode] = useState(false);
+const portalContainer = usePortalContainer();
 
 useLayoutEffect(() => {
   if (!open || !contentRef.current) return;
-  setIsPortalMode(contentRef.current.parentElement === document.body);
-}, [open]);
+  setIsPortalMode(contentRef.current.parentElement === portalContainer);
+}, [open, portalContainer]);
 
 usePortalFocusContainer(contentRef, isPortalMode);
 ```
+
+The comparison target is `usePortalContainer()` — `document.body` by default, or the layer a
+`PortalProvider` (typically `AppRoot` inside a shadow root) supplies. Comparing against
+`document.body` directly breaks every shadow-root consumer: the check silently turns false and
+disables focus-trap registration, floating positioning and click-outside in one stroke.
+
+Known limitation: `usePortalContainer()` in `*.Content` does not see a `container` prop passed to
+the sibling `*.Portal`, so a consumer-supplied container still reads as not-portal-mode. This
+predates the provider and applies equally to the old `document.body` check.
+
+## Portal Containers
+
+`usePortalContainer(container?)` resolves where an overlay portals to: explicit prop → nearest
+`PortalProvider` → `document.body`. It returns `HTMLElement | null`, and `null` means there is no
+document yet (server render). Guard it alongside the existing mount gate — never call `createPortal`
+with it unchecked:
+
+```tsx
+const resolvedContainer = usePortalContainer(container);
+const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+  setMounted(true);
+}, []);
+
+if (!mounted || resolvedContainer == null || (!forceMount && !open)) {
+  return null;
+}
+
+return createPortal(children, resolvedContainer);
+```
+
+Resolving during render is what makes the guard necessary: reading `document.body` unconditionally
+is exactly what the mount gate exists to avoid.
+
+| Portals through `usePortalContainer` |
+|--------------------------------------|
+| `Combobox.Portal`, `ContextMenu.Portal`, `DatePicker.Portal`, `Dialog.Portal`, `Menu.Portal`, `Menubar.Portal` |
+| `Selector.Content` (portals inline, no `*.Portal` part) |
+| `Tooltip` (portals its content directly) |
 
 ### Current Usage
 

@@ -1,9 +1,12 @@
-import { useCallback, useMemo } from 'react';
+import { type RefObject, useCallback, useMemo } from 'react';
+
+import { getRoot } from '@/utils';
 
 export type StepNavigationConfig = {
   baseId: string;
   getItems: () => string[];
   getNextFocusable?: (baseId: string, itemId: string) => string;
+  rootRef?: RefObject<HTMLElement>;
   value: string | undefined;
   onValueChange: (value: string) => void;
   isItemDisabled: (id: string) => boolean;
@@ -30,6 +33,7 @@ export function useStepNavigation(config: StepNavigationConfig): UseStepNavigati
     baseId,
     getItems,
     getNextFocusable,
+    rootRef,
     value,
     onValueChange,
     isItemDisabled,
@@ -46,10 +50,10 @@ export function useStepNavigation(config: StepNavigationConfig): UseStepNavigati
       if (!getNextFocusable) return;
 
       requestAnimationFrame(() => {
-        document.getElementById(getNextFocusable(baseId, newValue))?.focus();
+        getRoot(rootRef?.current)?.getElementById(getNextFocusable(baseId, newValue))?.focus();
       });
     },
-    [baseId, onValueChange, getNextFocusable],
+    [baseId, onValueChange, getNextFocusable, rootRef],
   );
 
   const currentIndex = value != null ? items.indexOf(value) : -1;

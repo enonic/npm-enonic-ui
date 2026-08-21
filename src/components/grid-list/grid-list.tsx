@@ -21,7 +21,7 @@ import {
   useGridListRow,
 } from '@/providers/grid-list-provider';
 import { usePrefixedId } from '@/providers/id-provider';
-import { cn, useComposedRefs } from '@/utils';
+import { cn, getRoot, useComposedRefs } from '@/utils';
 
 type RowMetadata = {
   disabled: boolean;
@@ -147,7 +147,7 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
         if (meta.element) {
           elementMap.set(id, meta.element);
         } else {
-          const element = document.getElementById(`${gridBaseId}-row-${id}`);
+          const element = getRoot(innerRef.current)?.getElementById(`${gridBaseId}-row-${id}`) ?? null;
           elementMap.set(id, element);
         }
       }
@@ -217,7 +217,7 @@ const GridListRoot = forwardRef<HTMLDivElement, GridListProps>(
     // Activation handler - clicks the first interactive element in the cell
     const handleActivate = useCallback(
       (rowId: string, colIndex: number): void => {
-        const cell = document.getElementById(`${gridBaseId}-cell-${rowId}-${colIndex}`);
+        const cell = getRoot(innerRef.current)?.getElementById(`${gridBaseId}-cell-${rowId}-${colIndex}`);
         if (!cell) return;
 
         const focusable = cell.querySelector<HTMLElement>(

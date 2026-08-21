@@ -14,7 +14,7 @@ import {
 import { Button, type ButtonProps } from '@/components/button';
 import { useControlledState, useItemRegistry, useKeyboardNavigation, useRovingTabIndex, useSyncValue } from '@/hooks';
 import { type ToggleGroupContextValue, ToggleGroupProvider, usePrefixedId, useToggleGroup } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
+import { cn, getActiveElement, useComposedRefs } from '@/utils';
 
 //
 // * ToggleGroup.Root - Single Selection
@@ -327,7 +327,7 @@ const ToggleGroupItem = forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
     useEffect(() => {
       if (active === value && itemRef.current) {
         // Avoid unnecessary focus calls when element is already focused
-        if (document.activeElement !== itemRef.current) {
+        if (getActiveElement() !== itemRef.current) {
           itemRef.current.focus();
         }
       }

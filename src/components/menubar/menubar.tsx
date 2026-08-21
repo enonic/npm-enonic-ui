@@ -40,9 +40,10 @@ import {
   MenubarProvider,
   useMenubar,
   useMenubarMenu,
+  usePortalContainer,
   usePrefixedId,
 } from '@/providers';
-import { cn, useComposedRefs } from '@/utils';
+import { cn, getActiveElement, useComposedRefs } from '@/utils';
 
 //
 // * MenubarContentContext (internal)
@@ -386,7 +387,7 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
         // Clear active state unless a menu is open or button has focus
-        if ((!openMenuId || openMenuId !== id) && document.activeElement !== buttonRef.current) {
+        if ((!openMenuId || openMenuId !== id) && getActiveElement() !== buttonRef.current) {
           setActive(undefined);
         }
       },
@@ -739,7 +740,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'button'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
         // Only clear active state if this menu isn't open
-        if (!open && document.activeElement !== triggerRef?.current) {
+        if (!open && getActiveElement() !== triggerRef?.current) {
           setActive(undefined);
         }
       },
@@ -815,7 +816,7 @@ MenubarTrigger.displayName = 'Menubar.Trigger';
 //
 
 /**
- * Portal component that renders menubar dropdown content to document.body.
+ * Portal component that renders menubar dropdown content into the resolved portal container.
  *
  * Prevents z-index stacking issues by rendering outside the DOM hierarchy.
  * Only renders when the menu is open unless `forceMount` is true.
@@ -835,7 +836,7 @@ MenubarTrigger.displayName = 'Menubar.Trigger';
  * ```
  */
 export type MenubarPortalProps = {
-  /** Custom container element (defaults to document.body) */
+  /** Custom container element. Defaults to the nearest `PortalProvider` layer, else `document.body`. */
   container?: HTMLElement | null;
   /** Keep content mounted in DOM even when menu is closed */
   forceMount?: boolean;
@@ -844,6 +845,7 @@ export type MenubarPortalProps = {
 
 const MenubarPortal = ({ container, forceMount = false, children }: MenubarPortalProps): ReactElement | null => {
   const { open } = useMenubarMenu();
+  const resolvedContainer = usePortalContainer(container);
   const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch by only rendering portal after mount
@@ -851,7 +853,7 @@ const MenubarPortal = ({ container, forceMount = false, children }: MenubarPorta
     setMounted(true);
   }, []);
 
-  if (!mounted) {
+  if (!mounted || resolvedContainer == null) {
     return null;
   }
 
@@ -860,8 +862,7 @@ const MenubarPortal = ({ container, forceMount = false, children }: MenubarPorta
     return null;
   }
 
-  const targetContainer = container ?? document.body;
-  return createPortal(children, targetContainer) as ReactElement;
+  return createPortal(children, resolvedContainer) as ReactElement;
 };
 MenubarPortal.displayName = 'Menubar.Portal';
 
@@ -945,11 +946,13 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       collisionStrategy,
     });
 
+    const portalContainer = usePortalContainer();
+
     // Detect portal mode
     useLayoutEffect(() => {
       if (!open || !contentRef.current) return;
-      setIsPortalMode(contentRef.current.parentElement === document.body);
-    }, [open]);
+      setIsPortalMode(contentRef.current.parentElement === portalContainer);
+    }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
     usePortalFocusContainer(contentRef, isPortalMode);
@@ -1227,7 +1230,7 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
     const handlePointerLeave = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
-        if (document.activeElement !== itemRef.current) {
+        if (getActiveElement() !== itemRef.current) {
           setActive(undefined);
         }
       },
@@ -1563,7 +1566,7 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
     const handlePointerLeave = useCallback(
       (e: Parameters<NonNullable<ComponentPropsWithoutRef<'div'>['onPointerLeave']>>[0]): void => {
         onPointerLeave?.(e);
-        if (document.activeElement !== itemRef.current) {
+        if (getActiveElement() !== itemRef.current) {
           setActive(undefined);
         }
       },

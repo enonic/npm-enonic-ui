@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
+import { getRoot } from '@/utils';
+
 export type ItemMetadata = {
   disabled: boolean;
   element: HTMLElement | null;
@@ -134,6 +136,7 @@ export function useItemRegistry(): UseItemRegistryReturn {
     }
 
     const entries = Array.from(itemsRef.current.entries());
+    const root = getRoot(entries.find(([, meta]) => meta.element)?.[1].element);
 
     // Build element map - use stored refs when available, fall back to DOM query
     const elementMap = new Map<string, Element | null>();
@@ -142,7 +145,7 @@ export function useItemRegistry(): UseItemRegistryReturn {
         elementMap.set(id, meta.element);
       } else {
         // Fallback: DOM query for backwards compatibility
-        const element = document.querySelector(`[data-registry-id="${id}"]`) ?? document.getElementById(id);
+        const element = root?.querySelector(`[data-registry-id="${id}"]`) ?? root?.getElementById(id) ?? null;
         elementMap.set(id, element);
       }
     }

@@ -35,9 +35,10 @@ import {
   ComboboxProvider,
   type ContentType,
   useCombobox,
+  usePortalContainer,
   usePrefixedId,
 } from '@/providers';
-import { cn } from '@/utils';
+import { cn, getActiveElement, getRoot } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
 import { useComposedRefs } from '@/utils/ref';
 
@@ -77,7 +78,7 @@ const useComboboxFocusBoundary = (): {
         if (ignoreFocusExitCloseRef.current) {
           return;
         }
-        if (!containsFocus(document.activeElement)) {
+        if (!containsFocus(getActiveElement())) {
           setOpen(false, { restoreFocus: false });
         }
       }, 0);
@@ -112,7 +113,7 @@ const useComboboxApplyTabBridge = (
       }
 
       // Apply already focused (only when nested in Popup): let Tab leave, don't re-trap.
-      if (document.activeElement === applyRef.current || !focusApply()) {
+      if (getActiveElement() === applyRef.current || !focusApply()) {
         return;
       }
 
@@ -133,7 +134,7 @@ const useComboboxApplyTabBridge = (
         return;
       }
 
-      const activeElement = document.activeElement;
+      const activeElement = getActiveElement();
 
       // Return regardless of closeOnBlur, else a popup-nested Apply falls through below and re-traps.
       if (activeElement === applyRef.current) {
@@ -347,7 +348,7 @@ const ComboboxRoot = ({
   // Focus tree container after popup opens (for tree mode)
   const focusTreeContainer = useCallback(() => {
     requestAnimationFrame(() => {
-      const tree = document.getElementById(`${baseId}-tree`);
+      const tree = getRoot(popupRef.current ?? contentRef.current)?.getElementById(`${baseId}-tree`);
       const treeContainer = tree?.querySelector<HTMLElement>('[role="tree"]');
       treeContainer?.focus({ focusVisible: true });
     });
@@ -356,7 +357,7 @@ const ComboboxRoot = ({
   // Focus first focusable listbox option (for listbox/auto mode)
   const focusListboxItem = useCallback(() => {
     requestAnimationFrame(() => {
-      const listbox = document.getElementById(`${baseId}-listbox`);
+      const listbox = getRoot(popupRef.current ?? contentRef.current)?.getElementById(`${baseId}-listbox`);
       const focusable = listbox?.querySelector<HTMLElement>('[role="option"][tabindex="0"]');
       focusable?.focus({ focusVisible: true });
     });
@@ -894,17 +895,18 @@ export type ComboboxPortalProps = {
 
 const ComboboxPortal = ({ container, forceMount, children }: ComboboxPortalProps): ReactElement | null => {
   const { open } = useCombobox();
+  const resolvedContainer = usePortalContainer(container);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || (!forceMount && !open)) {
+  if (!mounted || resolvedContainer == null || (!forceMount && !open)) {
     return null;
   }
 
-  return createPortal(children, container ?? document.body);
+  return createPortal(children, resolvedContainer);
 };
 ComboboxPortal.displayName = 'Combobox.Portal';
 
@@ -956,12 +958,14 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     const { closeOnFocusExit } = useComboboxFocusBoundary();
     const { onKeyDownCapture: onApplyTabKeyDownCapture } = useComboboxApplyTabBridge(isPortalMode);
 
+    const portalContainer = usePortalContainer();
+
     // Detect portal mode synchronously before paint to avoid flash
     useLayoutEffect(() => {
       if (!open || !innerRef.current) return;
       const parent = innerRef.current.parentElement;
-      setIsPortalMode(parent === document.body);
-    }, [open]);
+      setIsPortalMode(parent === portalContainer);
+    }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode.
     // This allows focus to move to the popup even though it's rendered outside the dialog DOM.
@@ -987,9 +991,9 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     });
 
     const focusInput = useCallback(() => {
-      const input = document.getElementById(`${baseId}-input`);
+      const input = getRoot(controlRef?.current ?? innerRef.current)?.getElementById(`${baseId}-input`);
       input?.focus({ focusVisible: true });
-    }, [baseId]);
+    }, [baseId, controlRef]);
 
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLDivElement>): void => {
@@ -1221,7 +1225,7 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
       const focusInput = (): void => {
-        const input = document.getElementById(`${baseId}-input`);
+        const input = getRoot(e.currentTarget)?.getElementById(`${baseId}-input`);
         input?.focus({ focusVisible: true });
       };
 

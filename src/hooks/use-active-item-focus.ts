@@ -1,5 +1,7 @@
 import { type RefObject, useEffect } from 'react';
 
+import { containsDeep, getActiveElement } from '@/utils';
+
 export type UseActiveItemFocusConfig = {
   /** Reference to the item element to focus */
   ref: RefObject<HTMLElement> | null;
@@ -112,7 +114,7 @@ export function useActiveItemFocus({
     }
 
     // Don't focus if already focused
-    if (document.activeElement === ref.current) {
+    if (getActiveElement() === ref.current) {
       return;
     }
 
@@ -120,7 +122,7 @@ export function useActiveItemFocus({
     // This prevents hover from causing focus when only keyboard nav should focus
     if (checkFocusWithin?.enabled) {
       const container = ref.current.closest(`[role="${checkFocusWithin.containerRole}"]`);
-      const focusWithinContainer = container?.contains(document.activeElement);
+      const focusWithinContainer = containsDeep(container, getActiveElement());
 
       if (!focusWithinContainer) {
         return;

@@ -31,7 +31,7 @@ import {
   useRovingTabIndex,
 } from '@/hooks';
 import { type TimePickerContextValue, TimePickerProvider, usePrefixedId, useTimePicker } from '@/providers';
-import { cn, getIsMobile, subscribeToMobileChanges, useComposedRefs } from '@/utils';
+import { cn, getIsMobile, getRoot, subscribeToMobileChanges, useComposedRefs } from '@/utils';
 
 const padZero = (num: number): string => String(num).padStart(2, '0');
 
@@ -670,7 +670,9 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
         } else if (firstEnabled === minuteSelectId) {
           minuteTriggerRef.current?.focus();
         } else {
-          const element = document.querySelector(`[data-registry-id="${firstEnabled}"]`);
+          const element = getRoot(hourTriggerRef.current ?? minuteTriggerRef.current)?.querySelector(
+            `[data-registry-id="${firstEnabled}"]`,
+          );
           if (element instanceof HTMLElement) {
             element.focus();
           }

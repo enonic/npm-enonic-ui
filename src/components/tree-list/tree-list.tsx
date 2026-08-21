@@ -29,7 +29,7 @@ import {
   TreeListProvider,
   useTreeList,
 } from '@/providers/tree-list-provider';
-import { cn, setRef } from '@/utils';
+import { cn, getActiveElement, getRoot, setRef } from '@/utils';
 
 import type { ItemInteraction, LucideIcon } from '@/types';
 
@@ -366,7 +366,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
     const enterActionMode = useCallback(() => {
       if (!active || !canNavigateById(fromDomId(active))) return;
 
-      const rowElement = document.getElementById(active);
+      const rowElement = getRoot(innerRef.current)?.getElementById(active);
       if (!rowElement) return;
 
       const focusables = rowElement.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
@@ -440,7 +440,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           if (!targetActive || !canNavigateById(fromDomId(targetActive))) return;
 
           // Enter action mode directly (can't rely on enterActionMode due to stale closure)
-          const rowElement = document.getElementById(targetActive);
+          const rowElement = getRoot(innerRef.current)?.getElementById(targetActive);
           if (!rowElement) return;
 
           const focusables = rowElement.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
@@ -458,7 +458,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           e.preventDefault(); // Always prevent default - we manage focus manually in action mode
 
           const rowDomId = toDomId(actionModeRowId);
-          const rowElement = document.getElementById(rowDomId);
+          const rowElement = getRoot(innerRef.current)?.getElementById(rowDomId);
           if (!rowElement) {
             exitActionMode();
             return;
@@ -471,7 +471,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
             return;
           }
 
-          const currentIndex = focusables.indexOf(document.activeElement as HTMLElement);
+          const currentIndex = focusables.indexOf(getActiveElement() as HTMLElement);
 
           if (e.shiftKey) {
             // Shift+Tab: go to previous or exit action mode
@@ -662,7 +662,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
       }
 
       // active is already a DOM ID
-      const el = document.getElementById(active);
+      const el = getRoot(innerRef.current)?.getElementById(active);
       if (el) {
         el.scrollIntoView({
           block: 'nearest',
