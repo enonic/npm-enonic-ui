@@ -205,9 +205,19 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
+      entry: {
+        'enonic-ui': path.resolve(__dirname, 'src/index.ts'),
+        style: path.resolve(__dirname, 'src/style.ts'),
+      },
       name: 'EnonicUI',
-      fileName: format => (format === 'cjs' ? `enonic-ui.cjs` : `enonic-ui.${format}.js`),
+      fileName: (format, entryName) =>
+        entryName === 'style'
+          ? format === 'cjs'
+            ? 'style.cjs'
+            : `style.${format}.js`
+          : format === 'cjs'
+            ? 'enonic-ui.cjs'
+            : `enonic-ui.${format}.js`,
       formats: ['es', 'cjs'],
     },
     emptyOutDir: false,

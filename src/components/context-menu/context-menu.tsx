@@ -55,6 +55,7 @@ import {
   useContextMenuContent,
   useContextMenuSub,
   useContextMenuSubOptional,
+  PortalProvider,
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
@@ -190,7 +191,7 @@ const ContextMenuPortal = ({ container, forceMount, children }: ContextMenuPorta
     return null;
   }
 
-  return createPortal(children, resolvedContainer);
+  return createPortal(<PortalProvider container={resolvedContainer}>{children}</PortalProvider>, resolvedContainer);
 };
 ContextMenuPortal.displayName = 'ContextMenu.Portal';
 

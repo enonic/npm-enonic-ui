@@ -1,5 +1,7 @@
 import { type CSSProperties, type RefObject, useEffect, useState } from 'react';
 
+import { isShadowRoot } from '@/utils/dom';
+
 const VIEWPORT_PADDING = 10;
 
 /** Below this, `'shrink'` yields to the opposite side rather than render a sliver. */
@@ -239,6 +241,26 @@ export function useFloatingPosition({
         }
       }
 
+      // ! `position: fixed` only resolves against the viewport while no ancestor of the portal
+      // layer's host creates a fixed containing block (transform, filter, contain: paint, ...).
+      // When one does, re-express the viewport-relative coordinates against its padding box.
+      // `offsetParent` reports that ancestor for a fixed element in Chromium and WebKit; Gecko
+      // returns `null` there and keeps the uncompensated position — the documented "keep such
+      // properties off the host's ancestor chain" caveat applies. Offsets only; scale is not
+      // compensated.
+      const containingBlock = contentRef.current.offsetParent;
+      if (containingBlock != null) {
+        const blockRect = containingBlock.getBoundingClientRect();
+        top -= blockRect.top + containingBlock.clientTop;
+        if (left != null) {
+          left -= blockRect.left + containingBlock.clientLeft;
+        }
+        if (right != null) {
+          const borderRight = blockRect.width - containingBlock.clientWidth - containingBlock.clientLeft;
+          right -= viewportWidth - blockRect.right + borderRight;
+        }
+      }
+
       setPosition({
         top,
         left,
@@ -265,7 +287,7 @@ export function useFloatingPosition({
     let node: Node | null = anchorRef.current;
     while (node != null) {
       const root = node.getRootNode();
-      if (!(root instanceof ShadowRoot)) break;
+      if (!isShadowRoot(root)) break;
       shadowRoots.push(root);
       node = root.host;
     }

@@ -87,9 +87,10 @@ The comparison target is `usePortalContainer()` — `document.body` by default, 
 `document.body` directly breaks every shadow-root consumer: the check silently turns false and
 disables focus-trap registration, floating positioning and click-outside in one stroke.
 
-Known limitation: `usePortalContainer()` in `*.Content` does not see a `container` prop passed to
-the sibling `*.Portal`, so a consumer-supplied container still reads as not-portal-mode. This
-predates the provider and applies equally to the old `document.body` check.
+Every `*.Portal` wraps what it portals in a `PortalProvider` carrying its resolved container, so
+`usePortalContainer()` in `*.Content` reads the same element the content actually rendered into —
+including a consumer-supplied `container` prop on the sibling `*.Portal`. Nested overlays inside
+portaled content resolve that container too, following an explicit `container` down the tree.
 
 ## Portal Containers
 
@@ -110,8 +111,11 @@ if (!mounted || resolvedContainer == null || (!forceMount && !open)) {
   return null;
 }
 
-return createPortal(children, resolvedContainer);
+return createPortal(<PortalProvider container={resolvedContainer}>{children}</PortalProvider>, resolvedContainer);
 ```
+
+The `PortalProvider` wrapper is part of the contract: it is how `*.Content` and nested overlays see
+the container the portal actually used, explicit `container` prop included.
 
 Resolving during render is what makes the guard necessary: reading `document.body` unconditionally
 is exactly what the mount gate exists to avoid.

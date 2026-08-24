@@ -37,6 +37,7 @@ import {
   type DatePickerContextValue,
   DatePickerProvider,
   useDatePicker,
+  PortalProvider,
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
@@ -1231,7 +1232,7 @@ const DatePickerPortal = ({ container, forceMount, children }: DatePickerPortalP
     return null;
   }
 
-  return createPortal(children, resolvedContainer);
+  return createPortal(<PortalProvider container={resolvedContainer}>{children}</PortalProvider>, resolvedContainer);
 };
 
 DatePickerPortal.displayName = 'DatePicker.Portal';

@@ -16,7 +16,8 @@ import {
 
 import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
 import { usePrefixedId } from '@/providers';
-import { cn, getActiveElement, useComposedRefs } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
+import { getActiveElement } from '@/utils/dom';
 
 //
 // * Shared Context Operations Type

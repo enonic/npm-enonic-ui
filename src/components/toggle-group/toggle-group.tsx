@@ -14,7 +14,8 @@ import {
 import { Button, type ButtonProps } from '@/components/button';
 import { useControlledState, useItemRegistry, useKeyboardNavigation, useRovingTabIndex, useSyncValue } from '@/hooks';
 import { type ToggleGroupContextValue, ToggleGroupProvider, usePrefixedId, useToggleGroup } from '@/providers';
-import { cn, getActiveElement, useComposedRefs } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
+import { getActiveElement } from '@/utils/dom';
 
 //
 // * ToggleGroup.Root - Single Selection

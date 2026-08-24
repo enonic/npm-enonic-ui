@@ -40,10 +40,12 @@ import {
   MenubarProvider,
   useMenubar,
   useMenubarMenu,
+  PortalProvider,
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
-import { cn, getActiveElement, useComposedRefs } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
+import { getActiveElement } from '@/utils/dom';
 
 //
 // * MenubarContentContext (internal)
@@ -862,7 +864,10 @@ const MenubarPortal = ({ container, forceMount = false, children }: MenubarPorta
     return null;
   }
 
-  return createPortal(children, resolvedContainer) as ReactElement;
+  return createPortal(
+    <PortalProvider container={resolvedContainer}>{children}</PortalProvider>,
+    resolvedContainer,
+  ) as ReactElement;
 };
 MenubarPortal.displayName = 'Menubar.Portal';
 

@@ -1,6 +1,6 @@
 import { type RefObject, useEffect } from 'react';
 
-import { containsDeep, getActiveElement } from '@/utils';
+import { containsDeep, getActiveElement } from '@/utils/dom';
 
 export type UseActiveItemFocusConfig = {
   /** Reference to the item element to focus */

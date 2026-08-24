@@ -62,9 +62,23 @@ Putting `dark` on the shadow host works too: `dark.css` selects `:host(.dark)`, 
 `AppRoot` places sits inside the root, so tokens and `dark:` utilities both behave as they do at
 document level.
 
+One caveat on the prop: `theme='light'` cannot override a `dark` class an embedder put on the shadow
+host itself — `:host(.dark)` outranks the `:host` defaults, and the prop has nothing stronger to say.
+
 Which CSS goes into `stylesheets` follows the path you took in Installation. On Tailwind v4, pass your
 own compiled CSS — `@enonic/ui/preset.css` and the mandatory `@source` already put this package's
-tokens and utilities in it. Without Tailwind, pass the prebuilt `@enonic/ui/style.css`.
+tokens and utilities in it. Without Tailwind, take the prebuilt sheet from the `@enonic/ui/style`
+entry:
+
+```tsx
+import { getStyleSheet } from '@enonic/ui/style';
+
+<AppRoot stylesheets={[getStyleSheet()]}>
+  <App />
+</AppRoot>;
+```
+
+(`styleText` from the same entry is the raw CSS text, for building the sheet yourself.)
 
 Not both. The prebuilt sheet comes from a separate scan of the library, so adopting it alongside your
 own build duplicates preflight and tokens, and your theme overrides end up competing with it.
@@ -72,6 +86,20 @@ own build duplicates preflight and tokens, and your theme overrides end up compe
 Either way, do not build sheets from `@enonic/ui/tokens.css` or `@enonic/ui/utilities.css`: those are
 Tailwind source entries carrying `@theme`, `@custom-variant` and `@utility`, which a constructed
 stylesheet cannot act on.
+
+Two things `AppRoot` handles for every sheet you pass, so they are worth knowing rather than doing:
+it adopts a base reset that pins the typography of its wrapper and portal layer (a host-page rule
+matching the host element, like `div { font-family: inherit }`, outranks `:host` and would otherwise
+leak the page's font in), and it re-emits the `initial-value` of every `@property` rule it finds in
+the adopted sheets — registration does not cross `adoptedStyleSheets` on a shadow root, and without
+the re-emit Tailwind's shadow, ring and gradient utilities silently collapse.
+
+Two things it cannot handle. Sizes declared in `rem` resolve against the embedding document's `html`
+font size, never `:host` — a page with a `font-size: 62.5%` reset scales the kit down, and keeping
+that from happening is the embedding page's contract. And an ancestor of the shadow host that creates
+a fixed containing block (`transform`, `filter`, `contain: paint`, …) confines every `position: fixed`
+overlay to that block: popups compensate for the offset, but `Dialog.Overlay`'s full-viewport scrim
+only covers the block — keep such properties off the host's ancestor chain.
 
 ### Following the system preference
 
