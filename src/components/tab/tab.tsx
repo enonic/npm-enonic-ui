@@ -23,7 +23,8 @@ import {
 } from '@/hooks';
 import { FilledOctagonAlert } from '@/icons';
 import { type TabContextValue, TabProvider, usePrefixedId, useTab } from '@/providers';
-import { cn, getActiveElement, useComposedRefs } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
+import { getActiveElement } from '@/utils/dom';
 
 import type { LucideIcon } from '@/types';
 

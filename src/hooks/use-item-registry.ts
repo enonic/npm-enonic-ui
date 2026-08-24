@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
-import { getRoot } from '@/utils';
+import { getRoot } from '@/utils/dom';
 
 export type ItemMetadata = {
   disabled: boolean;

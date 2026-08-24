@@ -12,7 +12,9 @@ peerDependencyRules:
     vite: '*'
 
 allowBuilds:
+  '@swc/core': false
   esbuild: false
+  unrs-resolver: false
 
 ignoredBuiltDependencies:
   - '@tailwindcss/oxide'

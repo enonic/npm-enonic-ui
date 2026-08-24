@@ -35,11 +35,13 @@ import {
   ComboboxProvider,
   type ContentType,
   useCombobox,
+  PortalProvider,
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
-import { cn, getActiveElement, getRoot } from '@/utils';
+import { cn } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
+import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
 import { useComposedRefs } from '@/utils/ref';
 
 // Shared empty array to maintain referential equality across renders
@@ -52,7 +54,7 @@ const updateArrayIfChanged =
     areArraysEquals(prev, next) ? prev : next;
 
 const containsFocusTarget = (ref: React.RefObject<HTMLElement>, target: EventTarget | null): boolean => {
-  return target instanceof Node && !!ref.current?.contains(target);
+  return target instanceof Node && containsDeep(ref.current, target);
 };
 
 const useComboboxFocusBoundary = (): {
@@ -906,7 +908,7 @@ const ComboboxPortal = ({ container, forceMount, children }: ComboboxPortalProps
     return null;
   }
 
-  return createPortal(children, resolvedContainer);
+  return createPortal(<PortalProvider container={resolvedContainer}>{children}</PortalProvider>, resolvedContainer);
 };
 ComboboxPortal.displayName = 'Combobox.Portal';
 

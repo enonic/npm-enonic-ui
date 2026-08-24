@@ -19,7 +19,8 @@ import {
   useScrollActiveIntoView,
 } from '@/hooks';
 import { type ToolbarContextValue, ToolbarProvider, usePrefixedId, useToolbar } from '@/providers';
-import { cn, getRoot, useComposedRefs } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
+import { getRoot } from '@/utils/dom';
 import { isElementVisible } from '@/utils/is';
 
 import { ToolbarToggleGroup, ToolbarToggleItem } from './toolbar-toggle-group';

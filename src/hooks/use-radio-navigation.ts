@@ -1,6 +1,6 @@
 import { type RefObject, useCallback } from 'react';
 
-import { getRoot } from '@/utils';
+import { getRoot } from '@/utils/dom';
 
 import { useKeyboardNavigation } from './use-keyboard-navigation';
 

@@ -1,6 +1,6 @@
 import { type RefObject, useCallback, useMemo } from 'react';
 
-import { getRoot } from '@/utils';
+import { getRoot } from '@/utils/dom';
 
 export type StepNavigationConfig = {
   baseId: string;

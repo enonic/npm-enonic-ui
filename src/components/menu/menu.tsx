@@ -37,7 +37,14 @@ import {
   type MenuRadioGroupOwnProps,
   type MenuRadioItemOwnProps,
 } from '@/primitives/menu-primitive';
-import { type MenuContextValue, MenuProvider, useMenu, usePortalContainer, usePrefixedId } from '@/providers';
+import {
+  type MenuContextValue,
+  MenuProvider,
+  PortalProvider,
+  useMenu,
+  usePortalContainer,
+  usePrefixedId,
+} from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 
 //
@@ -173,7 +180,7 @@ const MenuPortal = ({ container, forceMount, children }: MenuPortalProps): React
     return null;
   }
 
-  return createPortal(children, resolvedContainer);
+  return createPortal(<PortalProvider container={resolvedContainer}>{children}</PortalProvider>, resolvedContainer);
 };
 MenuPortal.displayName = 'Menu.Portal';
 

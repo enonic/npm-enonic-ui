@@ -29,7 +29,8 @@ import {
   TreeListProvider,
   useTreeList,
 } from '@/providers/tree-list-provider';
-import { cn, getActiveElement, getRoot, setRef } from '@/utils';
+import { cn, setRef } from '@/utils';
+import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
 
 import type { ItemInteraction, LucideIcon } from '@/types';
 
@@ -471,7 +472,11 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
             return;
           }
 
-          const currentIndex = focusables.indexOf(getActiveElement() as HTMLElement);
+          const active = getActiveElement();
+          let currentIndex = focusables.indexOf(active as HTMLElement);
+          if (currentIndex === -1) {
+            currentIndex = focusables.findIndex(el => containsDeep(el, active));
+          }
 
           if (e.shiftKey) {
             // Shift+Tab: go to previous or exit action mode

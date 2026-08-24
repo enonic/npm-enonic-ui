@@ -31,7 +31,8 @@ import {
   useRovingTabIndex,
 } from '@/hooks';
 import { type TimePickerContextValue, TimePickerProvider, usePrefixedId, useTimePicker } from '@/providers';
-import { cn, getIsMobile, getRoot, subscribeToMobileChanges, useComposedRefs } from '@/utils';
+import { cn, getIsMobile, subscribeToMobileChanges, useComposedRefs } from '@/utils';
+import { getRoot } from '@/utils/dom';
 
 const padZero = (num: number): string => String(num).padStart(2, '0');
 

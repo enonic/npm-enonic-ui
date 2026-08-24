@@ -21,7 +21,8 @@ import {
   useGridListRow,
 } from '@/providers/grid-list-provider';
 import { usePrefixedId } from '@/providers/id-provider';
-import { cn, getRoot, useComposedRefs } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
+import { getRoot } from '@/utils/dom';
 
 type RowMetadata = {
   disabled: boolean;

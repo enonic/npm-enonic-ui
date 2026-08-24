@@ -17,10 +17,11 @@ import { createPortal } from 'react-dom';
 
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
-import { usePortalContainer, usePrefixedId, useStepper } from '@/providers';
+import { PortalProvider, usePortalContainer, usePrefixedId, useStepper } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { FocusContainerContext } from '@/providers/focus-container-provider';
-import { cn, getActiveElement, useComposedRefs } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
+import { getActiveElement } from '@/utils/dom';
 
 import { Button } from '../button';
 import { Stepper, type StepperDotsProps } from '../stepper';
@@ -133,7 +134,7 @@ const DialogPortal = ({ children, container, forceMount }: DialogPortalProps): R
     return null;
   }
 
-  return createPortal(children, resolvedContainer);
+  return createPortal(<PortalProvider container={resolvedContainer}>{children}</PortalProvider>, resolvedContainer);
 };
 DialogPortal.displayName = 'Dialog.Portal';
 

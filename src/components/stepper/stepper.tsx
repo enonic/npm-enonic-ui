@@ -5,8 +5,9 @@ import { useControlledState, useItemRegistry, useRovingTabIndex } from '@/hooks'
 import { useStepNavigation } from '@/hooks/use-step-navigation';
 import { usePrefixedId } from '@/providers';
 import { type StepperContextValue, StepperProvider, useStepper } from '@/providers/stepper-provider';
-import { cn, getRoot, useComposedRefs } from '@/utils';
+import { cn, useComposedRefs } from '@/utils';
 import { fixedCountRangeAround } from '@/utils/array';
+import { getRoot } from '@/utils/dom';
 
 import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 
