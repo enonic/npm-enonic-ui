@@ -46,8 +46,8 @@ jobs:
       - name: Check bundle size
         run: pnpm size
 
-  shadow-smoke:
-    name: Shadow root smoke
+  interactions-smoke:
+    name: Interactions smoke
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -75,7 +75,7 @@ jobs:
       - name: Build Storybook
         run: pnpm build:storybook
 
-      - name: Run shadow-root smoke tests
+      - name: Run interactions smoke tests
         run: |
           pnpm exec http-server storybook-static --port 6006 --silent &
           pnpm exec wait-on tcp:127.0.0.1:6006

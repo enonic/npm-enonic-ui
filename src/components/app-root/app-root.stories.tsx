@@ -221,7 +221,7 @@ const findShadowButton = (shadow: ShadowRoot, label: string): HTMLButtonElement 
 
 export const InsideShadowRoot: Story = {
   name: 'Examples / Inside Shadow Root',
-  tags: ['shadow-smoke'],
+  tags: ['interactions-smoke'],
   args: { theme: 'light' },
   render: ({ theme }) => <ShadowHost>{stylesheets => <Screen theme={theme} stylesheets={stylesheets} />}</ShadowHost>,
   // The CI regression test #533 asks for: a dialog, a select and a tooltip opened inside the
@@ -328,7 +328,7 @@ LabeledPanel.displayName = 'LabeledPanel';
 
 export const PrebuiltStylesheet: Story = {
   name: 'Examples / Prebuilt Stylesheet',
-  tags: ['shadow-smoke'],
+  tags: ['interactions-smoke'],
   parameters: { layout: 'padded' },
   render: () => {
     const [fruit, setFruit] = useState<string>();
@@ -421,7 +421,7 @@ UncompensatedGhost.displayName = 'UncompensatedGhost';
 
 export const TransformedAncestor: Story = {
   name: 'Behavior / Transformed Ancestor',
-  tags: ['shadow-smoke'],
+  tags: ['interactions-smoke'],
   parameters: { layout: 'padded' },
   render: () => {
     const [fruit, setFruit] = useState<string>();
@@ -477,7 +477,7 @@ export const TransformedAncestor: Story = {
 
 export const HostPageInterference: Story = {
   name: 'Behavior / Host Page Interference',
-  tags: ['shadow-smoke'],
+  tags: ['interactions-smoke'],
   parameters: { layout: 'padded' },
   render: () => (
     <div className='flex flex-col gap-4 p-4'>

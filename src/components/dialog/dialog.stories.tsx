@@ -1,6 +1,7 @@
 import { BadgeInfo, ChevronLeft, ChevronRight, Loader2, Plus, TriangleAlert, User } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { expect, userEvent, waitFor } from 'storybook/test';
 
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
@@ -1364,5 +1365,262 @@ export const NonModal: Story = {
         </Dialog>
       </div>
     );
+  },
+};
+
+// Dialog focus lands a frame late, so an assertion made straight after an interaction reads a
+// state a competing restore is about to overwrite: settle the frame first, then assert.
+//
+// The focus stories close via the close button, not Escape. `userEvent.keyboard` only delivers to
+// an element it focused itself, so it silently misses a dialog that moved focus programmatically;
+// a real Escape key press does close them.
+
+const settleFrames = async (): Promise<void> => {
+  await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+};
+
+const waitForFocus = async (element: HTMLElement): Promise<void> => {
+  await waitFor(() => {
+    if (document.activeElement !== element) {
+      throw new Error(`Focus has not reached ${element.dataset.testid ?? element.tagName} yet`);
+    }
+  });
+};
+
+const dialogContent = (): HTMLElement | null => document.querySelector("[data-component='Dialog.Content']");
+
+// A key press must not outrun the effects that listen for it.
+const waitForDialogOpen = async (): Promise<HTMLElement> => {
+  return await waitFor(() => {
+    const element = dialogContent();
+    if (element == null) throw new Error('Dialog did not open');
+    if (!element.contains(document.activeElement)) throw new Error('Dialog has not taken focus yet');
+    return element;
+  });
+};
+
+const waitForDialogClosed = async (): Promise<void> => {
+  await waitFor(() => {
+    if (dialogContent() != null) throw new Error('Dialog is still open');
+  });
+};
+
+const byTestId = <T extends HTMLElement>(id: string): T => {
+  const element = document.querySelector<T>(`[data-testid='${id}']`);
+  if (element == null) throw new Error(`No element with data-testid="${id}"`);
+  return element;
+};
+
+export const ViewSwapFocus: Story = {
+  name: 'Behavior / Focus Across View Swaps',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [view, setView] = useState<'main' | 'confirm'>('main');
+    const continueRef = useRef<HTMLButtonElement>(null);
+    const gateRef = useRef<HTMLInputElement>(null);
+
+    const handleOpenChange = (next: boolean): void => {
+      setOpen(next);
+      if (!next) setView('main');
+    };
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Button data-testid='opener' variant='solid' onClick={() => setOpen(true)} label='Open' />
+
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+
+            {view === 'main' && (
+              <Dialog.Content
+                className='w-120'
+                onOpenAutoFocus={event => {
+                  event.preventDefault();
+                  continueRef.current?.focus();
+                }}
+              >
+                <Dialog.DefaultHeader title='Main view' description='Focus starts on Continue' />
+                <Dialog.Footer>
+                  <Button
+                    ref={continueRef}
+                    data-testid='continue'
+                    variant='solid'
+                    size='lg'
+                    onClick={() => setView('confirm')}
+                    label='Continue'
+                  />
+                </Dialog.Footer>
+              </Dialog.Content>
+            )}
+
+            {view === 'confirm' && (
+              <Dialog.Content
+                className='w-120'
+                onOpenAutoFocus={event => {
+                  event.preventDefault();
+                  gateRef.current?.focus();
+                }}
+              >
+                <Dialog.DefaultHeader title='Confirm view' description='Focus moves to the field' />
+                <Dialog.Body className='-mx-3 px-3 pb-3'>
+                  <Input ref={gateRef} data-testid='gate' label='Type to confirm' />
+                </Dialog.Body>
+              </Dialog.Content>
+            )}
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    if (opener == null) throw new Error('No opener button');
+
+    await userEvent.click(opener);
+    await waitForDialogOpen();
+    await waitForFocus(byTestId('continue'));
+
+    await userEvent.click(byTestId('continue'));
+    const gate = await waitFor(() => byTestId<HTMLInputElement>('gate'));
+    await waitForFocus(gate);
+    await settleFrames();
+    await expect(document.activeElement).toBe(gate);
+
+    await userEvent.keyboard('{Escape}');
+    await waitForDialogClosed();
+    await waitForFocus(opener);
+  },
+};
+
+export const FocusRestoreOnClose: Story = {
+  name: 'Behavior / Focus Restore On Close',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [open, setOpen] = useState(false);
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Button data-testid='opener' variant='solid' onClick={() => setOpen(true)} label='Open' />
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120'>
+              <Dialog.DefaultHeader title='Plain dialog' description='Closing returns focus to the opener' />
+              <Dialog.Footer>
+                <Dialog.Close asChild>
+                  <Button data-testid='close' variant='solid' size='lg' label='Close' />
+                </Dialog.Close>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    if (opener == null) throw new Error('No opener button');
+
+    await userEvent.click(opener);
+    await waitForDialogOpen();
+
+    await userEvent.click(byTestId('close'));
+    await waitForDialogClosed();
+    await waitForFocus(opener);
+    await settleFrames();
+    await expect(document.activeElement).toBe(opener);
+  },
+};
+
+export const PreventedCloseAutoFocus: Story = {
+  name: 'Behavior / Prevented Close Auto-Focus',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const elsewhereRef = useRef<HTMLButtonElement>(null);
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Button data-testid='opener' variant='solid' onClick={() => setOpen(true)} label='Open' />
+        <Button ref={elsewhereRef} data-testid='elsewhere' variant='outline' label='Elsewhere' />
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content
+              className='w-120'
+              onCloseAutoFocus={event => {
+                event.preventDefault();
+                // Deferred past the trap teardown, same as the built-in restore.
+                requestAnimationFrame(() => elsewhereRef.current?.focus());
+              }}
+            >
+              <Dialog.DefaultHeader title='Custom close focus' description='The opener must not win it back' />
+              <Dialog.Footer>
+                <Dialog.Close asChild>
+                  <Button data-testid='close' variant='solid' size='lg' label='Close' />
+                </Dialog.Close>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    const elsewhere = canvasElement.querySelector<HTMLButtonElement>("[data-testid='elsewhere']");
+    if (opener == null || elsewhere == null) throw new Error('Missing buttons');
+
+    await userEvent.click(opener);
+    await waitForDialogOpen();
+
+    await userEvent.click(byTestId('close'));
+    await waitForDialogClosed();
+    await waitForFocus(elsewhere);
+    await settleFrames();
+    await expect(document.activeElement).toBe(elsewhere);
+  },
+};
+
+export const PreventedCloseOnRootUnmount: Story = {
+  name: 'Behavior / Prevented Close On Root Unmount',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [mounted, setMounted] = useState(false);
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Button data-testid='opener' variant='solid' onClick={() => setMounted(true)} label='Open' />
+        <Button data-testid='unmount' variant='outline' onClick={() => setMounted(false)} label='Unmount' />
+
+        {mounted && (
+          <Dialog defaultOpen>
+            <Dialog.Portal>
+              <Dialog.Overlay />
+              <Dialog.Content className='w-120' onCloseAutoFocus={event => event.preventDefault()}>
+                <Dialog.DefaultHeader title='Root unmount' description='Prevention must survive the root going away' />
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog>
+        )}
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    const unmount = canvasElement.querySelector<HTMLButtonElement>("[data-testid='unmount']");
+    if (opener == null || unmount == null) throw new Error('Missing buttons');
+
+    await userEvent.click(opener);
+    await waitForDialogOpen();
+
+    await userEvent.click(unmount);
+    await waitForDialogClosed();
+    await settleFrames();
+    await expect(document.activeElement).not.toBe(opener);
   },
 };
