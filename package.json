@@ -73,7 +73,7 @@
     "format:check": "vp fmt --check",
     "test": "exit 0",
     "test:ci": "exit 0",
-    "test:storybook": "test-storybook --includeTags shadow-smoke",
+    "test:storybook": "test-storybook --includeTags interactions-smoke",
     "prepack": "echo 'Packaging...'",
     "prepublishOnly": "pnpm check && pnpm build && pnpm size",
     "release:dry": "pnpm publish --dry-run --no-git-checks",

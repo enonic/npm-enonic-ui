@@ -3,10 +3,12 @@ import { FocusTrap } from 'focus-trap-react';
 import { Check, ChevronLeft, ChevronRight, Loader2, X } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
+  createContext,
   forwardRef,
   type ReactElement,
   type ReactNode,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -25,6 +27,19 @@ import { getActiveElement } from '@/utils/dom';
 
 import { Button } from '../button';
 import { Stepper, type StepperDotsProps } from '../stepper';
+
+//
+// * DialogFocusContext
+//
+
+type DialogFocusState = {
+  /** Element focused when the dialog opened. `undefined` until the first content captures it. */
+  previous: HTMLElement | null | undefined;
+  /** Set by a content whose `onCloseAutoFocus` prevented the default restore. */
+  restorePrevented: boolean;
+};
+
+const DialogFocusContext = createContext<DialogFocusState | null>(null);
 
 //
 // * Dialog
@@ -50,6 +65,7 @@ const DialogRoot = ({
   children,
 }: DialogRootProps): ReactElement => {
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
+  const focusState = useRef<DialogFocusState>({ previous: undefined, restorePrevented: false }).current;
   const defaultTitleId = usePrefixedId();
   const defaultDescriptionId = usePrefixedId();
   const [titleId, setTitleId] = useState(defaultTitleId);
@@ -61,17 +77,38 @@ const DialogRoot = ({
     [open, titleId, descriptionId, setOpen],
   );
 
-  if (isUsingStepper) {
-    return (
-      <DialogProvider value={context}>
-        <Stepper.Root asFragment value={step} defaultValue={defaultStep} onValueChange={onStepChange}>
-          {children}
-        </Stepper.Root>
-      </DialogProvider>
-    );
-  }
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+    return () => {
+      const { previous } = focusState;
+      focusState.previous = undefined;
+      // Deferred past the focus trap teardown — while still listening, its focusout handler would
+      // catch this focus change and redirect to its fallback. `restorePrevented` is read in the
+      // frame rather than now, because unmounting the whole root runs this cleanup before the
+      // content's, so `onCloseAutoFocus` has not had its chance to prevent the restore yet.
+      requestAnimationFrame(() => {
+        const { restorePrevented } = focusState;
+        focusState.restorePrevented = false;
+        if (!restorePrevented) previous?.focus();
+      });
+    };
+  }, [open, focusState]);
 
-  return <DialogProvider value={context}>{children}</DialogProvider>;
+  const body = isUsingStepper ? (
+    <Stepper.Root asFragment value={step} defaultValue={defaultStep} onValueChange={onStepChange}>
+      {children}
+    </Stepper.Root>
+  ) : (
+    children
+  );
+
+  return (
+    <DialogProvider value={context}>
+      <DialogFocusContext.Provider value={focusState}>{body}</DialogFocusContext.Provider>
+    </DialogProvider>
+  );
 };
 DialogRoot.displayName = 'Dialog';
 
@@ -207,6 +244,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     ref,
   ): ReactElement | null => {
     const { open, setOpen, titleId, descriptionId } = useDialog();
+    const focusState = useContext(DialogFocusContext);
     const contentRef = useRef<HTMLDivElement>(null);
     const [portalContainers, setPortalContainers] = useState<HTMLElement[]>([]);
 
@@ -261,14 +299,19 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       return () => document.removeEventListener('keydown', handleEscapeKey);
     }, [open, handleEscapeKey]);
 
-    // ? Auto-focus and focus restoration live here, not in the focus trap's lifecycle,
-    // ? so they keep working when the trap is inactive (modal={false}).
+    // ? Auto-focus lives here, not in the focus trap's lifecycle, so it keeps working when the
+    // ? trap is inactive (modal={false}). The matching restore is owned by the root.
     useLayoutEffect(() => {
       if (!open) {
         return;
       }
-      const activeElement = getActiveElement();
-      const previouslyFocused = activeElement instanceof HTMLElement ? activeElement : null;
+      if (focusState != null) {
+        if (focusState.previous === undefined) {
+          const activeElement = getActiveElement();
+          focusState.previous = activeElement instanceof HTMLElement ? activeElement : null;
+        }
+        focusState.restorePrevented = false;
+      }
 
       contentRef.current?.focus();
       const event = new Event('openautofocus', { bubbles: true, cancelable: true });
@@ -277,13 +320,11 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       return () => {
         const event = new Event('closeautofocus', { bubbles: true, cancelable: true });
         onCloseAutoFocusRef.current?.(event);
-        if (!event.defaultPrevented) {
-          // Defer past the focus trap teardown — while still listening, its focusout
-          // handler would catch this focus change and redirect to its fallback.
-          requestAnimationFrame(() => previouslyFocused?.focus());
+        if (event.defaultPrevented && focusState != null) {
+          focusState.restorePrevented = true;
         }
       };
-    }, [open]);
+    }, [open, focusState]);
 
     // A non-modal dialog is a persistent panel — outside-interaction callbacks still fire,
     // but it never dismisses on outside click.
