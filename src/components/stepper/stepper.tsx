@@ -3,13 +3,15 @@ import { Fragment, forwardRef, useCallback, useEffect, useMemo, useRef } from 'r
 
 import { useControlledState, useItemRegistry, useRovingTabIndex } from '@/hooks';
 import { useStepNavigation } from '@/hooks/use-step-navigation';
-import { usePrefixedId } from '@/providers';
+import { usePhrases, usePrefixedId } from '@/providers';
 import { type StepperContextValue, StepperProvider, useStepper } from '@/providers/stepper-provider';
 import { cn, useComposedRefs } from '@/utils';
 import { fixedCountRangeAround } from '@/utils/array';
 import { getRoot } from '@/utils/dom';
 
 import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
+
+import { stepperPhrases } from './stepper.phrases';
 
 const getPanelId = (baseId: string, itemId: string): string => `${baseId}-panel-${itemId}`;
 const getButtonId = (baseId: string, itemId: string): string => `${baseId}-tab-${itemId}`;
@@ -209,6 +211,7 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
     getItems,
     isItemDisabled,
   });
+  const t = usePhrases(stepperPhrases);
 
   return (
     <button
@@ -221,7 +224,7 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
       className={getClass(itemId)}
       onClick={() => goTo(itemId)}
       onKeyDown={onKeyDown}
-      aria-label={`Go to step ${index + 1}`}
+      aria-label={t('ui.stepper.goToStep', index + 1)}
       aria-selected={itemId === selectedValue}
       aria-controls={getPanelId(baseId, itemId)}
       {...restProps}
@@ -254,6 +257,7 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
     smallOnEdges,
     registryVersion,
   } = useStepper();
+  const t = usePhrases(stepperPhrases);
 
   const dotsRef = useRef<HTMLDivElement>(null);
   const composedRef = useComposedRefs(ref, dotsRef);
@@ -276,7 +280,7 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
       data-component='Stepper.Dots'
       ref={composedRef}
       role='tablist'
-      aria-label='Step navigation'
+      aria-label={t('ui.stepper.navigation')}
       aria-orientation='horizontal'
       aria-disabled={disabled || undefined}
       className={cn(

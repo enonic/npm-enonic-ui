@@ -12,8 +12,16 @@ import {
 
 import { IconButton } from '@/components/icon-button';
 import { useControlledState } from '@/hooks';
-import { type SearchFieldContextValue, SearchFieldProvider, usePrefixedId, useSearchField } from '@/providers';
+import {
+  type SearchFieldContextValue,
+  SearchFieldProvider,
+  usePhrases,
+  usePrefixedId,
+  useSearchField,
+} from '@/providers';
 import { cn, unwrap, useComposedRefs } from '@/utils';
+
+import { searchFieldPhrases } from './search-field.phrases';
 
 //
 // * SearchField
@@ -36,14 +44,15 @@ const SearchFieldRoot = ({
   value,
   defaultValue = '',
   onChange,
-  placeholder = 'Search',
-  clearLabel = 'Clear',
+  placeholder,
+  clearLabel,
   disabled,
   readOnly,
   children,
   className,
   ...props
 }: SearchFieldRootProps): ReactElement => {
+  const t = usePhrases(searchFieldPhrases);
   const defaultId = usePrefixedId(unwrap(id));
   const [inputId, setInputId] = useState(defaultId);
 
@@ -58,11 +67,11 @@ const SearchFieldRoot = ({
       setValue: setInputValue,
       disabled,
       readOnly,
-      placeholder,
-      clearLabel,
+      placeholder: placeholder ?? t('ui.searchField.placeholder'),
+      clearLabel: clearLabel ?? t('ui.searchField.clear'),
       inputRef,
     }),
-    [inputId, inputValue, setInputValue, disabled, readOnly, placeholder, clearLabel],
+    [inputId, inputValue, setInputValue, disabled, readOnly, placeholder, clearLabel, t],
   );
 
   return (
@@ -119,6 +128,7 @@ export type SearchFieldInputProps = ComponentPropsWithoutRef<'input'>;
 const SearchFieldInput = forwardRef<HTMLInputElement, SearchFieldInputProps>(
   ({ id: providedId, className, ...props }, ref): ReactElement => {
     const { id, setId, value, disabled, readOnly, placeholder, setValue, inputRef } = useSearchField();
+    const t = usePhrases(searchFieldPhrases);
 
     const inputId = unwrap(providedId);
     useEffect(() => {
@@ -149,7 +159,7 @@ const SearchFieldInput = forwardRef<HTMLInputElement, SearchFieldInputProps>(
         readOnly={readOnly}
         disabled={disabled}
         placeholder={placeholder}
-        aria-label='Search'
+        aria-label={t('ui.searchField.label')}
         aria-disabled={disabled}
         {...props}
       />
