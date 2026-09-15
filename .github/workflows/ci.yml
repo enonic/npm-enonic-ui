@@ -46,6 +46,9 @@ jobs:
       - name: Check bundle size
         run: pnpm size
 
+      - name: Package smoke test
+        run: pnpm check:package
+
   interactions-smoke:
     name: Interactions smoke
     runs-on: ubuntu-latest

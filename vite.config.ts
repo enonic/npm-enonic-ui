@@ -163,6 +163,13 @@ export default defineConfig({
           'typescript/explicit-function-return-type': 'off',
         },
       },
+      {
+        files: ['scripts/**'],
+        rules: {
+          // Reporting to stdout is what these scripts are for.
+          'no-console': 'off',
+        },
+      },
     ],
   },
   fmt: {
