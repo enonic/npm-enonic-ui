@@ -211,6 +211,7 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
     getItems,
     isItemDisabled,
   });
+  const t = usePhrases(stepperPhrases);
 
   return (
     <button
@@ -223,7 +224,7 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
       className={getClass(itemId)}
       onClick={() => goTo(itemId)}
       onKeyDown={onKeyDown}
-      aria-label={`Go to step ${index + 1}`}
+      aria-label={t('ui.stepper.goToStep', index + 1)}
       aria-selected={itemId === selectedValue}
       aria-controls={getPanelId(baseId, itemId)}
       {...restProps}

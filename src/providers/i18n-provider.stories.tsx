@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 
 import { Button } from '@/components/button';
 import { Dialog } from '@/components/dialog';
@@ -88,10 +88,10 @@ export const Catalogue: Story = {
       <div className='text-subtle mb-3'>Every key the library can render, with its English.</div>
       <dl className='grid grid-cols-[auto_1fr] gap-x-4 gap-y-1'>
         {Object.entries(uiPhrases).map(([key, text]) => (
-          <>
+          <Fragment key={key}>
             <dt className='font-mono text-xs'>{key}</dt>
             <dd>{text}</dd>
-          </>
+          </Fragment>
         ))}
       </dl>
     </div>
