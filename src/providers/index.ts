@@ -7,6 +7,7 @@ export * from './date-picker-provider';
 export * from './dialog-provider';
 export * from './focus-container-provider';
 export * from './grid-list-provider';
+export * from './i18n-provider';
 export * from './id-provider';
 export * from './listbox-provider';
 export * from './menu-provider';

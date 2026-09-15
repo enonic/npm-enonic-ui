@@ -38,10 +38,13 @@ import {
   DatePickerProvider,
   useDatePicker,
   PortalProvider,
+  usePhrases,
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
 import { cn, getIsMobile, subscribeToMobileChanges, useComposedRefs } from '@/utils';
+
+import { datePickerPhrases } from './date-picker.phrases';
 
 const DAYS_IN_WEEK = 7;
 const DEFAULT_WEEK_START = 1;
@@ -347,6 +350,7 @@ const DatePickerGrid = ({
   ...props
 }: DatePickerGridProps): ReactElement => {
   const { baseId, month, setMonth, weekStartsOn, showOutsideDays, isDateDisabled, value, selectDate } = useDatePicker();
+  const t = usePhrases(datePickerPhrases);
   const days = useMemo(
     () => getDatePickerDays(month, weekStartsOn, isDateDisabled),
     [month, weekStartsOn, isDateDisabled],
@@ -439,7 +443,7 @@ const DatePickerGrid = ({
     <div
       data-component='DatePicker.Grid'
       role='grid'
-      aria-label='Date picker'
+      aria-label={t('ui.datePicker.grid')}
       tabIndex={tabIndex ?? 0}
       aria-activedescendant={activeId}
       aria-colcount={DAYS_IN_WEEK}
@@ -547,6 +551,7 @@ const DatePickerMonthSelect = forwardRef<HTMLButtonElement, DatePickerMonthSelec
       setYearSelectOpen,
       monthSelectId,
     } = useDatePicker();
+    const t = usePhrases(datePickerPhrases);
     const options = useMemo(() => getMonthOptions(locale, monthFormat), [locale, monthFormat]);
     const isDisabled = disabled as boolean | undefined;
     const isActive = headerActive === monthSelectId;
@@ -625,7 +630,7 @@ const DatePickerMonthSelect = forwardRef<HTMLButtonElement, DatePickerMonthSelec
             'border-bdr-subtle bg-btn-primary hover:bg-btn-primary-hover h-10 gap-1 px-3 text-sm font-normal',
             className,
           )}
-          aria-label='Month'
+          aria-label={t('ui.datePicker.month')}
           tabIndex={tabIndex}
           data-registry-id={monthSelectId}
           onFocus={handleFocus}
@@ -687,6 +692,7 @@ const DatePickerYearSelect = forwardRef<HTMLButtonElement, DatePickerYearSelectP
       setMonthSelectOpen,
       yearSelectId,
     } = useDatePicker();
+    const t = usePhrases(datePickerPhrases);
     const years = useMemo(
       () => Array.from({ length: maxYear - minYear + 1 }, (_, index) => minYear + index),
       [minYear, maxYear],
@@ -768,7 +774,7 @@ const DatePickerYearSelect = forwardRef<HTMLButtonElement, DatePickerYearSelectP
             'border-bdr-subtle bg-btn-primary hover:bg-btn-primary-hover h-10 gap-1 px-3 text-sm font-normal',
             className,
           )}
-          aria-label='Year'
+          aria-label={t('ui.datePicker.year')}
           tabIndex={tabIndex}
           data-registry-id={yearSelectId}
           onFocus={handleFocus}
@@ -827,6 +833,7 @@ const DatePickerHeader = ({
     prevButtonId,
     nextButtonId,
   } = useDatePicker();
+  const t = usePhrases(datePickerPhrases);
   const canGoPrev = month.getFullYear() > minYear || (month.getFullYear() === minYear && month.getMonth() > 0);
   const canGoNext = month.getFullYear() < maxYear || (month.getFullYear() === maxYear && month.getMonth() < 11);
   const shouldShowNavigation = showNavigationProp ?? showNavigation;
@@ -939,7 +946,7 @@ const DatePickerHeader = ({
           icon={ChevronLeft}
           variant='text'
           size='md'
-          title='Previous month'
+          title={t('ui.datePicker.previousMonth')}
           onClick={handlePrev}
           onFocus={handlePrevFocus}
           onPointerDown={handlePrevPointerDown}
@@ -958,7 +965,7 @@ const DatePickerHeader = ({
           icon={ChevronRight}
           variant='text'
           size='md'
-          title='Next month'
+          title={t('ui.datePicker.nextMonth')}
           onClick={handleNext}
           onFocus={handleNextFocus}
           onPointerDown={handleNextPointerDown}
@@ -1013,6 +1020,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
       setMonthSelectOpen,
       setYearSelectOpen,
     } = useDatePicker();
+    const t = usePhrases(datePickerPhrases);
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
     const [isPortalMode, setIsPortalMode] = useState(false);
@@ -1101,7 +1109,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
         ref={composedRefs}
         id={contentId}
         role='dialog'
-        aria-label='Date picker'
+        aria-label={t('ui.datePicker.dialog')}
         aria-labelledby={labelledBy}
         data-state={open ? 'open' : 'closed'}
         data-side={position?.side ?? side}
@@ -1141,6 +1149,7 @@ export type DatePickerTriggerProps = {
 const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
   ({ asChild, className, children, onClick, onKeyDown, title, disabled, ...props }, ref): ReactElement => {
     const { baseId, open, setOpen, triggerRef } = useDatePicker();
+    const t = usePhrases(datePickerPhrases);
     const composedRefs = useComposedRefs(ref, triggerRef);
     const triggerId = `${baseId}-trigger`;
     const contentId = `${baseId}-content`;
@@ -1168,7 +1177,7 @@ const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
           icon={CalendarIcon}
           variant='text'
           size='md'
-          title={title ?? 'Open date picker'}
+          title={title ?? t('ui.datePicker.open')}
           id={triggerId}
           aria-haspopup='dialog'
           aria-expanded={open}
@@ -1248,6 +1257,7 @@ export type DatePickerNativeInputProps = {
 const DatePickerNativeInput = forwardRef<HTMLInputElement, DatePickerNativeInputProps>(
   ({ className, onChange, required, 'aria-required': ariaRequiredProp, ...props }, ref): ReactElement => {
     const { value, selectDate, setValue, minYear, maxYear } = useDatePicker();
+    const t = usePhrases(datePickerPhrases);
     const ariaRequired = ariaRequiredProp ?? (required ? true : undefined);
 
     const min = props.min ?? `${minYear}-01-01`;
@@ -1274,7 +1284,7 @@ const DatePickerNativeInput = forwardRef<HTMLInputElement, DatePickerNativeInput
           'focus-visible:ring-offset-ring-offset focus-visible:ring-offset-3',
           className,
         )}
-        aria-label={props['aria-label'] ?? 'Select date'}
+        aria-label={props['aria-label'] ?? t('ui.datePicker.select')}
         aria-required={ariaRequired}
         value={formatInputDate(value)}
         min={min}

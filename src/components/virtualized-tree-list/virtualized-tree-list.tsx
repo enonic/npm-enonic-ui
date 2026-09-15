@@ -29,9 +29,10 @@ import {
   type TreeListRowRightProps,
   treeListRowVariants,
 } from '@/components/tree-list/tree-list';
+import { treeListPhrases } from '@/components/tree-list/tree-list.phrases';
 import { useControlledState, useControlledStateWithNull, useVirtualizedKeyboardNavigation } from '@/hooks';
 import { CircleDisc, FilledSquareCheck } from '@/icons';
-import { usePrefixedId } from '@/providers';
+import { usePhrases, usePrefixedId } from '@/providers';
 import { useVirtualizedTreeList, VirtualizedTreeListProvider } from '@/providers/virtualized-tree-list-provider';
 import { cn } from '@/utils';
 import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
@@ -1044,6 +1045,7 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
   ): ReactElement => {
     // Access context to set active when expand control is clicked
     const context = useVirtualizedTreeList();
+    const t = usePhrases(treeListPhrases);
 
     if (!hasChildren) {
       return <span className='size-5 shrink-0' />;
@@ -1086,7 +1088,7 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
         ref={ref}
         icon={icon}
         variant='text'
-        title={expanded ? 'Collapse' : 'Expand'}
+        title={expanded ? t('ui.treeList.collapse') : t('ui.treeList.expand')}
         tabIndex={-1}
         className={cn(
           'active:text-main size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent',
@@ -1127,6 +1129,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
   VirtualizedTreeListRowSelectionControlProps
 >(({ rowId, selected, selectable = true, variant, className, ...props }, ref): ReactElement | null => {
   const { selection, toggleSelection, setActiveIndex, selectionMode, getItemIndex } = useVirtualizedTreeList();
+  const t = usePhrases(treeListPhrases);
 
   // Use prop if provided, otherwise read from context
   const isSelected = selected ?? selection.has(rowId);
@@ -1177,7 +1180,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
         ref={ref}
         role='radio'
         aria-checked={isSelected}
-        aria-label={isSelected ? 'Selected' : 'Select row'}
+        aria-label={isSelected ? t('ui.treeList.selected') : t('ui.treeList.selectRow')}
         tabIndex={-1}
         className={cn('flex size-4 cursor-pointer items-center', className)}
         onKeyDown={handleKeyDown}
@@ -1199,7 +1202,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
       ref={ref}
       role='checkbox'
       aria-checked={isSelected}
-      aria-label={isSelected ? 'Deselect row' : 'Select row'}
+      aria-label={isSelected ? t('ui.treeList.deselectRow') : t('ui.treeList.selectRow')}
       tabIndex={-1}
       className={cn(
         'flex size-4 cursor-pointer items-center',

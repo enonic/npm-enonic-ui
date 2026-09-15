@@ -18,8 +18,10 @@ import { Button } from '@/components/button';
 import { IconButton, type IconButtonProps } from '@/components/icon-button';
 import { Link, type LinkProps } from '@/components/link';
 import { useControlledState } from '@/hooks';
-import { ToastProvider, useToast } from '@/providers';
+import { ToastProvider, usePhrases, useToast } from '@/providers';
 import { cn } from '@/utils';
+
+import { toastPhrases } from './toast.phrases';
 
 export type ToastProps = {
   id?: string | number;
@@ -129,6 +131,7 @@ ToastButton.displayName = 'Toast.Button';
 const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<IconButtonProps, 'icon'>>(
   ({ asChild, onClick, children, className, ...props }, ref): ReactElement => {
     const { setOpen } = useToast();
+    const t = usePhrases(toastPhrases);
 
     const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
       onClick?.(event);
@@ -158,8 +161,8 @@ const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<Ic
         icon={X}
         iconSize='lg'
         iconStrokeWidth={1}
-        aria-label='Close notification'
-        title='Close notification'
+        aria-label={t('ui.toast.close')}
+        title={t('ui.toast.close')}
         variant='text'
         size='sm'
         className={cn('text-alt hover:bg-btn-tertiary-hover hover:text-alt bg-transparent', className)}
