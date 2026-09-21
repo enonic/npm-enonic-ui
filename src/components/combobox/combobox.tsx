@@ -760,7 +760,7 @@ const ComboboxToggle = ({ className, onClick, onPointerDown, ...props }: Combobo
       size='sm'
       iconSize='lg'
       icon={ChevronDown}
-      aria-label={t('ui.combobox.toggle')}
+      aria-label={t('enonic.ui.combobox.toggle')}
       onPointerDown={event => {
         pointerTypeRef.current = event.pointerType;
         onPointerDown?.(event);

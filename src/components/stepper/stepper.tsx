@@ -224,7 +224,7 @@ const StepperDot = forwardRef<HTMLButtonElement, StepperDotProps>((props, ref): 
       className={getClass(itemId)}
       onClick={() => goTo(itemId)}
       onKeyDown={onKeyDown}
-      aria-label={t('ui.stepper.goToStep', index + 1)}
+      aria-label={t('enonic.ui.stepper.goToStep', index + 1)}
       aria-selected={itemId === selectedValue}
       aria-controls={getPanelId(baseId, itemId)}
       {...restProps}
@@ -280,7 +280,7 @@ const StepperDots = forwardRef<HTMLDivElement, StepperDotsProps>((props, ref): R
       data-component='Stepper.Dots'
       ref={composedRef}
       role='tablist'
-      aria-label={t('ui.stepper.navigation')}
+      aria-label={t('enonic.ui.stepper.navigation')}
       aria-orientation='horizontal'
       aria-disabled={disabled || undefined}
       className={cn(

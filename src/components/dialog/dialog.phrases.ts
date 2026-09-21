@@ -1,3 +1,3 @@
 export const dialogPhrases = {
-  'ui.dialog.close': 'Close',
+  'enonic.ui.dialog.close': 'Close',
 } as const;

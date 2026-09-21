@@ -12,6 +12,7 @@ export type TranslateOptions = {
 
 /**
  * What an application hands `I18nProvider` to render the library's labels in its own words.
- * Answers the application's text for `key`, or `defaultValue` when it has none.
+ * Answers the application's text for `key`, or `defaultValue` when it has none — never an empty
+ * string and never the key, since most of these labels are `aria-label`s.
  */
 export type Translate = (key: string, options: TranslateOptions) => string;

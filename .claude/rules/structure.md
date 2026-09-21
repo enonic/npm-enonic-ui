@@ -68,17 +68,17 @@ lives in a fragment beside the component and reaches the JSX through `usePhrases
 ```typescript
 // src/components/dialog/dialog.phrases.ts
 export const dialogPhrases = {
-  'ui.dialog.close': 'Close',
+  'enonic.ui.dialog.close': 'Close',
 } as const;
 
 // src/components/dialog/dialog.tsx
 const t = usePhrases(dialogPhrases);
-<IconButton aria-label={t('ui.dialog.close')} />
+<IconButton aria-label={t('enonic.ui.dialog.close')} />
 ```
 
-- Keys are `ui.<component>.<name>`, the component in camelCase
+- Keys are `enonic.ui.<component>.<name>`, the component in camelCase
 - Register the fragment in `src/i18n/phrases.ts`; `mergePhrases` throws on a key declared twice
-- A text the consumer supplies through a prop wins: `placeholder ?? t('ui.searchField.placeholder')`
+- A text the consumer supplies through a prop wins: `placeholder ?? t('enonic.ui.searchField.placeholder')`
 - No plural forms: a phrase that varies with a count is two keys, `.single` and `.multiple`
 
 ## Import Patterns

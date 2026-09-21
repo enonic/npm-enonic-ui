@@ -1,9 +1,9 @@
 /** Shared with `VirtualizedTreeList`, which renders the same controls with the same words. */
 export const treeListPhrases = {
-  'ui.treeList.expand': 'Expand',
-  'ui.treeList.collapse': 'Collapse',
-  'ui.treeList.selected': 'Selected',
-  'ui.treeList.selectRow': 'Select row',
-  'ui.treeList.deselectRow': 'Deselect row',
-  'ui.treeList.placeholder': 'Placeholder',
+  'enonic.ui.treeList.expand': 'Expand',
+  'enonic.ui.treeList.collapse': 'Collapse',
+  'enonic.ui.treeList.selected': 'Selected',
+  'enonic.ui.treeList.selectRow': 'Select row',
+  'enonic.ui.treeList.deselectRow': 'Deselect row',
+  'enonic.ui.treeList.placeholder': 'Placeholder',
 } as const;

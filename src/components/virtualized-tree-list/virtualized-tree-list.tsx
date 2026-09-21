@@ -1088,7 +1088,7 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
         ref={ref}
         icon={icon}
         variant='text'
-        title={expanded ? t('ui.treeList.collapse') : t('ui.treeList.expand')}
+        title={expanded ? t('enonic.ui.treeList.collapse') : t('enonic.ui.treeList.expand')}
         tabIndex={-1}
         className={cn(
           'active:text-main size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent',
@@ -1180,7 +1180,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
         ref={ref}
         role='radio'
         aria-checked={isSelected}
-        aria-label={isSelected ? t('ui.treeList.selected') : t('ui.treeList.selectRow')}
+        aria-label={isSelected ? t('enonic.ui.treeList.selected') : t('enonic.ui.treeList.selectRow')}
         tabIndex={-1}
         className={cn('flex size-4 cursor-pointer items-center', className)}
         onKeyDown={handleKeyDown}
@@ -1202,7 +1202,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
       ref={ref}
       role='checkbox'
       aria-checked={isSelected}
-      aria-label={isSelected ? t('ui.treeList.deselectRow') : t('ui.treeList.selectRow')}
+      aria-label={isSelected ? t('enonic.ui.treeList.deselectRow') : t('enonic.ui.treeList.selectRow')}
       tabIndex={-1}
       className={cn(
         'flex size-4 cursor-pointer items-center',

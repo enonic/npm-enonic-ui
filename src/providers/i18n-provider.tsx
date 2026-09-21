@@ -14,8 +14,9 @@ const I18nContext = createContext<Translate>(passthrough);
 
 export type I18nProviderProps = {
   /**
-   * Answers the application's text for a key, or the `defaultValue` it is handed. Keep its identity
-   * stable — hoist it out of the render — since every label re-renders when it changes.
+   * Answers the application's text for a key, or the `defaultValue` it is handed. Its identity is
+   * the only signal that re-renders the labels: a module constant suits a bundle fixed at load,
+   * while anything that changes with a locale or arrives later belongs in a `useMemo` keyed on it.
    */
   translate: Translate;
   children?: ReactNode;
@@ -43,7 +44,8 @@ export const usePhrases = <K extends string>(
   return useMemo(
     () =>
       (key: K, ...values: PhraseValue[]): string =>
-        translate(key, { defaultValue: formatPhrase(phrases[key], values), values }),
+        // `?? key` is reachable only where `K` widened to `string` and lost the compile-time check.
+        translate(key, { defaultValue: formatPhrase(phrases[key] ?? key, values), values }),
     [translate, phrases],
   );
 };

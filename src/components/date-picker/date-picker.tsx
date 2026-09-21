@@ -443,7 +443,7 @@ const DatePickerGrid = ({
     <div
       data-component='DatePicker.Grid'
       role='grid'
-      aria-label={t('ui.datePicker.grid')}
+      aria-label={t('enonic.ui.datePicker.grid')}
       tabIndex={tabIndex ?? 0}
       aria-activedescendant={activeId}
       aria-colcount={DAYS_IN_WEEK}
@@ -630,7 +630,7 @@ const DatePickerMonthSelect = forwardRef<HTMLButtonElement, DatePickerMonthSelec
             'border-bdr-subtle bg-btn-primary hover:bg-btn-primary-hover h-10 gap-1 px-3 text-sm font-normal',
             className,
           )}
-          aria-label={t('ui.datePicker.month')}
+          aria-label={t('enonic.ui.datePicker.month')}
           tabIndex={tabIndex}
           data-registry-id={monthSelectId}
           onFocus={handleFocus}
@@ -774,7 +774,7 @@ const DatePickerYearSelect = forwardRef<HTMLButtonElement, DatePickerYearSelectP
             'border-bdr-subtle bg-btn-primary hover:bg-btn-primary-hover h-10 gap-1 px-3 text-sm font-normal',
             className,
           )}
-          aria-label={t('ui.datePicker.year')}
+          aria-label={t('enonic.ui.datePicker.year')}
           tabIndex={tabIndex}
           data-registry-id={yearSelectId}
           onFocus={handleFocus}
@@ -946,7 +946,7 @@ const DatePickerHeader = ({
           icon={ChevronLeft}
           variant='text'
           size='md'
-          title={t('ui.datePicker.previousMonth')}
+          title={t('enonic.ui.datePicker.previousMonth')}
           onClick={handlePrev}
           onFocus={handlePrevFocus}
           onPointerDown={handlePrevPointerDown}
@@ -965,7 +965,7 @@ const DatePickerHeader = ({
           icon={ChevronRight}
           variant='text'
           size='md'
-          title={t('ui.datePicker.nextMonth')}
+          title={t('enonic.ui.datePicker.nextMonth')}
           onClick={handleNext}
           onFocus={handleNextFocus}
           onPointerDown={handleNextPointerDown}
@@ -1109,7 +1109,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
         ref={composedRefs}
         id={contentId}
         role='dialog'
-        aria-label={t('ui.datePicker.dialog')}
+        aria-label={t('enonic.ui.datePicker.dialog')}
         aria-labelledby={labelledBy}
         data-state={open ? 'open' : 'closed'}
         data-side={position?.side ?? side}
@@ -1177,7 +1177,7 @@ const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
           icon={CalendarIcon}
           variant='text'
           size='md'
-          title={title ?? t('ui.datePicker.open')}
+          title={title ?? t('enonic.ui.datePicker.open')}
           id={triggerId}
           aria-haspopup='dialog'
           aria-expanded={open}
@@ -1284,7 +1284,7 @@ const DatePickerNativeInput = forwardRef<HTMLInputElement, DatePickerNativeInput
           'focus-visible:ring-offset-ring-offset focus-visible:ring-offset-3',
           className,
         )}
-        aria-label={props['aria-label'] ?? t('ui.datePicker.select')}
+        aria-label={props['aria-label'] ?? t('enonic.ui.datePicker.select')}
         aria-required={ariaRequired}
         value={formatInputDate(value)}
         min={min}

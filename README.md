@@ -164,21 +164,33 @@ Optional peers, needed per feature:
 
 Every label a component renders on its own — the close button of a `Dialog`, the placeholder of a
 `SearchField`, the month navigation of a `DatePicker` — is English by default and keyed
-`ui.<component>.<name>`. To render them in the application's words, hand `I18nProvider` one
+`enonic.ui.<component>.<name>`. To render them in the application's words, hand `I18nProvider` one
 function at the root. It receives the key and the library's English for it, and answers the
 application's text or the English it was given:
 
 ```tsx
 import { I18nProvider, type Translate } from '@enonic/ui';
 
-const translate: Translate = (key, { defaultValue }) => phrases[key] ?? defaultValue;
+const translate: Translate = (key, { defaultValue, values = [] }) => {
+  const phrase = phrases[key];
+  if (phrase === undefined) return defaultValue;
+
+  return phrase.replace(/\{(\d+)\}/g, (placeholder, i) => String(values[Number(i)] ?? placeholder));
+};
 
 <I18nProvider translate={translate}>
   <App />
 </I18nProvider>;
 ```
 
-Keep `translate` hoisted out of the render: every label re-renders when its identity changes.
+A phrase the application supplies still carries the library's `{0}` placeholders, so fill them with
+`values` — returning `phrases[key]` unformatted renders `Go to step {0}` verbatim. On a miss, return
+`defaultValue`: never an empty string and never the key, or the `aria-label`s go blank.
+
+`translate`'s identity is the only thing that re-renders the labels. Hoisting it out of the render is
+right for a phrase bundle fixed at load; where the locale switches or the bundle arrives later, put
+it in a `useMemo` keyed on that instead, or the labels keep their first wording.
+
 `uiPhrases` lists every key with its English, for the application to add to its own phrase files
 and check its bundle against. Texts the application supplies through props — a dialog title, an
 item name — never pass through the provider.

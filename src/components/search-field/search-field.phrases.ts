@@ -1,5 +1,5 @@
 export const searchFieldPhrases = {
-  'ui.searchField.placeholder': 'Search',
-  'ui.searchField.label': 'Search',
-  'ui.searchField.clear': 'Clear',
+  'enonic.ui.searchField.placeholder': 'Search',
+  'enonic.ui.searchField.label': 'Search',
+  'enonic.ui.searchField.clear': 'Clear',
 } as const;

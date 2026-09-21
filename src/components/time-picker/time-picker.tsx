@@ -216,7 +216,7 @@ const TimePickerHourSelect = forwardRef<HTMLButtonElement, TimePickerHourSelectP
           data-component='TimePicker.HourSelect'
           ref={composedRefs}
           className={cn('bg-btn-primary h-10 gap-1 px-3 text-sm font-normal', className)}
-          aria-label={t('ui.timePicker.hour')}
+          aria-label={t('enonic.ui.timePicker.hour')}
           tabIndex={tabIndex}
           data-registry-id={hourSelectId}
           onFocus={handleFocus}
@@ -341,7 +341,7 @@ const TimePickerMinuteSelect = forwardRef<HTMLButtonElement, TimePickerMinuteSel
           data-component='TimePicker.MinuteSelect'
           ref={composedRefs}
           className={cn('bg-btn-primary h-10 gap-1 px-3 text-sm font-normal', className)}
-          aria-label={t('ui.timePicker.minute')}
+          aria-label={t('enonic.ui.timePicker.minute')}
           tabIndex={tabIndex}
           data-registry-id={minuteSelectId}
           onFocus={handleFocus}
@@ -462,7 +462,7 @@ const TimePickerNativeInput = forwardRef<HTMLInputElement, TimePickerNativeInput
           ariaInvalid && 'border-error focus-visible:border-error focus-visible:ring-error',
           className,
         )}
-        aria-label={props['aria-label'] ?? t('ui.timePicker.select')}
+        aria-label={props['aria-label'] ?? t('enonic.ui.timePicker.select')}
         aria-required={ariaRequired}
         aria-invalid={ariaInvalid || undefined}
         value={formatNativeInputTime(value, timezone, referenceDate)}
@@ -518,7 +518,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
           icon={Clock}
           variant='text'
           size='md'
-          title={title ?? t('ui.timePicker.open')}
+          title={title ?? t('enonic.ui.timePicker.open')}
           id={triggerId}
           aria-haspopup='dialog'
           aria-expanded={open}

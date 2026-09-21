@@ -25,13 +25,23 @@ type Story = StoryObj<typeof I18nProvider>;
 
 // What an application's phrase bundle holds for the library's keys. Missing ones stay English.
 const norwegian: Record<string, string> = {
-  'ui.searchField.placeholder': 'Søk',
-  'ui.searchField.label': 'Søk',
-  'ui.searchField.clear': 'Tøm',
-  'ui.dialog.close': 'Lukk',
+  'enonic.ui.searchField.placeholder': 'Søk',
+  'enonic.ui.searchField.label': 'Søk',
+  'enonic.ui.searchField.clear': 'Tøm',
+  'enonic.ui.dialog.close': 'Lukk',
 };
 
-const translate: Translate = (key, { defaultValue }) => norwegian[key] ?? defaultValue;
+const translate: Translate = (key, { defaultValue, values = [] }) => {
+  const phrase = norwegian[key];
+  if (phrase === undefined) {
+    return defaultValue;
+  }
+
+  return phrase.replace(/\{(\d+)\}/g, (placeholder, index: string) => {
+    const value = values[Number(index)];
+    return value === undefined ? placeholder : String(value);
+  });
+};
 
 const Demo = () => {
   const [open, setOpen] = useState(false);

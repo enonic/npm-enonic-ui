@@ -67,8 +67,8 @@ const SearchFieldRoot = ({
       setValue: setInputValue,
       disabled,
       readOnly,
-      placeholder: placeholder ?? t('ui.searchField.placeholder'),
-      clearLabel: clearLabel ?? t('ui.searchField.clear'),
+      placeholder: placeholder ?? t('enonic.ui.searchField.placeholder'),
+      clearLabel: clearLabel ?? t('enonic.ui.searchField.clear'),
       inputRef,
     }),
     [inputId, inputValue, setInputValue, disabled, readOnly, placeholder, clearLabel, t],
@@ -159,7 +159,7 @@ const SearchFieldInput = forwardRef<HTMLInputElement, SearchFieldInputProps>(
         readOnly={readOnly}
         disabled={disabled}
         placeholder={placeholder}
-        aria-label={t('ui.searchField.label')}
+        aria-label={t('enonic.ui.searchField.label')}
         aria-disabled={disabled}
         {...props}
       />

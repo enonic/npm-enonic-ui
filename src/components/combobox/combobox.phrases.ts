@@ -1,3 +1,3 @@
 export const comboboxPhrases = {
-  'ui.combobox.toggle': 'Toggle',
+  'enonic.ui.combobox.toggle': 'Toggle',
 } as const;

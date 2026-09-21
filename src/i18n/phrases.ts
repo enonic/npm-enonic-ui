@@ -9,7 +9,7 @@ import { treeListPhrases } from '@/components/tree-list/tree-list.phrases';
 import { mergePhrases } from '@/utils/phrase';
 
 /**
- * Every label the library renders, keyed `ui.<component>.<name>`: the list of what an application
+ * Every label the library renders, keyed `enonic.ui.<component>.<name>`: the list of what an application
  * can translate, and what it asserts its own phrase bundle against. The components resolve through
  * their own fragments, not through this.
  */

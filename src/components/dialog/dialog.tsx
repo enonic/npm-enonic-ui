@@ -576,24 +576,27 @@ DialogFooter.displayName = 'Dialog.Footer';
 
 type DialogDefaultCloseProps = Partial<ComponentPropsWithoutRef<typeof IconButton>>;
 
-const DialogDefaultClose = forwardRef<HTMLButtonElement, DialogDefaultCloseProps>((props, ref): ReactElement => {
-  const t = usePhrases(dialogPhrases);
+const DialogDefaultClose = forwardRef<HTMLButtonElement, DialogDefaultCloseProps>(
+  ({ 'aria-label': ariaLabel, ...props }, ref): ReactElement => {
+    const t = usePhrases(dialogPhrases);
 
-  return (
-    <DialogClose data-component='Dialog.DefaultClose' asChild ref={ref} {...props}>
-      <IconButton
-        aria-label={t('ui.dialog.close')}
-        data-area='close'
-        icon={X}
-        size='lg'
-        iconSize={36}
-        iconStrokeWidth={1}
-        shape='round'
-        variant='filled'
-      />
-    </DialogClose>
-  );
-});
+    // The Slot `asChild` introduces lets the child win, so the consumer's label cannot ride the spread.
+    return (
+      <DialogClose data-component='Dialog.DefaultClose' asChild ref={ref} {...props}>
+        <IconButton
+          aria-label={ariaLabel ?? t('enonic.ui.dialog.close')}
+          data-area='close'
+          icon={X}
+          size='lg'
+          iconSize={36}
+          iconStrokeWidth={1}
+          shape='round'
+          variant='filled'
+        />
+      </DialogClose>
+    );
+  },
+);
 DialogDefaultClose.displayName = 'Dialog.DefaultClose';
 
 //
