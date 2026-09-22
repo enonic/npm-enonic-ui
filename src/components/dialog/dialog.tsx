@@ -19,7 +19,7 @@ import { createPortal } from 'react-dom';
 
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
-import { PortalProvider, usePortalContainer, usePrefixedId, useStepper } from '@/providers';
+import { PortalProvider, usePhrases, usePortalContainer, usePrefixedId, useStepper } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { FocusContainerContext } from '@/providers/focus-container-provider';
 import { cn, useComposedRefs } from '@/utils';
@@ -27,6 +27,7 @@ import { getActiveElement } from '@/utils/dom';
 
 import { Button } from '../button';
 import { Stepper, type StepperDotsProps } from '../stepper';
+import { dialogPhrases } from './dialog.phrases';
 
 //
 // * DialogFocusContext
@@ -575,22 +576,27 @@ DialogFooter.displayName = 'Dialog.Footer';
 
 type DialogDefaultCloseProps = Partial<ComponentPropsWithoutRef<typeof IconButton>>;
 
-const DialogDefaultClose = forwardRef<HTMLButtonElement, DialogDefaultCloseProps>((props, ref): ReactElement => {
-  return (
-    <DialogClose data-component='Dialog.DefaultClose' asChild ref={ref} {...props}>
-      <IconButton
-        aria-label='Close'
-        data-area='close'
-        icon={X}
-        size='lg'
-        iconSize={36}
-        iconStrokeWidth={1}
-        shape='round'
-        variant='filled'
-      />
-    </DialogClose>
-  );
-});
+const DialogDefaultClose = forwardRef<HTMLButtonElement, DialogDefaultCloseProps>(
+  ({ 'aria-label': ariaLabel, ...props }, ref): ReactElement => {
+    const t = usePhrases(dialogPhrases);
+
+    // The Slot `asChild` introduces lets the child win, so the consumer's label cannot ride the spread.
+    return (
+      <DialogClose data-component='Dialog.DefaultClose' asChild ref={ref} {...props}>
+        <IconButton
+          aria-label={ariaLabel ?? t('enonic.ui.dialog.close')}
+          data-area='close'
+          icon={X}
+          size='lg'
+          iconSize={36}
+          iconStrokeWidth={1}
+          shape='round'
+          variant='filled'
+        />
+      </DialogClose>
+    );
+  },
+);
 DialogDefaultClose.displayName = 'Dialog.DefaultClose';
 
 //

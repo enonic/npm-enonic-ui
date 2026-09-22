@@ -22,7 +22,7 @@ import {
   useRovingTabIndex,
 } from '@/hooks';
 import { CircleDisc, FilledSquareCheck } from '@/icons';
-import { usePrefixedId } from '@/providers';
+import { usePhrases, usePrefixedId } from '@/providers';
 import {
   type RowClickSelection,
   type SelectionMode,
@@ -33,6 +33,8 @@ import { cn, setRef } from '@/utils';
 import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
 
 import type { ItemInteraction, LucideIcon } from '@/types';
+
+import { treeListPhrases } from './tree-list.phrases';
 
 const calcSpacerWidth = (level: number, indent: number): number => indent * (level - 1) - 10;
 
@@ -1180,6 +1182,7 @@ export const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRo
   ): ReactElement => {
     // Access context to set active when expand control is clicked
     const context = useTreeList();
+    const t = usePhrases(treeListPhrases);
 
     if (!hasChildren) {
       return <span className='size-5 shrink-0' />;
@@ -1201,7 +1204,7 @@ export const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRo
         ref={ref}
         icon={icon}
         variant='text'
-        title={expanded ? 'Collapse' : 'Expand'}
+        title={expanded ? t('enonic.ui.treeList.collapse') : t('enonic.ui.treeList.expand')}
         tabIndex={-1}
         className={cn(
           'active:text-main size-5 bg-transparent transition-transform duration-150 hover:bg-transparent active:bg-transparent',
@@ -1239,6 +1242,7 @@ export type TreeListRowSelectionControlProps = {
 export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRowSelectionControlProps>(
   ({ rowId, selected, selectable = true, variant, className, ...props }, ref): ReactElement | null => {
     const { selection, toggleSelection, setActive, baseId, setAnchorId, selectionMode } = useTreeList();
+    const t = usePhrases(treeListPhrases);
 
     // Use prop if provided, otherwise read from context
     const isSelected = selected ?? selection.has(rowId);
@@ -1284,7 +1288,7 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
           ref={ref}
           role='radio'
           aria-checked={isSelected}
-          aria-label={isSelected ? 'Selected' : 'Select row'}
+          aria-label={isSelected ? t('enonic.ui.treeList.selected') : t('enonic.ui.treeList.selectRow')}
           tabIndex={-1}
           className={cn('flex size-4 cursor-pointer items-center', className)}
           onKeyDown={handleKeyDown}
@@ -1306,7 +1310,7 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
         ref={ref}
         role='checkbox'
         aria-checked={isSelected}
-        aria-label={isSelected ? 'Deselect row' : 'Select row'}
+        aria-label={isSelected ? t('enonic.ui.treeList.deselectRow') : t('enonic.ui.treeList.selectRow')}
         tabIndex={-1}
         className={cn('flex size-4 cursor-pointer items-center', className)}
         onKeyDown={handleKeyDown}
@@ -1365,17 +1369,21 @@ export type TreeListRowPlaceholderProps = {
 } & ComponentPropsWithoutRef<'div'>;
 
 export const TreeListRowPlaceholder = forwardRef<HTMLDivElement, TreeListRowPlaceholderProps>(
-  ({ level = 1, levelIndent, className, children, ...props }, ref): ReactElement => (
-    <div
-      data-component='TreeList.RowPlaceholder'
-      ref={ref}
-      className={cn('flex cursor-default items-center gap-2.5 px-2.5 py-1 opacity-50', className)}
-      {...props}
-    >
-      <TreeListRowLevelSpacer level={level} levelIndent={levelIndent} />
-      {children ?? <span className='text-subtle text-sm italic'>Placeholder</span>}
-    </div>
-  ),
+  ({ level = 1, levelIndent, className, children, ...props }, ref): ReactElement => {
+    const t = usePhrases(treeListPhrases);
+
+    return (
+      <div
+        data-component='TreeList.RowPlaceholder'
+        ref={ref}
+        className={cn('flex cursor-default items-center gap-2.5 px-2.5 py-1 opacity-50', className)}
+        {...props}
+      >
+        <TreeListRowLevelSpacer level={level} levelIndent={levelIndent} />
+        {children ?? <span className='text-subtle text-sm italic'>{t('enonic.ui.treeList.placeholder')}</span>}
+      </div>
+    );
+  },
 );
 
 TreeListRowPlaceholder.displayName = 'TreeList.RowPlaceholder';

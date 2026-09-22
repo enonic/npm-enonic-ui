@@ -36,6 +36,7 @@ import {
   type ContentType,
   useCombobox,
   PortalProvider,
+  usePhrases,
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
@@ -43,6 +44,8 @@ import { cn } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
 import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
 import { useComposedRefs } from '@/utils/ref';
+
+import { comboboxPhrases } from './combobox.phrases';
 
 // Shared empty array to maintain referential equality across renders
 const EMPTY_SELECTION: readonly string[] = [];
@@ -747,6 +750,7 @@ export type ComboboxToggleProps = {
 const ComboboxToggle = ({ className, onClick, onPointerDown, ...props }: ComboboxToggleProps): ReactElement => {
   const { open, setOpen, disabled } = useCombobox();
   const pointerTypeRef = useRef<string | undefined>(undefined);
+  const t = usePhrases(comboboxPhrases);
 
   return (
     <IconButton
@@ -756,7 +760,7 @@ const ComboboxToggle = ({ className, onClick, onPointerDown, ...props }: Combobo
       size='sm'
       iconSize='lg'
       icon={ChevronDown}
-      aria-label='Toggle'
+      aria-label={t('enonic.ui.combobox.toggle')}
       onPointerDown={event => {
         pointerTypeRef.current = event.pointerType;
         onPointerDown?.(event);

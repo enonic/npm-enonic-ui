@@ -56,8 +56,30 @@ export const useMenu = (): MenuContextValue => {
 };
 ```
 
-- Default context value is `undefined`, never `null`
+- Default context value is `undefined`, never `null`. The one exception is `I18nContext`, which
+  defaults to `passthrough` so a component renders English outside any provider rather than throw
 - Add new providers to `src/providers/index.ts`
+
+## Labels
+
+Every string a component renders on its own — an `aria-label`, a `title`, a placeholder default —
+lives in a fragment beside the component and reaches the JSX through `usePhrases`:
+
+```typescript
+// src/components/dialog/dialog.phrases.ts
+export const dialogPhrases = {
+  'enonic.ui.dialog.close': 'Close',
+} as const;
+
+// src/components/dialog/dialog.tsx
+const t = usePhrases(dialogPhrases);
+<IconButton aria-label={t('enonic.ui.dialog.close')} />
+```
+
+- Keys are `enonic.ui.<component>.<name>`, the component in camelCase
+- Register the fragment in `src/i18n/phrases.ts`; `mergePhrases` throws on a key declared twice
+- A text the consumer supplies through a prop wins: `placeholder ?? t('enonic.ui.searchField.placeholder')`
+- No plural forms: a phrase that varies with a count is two keys, `.single` and `.multiple`
 
 ## Import Patterns
 

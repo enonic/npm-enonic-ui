@@ -30,9 +30,11 @@ import {
   useKeyboardNavigation,
   useRovingTabIndex,
 } from '@/hooks';
-import { type TimePickerContextValue, TimePickerProvider, usePrefixedId, useTimePicker } from '@/providers';
+import { type TimePickerContextValue, TimePickerProvider, usePhrases, usePrefixedId, useTimePicker } from '@/providers';
 import { cn, getIsMobile, subscribeToMobileChanges, useComposedRefs } from '@/utils';
 import { getRoot } from '@/utils/dom';
+
+import { timePickerPhrases } from './time-picker.phrases';
 
 const padZero = (num: number): string => String(num).padStart(2, '0');
 
@@ -144,6 +146,7 @@ const TimePickerHourSelect = forwardRef<HTMLButtonElement, TimePickerHourSelectP
       hourTriggerRef,
       invalid,
     } = useTimePicker();
+    const t = usePhrases(timePickerPhrases);
     const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => i), []);
     const isDisabled = disabled as boolean | undefined;
     const isActive = selectorActive === hourSelectId;
@@ -213,7 +216,7 @@ const TimePickerHourSelect = forwardRef<HTMLButtonElement, TimePickerHourSelectP
           data-component='TimePicker.HourSelect'
           ref={composedRefs}
           className={cn('bg-btn-primary h-10 gap-1 px-3 text-sm font-normal', className)}
-          aria-label='Hour'
+          aria-label={t('enonic.ui.timePicker.hour')}
           tabIndex={tabIndex}
           data-registry-id={hourSelectId}
           onFocus={handleFocus}
@@ -268,6 +271,7 @@ const TimePickerMinuteSelect = forwardRef<HTMLButtonElement, TimePickerMinuteSel
       minuteTriggerRef,
       invalid,
     } = useTimePicker();
+    const t = usePhrases(timePickerPhrases);
     const minutes = useMemo(() => Array.from({ length: 60 }, (_, i) => i), []);
     const isDisabled = disabled as boolean | undefined;
     const isActive = selectorActive === minuteSelectId;
@@ -337,7 +341,7 @@ const TimePickerMinuteSelect = forwardRef<HTMLButtonElement, TimePickerMinuteSel
           data-component='TimePicker.MinuteSelect'
           ref={composedRefs}
           className={cn('bg-btn-primary h-10 gap-1 px-3 text-sm font-normal', className)}
-          aria-label='Minute'
+          aria-label={t('enonic.ui.timePicker.minute')}
           tabIndex={tabIndex}
           data-registry-id={minuteSelectId}
           onFocus={handleFocus}
@@ -436,6 +440,7 @@ const TimePickerNativeInput = forwardRef<HTMLInputElement, TimePickerNativeInput
     ref,
   ): ReactElement => {
     const { value, setValue, timezone, referenceDate, invalid } = useTimePicker();
+    const t = usePhrases(timePickerPhrases);
     const ariaRequired = ariaRequiredProp ?? (required ? true : undefined);
     const ariaInvalid = ariaInvalidProp ?? invalid ?? undefined;
 
@@ -457,7 +462,7 @@ const TimePickerNativeInput = forwardRef<HTMLInputElement, TimePickerNativeInput
           ariaInvalid && 'border-error focus-visible:border-error focus-visible:ring-error',
           className,
         )}
-        aria-label={props['aria-label'] ?? 'Select time'}
+        aria-label={props['aria-label'] ?? t('enonic.ui.timePicker.select')}
         aria-required={ariaRequired}
         aria-invalid={ariaInvalid || undefined}
         value={formatNativeInputTime(value, timezone, referenceDate)}
@@ -484,6 +489,7 @@ export type TimePickerTriggerProps = {
 const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
   ({ asChild, className, children, onClick, onKeyDown, title, disabled, ...props }, ref): ReactElement => {
     const { baseId, open, setOpen, triggerRef, setShouldFocusSelectors, invalid } = useTimePicker();
+    const t = usePhrases(timePickerPhrases);
     const composedRefs = useComposedRefs(ref, triggerRef);
     const triggerId = `${baseId}-trigger`;
     const contentId = `${baseId}-content`;
@@ -512,7 +518,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
           icon={Clock}
           variant='text'
           size='md'
-          title={title ?? 'Open time picker'}
+          title={title ?? t('enonic.ui.timePicker.open')}
           id={triggerId}
           aria-haspopup='dialog'
           aria-expanded={open}
