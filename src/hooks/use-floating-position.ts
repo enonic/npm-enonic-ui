@@ -1,4 +1,4 @@
-import { type CSSProperties, type RefObject, useEffect, useState } from 'react';
+import { type CSSProperties, type RefObject, useLayoutEffect, useState } from 'react';
 
 import { isShadowRoot } from '@/utils/dom';
 
@@ -117,7 +117,7 @@ export function useFloatingPosition({
 }: UseFloatingPositionConfig): FloatingPosition | null {
   const [position, setPosition] = useState<FloatingPosition | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!enabled || !anchorRef?.current || !contentRef?.current) {
       return;
     }
