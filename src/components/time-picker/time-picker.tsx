@@ -729,6 +729,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
           'border-bdr-subtle bg-surface-neutral fixed flex w-fit items-center gap-1.5 rounded-sm border p-3 shadow-md',
           position?.maxHeight !== undefined && 'overflow-y-auto',
           'data-[side=bottom]:mt-2 data-[side=top]:-mt-2',
+          !position && 'pointer-events-none opacity-0',
           className,
         )}
         style={{
