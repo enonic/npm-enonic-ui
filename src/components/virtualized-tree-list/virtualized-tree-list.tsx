@@ -405,6 +405,15 @@ const VirtualizedTreeListRoot = forwardRef(
       [items, selection, selectionMode, setSelection, canSelect],
     );
 
+    const rangeSelectFromAnchor = useCallback(
+      (index: number): boolean => {
+        if (selectionMode !== 'multiple' || selectionAnchorRef.current === null) return false;
+        rangeSelect(selectionAnchorRef.current, index);
+        return true;
+      },
+      [rangeSelect, selectionMode],
+    );
+
     const getItemIndex = useCallback((id: string): number => items.findIndex(item => item.id === id), [items]);
 
     // Action mode state (F2 to focus interactive elements within a row)
@@ -855,6 +864,7 @@ const VirtualizedTreeListRoot = forwardRef(
         setActiveIndex,
         selection,
         toggleSelection,
+        rangeSelectFromAnchor,
         selectionMode,
         isFocused,
         keyboardActive,
@@ -874,6 +884,7 @@ const VirtualizedTreeListRoot = forwardRef(
         setActiveIndex,
         selection,
         toggleSelection,
+        rangeSelectFromAnchor,
         selectionMode,
         isFocused,
         keyboardActive,
@@ -1128,7 +1139,8 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
   HTMLDivElement,
   VirtualizedTreeListRowSelectionControlProps
 >(({ rowId, selected, selectable = true, variant, className, ...props }, ref): ReactElement | null => {
-  const { selection, toggleSelection, setActiveIndex, selectionMode, getItemIndex } = useVirtualizedTreeList();
+  const { selection, toggleSelection, rangeSelectFromAnchor, setActiveIndex, selectionMode, getItemIndex } =
+    useVirtualizedTreeList();
   const t = usePhrases(treeListPhrases);
 
   // Use prop if provided, otherwise read from context
@@ -1143,13 +1155,15 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
       const index = getItemIndex(rowId);
       if (index !== -1) {
         setActiveIndex(index);
-        toggleSelection(rowId, index);
+        if (!e.shiftKey || !rangeSelectFromAnchor(index)) {
+          toggleSelection(rowId, index);
+        }
       }
       // Focus tree container for keyboard navigation
       const tree = e.currentTarget.closest<HTMLElement>('[role="tree"]');
       tree?.focus();
     },
-    [rowId, setActiveIndex, toggleSelection, getItemIndex],
+    [rowId, setActiveIndex, toggleSelection, rangeSelectFromAnchor, getItemIndex],
   );
 
   const handleKeyDown = useCallback(

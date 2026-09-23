@@ -11,6 +11,7 @@ export type VirtualizedTreeListContextValue = {
   // Selection
   selection: ReadonlySet<string>;
   toggleSelection: (id: string, index: number) => void;
+  rangeSelectFromAnchor: (index: number) => boolean;
   selectionMode: 'single' | 'multiple' | 'none';
   // Focus
   isFocused: boolean;
