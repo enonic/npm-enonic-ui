@@ -287,7 +287,7 @@ const VirtualizedTreeListRoot = forwardRef(
     const [activeId, setActiveId] = useControlledStateWithNull(controlledActive, defaultActive, onActiveChange);
 
     // Track anchor for shift+click range selection
-    const selectionAnchorRef = useRef<number | null>(null);
+    const selectionAnchorRef = useRef<string | null>(null);
 
     const activeIndex = useMemo(() => {
       if (!activeId) return null;
@@ -381,7 +381,7 @@ const VirtualizedTreeListRoot = forwardRef(
 
         // Update anchor for range selection
         if (!isSelected) {
-          selectionAnchorRef.current = index;
+          selectionAnchorRef.current = id;
         }
 
         setSelection(newSelection);
@@ -405,16 +405,22 @@ const VirtualizedTreeListRoot = forwardRef(
       [items, selection, selectionMode, setSelection, canSelect],
     );
 
+    const getItemIndex = useCallback((id: string): number => items.findIndex(item => item.id === id), [items]);
+
+    const getAnchorIndex = useCallback((): number => {
+      const anchorId = selectionAnchorRef.current;
+      return anchorId === null ? -1 : getItemIndex(anchorId);
+    }, [getItemIndex]);
+
     const rangeSelectFromAnchor = useCallback(
       (index: number): boolean => {
-        if (selectionMode !== 'multiple' || selectionAnchorRef.current === null) return false;
-        rangeSelect(selectionAnchorRef.current, index);
+        const anchorIndex = getAnchorIndex();
+        if (selectionMode !== 'multiple' || anchorIndex === -1) return false;
+        rangeSelect(anchorIndex, index);
         return true;
       },
-      [rangeSelect, selectionMode],
+      [getAnchorIndex, rangeSelect, selectionMode],
     );
-
-    const getItemIndex = useCallback((id: string): number => items.findIndex(item => item.id === id), [items]);
 
     // Action mode state (F2 to focus interactive elements within a row)
     const [actionModeRowId, setActionModeRowId] = useState<string | undefined>(undefined);
@@ -489,11 +495,8 @@ const VirtualizedTreeListRoot = forwardRef(
       }
 
       // Reset anchor if it no longer exists
-      if (selectionAnchorRef.current !== null) {
-        const anchoredItem = items[selectionAnchorRef.current];
-        if (!anchoredItem || !currentIds.has(anchoredItem.id)) {
-          selectionAnchorRef.current = null;
-        }
+      if (selectionAnchorRef.current !== null && !currentIds.has(selectionAnchorRef.current)) {
+        selectionAnchorRef.current = null;
       }
       // oxlint-disable-next-line react/exhaustive-deps -- only run when items array identity changes
     }, [items, preserveFilteredSelection]);
@@ -639,9 +642,10 @@ const VirtualizedTreeListRoot = forwardRef(
           if (activeIndex === null) return;
 
           // Set anchor if not set
-          const anchor = selectionAnchorRef.current ?? activeIndex;
-          if (selectionAnchorRef.current === null) {
-            selectionAnchorRef.current = activeIndex;
+          let anchor = getAnchorIndex();
+          if (anchor === -1) {
+            anchor = activeIndex;
+            selectionAnchorRef.current = items[activeIndex]?.id ?? null;
           }
 
           // Move active
@@ -691,6 +695,7 @@ const VirtualizedTreeListRoot = forwardRef(
         setSelection,
         onActivate,
         toggleSelection,
+        getAnchorIndex,
         findNextEnabledIndex,
         setActiveIndex,
         selection,
@@ -741,15 +746,16 @@ const VirtualizedTreeListRoot = forwardRef(
         if (selectionMode === 'none') return;
 
         if (selectionMode === 'multiple') {
-          if (e.shiftKey && selectionAnchorRef.current !== null) {
+          const anchorIndex = e.shiftKey ? getAnchorIndex() : -1;
+          if (anchorIndex !== -1) {
             // Range selection
-            rangeSelect(selectionAnchorRef.current, index);
+            rangeSelect(anchorIndex, index);
           } else if (e.metaKey || e.ctrlKey) {
             // Toggle selection
             toggleSelection(id, index);
           } else {
             // Regular click in multiple mode
-            selectionAnchorRef.current = index;
+            selectionAnchorRef.current = id;
             if (rowClickSelection === 'toggle') {
               toggleSelection(id, index);
             } else if (rowClickSelection === 'clear') {
@@ -775,6 +781,7 @@ const VirtualizedTreeListRoot = forwardRef(
         setSelection,
         toggleSelection,
         rangeSelect,
+        getAnchorIndex,
         items,
         canNavigate,
         canSelect,

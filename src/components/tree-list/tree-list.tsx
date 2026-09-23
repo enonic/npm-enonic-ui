@@ -269,7 +269,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
     );
 
     const selectRange = useCallback(
-      (fromId: string, toId: string) => {
+      (fromId: string, toId: string, additive = false) => {
         if (selectionMode !== 'multiple') return;
 
         const items = getItems();
@@ -285,7 +285,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           .map(domId => fromDomId(domId))
           .filter(id => canSelectById(id));
 
-        setSelection(new Set(rangeIds));
+        setSelection(prev => new Set(additive ? [...prev, ...rangeIds] : rangeIds));
       },
       [selectionMode, getItems, canSelectById, setSelection, toDomId, fromDomId],
     );
@@ -1257,7 +1257,7 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
         const rowDomId = `${baseId}-item-${rowId}`;
         setActive(rowDomId);
         if (e.shiftKey && selectionMode === 'multiple' && anchorId !== undefined) {
-          selectRange(anchorId, rowId);
+          selectRange(anchorId, rowId, true);
           return;
         }
         toggleSelection(rowId);

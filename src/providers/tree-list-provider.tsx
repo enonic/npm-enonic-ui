@@ -12,7 +12,7 @@ export type TreeListContextValue = {
   selection: ReadonlySet<string>;
   toggleSelection: (id: string) => void;
   selectOnly: (id: string) => void;
-  selectRange: (fromId: string, toId: string) => void;
+  selectRange: (fromId: string, toId: string, additive?: boolean) => void;
   clearSelection: () => void;
   selectAll: () => void;
   selectionMode: SelectionMode;
