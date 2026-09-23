@@ -21,6 +21,7 @@ import { IconButton } from '@/components/icon-button';
 import { Selector } from '@/components/selector';
 import {
   type FloatingProps,
+  toFloatingStyle,
   useActiveItemFocus,
   useClickOutside,
   useControlledState,
@@ -732,12 +733,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
           !position && 'pointer-events-none opacity-0',
           className,
         )}
-        style={{
-          top: position ? `${position.top}px` : '0',
-          left: position?.left !== undefined ? `${position.left}px` : undefined,
-          right: position?.right !== undefined ? `${position.right}px` : undefined,
-          maxHeight: position?.maxHeight !== undefined ? `${position.maxHeight}px` : undefined,
-        }}
+        style={toFloatingStyle(position)}
         {...props}
       >
         {content}
