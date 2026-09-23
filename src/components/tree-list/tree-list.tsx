@@ -269,7 +269,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
     );
 
     const selectRange = useCallback(
-      (fromId: string, toId: string) => {
+      (fromId: string, toId: string, additive = false) => {
         if (selectionMode !== 'multiple') return;
 
         const items = getItems();
@@ -285,7 +285,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           .map(domId => fromDomId(domId))
           .filter(id => canSelectById(id));
 
-        setSelection(new Set(rangeIds));
+        setSelection(prev => new Set(additive ? [...prev, ...rangeIds] : rangeIds));
       },
       [selectionMode, getItems, canSelectById, setSelection, toDomId, fromDomId],
     );
@@ -1241,7 +1241,8 @@ export type TreeListRowSelectionControlProps = {
 
 export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRowSelectionControlProps>(
   ({ rowId, selected, selectable = true, variant, className, ...props }, ref): ReactElement | null => {
-    const { selection, toggleSelection, setActive, baseId, setAnchorId, selectionMode } = useTreeList();
+    const { selection, toggleSelection, selectRange, setActive, baseId, anchorId, setAnchorId, selectionMode } =
+      useTreeList();
     const t = usePhrases(treeListPhrases);
 
     // Use prop if provided, otherwise read from context
@@ -1255,10 +1256,14 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
         e.stopPropagation();
         const rowDomId = `${baseId}-item-${rowId}`;
         setActive(rowDomId);
+        if (e.shiftKey && selectionMode === 'multiple' && anchorId !== undefined) {
+          selectRange(anchorId, rowId, true);
+          return;
+        }
         toggleSelection(rowId);
         setAnchorId(rowId);
       },
-      [baseId, rowId, setActive, toggleSelection, setAnchorId],
+      [baseId, rowId, setActive, toggleSelection, selectRange, anchorId, setAnchorId, selectionMode],
     );
 
     const handleKeyDown = useCallback(
