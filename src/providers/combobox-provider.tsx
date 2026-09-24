@@ -6,6 +6,7 @@ export type ComboboxOpenOptions = {
   /** Whether this interaction should focus the input on open or restore it on close. */
   focusInput?: boolean;
 };
+export type ComboboxApplyOptions = Pick<ComboboxOpenOptions, 'restoreFocus'>;
 
 export type ComboboxContextValue = {
   baseId: string;
@@ -29,7 +30,7 @@ export type ComboboxContextValue = {
   stagedSelection: readonly string[];
   stagingEnabled: boolean;
   hasStagedChanges: boolean;
-  applyStagedSelection: () => void;
+  applyStagedSelection: (options?: ComboboxApplyOptions) => void;
   resetStagedSelection: () => void;
 
   active?: string | null;

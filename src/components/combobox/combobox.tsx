@@ -30,12 +30,13 @@ import {
   usePortalFocusContainer,
 } from '@/hooks';
 import {
+  type ComboboxApplyOptions,
   type ComboboxContextValue,
   type ComboboxOpenOptions,
   ComboboxProvider,
   type ContentType,
-  useCombobox,
   PortalProvider,
+  useCombobox,
   usePhrases,
   usePortalContainer,
   usePrefixedId,
@@ -337,18 +338,21 @@ const ComboboxRoot = ({
     [stagingEnabled, commitSelection],
   );
 
-  const applyStagedSelection = useCallback(() => {
-    if (!stagingEnabled) {
-      return;
-    }
-    ignoreFocusExitCloseRef.current = true;
-    restoreFocusOnCloseRef.current = true;
-    if (!areArraysEquals(stagedSelection, appliedSelection)) {
-      commitSelection(stagedSelection);
-    }
+  const applyStagedSelection = useCallback(
+    (options?: ComboboxApplyOptions) => {
+      if (!stagingEnabled) {
+        return;
+      }
+      ignoreFocusExitCloseRef.current = true;
+      restoreFocusOnCloseRef.current = options?.restoreFocus !== false;
+      if (!areArraysEquals(stagedSelection, appliedSelection)) {
+        commitSelection(stagedSelection);
+      }
 
-    setOpenInternal(false);
-  }, [stagingEnabled, stagedSelection, appliedSelection, commitSelection, setOpenInternal]);
+      setOpenInternal(false);
+    },
+    [stagingEnabled, stagedSelection, appliedSelection, commitSelection, setOpenInternal],
+  );
 
   // Focus tree container after popup opens (for tree mode)
   const focusTreeContainer = useCallback(() => {
@@ -865,9 +869,10 @@ export type ComboboxApplyProps = {
 } & ComponentPropsWithoutRef<typeof Button>;
 
 const ComboboxApply = forwardRef<HTMLButtonElement, ComboboxApplyProps>(
-  ({ className, label = 'Apply', ...props }, ref): ReactElement | null => {
+  ({ className, label = 'Apply', onClick, onPointerDown, ...props }, ref): ReactElement | null => {
     const { stagingEnabled, hasStagedChanges, applyStagedSelection, applyRef } = useCombobox();
     const composedRef = useComposedRefs(ref, applyRef);
+    const pointerTypeRef = useRef<string | undefined>(undefined);
 
     if (!stagingEnabled || !hasStagedChanges) {
       return null;
@@ -881,7 +886,20 @@ const ComboboxApply = forwardRef<HTMLButtonElement, ComboboxApplyProps>(
         type='button'
         label={label}
         variant='outline'
-        onClick={applyStagedSelection}
+        onPointerDown={event => {
+          pointerTypeRef.current = event.pointerType;
+          onPointerDown?.(event);
+        }}
+        onClick={event => {
+          onClick?.(event);
+
+          const isTouch = event.detail > 0 && pointerTypeRef.current === 'touch';
+          pointerTypeRef.current = undefined;
+
+          if (!event.defaultPrevented) {
+            applyStagedSelection({ restoreFocus: !isTouch });
+          }
+        }}
         {...props}
       />
     );

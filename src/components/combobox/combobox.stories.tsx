@@ -2,6 +2,7 @@ import { File, Folder, ListTree } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { forwardRef, type ReactElement, type RefObject, useRef } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
+import { expect, fireEvent, userEvent, waitFor } from 'storybook/test';
 
 import { Button } from '@/components/button';
 import { Combobox } from '@/components/combobox/combobox';
@@ -673,6 +674,50 @@ export const Staged: Story = {
         </Combobox.Root>
       </div>
     );
+  },
+};
+
+export const StagedApplyFocus: Story = {
+  ...Staged,
+  name: 'Behavior / Staged Apply Focus',
+  tags: ['interactions-smoke'],
+  play: async ({ canvasElement }) => {
+    const input = canvasElement.querySelector<HTMLInputElement>("[data-component='Combobox.Input']");
+    if (input == null) throw new Error('No combobox input');
+
+    const findOption = async (): Promise<HTMLElement> =>
+      await waitFor(() => {
+        const option = canvasElement.querySelector<HTMLElement>("[role='option']");
+        if (option == null) throw new Error('No combobox option');
+        return option;
+      });
+
+    const findApply = async (): Promise<HTMLButtonElement> =>
+      await waitFor(() => {
+        const apply = canvasElement.querySelector<HTMLButtonElement>("[data-component='Combobox.Apply']");
+        if (apply == null) throw new Error('No Apply button');
+        return apply;
+      });
+
+    await userEvent.type(input, 're');
+    await userEvent.click(await findOption());
+
+    const touchApply = await findApply();
+    await fireEvent.pointerDown(touchApply, { pointerType: 'touch' });
+    await fireEvent.click(touchApply, { detail: 1 });
+
+    await waitFor(() => expect(canvasElement.querySelector("[data-component='Combobox.Popup']")).toBeNull());
+    await expect(document.activeElement).not.toBe(input);
+
+    await userEvent.type(input, 'a');
+    await userEvent.click(await findOption());
+
+    const keyboardApply = await findApply();
+    keyboardApply.focus();
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => expect(canvasElement.querySelector("[data-component='Combobox.Popup']")).toBeNull());
+    await expect(document.activeElement).toBe(input);
   },
 };
 
