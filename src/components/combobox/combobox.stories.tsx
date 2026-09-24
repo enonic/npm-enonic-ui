@@ -707,6 +707,8 @@ export const StagedApplyFocus: Story = {
     await fireEvent.click(touchApply, { detail: 1 });
 
     await waitFor(() => expect(canvasElement.querySelector("[data-component='Combobox.Popup']")).toBeNull());
+    // Focus is restored in a passive effect after the popup unmounts.
+    await new Promise(resolve => setTimeout(resolve, 100));
     await expect(document.activeElement).not.toBe(input);
 
     await userEvent.type(input, 'a');
@@ -717,7 +719,7 @@ export const StagedApplyFocus: Story = {
     await userEvent.keyboard('{Enter}');
 
     await waitFor(() => expect(canvasElement.querySelector("[data-component='Combobox.Popup']")).toBeNull());
-    await expect(document.activeElement).toBe(input);
+    await waitFor(() => expect(document.activeElement).toBe(input));
   },
 };
 

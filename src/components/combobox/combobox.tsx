@@ -164,6 +164,27 @@ const useComboboxApplyTabBridge = (
   return { onKeyDownCapture };
 };
 
+const useTouchClick = (
+  onPointerDown?: (event: React.PointerEvent<HTMLButtonElement>) => void,
+): {
+  onPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => void;
+  isTouchClick: (event: React.MouseEvent<HTMLButtonElement>) => boolean;
+} => {
+  const pointerTypeRef = useRef<string | undefined>(undefined);
+
+  return {
+    onPointerDown: event => {
+      pointerTypeRef.current = event.pointerType;
+      onPointerDown?.(event);
+    },
+    isTouchClick: event => {
+      const isTouch = event.detail > 0 && pointerTypeRef.current === 'touch';
+      pointerTypeRef.current = undefined;
+      return isTouch;
+    },
+  };
+};
+
 //
 // * Root
 //
@@ -753,7 +774,7 @@ export type ComboboxToggleProps = {
 
 const ComboboxToggle = ({ className, onClick, onPointerDown, ...props }: ComboboxToggleProps): ReactElement => {
   const { open, setOpen, disabled } = useCombobox();
-  const pointerTypeRef = useRef<string | undefined>(undefined);
+  const { onPointerDown: handlePointerDown, isTouchClick } = useTouchClick(onPointerDown);
   const t = usePhrases(comboboxPhrases);
 
   return (
@@ -765,15 +786,11 @@ const ComboboxToggle = ({ className, onClick, onPointerDown, ...props }: Combobo
       iconSize='lg'
       icon={ChevronDown}
       aria-label={t('enonic.ui.combobox.toggle')}
-      onPointerDown={event => {
-        pointerTypeRef.current = event.pointerType;
-        onPointerDown?.(event);
-      }}
+      onPointerDown={handlePointerDown}
       onClick={event => {
         onClick?.(event);
 
-        const isTouch = event.detail > 0 && pointerTypeRef.current === 'touch';
-        pointerTypeRef.current = undefined;
+        const isTouch = isTouchClick(event);
 
         if (!event.defaultPrevented && !disabled) {
           setOpen(!open, { focusInput: !isTouch });
@@ -872,7 +889,7 @@ const ComboboxApply = forwardRef<HTMLButtonElement, ComboboxApplyProps>(
   ({ className, label = 'Apply', onClick, onPointerDown, ...props }, ref): ReactElement | null => {
     const { stagingEnabled, hasStagedChanges, applyStagedSelection, applyRef } = useCombobox();
     const composedRef = useComposedRefs(ref, applyRef);
-    const pointerTypeRef = useRef<string | undefined>(undefined);
+    const { onPointerDown: handlePointerDown, isTouchClick } = useTouchClick(onPointerDown);
 
     if (!stagingEnabled || !hasStagedChanges) {
       return null;
@@ -886,15 +903,11 @@ const ComboboxApply = forwardRef<HTMLButtonElement, ComboboxApplyProps>(
         type='button'
         label={label}
         variant='outline'
-        onPointerDown={event => {
-          pointerTypeRef.current = event.pointerType;
-          onPointerDown?.(event);
-        }}
+        onPointerDown={handlePointerDown}
         onClick={event => {
           onClick?.(event);
 
-          const isTouch = event.detail > 0 && pointerTypeRef.current === 'touch';
-          pointerTypeRef.current = undefined;
+          const isTouch = isTouchClick(event);
 
           if (!event.defaultPrevented) {
             applyStagedSelection({ restoreFocus: !isTouch });
