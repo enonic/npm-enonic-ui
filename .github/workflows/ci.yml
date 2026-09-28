@@ -83,3 +83,34 @@ jobs:
           pnpm exec http-server storybook-static --port 6006 --silent &
           pnpm exec wait-on tcp:127.0.0.1:6006
           pnpm test:storybook --url http://127.0.0.1:6006
+
+  react-doctor:
+    name: React Doctor
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history lets `--scope changed` find the merge base; a shallow clone silently skips the gate.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          package_json_file: package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Scan changes
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+        run: pnpm check:react --scope changed --base "$BASE_REF"
