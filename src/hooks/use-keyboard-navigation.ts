@@ -63,6 +63,8 @@ export type UseKeyboardNavigationReturn = {
   handleKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 };
 
+const isAlwaysVisible = (): boolean => true;
+
 /**
  * Hook for keyboard navigation through a list of items.
  * Handles arrow keys, Home/End, Enter/Space, and Escape.
@@ -101,7 +103,7 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
   const {
     getItems,
     isItemDisabled,
-    isItemVisible = () => true,
+    isItemVisible = isAlwaysVisible,
     active,
     setActive,
     loop = false,

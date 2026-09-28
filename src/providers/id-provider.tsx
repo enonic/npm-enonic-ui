@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 
 import type { ReactElement, ReactNode } from 'react';
 
@@ -14,7 +14,8 @@ export type IdProviderProps = {
 };
 
 export const IdProvider = ({ children, prefix }: IdProviderProps): ReactElement => {
-  return <IdContext.Provider value={{ prefix }}>{children}</IdContext.Provider>;
+  const value = useMemo(() => ({ prefix }), [prefix]);
+  return <IdContext.Provider value={value}>{children}</IdContext.Provider>;
 };
 
 IdProvider.displayName = 'IdProvider';

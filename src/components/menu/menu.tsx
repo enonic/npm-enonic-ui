@@ -88,16 +88,16 @@ const MenuRoot = ({
     [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement, setOpen],
   );
 
-  const [hasOpened, setHasOpened] = useState(false);
+  const hasOpenedRef = useRef(false);
 
   useEffect(() => {
     if (open) {
-      setHasOpened(true);
-    } else if (hasOpened && triggerRef.current) {
+      hasOpenedRef.current = true;
+    } else if (hasOpenedRef.current && triggerRef.current) {
       // Return focus to trigger when menu closes (can't be in MenuContent - it unmounts)
       triggerRef.current.focus();
     }
-  }, [open, hasOpened]);
+  }, [open]);
 
   return <MenuProvider value={value}>{children}</MenuProvider>;
 };
