@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 
 import type { ReactElement, ReactNode } from 'react';
 
@@ -19,7 +19,8 @@ export type PortalProviderProps = {
  * portal to `document.body`, which lies outside any shadow root.
  */
 export const PortalProvider = ({ children, container }: PortalProviderProps): ReactElement => {
-  return <PortalContext.Provider value={{ container }}>{children}</PortalContext.Provider>;
+  const value = useMemo(() => ({ container }), [container]);
+  return <PortalContext.Provider value={value}>{children}</PortalContext.Provider>;
 };
 
 PortalProvider.displayName = 'PortalProvider';

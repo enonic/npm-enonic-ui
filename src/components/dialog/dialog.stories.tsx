@@ -83,15 +83,15 @@ export const LoadingDialog: Story = {
       setOpen(true);
       setProgress(0);
 
+      let current = 0;
       const interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setTimeout(() => setOpen(false), 500);
-            return 100;
-          }
-          return prev + 10;
-        });
+        if (current >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setOpen(false), 500);
+          return;
+        }
+        current += 10;
+        setProgress(current);
       }, 500);
     };
 

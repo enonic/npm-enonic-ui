@@ -60,6 +60,8 @@ type SkeletonContextValue = {
 
 const SkeletonContext = createContext<SkeletonContextValue | undefined>(undefined);
 
+const GROUP_CONTEXT_VALUE: SkeletonContextValue = { inGroup: true };
+
 const useSkeletonContext = (): SkeletonContextValue => {
   return useContext(SkeletonContext) ?? { inGroup: false };
 };
@@ -133,7 +135,7 @@ const SkeletonGroup = ({ className, children, ...props }: SkeletonGroupProps): R
   }, []);
 
   return (
-    <SkeletonContext.Provider value={{ inGroup: true }}>
+    <SkeletonContext.Provider value={GROUP_CONTEXT_VALUE}>
       {/* ! Overriding position to `static` detaches the shimmer overlay from the group's box. */}
       <div data-component='Skeleton.Group' ref={groupRef} className={cn('relative', className)} {...props}>
         {children}
