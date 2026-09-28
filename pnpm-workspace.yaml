@@ -23,3 +23,8 @@ ignoredBuiltDependencies:
   - unrs-resolver
 
 minimumReleaseAge: 4320
+
+trustPolicy: no-downgrade
+# 6.3.1 is the ReDoS backport to the 6.x line, published after 7.x gained provenance.
+trustPolicyExclude:
+  - semver@6.3.1
