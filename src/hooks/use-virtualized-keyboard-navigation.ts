@@ -80,6 +80,8 @@ export type UseVirtualizedKeyboardNavigationReturn = {
   handleKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 };
 
+const isNeverDisabled = (): boolean => false;
+
 /**
  * Hook for keyboard navigation through a virtualized tree list.
  * Works with array indices instead of DOM IDs since items may not be in DOM.
@@ -107,7 +109,7 @@ export function useVirtualizedKeyboardNavigation<TNode extends FlatNodeBase>(
     onSelect,
     onEscape,
     loop = false,
-    isItemDisabled = () => false,
+    isItemDisabled = isNeverDisabled,
     getPageSize,
   } = config;
 
