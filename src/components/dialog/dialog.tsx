@@ -6,6 +6,7 @@ import {
   createContext,
   forwardRef,
   type ReactElement,
+  type MutableRefObject,
   type ReactNode,
   useCallback,
   useContext,
@@ -40,7 +41,7 @@ type DialogFocusState = {
   restorePrevented: boolean;
 };
 
-const DialogFocusContext = createContext<DialogFocusState | null>(null);
+const DialogFocusContext = createContext<MutableRefObject<DialogFocusState> | null>(null);
 
 //
 // * Dialog
@@ -66,7 +67,7 @@ const DialogRoot = ({
   children,
 }: DialogRootProps): ReactElement => {
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
-  const focusState = useRef<DialogFocusState>({ previous: undefined, restorePrevented: false }).current;
+  const focusStateRef = useRef<DialogFocusState>({ previous: undefined, restorePrevented: false });
   const defaultTitleId = usePrefixedId();
   const defaultDescriptionId = usePrefixedId();
   const [titleId, setTitleId] = useState(defaultTitleId);
@@ -82,6 +83,7 @@ const DialogRoot = ({
     if (!open) {
       return;
     }
+    const focusState = focusStateRef.current;
     return () => {
       const { previous } = focusState;
       focusState.previous = undefined;
@@ -95,7 +97,7 @@ const DialogRoot = ({
         if (!restorePrevented) previous?.focus();
       });
     };
-  }, [open, focusState]);
+  }, [open, focusStateRef]);
 
   const body = isUsingStepper ? (
     <Stepper.Root asFragment value={step} defaultValue={defaultStep} onValueChange={onStepChange}>
@@ -107,7 +109,7 @@ const DialogRoot = ({
 
   return (
     <DialogProvider value={context}>
-      <DialogFocusContext.Provider value={focusState}>{body}</DialogFocusContext.Provider>
+      <DialogFocusContext.Provider value={focusStateRef}>{body}</DialogFocusContext.Provider>
     </DialogProvider>
   );
 };
@@ -245,7 +247,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     ref,
   ): ReactElement | null => {
     const { open, setOpen, titleId, descriptionId } = useDialog();
-    const focusState = useContext(DialogFocusContext);
+    const focusStateRef = useContext(DialogFocusContext);
     const contentRef = useRef<HTMLDivElement>(null);
     const [portalContainers, setPortalContainers] = useState<HTMLElement[]>([]);
 
@@ -306,12 +308,13 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       if (!open) {
         return;
       }
-      if (focusState != null) {
-        if (focusState.previous === undefined) {
+      const focusState = focusStateRef?.current;
+      if (focusStateRef != null) {
+        if (focusStateRef.current.previous === undefined) {
           const activeElement = getActiveElement();
-          focusState.previous = activeElement instanceof HTMLElement ? activeElement : null;
+          focusStateRef.current.previous = activeElement instanceof HTMLElement ? activeElement : null;
         }
-        focusState.restorePrevented = false;
+        focusStateRef.current.restorePrevented = false;
       }
 
       contentRef.current?.focus();
@@ -325,7 +328,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           focusState.restorePrevented = true;
         }
       };
-    }, [open, focusState]);
+    }, [open, focusStateRef]);
 
     // A non-modal dialog is a persistent panel — outside-interaction callbacks still fire,
     // but it never dismisses on outside click.

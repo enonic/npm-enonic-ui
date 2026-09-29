@@ -1,5 +1,5 @@
 import { ArrowRight, ExternalLink } from 'lucide-react';
-import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type ReactElement } from 'react';
 
 import { cn } from '@/utils';
 
@@ -38,13 +38,19 @@ export type LinkProps = {
   rightIcon?: LucideIcon | boolean;
 } & ComponentPropsWithoutRef<'a'>;
 
+const LinkIcon = ({ icon: Icon }: { icon: LucideIcon }): ReactElement => (
+  <Icon className='inline-block size-3.5 flex-none' strokeWidth={1.5} aria-hidden='true' />
+);
+
+LinkIcon.displayName = 'LinkIcon';
+
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
   ({ className, href, external = 'auto', newTab, leftIcon, rightIcon, children, rel, ...props }, ref) => {
     const ext = external === 'auto' ? isExternalHref(href) : external;
     const target = (newTab ?? ext) ? '_blank' : undefined;
 
-    const LeftIcon = resolveIcon(leftIcon, ArrowRight);
-    const RightIcon = resolveIcon(rightIcon, ExternalLink, ext);
+    const leftIconType = resolveIcon(leftIcon, ArrowRight);
+    const rightIconType = resolveIcon(rightIcon, ExternalLink, ext);
 
     return (
       <a
@@ -64,9 +70,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
         rel={newTab || ext ? 'noopener noreferrer' : 'noreferrer'}
         {...props}
       >
-        {LeftIcon && <LeftIcon className='inline-block size-3.5 flex-none' strokeWidth={1.5} aria-hidden='true' />}
+        {leftIconType && <LinkIcon icon={leftIconType} />}
         {children}
-        {RightIcon && <RightIcon className='inline-block size-3.5 flex-none' strokeWidth={1.5} aria-hidden='true' />}
+        {rightIconType && <LinkIcon icon={rightIconType} />}
       </a>
     );
   },
