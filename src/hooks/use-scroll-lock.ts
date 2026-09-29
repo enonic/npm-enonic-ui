@@ -13,6 +13,7 @@ export const useScrollLock = (lock: boolean, element?: HTMLElement | null): void
 
     const target = element ?? document.body;
     const originalOverflow = target.style.overflow;
+    // oxlint-disable-next-line react/immutability -- locking the caller's element is this hook's purpose
     target.style.overflow = 'hidden';
 
     return () => {

@@ -117,13 +117,11 @@ export default defineConfig({
       'react/no-unescaped-entities': 'error',
       'react/rules-of-hooks': 'error',
 
-      // Off: the React Compiler lints are dominated by the ref-sync-on-render idiom used to keep
+      // Off: these React Compiler lints are dominated by the ref-sync-on-render idiom used to keep
       // callbacks current without re-subscribing effects. Turning them on requires reworking those
       // hooks rather than suppressing per line — tracked in #538.
-      'react/immutability': 'off',
       'react/refs': 'off',
       'react/set-state-in-effect': 'off',
-      'react/static-components': 'off',
       'typescript/ban-ts-comment': ['error', { minimumDescriptionLength: 10 }],
       'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true, ignoreVoidOperator: true }],
       'typescript/no-mixed-enums': 'error',
