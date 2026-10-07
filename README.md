@@ -154,11 +154,10 @@ The `icon` prop accepts either package.
 
 Optional peers, needed per feature:
 
-| Package            | Needed for                                        |
-| ------------------ | ------------------------------------------------- |
-| `focus-trap-react` | Focus management in `Dialog` and other overlays   |
-| `react-virtuoso`   | `VirtualizedTreeList` and other virtualized lists |
-| `tw-animate-css`   | Component animations on the `preset.css` path     |
+| Package          | Needed for                                        |
+| ---------------- | ------------------------------------------------- |
+| `react-virtuoso` | `VirtualizedTreeList` and other virtualized lists |
+| `tw-animate-css` | Component animations on the `preset.css` path     |
 
 ## Localization
 
