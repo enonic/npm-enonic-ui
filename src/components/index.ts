@@ -22,6 +22,7 @@ export * from './separator';
 export * from './skeleton';
 export * from './stepper';
 export * from './tab';
+export * from './tag';
 export * from './textarea';
 export * from './time-picker';
 export * from './toast';
