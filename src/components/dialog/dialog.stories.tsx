@@ -424,6 +424,99 @@ export const NestedConfirmation: Story = {
 // * Features
 //
 
+export const KeyboardAccessibleDialog: Story = {
+  name: 'Features / Keyboard Accessible Dialog',
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [step, setStep] = useState('step1');
+    const [completed, setCompleted] = useState(false);
+
+    return (
+      <div className='space-y-3'>
+        <Button
+          variant='solid'
+          label='Open keyboard steps'
+          onClick={() => {
+            setStep('step1');
+            setCompleted(false);
+            setOpen(true);
+          }}
+        />
+        {completed && <p role='status'>All done!</p>}
+        <Dialog open={open} onOpenChange={setOpen} step={step} onStepChange={setStep}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content>
+              <Dialog.StepHeader step='step1' title='1. Start' withClose />
+              <Dialog.StepHeader step='step2' title='2. Keep going' withClose />
+              <Dialog.StepHeader step='step3' title='3. Finish' withClose />
+              <Dialog.Body className='space-y-4'>
+                <Dialog.StepContent step='step1'>First step</Dialog.StepContent>
+                <Dialog.StepContent step='step2'>Second step</Dialog.StepContent>
+                <Dialog.StepContent step='step3'>Last step</Dialog.StepContent>
+                <div className='text-subtle space-y-1 text-sm'>
+                  <p>Keyboard accessible! Use ⌘ on Mac or Ctrl on Windows/Linux.</p>
+                  <p>Previous: ⌘/Ctrl + Shift + Enter</p>
+                  <p>Next: ⌘/Ctrl + Enter</p>
+                  <p>Complete: ⌘/Ctrl + Enter</p>
+                </div>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.StepIndicator
+                  previousLabel='Previous'
+                  nextLabel='Next'
+                  lastStepLabel='Complete'
+                  keyboardShortcuts
+                  dots
+                  onLastStep={() => {
+                    setCompleted(true);
+                    setOpen(false);
+                  }}
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
+export const KeyboardActionCounter: Story = {
+  name: 'Features / Keyboard Action Counter',
+  render: () => {
+    const [primary, setPrimary] = useState(0);
+    const [secondary, setSecondary] = useState(0);
+
+    return (
+      <Dialog>
+        <Dialog.Trigger asChild>
+          <Button variant='solid' label='Open shortcut counter' />
+        </Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Overlay />
+          <Dialog.Content>
+            <Dialog.DefaultHeader title='Shortcut counter' description='Try the keys or click the buttons.' withClose />
+            <Dialog.Body className='space-y-2'>
+              <p>Primary: {primary}</p>
+              <p>Secondary: {secondary}</p>
+              <p className='text-subtle text-sm'>Use ⌘ on Mac or Ctrl on Windows/Linux. Add Shift for secondary.</p>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Dialog.Shortcut asChild shortcut='secondary'>
+                <Button variant='outline' label='Secondary' onClick={() => setSecondary(count => count + 1)} />
+              </Dialog.Shortcut>
+              <Dialog.Shortcut asChild>
+                <Button variant='solid' label='Primary' onClick={() => setPrimary(count => count + 1)} />
+              </Dialog.Shortcut>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+    );
+  },
+};
+
 export const CustomHeader: Story = {
   name: 'Features / Custom Header',
   render: () => {
