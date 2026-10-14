@@ -1,5 +1,6 @@
 export {
   Dialog,
+  type DialogShortcutProps,
   type DialogBodyProps,
   type DialogCloseProps,
   type DialogContentProps,
@@ -16,3 +17,5 @@ export {
   type DialogTitleProps,
   type DialogTriggerProps,
 } from './dialog';
+
+export { type DialogShortcutType, getDialogShortcutKeys } from './dialog-actions';

@@ -5,8 +5,8 @@ import {
   type ComponentPropsWithoutRef,
   createContext,
   forwardRef,
-  type ReactElement,
   type MutableRefObject,
+  type ReactElement,
   type ReactNode,
   useCallback,
   useContext,
@@ -28,6 +28,15 @@ import { getActiveElement } from '@/utils/dom';
 
 import { Button } from '../button';
 import { Stepper, type StepperDotsProps } from '../stepper';
+import {
+  activateDialogScope,
+  DialogActionContext,
+  type DialogActionRegistration,
+  type DialogActionScope,
+  type DialogShortcutType,
+  getDialogShortcutKeys,
+  registerDialogAction,
+} from './dialog-actions';
 import { dialogPhrases } from './dialog.phrases';
 
 //
@@ -249,6 +258,37 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     const { open, setOpen, titleId, descriptionId } = useDialog();
     const focusStateRef = useContext(DialogFocusContext);
     const contentRef = useRef<HTMLDivElement>(null);
+    const parentScope = useContext(DialogActionContext);
+    const escapeHandlerRef = useRef<(event: KeyboardEvent) => void>(() => undefined);
+    const portalContainersRef = useRef<HTMLElement[]>([]);
+    const modalRef = useRef(modal);
+    modalRef.current = modal;
+    const actionScope = useMemo<DialogActionScope>(() => {
+      const getActionBoundaries = (): Element[] => {
+        const content = contentRef.current;
+        return content == null ? portalContainersRef.current : [content, ...portalContainersRef.current];
+      };
+      return {
+        parent: parentScope,
+        actions: { primary: [], secondary: [] },
+        onEscape: event => escapeHandlerRef.current(event),
+        containsShortcutEvent: event => {
+          const content = contentRef.current;
+          const document = content?.ownerDocument;
+          // Hidden step panels can leave focus on body; only modal dialogs accept that fallback.
+          if (modalRef.current && document != null && (event.target === document || event.target === document.body)) {
+            return true;
+          }
+          const path = event.composedPath();
+          return getActionBoundaries().some(boundary => path.includes(boundary));
+        },
+        getActionBoundaries,
+        focusContent: () => {
+          const content = contentRef.current;
+          if (content?.isConnected) content.focus();
+        },
+      };
+    }, [parentScope]);
     const [portalContainers, setPortalContainers] = useState<HTMLElement[]>([]);
 
     const composedRef = useComposedRefs(ref, contentRef);
@@ -294,13 +334,16 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       [onEscapeKeyDown, setOpen],
     );
 
-    useEffect(() => {
-      if (!open) {
-        return;
-      }
-      document.addEventListener('keydown', handleEscapeKey);
-      return () => document.removeEventListener('keydown', handleEscapeKey);
-    }, [open, handleEscapeKey]);
+    useLayoutEffect(() => {
+      escapeHandlerRef.current = handleEscapeKey;
+      portalContainersRef.current = portalContainers;
+    }, [handleEscapeKey, portalContainers]);
+
+    useLayoutEffect(() => {
+      const document = contentRef.current?.ownerDocument;
+      if (!open || document == null) return;
+      return activateDialogScope(document, actionScope);
+    }, [open, actionScope, contentRef]);
 
     // ? Auto-focus lives here, not in the focus trap's lifecycle, so it keeps working when the
     // ? trap is inactive (modal={false}). The matching restore is owned by the root.
@@ -389,7 +432,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
               )}
               {...props}
             >
-              {children}
+              <DialogActionContext.Provider value={actionScope}>{children}</DialogActionContext.Provider>
             </div>
           </div>
         </FocusTrap>
@@ -463,6 +506,73 @@ const DialogClose = forwardRef<HTMLButtonElement, DialogCloseProps>(
   },
 );
 DialogClose.displayName = 'Dialog.Close';
+
+//
+// * Dialog.Shortcut
+//
+
+export type DialogShortcutProps = {
+  /** Register as primary (default) or secondary for this dialog. */
+  shortcut?: DialogShortcutType;
+  /** Compose with a child that forwards its ref to a native button. Defaults to false. */
+  asChild?: boolean;
+  /** Toggle shortcut registration without unmounting or disabling the button. Defaults to true. */
+  shortcutEnabled?: boolean;
+  /** Suppress shortcut activation while the action is pending. */
+  pending?: boolean;
+} & ComponentPropsWithoutRef<'button'>;
+
+const DialogShortcut = forwardRef<HTMLButtonElement, DialogShortcutProps>(
+  (
+    { shortcut = 'primary', asChild = false, shortcutEnabled = true, pending = false, children, ...props },
+    ref,
+  ): ReactElement => {
+    const scope = useContext(DialogActionContext);
+    const action = useRef<DialogActionRegistration>({ element: null, pending }).current;
+    action.pending = pending;
+    const registrationRef = useCallback(
+      (element: HTMLButtonElement | null): void => {
+        action.element = element;
+      },
+      [action],
+    );
+    const composedRef = useComposedRefs(ref, registrationRef);
+
+    useLayoutEffect(() => {
+      if (scope == null || !shortcutEnabled) return;
+      if (import.meta.env.DEV) {
+        if (action.element?.tagName !== 'BUTTON') {
+          // oxlint-disable-next-line no-console -- Report an unsupported action target to consumers.
+          console.warn('Dialog.Shortcut: the child must forward its ref to a native button.');
+        } else if (action.element.ownerDocument.defaultView?.getComputedStyle(action.element).display === 'contents') {
+          // oxlint-disable-next-line no-console -- display: contents removes the button's click box.
+          console.warn('Dialog.Shortcut: a button with display: contents cannot use a dialog shortcut.');
+        }
+      }
+      return registerDialogAction(scope, shortcut, action);
+    }, [scope, shortcut, shortcutEnabled, action]);
+
+    if (scope == null && shortcutEnabled) {
+      throw new Error('Dialog.Shortcut must be used within Dialog.Content when shortcut registration is enabled');
+    }
+    const Comp = asChild ? Slot : 'button';
+
+    return (
+      <Comp
+        data-component='Dialog.Shortcut'
+        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
+        ref={composedRef}
+        aria-keyshortcuts={shortcutEnabled ? getDialogShortcutKeys(shortcut) : undefined}
+        aria-busy={pending || undefined}
+        {...(!asChild && { type: 'button' })}
+        {...props}
+      >
+        {children}
+      </Comp>
+    );
+  },
+);
+DialogShortcut.displayName = 'Dialog.Shortcut';
 
 //
 // * DialogTitle
@@ -739,6 +849,8 @@ export type DialogStepIndicatorProps = {
   dots?: boolean;
   disabled?: boolean;
   pending?: boolean;
+  /** Register Previous as secondary and Next/the final action as primary. Defaults to false. */
+  keyboardShortcuts?: boolean;
   renderDot?: StepperDotsProps['renderDot'];
 };
 
@@ -750,6 +862,7 @@ const DialogStepIndicator = ({
   dots,
   disabled,
   pending,
+  keyboardShortcuts = false,
   renderDot,
 }: DialogStepIndicatorProps): ReactElement => {
   const { value, getItems } = useStepper();
@@ -758,50 +871,69 @@ const DialogStepIndicator = ({
   const isLast = value === items[items.length - 1];
   const isDisabled = disabled || pending;
 
+  const previous = (
+    <Stepper.Previous asChild disabled={isDisabled}>
+      <Button
+        size='lg'
+        variant='outline'
+        aria-label={previousLabel}
+        startIcon={ChevronLeft}
+        startIconClassName={cn(STEP_INDICATOR_ICON_CLASS_NAME, 'rtl:rotate-180')}
+        className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-start', isFirst && 'invisible')}
+      >
+        <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{previousLabel}</span>
+      </Button>
+    </Stepper.Previous>
+  );
+
+  const next =
+    isLast && lastStepLabel ? (
+      <Button
+        size='lg'
+        variant='solid'
+        aria-label={lastStepLabel}
+        disabled={isDisabled}
+        onClick={onLastStep}
+        className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-end')}
+        startIcon={pending ? Loader2 : Check}
+        startIconClassName={pending ? 'animate-spin @sm:size-3.5' : STEP_INDICATOR_ICON_CLASS_NAME}
+      >
+        <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{lastStepLabel}</span>
+      </Button>
+    ) : (
+      <Stepper.Next asChild disabled={isDisabled}>
+        <Button
+          size='lg'
+          variant='solid'
+          aria-label={nextLabel}
+          endIcon={ChevronRight}
+          endIconClassName={cn(STEP_INDICATOR_ICON_CLASS_NAME, 'rtl:rotate-180')}
+          className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-end')}
+        >
+          <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{nextLabel}</span>
+        </Button>
+      </Stepper.Next>
+    );
+
   return (
     <div
       data-component='Dialog.StepIndicator'
       className={cn('@container w-full items-center', dots ? 'grid grid-cols-[1fr_auto_1fr]' : 'flex justify-between')}
     >
-      <Stepper.Previous asChild disabled={isDisabled}>
-        <Button
-          size='lg'
-          variant='outline'
-          aria-label={previousLabel}
-          startIcon={ChevronLeft}
-          startIconClassName={cn(STEP_INDICATOR_ICON_CLASS_NAME, 'rtl:rotate-180')}
-          className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-start', isFirst && 'invisible')}
-        >
-          <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{previousLabel}</span>
-        </Button>
-      </Stepper.Previous>
-      {dots && <Stepper.Dots disabled={isDisabled} renderDot={renderDot} />}
-      {isLast && lastStepLabel ? (
-        <Button
-          size='lg'
-          variant='solid'
-          aria-label={lastStepLabel}
-          disabled={isDisabled}
-          onClick={onLastStep}
-          className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-end')}
-          startIcon={pending ? Loader2 : Check}
-          startIconClassName={pending ? 'animate-spin @sm:size-3.5' : STEP_INDICATOR_ICON_CLASS_NAME}
-        >
-          <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{lastStepLabel}</span>
-        </Button>
+      {keyboardShortcuts ? (
+        <DialogShortcut asChild shortcut='secondary' pending={pending}>
+          {previous}
+        </DialogShortcut>
       ) : (
-        <Stepper.Next asChild disabled={isDisabled}>
-          <Button
-            size='lg'
-            variant='solid'
-            aria-label={nextLabel}
-            endIcon={ChevronRight}
-            endIconClassName={cn(STEP_INDICATOR_ICON_CLASS_NAME, 'rtl:rotate-180')}
-            className={cn(STEP_INDICATOR_BUTTON_CLASS_NAME, 'justify-self-end')}
-          >
-            <span className={STEP_INDICATOR_LABEL_CLASS_NAME}>{nextLabel}</span>
-          </Button>
-        </Stepper.Next>
+        previous
+      )}
+      {dots && <Stepper.Dots disabled={isDisabled} renderDot={renderDot} />}
+      {keyboardShortcuts ? (
+        <DialogShortcut asChild pending={pending}>
+          {next}
+        </DialogShortcut>
+      ) : (
+        next
       )}
     </div>
   );
@@ -816,6 +948,7 @@ export const Dialog = Object.assign(DialogRoot, {
   Content: DialogContent,
   Header: DialogHeader,
   Close: DialogClose,
+  Shortcut: DialogShortcut,
   Title: DialogTitle,
   Description: DialogDescription,
   Body: DialogBody,

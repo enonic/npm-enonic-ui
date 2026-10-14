@@ -194,6 +194,50 @@ it in a `useMemo` keyed on that instead, or the labels keep their first wording.
 and check its bundle against. Texts the application supplies through props — a dialog title, an
 item name — never pass through the provider.
 
+## Dialog action shortcuts
+
+Shortcuts are opt-in. Use `Dialog.Shortcut` inside `Dialog.Content` to register a primary action,
+or set `shortcut='secondary'` for the secondary action. On macOS, Cmd+Enter activates primary and
+Cmd+Shift+Enter activates secondary; on Windows and Linux, use Ctrl instead of Cmd. By default,
+`Dialog.Shortcut` renders a native button. Set `asChild` to wrap `Button`, `Dialog.Close asChild`,
+or `Stepper.Next/Previous asChild`; the child must forward its ref and props to a native button:
+
+```tsx
+<Dialog.Shortcut asChild shortcut='secondary'>
+  <Dialog.Close asChild>
+    <Button label='Cancel' />
+  </Dialog.Close>
+</Dialog.Shortcut>
+<Dialog.Shortcut asChild pending={saving}>
+  <Button label='Save' disabled={saving} onClick={save} />
+</Dialog.Shortcut>
+```
+
+The shortcut calls the registered button's click path, preserving its click handler and close or
+step behavior. `pending` blocks shortcut activation and sets `aria-busy`; it does not block an
+ordinary click, so also disable the button while saving if clicks must be blocked. Disabled,
+hidden, and unmounted actions do not respond to shortcuts. Only the topmost open dialog handles
+shortcuts and Escape. Shortcut keys can come from its content or a registered portal. Modal dialogs
+also accept keys from `<body>` or `document`, preserving shortcuts if a focused field loses
+focus. Non-modal dialogs reject keys from outside their content and registered portals.
+When a shortcut hides the focused step panel, focus moves to the dialog content.
+If two actions use the same shortcut, the first registered action wins until it unregisters;
+development builds warn.
+Buttons keep their ordinary focus, Enter, and Space behavior.
+
+Use `shortcutEnabled={false}` to unregister a mounted action without disabling its button; set
+it on inactive views when they share a shortcut. A disabled `Dialog.Shortcut` can render outside
+`Dialog.Content`; enabled registration requires content. For platform-specific hints,
+`getDialogShortcutKeys` returns
+`Meta+Enter` / `Meta+Shift+Enter` on macOS and `Control+Enter` / `Control+Shift+Enter` elsewhere.
+Separately bundled copies share a dialog stack when they use the same shortcut protocol; incompatible
+protocol versions cannot coordinate their topmost scopes.
+
+For a multi-step dialog, use `Dialog.StepIndicator keyboardShortcuts`. Previous is secondary;
+Next is primary until the last step, where the final action becomes primary. Its `disabled` and
+`pending` props suppress the corresponding shortcuts. Add visible shortcut hints where people
+need to discover them.
+
 ## What's exported
 
 Beyond the components, the package entry re-exports the hooks that drive them (roving tabindex, type-ahead, floating position, scroll lock, and more), the bundled icon set, context providers, shared types, and the `cn` class-merge helper.
