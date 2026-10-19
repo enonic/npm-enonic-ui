@@ -684,6 +684,8 @@ export const StagedApplyFocus: Story = {
   play: async ({ canvasElement }) => {
     const input = canvasElement.querySelector<HTMLInputElement>("[data-component='Combobox.Input']");
     if (input == null) throw new Error('No combobox input');
+    // The story autofocuses the input a frame after mount; a late focus would land after Apply.
+    await waitFor(() => expect(document.activeElement).toBe(input));
 
     const findOption = async (): Promise<HTMLElement> =>
       await waitFor(() => {
