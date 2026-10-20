@@ -2,7 +2,7 @@ import { File, Folder, ListTree } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import { forwardRef, type ReactElement, type RefObject, useRef } from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
-import { expect, fireEvent, userEvent, waitFor } from 'storybook/test';
+import { expect, fireEvent, userEvent, waitFor, within } from 'storybook/test';
 
 import { Button } from '@/components/button';
 import { Combobox } from '@/components/combobox/combobox';
@@ -1460,6 +1460,15 @@ export const Portal: Story = {
   },
 };
 
+const EscapeHint = (): ReactElement => {
+  const { open } = useCombobox();
+  return (
+    <p className='text-subtle mb-2 text-sm'>
+      {open ? 'Popup open: Escape closes only the popup.' : 'Popup closed: Escape passes through.'}
+    </p>
+  );
+};
+
 /**
  * Demonstrates Combobox.Portal inside a Dialog.
  *
@@ -1548,6 +1557,206 @@ export const DialogWithPortal: Story = {
         </Dialog.Root>
       </div>
     );
+  },
+};
+
+export const DialogEscape: Story = {
+  ...DialogWithPortal,
+  name: 'Tests / Dialog Escape',
+  tags: ['interactions-smoke', '!dev', '!autodocs'],
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    const opener = within(canvasElement).getByRole('button', { name: 'Open Dialog' });
+    for (const openPopup of [false, true]) {
+      await userEvent.click(opener);
+      const input = await page.findByRole('combobox');
+      await waitFor(() => expect(input).toHaveFocus());
+      page.getByRole('dialog').addEventListener('keydown', event => event.preventDefault(), { once: true });
+      await userEvent.keyboard('{Escape}');
+      await expect(page.getByRole('dialog')).toBeVisible();
+      if (openPopup) {
+        await userEvent.click(page.getByRole('button', { name: 'Toggle' }));
+        await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'true'));
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
+        await expect(page.queryByRole('listbox')).toBeNull();
+        await expect(page.getByRole('dialog')).toBeVisible();
+        await expect(input).toHaveFocus();
+      }
+      await userEvent.keyboard('{Escape}');
+      await waitFor(() => expect(page.queryByRole('dialog')).toBeNull());
+      await waitFor(() => expect(opener).toHaveFocus());
+    }
+  },
+};
+
+export const TreeDialogEscape: StoryObj<{ controlled: boolean }> = {
+  name: 'Tests / Tree Dialog Escape',
+  tags: ['interactions-smoke', '!dev', '!autodocs'],
+  args: { controlled: false },
+  render: ({ controlled }) => {
+    const [open, setOpen] = useState(false);
+    const [selection, setSelection] = useState<readonly string[]>(['1']);
+    const [expanded, setExpanded] = useState<Set<string>>(new Set());
+    const [activeId, setActiveId] = useState<string | null>('1');
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
+    return (
+      <Dialog.Root>
+        <Dialog.Trigger asChild>
+          <Button label='Open tree dialog' />
+        </Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Overlay />
+          <Dialog.Content className='w-96'>
+            <Dialog.DefaultHeader title='Select files' />
+            <Dialog.Body>
+              <label id='custom-tree-label' htmlFor='custom-tree-input'>
+                Files
+              </label>
+              <Combobox.Root
+                open={controlled ? open : undefined}
+                onOpenChange={setOpen}
+                closeOnBlur
+                contentType='tree'
+                selectionMode='staged'
+                selection={selection}
+                onSelectionChange={setSelection}
+              >
+                <Combobox.Content>
+                  <Combobox.Control>
+                    <Combobox.Search>
+                      <Combobox.Input id='custom-tree-input' aria-labelledby='custom-tree-label' />
+                      <Combobox.Apply />
+                      <Combobox.Toggle />
+                    </Combobox.Search>
+                  </Combobox.Control>
+                  <Combobox.Portal>
+                    <Combobox.Popup>
+                      <StagedTreeContent
+                        items={flattenTree(sampleTreeData, expanded)}
+                        activeId={activeId}
+                        onActiveChange={setActiveId}
+                        onExpand={id => setExpanded(prev => new Set([...prev, id]))}
+                        onCollapse={id => setExpanded(prev => new Set([...prev].filter(value => value !== id)))}
+                        virtuosoRef={virtuosoRef}
+                        treeHeight={160}
+                      />
+                    </Combobox.Popup>
+                  </Combobox.Portal>
+                </Combobox.Content>
+              </Combobox.Root>
+              <p role='status'>Applied: {selection.join(', ')}</p>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Button label='After combobox' />
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(within(canvasElement).getByRole('button', { name: 'Open tree dialog' }));
+    const input = await page.findByRole('combobox', { name: 'Files' });
+    await waitFor(() => expect(input).toHaveAttribute('id', 'custom-tree-input'));
+    await expect(page.getByLabelText('Files')).toBe(input);
+    const openTree = async (): Promise<HTMLElement> => {
+      await userEvent.click(page.getByRole('button', { name: 'Toggle' }));
+      return await page.findByRole('treeitem', { name: /Pictures/ });
+    };
+    const escapePopup = async (): Promise<void> => {
+      await userEvent.keyboard('{Escape}');
+      await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
+      await waitFor(() => expect(input).toHaveFocus());
+      await expect(page.queryByRole('tree')).toBeNull();
+      await expect(page.getByRole('dialog')).toBeVisible();
+      await expect(page.getByRole('status')).toHaveTextContent('Applied: 1');
+    };
+
+    let picture = await openTree();
+    await userEvent.click(picture);
+    await waitFor(() => expect(picture).toHaveAttribute('aria-selected', 'true'));
+    await expect(page.getByRole('tree')).toHaveFocus();
+    await expect(page.getByRole('button', { name: 'Apply' })).toBeVisible();
+    await escapePopup();
+
+    picture = await openTree();
+    await expect(page.getByRole('treeitem', { name: /Documents/ })).toHaveAttribute('aria-selected', 'true');
+    await expect(picture).toHaveAttribute('aria-selected', 'false');
+    const after = page.getByRole('button', { name: 'After combobox' });
+    await userEvent.click(after);
+    await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
+    await expect(after).toHaveFocus();
+
+    await openTree();
+    await userEvent.tab();
+    await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
+    await expect(after).toHaveFocus();
+
+    picture = await openTree();
+    await userEvent.click(picture);
+    await escapePopup();
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(page.queryByRole('dialog')).toBeNull());
+  },
+};
+
+export const ControlledTreeDialogEscape: typeof TreeDialogEscape = {
+  ...TreeDialogEscape,
+  name: 'Tests / Controlled Tree Dialog Escape',
+  tags: ['interactions-smoke', '!dev', '!autodocs'],
+  args: { controlled: true },
+  play: TreeDialogEscape.play,
+};
+
+export const EscapePropagation: Story = {
+  name: 'Behavior / Escape Propagation',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [escape, setEscape] = useState('not pressed');
+    const [openChanges, setOpenChanges] = useState(0);
+    return (
+      <div className='relative w-80 space-y-3'>
+        <p className='text-subtle text-sm'>Focus the input and press Escape. Open the popup and try again.</p>
+        <p role='status'>
+          Last Escape: {escape}. Open-state callbacks: {openChanges}.
+        </p>
+        <Combobox.Root onOpenChange={() => setOpenChanges(count => count + 1)}>
+          <Combobox.Content
+            onKeyDown={event => {
+              if (event.key === 'Escape') setEscape(event.defaultPrevented ? 'consumed' : 'passed through');
+            }}
+          >
+            <EscapeHint />
+            <Combobox.Control>
+              <Combobox.Search>
+                <Combobox.Input placeholder='Select a framework' />
+                <Combobox.Toggle />
+              </Combobox.Search>
+            </Combobox.Control>
+            <Combobox.Popup>
+              <Listbox.Content>
+                {frameworks.map(({ id, name }) => (
+                  <Listbox.Item key={id} value={id}>
+                    {name}
+                  </Listbox.Item>
+                ))}
+              </Listbox.Content>
+            </Combobox.Popup>
+          </Combobox.Content>
+        </Combobox.Root>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('combobox');
+    await userEvent.click(input);
+    await userEvent.keyboard('{Escape}');
+    await expect(canvas.getByRole('status')).toHaveTextContent('Last Escape: passed through. Open-state callbacks: 0.');
+    await expect(input).toHaveAttribute('aria-expanded', 'false');
+    await expect(input).toHaveFocus();
   },
 };
 

@@ -244,6 +244,7 @@ const ComboboxRoot = ({
   const baseId = usePrefixedId();
   const contentRef = useRef<HTMLDivElement>(null);
   const controlRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const applyRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const restoreFocusOnCloseRef = useRef(true);
@@ -429,7 +430,7 @@ const ComboboxRoot = ({
         return;
       }
 
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && open) {
         e.preventDefault();
         setOpen(false);
         return;
@@ -447,6 +448,7 @@ const ComboboxRoot = ({
       baseId,
       contentRef,
       controlRef,
+      inputRef,
       applyRef,
       popupRef,
       restoreFocusOnCloseRef,
@@ -655,11 +657,9 @@ export type ComboboxInputProps = {
 } & ComponentPropsWithoutRef<'input'>;
 
 const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, ref): ReactElement | null => {
-  const innerRef = useRef<HTMLInputElement>(null);
-  const composedRef = useComposedRefs(ref, innerRef);
-
   const {
     open,
+    inputRef,
     keyHandler,
     baseId,
     disabled,
@@ -669,14 +669,15 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
     restoreFocusOnCloseRef,
     inputFocusIntentRef,
   } = useCombobox();
+  const composedRef = useComposedRefs(ref, inputRef);
 
   useLayoutEffect(() => {
     if (!open) return;
 
     if (!disabled && inputFocusIntentRef.current) {
-      innerRef.current?.focus();
+      inputRef.current?.focus();
     }
-  }, [open, disabled, inputFocusIntentRef]);
+  }, [open, disabled, inputRef, inputFocusIntentRef]);
 
   // Return focus to the input when the popup closes (mirrors Combobox.Value's
   // close-effect). Only fires when no Combobox.Value is rendered, since the
@@ -685,12 +686,12 @@ const ComboboxInput = forwardRef<HTMLInputElement, ComboboxInputProps>((props, r
   useEffect(() => {
     if (prevOpenRef.current && !open) {
       if (!disabled && restoreFocusOnCloseRef.current && inputFocusIntentRef.current) {
-        innerRef.current?.focus({ focusVisible: true });
+        inputRef.current?.focus({ focusVisible: true });
       }
       inputFocusIntentRef.current = true;
     }
     prevOpenRef.current = open;
-  }, [open, disabled, restoreFocusOnCloseRef, inputFocusIntentRef]);
+  }, [open, disabled, inputRef, restoreFocusOnCloseRef, inputFocusIntentRef]);
 
   // Hide when Value is present and closed
   if (hasValue && !open) return null;
@@ -981,10 +982,10 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       open,
       setOpen,
       controlRef,
+      inputRef,
       popupRef,
       closeOnBlur,
       contentType,
-      baseId,
       stagingEnabled,
       applyStagedSelection,
       selectionMode,
@@ -1028,9 +1029,8 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     });
 
     const focusInput = useCallback(() => {
-      const input = getRoot(controlRef?.current ?? innerRef.current)?.getElementById(`${baseId}-input`);
-      input?.focus({ focusVisible: true });
-    }, [baseId, controlRef]);
+      inputRef.current?.focus({ focusVisible: true });
+    }, [inputRef]);
 
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLDivElement>): void => {
@@ -1244,7 +1244,7 @@ export type ComboboxTreeContentProps = {
  * ```
  */
 const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxTreeContentProps): ReactElement => {
-  const { baseId, setOpen, stagingEnabled, applyStagedSelection } = useCombobox();
+  const { baseId, inputRef, setOpen, stagingEnabled, applyStagedSelection } = useCombobox();
   const popupLayout = useComboboxPopupLayout();
 
   // Virtuoso needs an explicit pixel height, which the consumer sets without
@@ -1262,8 +1262,7 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
       const focusInput = (): void => {
-        const input = getRoot(e.currentTarget)?.getElementById(`${baseId}-input`);
-        input?.focus({ focusVisible: true });
+        inputRef.current?.focus({ focusVisible: true });
       };
 
       // Enter closes the popup, mirroring listbox behavior. TreeList runs
@@ -1302,7 +1301,7 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
         focusInput();
       }
     },
-    [setOpen, baseId, stagingEnabled, applyStagedSelection],
+    [setOpen, inputRef, stagingEnabled, applyStagedSelection],
   );
 
   return (
