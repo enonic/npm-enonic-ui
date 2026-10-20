@@ -12,6 +12,7 @@ export type ComboboxContextValue = {
   baseId: string;
   contentRef: RefObject<HTMLDivElement>;
   controlRef: RefObject<HTMLDivElement> | null;
+  inputRef: RefObject<HTMLInputElement>;
   applyRef: RefObject<HTMLButtonElement>;
   popupRef: RefObject<HTMLDivElement>;
   restoreFocusOnCloseRef: RefObject<boolean>;
