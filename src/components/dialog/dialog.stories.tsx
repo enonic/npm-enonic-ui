@@ -1461,6 +1461,106 @@ export const NonModal: Story = {
   },
 };
 
+export const FocusOnShow: Story = {
+  name: 'Behavior / Focus On Show',
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [step, setStep] = useState('step1');
+    const nameRef = useRef<HTMLInputElement>(null);
+    const phoneRef = useRef<HTMLInputElement>(null);
+    const focusIfEmpty = (input: HTMLInputElement | null): void => {
+      if (input != null && input.value === '') input.focus();
+    };
+
+    return (
+      <div className='flex flex-col items-center gap-y-3 p-4'>
+        <div className='text-subtle max-w-120 space-y-2 text-sm'>
+          <p>
+            <code>onShow</code> fires after a step becomes visible. Each step decides what to do. In this case, we focus
+            a field, or nothing at all.
+          </p>
+          <p>Step 1: the first field is required, so it gets focus.</p>
+          <p>Step 2: nothing is required, so nothing is focused and focus stays on Next.</p>
+          <p>Step 3: both fields are required, but the first is pre-filled, so focus skips to the second one.</p>
+          <p>A field that already has a value is left alone.</p>
+          <p>Use Next and Back, click the dots, or use arrow keys on the dots to compare.</p>
+        </div>
+        <Button
+          variant='solid'
+          label='Open'
+          onClick={() => {
+            setStep('step1');
+            setOpen(true);
+          }}
+        />
+
+        <Dialog open={open} onOpenChange={setOpen} step={step} onStepChange={setStep}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120'>
+              <Dialog.StepHeader step='step1' title='1. Identity' withClose />
+              <Dialog.StepHeader step='step2' title='2. Work' withClose />
+              <Dialog.StepHeader step='step3' title='3. Contact' withClose />
+              <Dialog.Body className='-m-2 space-y-4 p-2'>
+                <Dialog.StepContent step='step1' onShow={() => focusIfEmpty(nameRef.current)}>
+                  <div className='space-y-4'>
+                    <p className='text-subtle text-sm'>Name is required, so it gets focus while it is empty.</p>
+                    <div>
+                      <label htmlFor='focus-on-show-name' className='text-main mb-2 block text-base font-semibold'>
+                        Name <span className='text-error'>*</span>
+                      </label>
+                      <Input ref={nameRef} id='focus-on-show-name' required placeholder='Required' />
+                    </div>
+                    <Input label='Nickname' placeholder='Optional' />
+                  </div>
+                </Dialog.StepContent>
+                <Dialog.StepContent step='step2'>
+                  <div className='space-y-4'>
+                    <p className='text-subtle text-sm'>
+                      Nothing is required here, so nothing is focused. Focus stays on the Next button.
+                    </p>
+                    <Input label='Company' placeholder='Optional' />
+                    <Input label='Role' placeholder='Optional' />
+                  </div>
+                </Dialog.StepContent>
+                <Dialog.StepContent step='step3' onShow={() => focusIfEmpty(phoneRef.current)}>
+                  <div className='space-y-4'>
+                    <p className='text-subtle text-sm'>
+                      Both are required. Email is pre-filled from your account, so focus skips to Phone while it is
+                      empty.
+                    </p>
+                    <div>
+                      <label htmlFor='focus-on-show-email' className='text-main mb-2 block text-base font-semibold'>
+                        Email <span className='text-error'>*</span>
+                      </label>
+                      <Input id='focus-on-show-email' type='email' required defaultValue='you@example.com' />
+                    </div>
+                    <div>
+                      <label htmlFor='focus-on-show-phone' className='text-main mb-2 block text-base font-semibold'>
+                        Phone <span className='text-error'>*</span>
+                      </label>
+                      <Input ref={phoneRef} id='focus-on-show-phone' type='tel' required placeholder='+47 ...' />
+                    </div>
+                  </div>
+                </Dialog.StepContent>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.StepIndicator
+                  previousLabel='Back'
+                  nextLabel='Next'
+                  lastStepLabel='Done'
+                  dots
+                  onLastStep={() => setOpen(false)}
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+};
+
 // Dialog focus lands a frame late, so an assertion made straight after an interaction reads a
 // state a competing restore is about to overwrite: settle the frame first, then assert.
 //
