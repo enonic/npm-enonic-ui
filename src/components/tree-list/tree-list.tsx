@@ -60,11 +60,7 @@ export const treeListRowVariants = cva(
       },
       disabled: {
         true: 'pointer-events-none opacity-50',
-        false: '',
-      },
-      selectable: {
-        true: 'cursor-pointer',
-        false: '',
+        false: 'cursor-pointer',
       },
     },
     compoundVariants: [
@@ -80,7 +76,6 @@ export const treeListRowVariants = cva(
       active: false,
       selected: false,
       disabled: false,
-      selectable: true,
     },
   },
 );
@@ -1026,7 +1021,6 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
             active: isActive,
             selected: isSelected,
             disabled,
-            selectable: selectable && !disabled && selectionMode !== 'none',
           }),
           className,
         )}

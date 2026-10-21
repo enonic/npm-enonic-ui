@@ -993,7 +993,6 @@ const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRow
             active,
             selected,
             disabled,
-            selectable: selectable && !disabled,
           }),
           showFocusRing && ['ring-ring-offset ring-3 ring-inset', 'ring-offset-ring ring-offset-3'],
           className,

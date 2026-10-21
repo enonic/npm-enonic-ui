@@ -1,4 +1,4 @@
-import { File, Folder, Pencil, Trash2 } from 'lucide-react';
+import { File, Folder, Pencil, Trash2, User } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 
 import { Button, ListItem } from '@/components';
@@ -521,6 +521,47 @@ export const WithDisabledItems: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
+      </div>
+    );
+  },
+};
+
+export const NonSelectableRows: Story = {
+  name: 'States / Non-Selectable Rows',
+  render: () => {
+    const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const nonSelectableIds = new Set(['su', 'anonymous']);
+    const users = ['su', 'anonymous', 'alice', 'bob', 'carol'];
+
+    return (
+      <div className={STORY_CONTAINER_CLASS}>
+        <div className='font-bold'>Non-Selectable Rows</div>
+        <div className='text-subtle text-sm'>
+          &quot;su&quot; and &quot;anonymous&quot; are <code>selectable={'{false}'}</code>: they take focus and react to
+          clicks, but cannot be ticked.
+        </div>
+        <TreeList
+          className={treeListClass(TREE_HEIGHT_SM)}
+          selection={selection}
+          onSelectionChange={setSelection}
+          selectionMode='multiple'
+        >
+          <TreeList.Container>
+            {users.map(id => (
+              <TreeList.Row key={id} id={id} selectable={!nonSelectableIds.has(id)}>
+                <TreeList.RowLeft>
+                  <TreeList.RowSelectionControl rowId={id} selectable={!nonSelectableIds.has(id)} />
+                </TreeList.RowLeft>
+                <TreeList.RowContent>
+                  <ListItem className='px-0 py-0'>
+                    <ListItem.DefaultContent icon={<User />} label={id} />
+                  </ListItem>
+                </TreeList.RowContent>
+              </TreeList.Row>
+            ))}
+          </TreeList.Container>
+        </TreeList>
+        <div className='text-subtle text-sm'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );
   },
