@@ -48,7 +48,7 @@ export function useRadioNavigation(config: RadioNavigationConfig): UseRadioNavig
     [baseId, onValueChange, getItemId, rootRef],
   );
 
-  const { handleKeyDown } = useKeyboardNavigation({
+  const { handleKeyDown: handleNavigationKeyDown } = useKeyboardNavigation({
     getItems,
     isItemDisabled,
     active: value,
@@ -56,6 +56,15 @@ export function useRadioNavigation(config: RadioNavigationConfig): UseRadioNavig
     loop,
     orientation,
   });
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLElement>): void => {
+      // Leave modified Enter available to dialog and application shortcuts.
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) return;
+      handleNavigationKeyDown(e);
+    },
+    [handleNavigationKeyDown],
+  );
 
   return { handleKeyDown };
 }
