@@ -130,6 +130,12 @@ export function useSelectorKeyboard(config: UseSelectorKeyboardConfig): UseSelec
         return;
       }
 
+      // Closed selectors leave Escape to their parent.
+      if (e.key === 'Escape' && !open) return;
+
+      // Modified Enter belongs to dialog and application shortcuts.
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) return;
+
       // Handle opening when closed
       if (!open) {
         if (['ArrowDown', 'ArrowUp', 'Enter', ' ', 'Home', 'End'].includes(e.key)) {
