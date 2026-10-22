@@ -530,27 +530,36 @@ export const NonSelectableRows: Story = {
   name: 'States / Non-Selectable Rows',
   render: () => {
     const [selection, setSelection] = useState<ReadonlySet<string>>(new Set());
+    const [active, setActive] = useState<string | undefined>(undefined);
     const nonSelectableIds = new Set(['su', 'anonymous']);
-    const users = ['su', 'anonymous', 'alice', 'bob', 'carol'];
+    const disabledIds = new Set(['system']);
+    const users = ['su', 'anonymous', 'system', 'alice', 'bob'];
 
     return (
       <div className={STORY_CONTAINER_CLASS}>
         <div className='font-bold'>Non-Selectable Rows</div>
         <div className='text-subtle text-sm'>
-          &quot;su&quot; and &quot;anonymous&quot; are <code>selectable={'{false}'}</code>: they take focus and react to
-          clicks, but cannot be ticked.
+          <code>selectable</code> only governs ticking, the cursor follows <code>disabled</code>. &quot;su&quot; and
+          &quot;anonymous&quot; are <code>selectable={'{false}'}</code>: pointer cursor, a click makes them active, but
+          they cannot be ticked. &quot;system&quot; is <code>disabled</code>: no pointer, no response.
         </div>
         <TreeList
           className={treeListClass(TREE_HEIGHT_SM)}
           selection={selection}
           onSelectionChange={setSelection}
           selectionMode='multiple'
+          active={active}
+          onActiveChange={setActive}
         >
           <TreeList.Container>
             {users.map(id => (
-              <TreeList.Row key={id} id={id} selectable={!nonSelectableIds.has(id)}>
+              <TreeList.Row key={id} id={id} selectable={!nonSelectableIds.has(id)} disabled={disabledIds.has(id)}>
                 <TreeList.RowLeft>
-                  <TreeList.RowSelectionControl rowId={id} selectable={!nonSelectableIds.has(id)} />
+                  {nonSelectableIds.has(id) ? (
+                    <span className='size-4 shrink-0' aria-hidden />
+                  ) : (
+                    <TreeList.RowSelectionControl rowId={id} />
+                  )}
                 </TreeList.RowLeft>
                 <TreeList.RowContent>
                   <ListItem className='px-0 py-0'>
@@ -561,6 +570,7 @@ export const NonSelectableRows: Story = {
             ))}
           </TreeList.Container>
         </TreeList>
+        <div className='text-subtle text-sm'>Active: {active ?? 'none'}</div>
         <div className='text-subtle text-sm'>Selected: {Array.from(selection).join(', ') || 'none'}</div>
       </div>
     );

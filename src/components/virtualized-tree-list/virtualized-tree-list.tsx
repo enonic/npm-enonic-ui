@@ -962,7 +962,9 @@ export type VirtualizedTreeListRowProps = {
   selected?: boolean;
   /** Whether this row is disabled */
   disabled?: boolean;
-  /** Whether this row is selectable */
+  /**
+   * @deprecated Has no effect.
+   */
   selectable?: boolean;
   /** Additional class names */
   className?: string;
