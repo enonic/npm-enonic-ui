@@ -962,9 +962,7 @@ export type VirtualizedTreeListRowProps = {
   selected?: boolean;
   /** Whether this row is disabled */
   disabled?: boolean;
-  /**
-   * @deprecated Has no effect.
-   */
+  /** @deprecated Has no effect. Selection is governed by `getItemInteraction` and `RowSelectionControl`'s `selectable`. */
   selectable?: boolean;
   /** Additional class names */
   className?: string;

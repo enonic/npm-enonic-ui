@@ -541,7 +541,8 @@ export const NonSelectableRows: Story = {
         <div className='text-subtle text-sm'>
           <code>selectable</code> only governs ticking, the cursor follows <code>disabled</code>. &quot;su&quot; and
           &quot;anonymous&quot; are <code>selectable={'{false}'}</code>: pointer cursor, a click makes them active, but
-          they cannot be ticked. &quot;system&quot; is <code>disabled</code>: no pointer, no response.
+          does not tick them. Space and Ctrl+A still tick them: the row prop only blocks the click, keyboard selection
+          follows <code>getItemInteraction</code>. &quot;system&quot; is <code>disabled</code>: no pointer, no response.
         </div>
         <TreeList
           className={treeListClass(TREE_HEIGHT_SM)}
