@@ -14,12 +14,13 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import {
   type FloatingProps,
+  toFloatingStyle,
   useActiveItemFocus,
   useClickOutside,
   useControlledState,
-  toFloatingStyle,
   useFloatingPosition,
   useItemRegistry,
   useKeyboardNavigation,
@@ -30,6 +31,7 @@ import {
 } from '@/hooks';
 import {
   type MenuItemOwnProps,
+  menuItemVariants,
   MenuPrimitiveItem,
   MenuPrimitiveItemIndicator,
   type MenuPrimitiveItemIndicatorProps,
@@ -41,7 +43,6 @@ import {
   type MenuPrimitiveSeparatorProps,
   type MenuRadioGroupOwnProps,
   type MenuRadioItemOwnProps,
-  menuItemVariants,
 } from '@/primitives/menu-primitive';
 import {
   type ContextMenuContentContextValue,
@@ -51,11 +52,11 @@ import {
   type ContextMenuSubContextValue,
   ContextMenuSubProvider,
   IdProvider,
+  PortalProvider,
   useContextMenu,
   useContextMenuContent,
   useContextMenuSub,
   useContextMenuSubOptional,
-  PortalProvider,
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
@@ -690,6 +691,7 @@ const ContextMenuSubTrigger = forwardRef<HTMLDivElement, ContextMenuSubTriggerPr
         if (disabled) return;
 
         if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
+          if (isDialogShortcutEvent(e)) return;
           if (!open) {
             e.preventDefault();
             e.stopPropagation();
@@ -884,6 +886,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         }
 
         if (['ArrowUp', 'ArrowDown', 'Home', 'End', 'ArrowRight', 'Enter', ' '].includes(e.key)) {
+          if (isDialogShortcutEvent(e)) return;
           e.stopPropagation();
           setIsUsingKeyboard(true);
         }

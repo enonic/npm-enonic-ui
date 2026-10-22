@@ -5,8 +5,12 @@ import { expect, userEvent, waitFor } from 'storybook/test';
 
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
+import { Combobox } from '@/components/combobox';
 import { Input } from '@/components/input';
+import { Listbox } from '@/components/listbox';
+import { RadioGroup } from '@/components/radio-group';
 import { Stepper } from '@/components/stepper';
+import { Tab } from '@/components/tab';
 import { Toast } from '@/components/toast';
 import { Tooltip } from '@/components/tooltip';
 
@@ -1715,5 +1719,278 @@ export const PreventedCloseOnRootUnmount: Story = {
     await waitForDialogClosed();
     await settleFrames();
     await expect(document.activeElement).not.toBe(opener);
+  },
+};
+
+export const WidgetShortcuts: Story = {
+  name: 'Behavior / Shortcuts From Widgets',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [primaryCount, setPrimaryCount] = useState(0);
+    const [secondaryCount, setSecondaryCount] = useState(0);
+    const [actionState, setActionState] = useState('enabled');
+    const [radio, setRadio] = useState('one');
+    const [selection, setSelection] = useState<readonly string[]>(['one']);
+    const [tab, setTab] = useState('one');
+    const [comboSelection, setComboSelection] = useState<readonly string[]>(['one']);
+
+    return (
+      <Dialog>
+        <Listbox selectionMode='multiple' defaultSelection={['one']}>
+          <Listbox.Content label='Outside dialog'>
+            <Listbox.Item value='one'>Outside one</Listbox.Item>
+            <Listbox.Item value='two' data-testid='shortcut-outside-two'>
+              Outside two
+            </Listbox.Item>
+          </Listbox.Content>
+        </Listbox>
+        <Dialog.Trigger asChild>
+          <Button label='Open widget shortcuts' />
+        </Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Overlay />
+          <Dialog.Content className='w-140'>
+            <Dialog.DefaultHeader title='Widget shortcuts' />
+            <Dialog.Body className='space-y-4'>
+              <label>
+                Action state
+                <select
+                  aria-label='Action state'
+                  value={actionState}
+                  onChange={event => setActionState(event.currentTarget.value)}
+                >
+                  {['enabled', 'disabled', 'pending', 'missing'].map(state => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <RadioGroup name='shortcut-radio' value={radio} onValueChange={setRadio}>
+                <RadioGroup.Item value='one' data-testid='shortcut-radio-one'>
+                  Radio one
+                </RadioGroup.Item>
+                <RadioGroup.Item value='two' data-testid='shortcut-radio-two'>
+                  Radio two
+                </RadioGroup.Item>
+              </RadioGroup>
+              <Listbox selectionMode='multiple' selection={selection} onSelectionChange={setSelection}>
+                <Listbox.Content label='Shortcut listbox'>
+                  <Listbox.Item value='one' data-testid='shortcut-list-one'>
+                    List one
+                  </Listbox.Item>
+                  <Listbox.Item value='two' data-testid='shortcut-list-two'>
+                    List two
+                  </Listbox.Item>
+                </Listbox.Content>
+              </Listbox>
+              <Tab value={tab} onValueChange={setTab} activationMode='manual' autoFocusTrigger={false}>
+                <Tab.List aria-label='Shortcut tabs'>
+                  <Tab.Trigger value='one' data-testid='shortcut-tab-one'>
+                    Tab one
+                  </Tab.Trigger>
+                  <Tab.Trigger value='two' data-testid='shortcut-tab-two'>
+                    Tab two
+                  </Tab.Trigger>
+                </Tab.List>
+                <Tab.Content value='one'>First panel</Tab.Content>
+                <Tab.Content value='two'>Second panel</Tab.Content>
+              </Tab>
+              <Combobox
+                defaultOpen
+                closeOnBlur={false}
+                selectionMode='multiple'
+                selection={comboSelection}
+                onSelectionChange={setComboSelection}
+              >
+                <Combobox.Content>
+                  <Combobox.Control>
+                    <Combobox.Search>
+                      <Combobox.Input aria-label='Shortcut combobox' data-testid='shortcut-combo-input' />
+                    </Combobox.Search>
+                  </Combobox.Control>
+                  <Combobox.Portal>
+                    <Combobox.Popup>
+                      <Listbox.Content label='Shortcut combobox options'>
+                        <Listbox.Item value='one' data-testid='shortcut-combo-one'>
+                          Combo one
+                        </Listbox.Item>
+                        <Listbox.Item value='two' data-testid='shortcut-combo-two'>
+                          Combo two
+                        </Listbox.Item>
+                      </Listbox.Content>
+                    </Combobox.Popup>
+                  </Combobox.Portal>
+                </Combobox.Content>
+              </Combobox>
+              <output data-testid='shortcut-values'>{JSON.stringify({ radio, selection, tab, comboSelection })}</output>
+              <output data-testid='shortcut-counts'>
+                {primaryCount},{secondaryCount}
+              </output>
+            </Dialog.Body>
+            <Dialog.Footer>
+              {(['primary', 'secondary'] as const).map(shortcut => (
+                <Dialog.Shortcut
+                  key={shortcut}
+                  shortcut={shortcut}
+                  disabled={actionState === 'disabled'}
+                  pending={actionState === 'pending'}
+                  shortcutEnabled={actionState !== 'missing'}
+                  onClick={() => {
+                    if (shortcut === 'primary') setPrimaryCount(count => count + 1);
+                    else setSecondaryCount(count => count + 1);
+                  }}
+                >
+                  {shortcut}
+                </Dialog.Shortcut>
+              ))}
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector('[data-component="Dialog.Trigger"]');
+    if (opener == null) throw new Error('No opener button');
+    await userEvent.click(opener);
+    await waitForDialogOpen();
+    const isMac = /Mac|iPhone|iPad/i.test(navigator.platform);
+    const modifier = isMac ? 'Meta' : 'Control';
+    const values = byTestId('shortcut-values');
+    const initialValues = values.textContent;
+    const counts = byTestId('shortcut-counts');
+    const targets = ['radio-two', 'list-two', 'tab-two', 'combo-input', 'combo-two'];
+    let count = 0;
+
+    for (const target of targets) {
+      byTestId(`shortcut-${target}`).focus();
+      await settleFrames();
+      await expect(byTestId(`shortcut-${target}`)).toHaveFocus();
+      await userEvent.keyboard(`{${modifier}>}{Enter}{/${modifier}}`);
+      count++;
+      await waitFor(() => expect(counts).toHaveTextContent(`${count},${count - 1}`));
+      await userEvent.keyboard(`{${modifier}>}{Shift>}{Enter}{/Shift}{/${modifier}}`);
+      await waitFor(() => expect(counts).toHaveTextContent(`${count},${count}`));
+
+      // Reserved repeat and IME chords must cancel native activation without running either action.
+      for (const shiftKey of [false, true]) {
+        for (const ignoredEvent of [{ repeat: true }, { isComposing: true }, { keyCode: 229 }]) {
+          const event = new KeyboardEvent('keydown', {
+            key: 'Enter',
+            ctrlKey: !isMac,
+            metaKey: isMac,
+            shiftKey,
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+            ...ignoredEvent,
+          });
+          await expect(byTestId(`shortcut-${target}`).dispatchEvent(event)).toBe(false);
+          await expect(event.defaultPrevented).toBe(true);
+        }
+      }
+      await settleFrames();
+      await expect(counts).toHaveTextContent(`${count},${count}`);
+      await expect(values.textContent).toBe(initialValues);
+      await expect(byTestId('shortcut-combo-input')).toHaveAttribute('aria-expanded', 'true');
+    }
+
+    const actionState = document.querySelector<HTMLSelectElement>('select[aria-label="Action state"]');
+    if (actionState == null) throw new Error('No action state control');
+    for (const state of ['disabled', 'pending', 'missing']) {
+      await userEvent.selectOptions(actionState, state);
+      for (const target of targets) {
+        byTestId(`shortcut-${target}`).focus();
+        await settleFrames();
+        for (const shiftKey of [false, true]) {
+          const event = new KeyboardEvent('keydown', {
+            key: 'Enter',
+            ctrlKey: !isMac,
+            metaKey: isMac,
+            shiftKey,
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+          });
+          await expect(byTestId(`shortcut-${target}`).dispatchEvent(event)).toBe(false);
+          await expect(event.defaultPrevented).toBe(true);
+        }
+        await expect(counts).toHaveTextContent(`${count},${count}`);
+        await expect(values.textContent).toBe(initialValues);
+        await expect(byTestId('shortcut-combo-input')).toHaveAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Chords the dialog does not own keep selecting in the widget, including Ctrl+Enter on macOS.
+    byTestId('shortcut-list-two').focus();
+    await settleFrames();
+    const otherModifier = isMac ? 'Control' : 'Meta';
+    for (const chord of [
+      `{${otherModifier}>}{Enter}{/${otherModifier}}`,
+      `{${modifier}>}{Alt>}{Enter}{/Alt}{/${modifier}}`,
+      '{Control>}{Meta>}{Enter}{/Meta}{/Control}',
+      `{${modifier}>} {/${modifier}}`,
+    ]) {
+      await userEvent.keyboard(chord);
+      await waitFor(() => expect(byTestId('shortcut-list-two')).toHaveAttribute('aria-selected', 'true'));
+      await userEvent.keyboard(chord);
+      await waitFor(() => expect(byTestId('shortcut-list-two')).toHaveAttribute('aria-selected', 'false'));
+      await expect(counts).toHaveTextContent(`${count},${count}`);
+    }
+
+    // Radio Enter/Space are consumed; arrow navigation selects, Home/End move to the bounds.
+    byTestId('shortcut-radio-one').focus();
+    await userEvent.keyboard('{Enter} ');
+    await expect(byTestId('shortcut-radio-one')).toHaveAttribute('aria-checked', 'true');
+    await userEvent.keyboard('{ArrowDown}');
+    await waitFor(() => expect(byTestId('shortcut-radio-two')).toHaveFocus());
+    await userEvent.keyboard('{Home}');
+    await waitFor(() => expect(byTestId('shortcut-radio-one')).toHaveFocus());
+    await userEvent.keyboard('{End}');
+    await waitFor(() => expect(byTestId('shortcut-radio-two')).toHaveFocus());
+    await expect(byTestId('shortcut-radio-two')).toHaveAttribute('aria-checked', 'true');
+
+    // Listbox Enter and Space toggle the focused option.
+    byTestId('shortcut-list-two').focus();
+    await settleFrames();
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(byTestId('shortcut-list-two')).toHaveAttribute('aria-selected', 'true'));
+    await userEvent.keyboard(' ');
+    await waitFor(() => expect(byTestId('shortcut-list-two')).toHaveAttribute('aria-selected', 'false'));
+
+    // Manual tabs activate on Enter/Space, while arrows only move focus.
+    byTestId('shortcut-tab-one').focus();
+    await settleFrames();
+    await userEvent.keyboard('{ArrowRight}');
+    await waitForFocus(byTestId('shortcut-tab-two'));
+    await settleFrames();
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(byTestId('shortcut-tab-two')).toHaveAttribute('aria-selected', 'true'));
+    await settleFrames();
+    await userEvent.keyboard('{ArrowLeft}');
+    await waitForFocus(byTestId('shortcut-tab-one'));
+    await settleFrames();
+    await userEvent.keyboard(' ');
+    await waitFor(() => expect(byTestId('shortcut-tab-one')).toHaveAttribute('aria-selected', 'true'));
+    await userEvent.tab();
+    await expect(byTestId('shortcut-tab-one')).not.toHaveFocus();
+
+    // Combobox Space selects without closing; plain Enter closes the popup.
+    byTestId('shortcut-combo-two').focus();
+    await settleFrames();
+    await userEvent.keyboard(' ');
+    await waitFor(() => expect(byTestId('shortcut-combo-two')).toHaveAttribute('aria-selected', 'true'));
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(byTestId('shortcut-combo-input')).toHaveAttribute('aria-expanded', 'false'));
+    await expect(counts).toHaveTextContent(`${count},${count}`);
+    await userEvent.keyboard('{Escape}');
+    await waitForDialogClosed();
+    byTestId('shortcut-outside-two').focus();
+    await settleFrames();
+    await userEvent.keyboard(`{${modifier}>}{Enter}{/${modifier}}`);
+    await waitFor(() => expect(byTestId('shortcut-outside-two')).toHaveAttribute('aria-selected', 'true'));
+    await userEvent.keyboard(`{${modifier}>}{Shift>}{Enter}{/Shift}{/${modifier}}`);
+    await waitFor(() => expect(byTestId('shortcut-outside-two')).toHaveAttribute('aria-selected', 'false'));
   },
 };

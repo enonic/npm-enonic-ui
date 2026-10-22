@@ -19,14 +19,15 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { IconButton } from '@/components/icon-button';
 import { Selector } from '@/components/selector';
 import {
   type FloatingProps,
+  toFloatingStyle,
   useActiveItemFocus,
   useClickOutside,
   useControlledState,
-  toFloatingStyle,
   useFloatingPosition,
   useItemRegistry,
   useKeyboardNavigation,
@@ -36,8 +37,8 @@ import {
 import {
   type DatePickerContextValue,
   DatePickerProvider,
-  useDatePicker,
   PortalProvider,
+  useDatePicker,
   usePhrases,
   usePortalContainer,
   usePrefixedId,
@@ -427,6 +428,7 @@ const DatePickerGrid = ({
       case ' ':
       case 'Spacebar':
       case 'Enter':
+        if (isDialogShortcutEvent(event)) return;
         event.preventDefault();
         if (!isDateDisabled(activeDate)) {
           selectDate(activeDate);

@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+
 export type KeyboardNavigationConfig = {
   /**
    * Get all item IDs in order
@@ -215,6 +217,7 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
 
         case 'Enter':
         case ' ':
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (active && !isItemDisabled(active)) {
             onSelect?.(active);

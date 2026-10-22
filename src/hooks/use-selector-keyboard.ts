@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+
 import { useKeyboardNavigation } from './use-keyboard-navigation';
 import { useTypeAhead } from './use-type-ahead';
 
@@ -133,8 +135,7 @@ export function useSelectorKeyboard(config: UseSelectorKeyboardConfig): UseSelec
       // Closed selectors leave Escape to their parent.
       if (e.key === 'Escape' && !open) return;
 
-      // Modified Enter belongs to dialog and application shortcuts.
-      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) return;
+      if (isDialogShortcutEvent(e)) return;
 
       // Handle opening when closed
       if (!open) {

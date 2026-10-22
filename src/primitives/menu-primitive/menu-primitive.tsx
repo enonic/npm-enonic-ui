@@ -14,6 +14,7 @@ import {
   useRef,
 } from 'react';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
@@ -464,6 +465,7 @@ export const MenuPrimitiveRadioItem = forwardRef<HTMLDivElement, MenuPrimitiveRa
         onKeyDown?.(e);
         // Space/Enter key selects the radio item
         if (e.key === ' ' || e.key === 'Enter') {
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (!disabled) {
             setValue(value);
