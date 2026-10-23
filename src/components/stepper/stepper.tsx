@@ -117,16 +117,20 @@ export type StepperPanelProps = {
   value: string;
   /** Whether the panel is locked. If locked, navigation via dots or buttons will not be possible. */
   locked?: boolean;
+  /** Called after this panel becomes the active step and is visible in the DOM. Use it to move focus into the step. */
+  onShow?: (panel: HTMLDivElement) => void;
   /** Content */
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
 const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref): ReactElement | null => {
-  const { value, locked = false, children, className, ...restProps } = props;
+  const { value, locked = false, onShow, children, className, ...restProps } = props;
   const { baseId, value: selectedValue, registerItem, unregisterItem } = useStepper();
   const isSelected = selectedValue === value;
   const panelRef = useRef<HTMLDivElement>(null);
   const composedRef = useComposedRefs(ref, panelRef);
+  const onShowRef = useRef(onShow);
+  onShowRef.current = onShow;
 
   useEffect(() => {
     registerItem(value, locked, panelRef.current);
@@ -137,6 +141,10 @@ const StepperPanel = forwardRef<HTMLDivElement, StepperPanelProps>((props, ref):
   useEffect(() => {
     registerItem(value, locked, panelRef.current);
   }, [value, locked, registerItem]);
+
+  useEffect(() => {
+    if (isSelected && panelRef.current) onShowRef.current?.(panelRef.current);
+  }, [isSelected]);
 
   return (
     <div

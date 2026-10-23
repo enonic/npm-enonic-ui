@@ -27,7 +27,7 @@ import { cn, useComposedRefs } from '@/utils';
 import { getActiveElement } from '@/utils/dom';
 
 import { Button } from '../button';
-import { Stepper, type StepperDotsProps } from '../stepper';
+import { Stepper, type StepperDotsProps, type StepperPanelProps } from '../stepper';
 import {
   activateDialogScope,
   DialogActionContext,
@@ -819,12 +819,14 @@ export type DialogStepContentProps = {
   step: string;
   /** Prevent navigation away from this step */
   locked?: boolean;
+  /** Called after this step becomes active and is visible in the DOM. Use it to move focus into the step. */
+  onShow?: StepperPanelProps['onShow'];
   children?: ReactNode;
 };
 
-const DialogStepContent = ({ step, locked, children }: DialogStepContentProps): ReactElement => {
+const DialogStepContent = ({ step, locked, onShow, children }: DialogStepContentProps): ReactElement => {
   return (
-    <Stepper.Panel data-component='Dialog.StepContent' value={step} locked={locked}>
+    <Stepper.Panel data-component='Dialog.StepContent' value={step} locked={locked} onShow={onShow}>
       {children}
     </Stepper.Panel>
   );
