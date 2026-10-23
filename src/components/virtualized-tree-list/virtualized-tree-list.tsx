@@ -964,7 +964,7 @@ export type VirtualizedTreeListRowProps = {
   selected?: boolean;
   /** Whether this row is disabled */
   disabled?: boolean;
-  /** Whether this row is selectable */
+  /** @deprecated Has no effect. Selection is governed by `getItemInteraction` and `RowSelectionControl`'s `selectable`. */
   selectable?: boolean;
   /** Additional class names */
   className?: string;
@@ -995,7 +995,6 @@ const VirtualizedTreeListRow = forwardRef<HTMLDivElement, VirtualizedTreeListRow
             active,
             selected,
             disabled,
-            selectable: selectable && !disabled,
           }),
           showFocusRing && ['ring-ring-offset ring-3 ring-inset', 'ring-offset-ring ring-offset-3'],
           className,
