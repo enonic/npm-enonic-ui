@@ -1,5 +1,7 @@
 import { useCallback, useRef } from 'react';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+
 export type ActiveCell = { row: string; col: number };
 
 export type GridNavigationConfig = {
@@ -346,6 +348,7 @@ export function useGridNavigation(config: GridNavigationConfig): UseGridNavigati
 
         case 'Enter':
         case ' ':
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (activeCell && !isRowDisabled(activeCell.row) && !isCellDisabled(activeCell.row, activeCell.col)) {
             onActivate?.(activeCell.row, activeCell.col);

@@ -1,6 +1,7 @@
-import { useState } from 'preact/hooks';
-import { type ReactElement, useRef } from 'react';
+import { type ReactElement, useRef, useState } from 'react';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
+import { Dialog } from '@/components/dialog';
 import { Selector } from '@/components/selector/selector';
 
 import type { Meta, StoryObj } from '@storybook/preact-vite';
@@ -713,5 +714,143 @@ export const TypeToSelect: Story = {
         )}
       </div>
     );
+  },
+};
+
+export const DialogShortcuts: Story = {
+  name: 'Behavior / Dialog Shortcuts',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [primaryCount, setPrimaryCount] = useState(0);
+    const [secondaryCount, setSecondaryCount] = useState(0);
+    const renderSelector = (testId: string): ReactElement => (
+      <Selector.Root defaultValue='one'>
+        <Selector.Trigger aria-label='Choose option' data-testid={testId}>
+          <Selector.Value>{value => value}</Selector.Value>
+          <Selector.Icon />
+        </Selector.Trigger>
+        <Selector.Content>
+          <Selector.Viewport>
+            <Selector.Item value='one' textValue='one'>
+              <Selector.ItemText>one</Selector.ItemText>
+            </Selector.Item>
+            <Selector.Item value='two' textValue='two'>
+              <Selector.ItemText>two</Selector.ItemText>
+            </Selector.Item>
+          </Selector.Viewport>
+        </Selector.Content>
+      </Selector.Root>
+    );
+
+    return (
+      <div className='w-64 space-y-3'>
+        {renderSelector('selector-outside-dialog')}
+        <Dialog>
+          <Dialog.Trigger asChild>
+            <Button label='Open selector dialog' />
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content>
+              <Dialog.DefaultHeader title='Selector shortcuts' />
+              <Dialog.Body>
+                {renderSelector('selector-inside-dialog')}
+                <output data-testid='selector-shortcut-counts'>
+                  {primaryCount},{secondaryCount}
+                </output>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.Shortcut onClick={() => setPrimaryCount(count => count + 1)}>Primary</Dialog.Shortcut>
+                <Dialog.Shortcut shortcut='secondary' onClick={() => setSecondaryCount(count => count + 1)}>
+                  Secondary
+                </Dialog.Shortcut>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const page = within(canvasElement.ownerDocument.body);
+    const settleFrames = async (): Promise<void> => {
+      await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    };
+    const isMac = /Mac|iPhone|iPad/i.test(canvasElement.ownerDocument.defaultView?.navigator.platform ?? '');
+    const modifier = isMac ? 'Meta' : 'Control';
+    const otherModifier = isMac ? 'Control' : 'Meta';
+    const primaryChord = `{${modifier}>}{Enter}{/${modifier}}`;
+    const secondaryChord = `{${modifier}>}{Shift>}{Enter}{/Shift}{/${modifier}}`;
+    const opener = within(canvasElement).getByRole('button', { name: 'Open selector dialog' });
+    await userEvent.click(opener);
+    const dialog = await page.findByRole('dialog');
+    const inside = page.getByTestId('selector-inside-dialog');
+    const counts = page.getByTestId('selector-shortcut-counts');
+    inside.focus();
+    await waitFor(() => expect(inside).toHaveFocus());
+    let count = 0;
+
+    for (const open of [false, true]) {
+      if (open) {
+        await userEvent.keyboard('{ArrowDown}');
+        await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'true'));
+        await waitFor(() => expect(inside.getAttribute('aria-activedescendant')).toBeTruthy());
+        await settleFrames();
+      }
+      await userEvent.keyboard(primaryChord);
+      count++;
+      await waitFor(() => expect(counts).toHaveTextContent(`${count},${count - 1}`));
+      await userEvent.keyboard(secondaryChord);
+      await waitFor(() => expect(counts).toHaveTextContent(`${count},${count}`));
+      await expect(inside).toHaveAttribute('aria-expanded', String(open));
+      await expect(inside).toHaveTextContent('one');
+      if (open) {
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'false'));
+        await expect(dialog).toBeVisible();
+      }
+    }
+
+    // A modifier the dialog does not own must still open and select, including Ctrl+Enter on macOS.
+    await userEvent.keyboard(`{${otherModifier}>}{Enter}{/${otherModifier}}`);
+    await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'true'));
+    await settleFrames();
+    await userEvent.keyboard('{End}');
+    await waitFor(() => expect(inside.getAttribute('aria-activedescendant')).toMatch(/-option-two$/));
+    await userEvent.keyboard(`{${otherModifier}>}{Shift>}{Enter}{/Shift}{/${otherModifier}}`);
+    await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'false'));
+    await waitFor(() => expect(inside).toHaveTextContent('two'));
+    await expect(counts).toHaveTextContent(`${count},${count}`);
+
+    await waitFor(() => expect(inside).toHaveFocus());
+    await userEvent.keyboard(' ');
+    await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'true'));
+    await settleFrames();
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'false'));
+    await expect(dialog).toBeVisible();
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(page.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(opener).toHaveFocus());
+
+    // Both dialog chords keep their normal Selector behavior when no dialog is open.
+    const outside = page.getByTestId('selector-outside-dialog');
+    outside.focus();
+    for (const [chord, navigation, value] of [
+      [primaryChord, '{End}', 'two'],
+      [secondaryChord, '{Home}', 'one'],
+    ] as const) {
+      await userEvent.keyboard(chord);
+      await waitFor(() => expect(outside).toHaveAttribute('aria-expanded', 'true'));
+      await settleFrames();
+      await userEvent.keyboard(navigation);
+      await waitFor(() =>
+        expect(outside.getAttribute('aria-activedescendant')).toMatch(new RegExp(`-option-${value}$`)),
+      );
+      await userEvent.keyboard(chord);
+      await waitFor(() => expect(outside).toHaveAttribute('aria-expanded', 'false'));
+      await waitFor(() => expect(outside).toHaveTextContent(value));
+      await waitFor(() => expect(outside).toHaveFocus());
+    }
   },
 };

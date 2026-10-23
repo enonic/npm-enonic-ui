@@ -16,11 +16,12 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import {
   type FloatingProps,
+  toFloatingStyle,
   useActiveItemFocus,
   useClickOutside,
-  toFloatingStyle,
   useFloatingPosition,
   useItemRegistry,
   useKeyboardNavigation,
@@ -29,18 +30,18 @@ import {
   useScrollActiveIntoView,
 } from '@/hooks';
 import {
+  menuItemVariants,
   MenuPrimitiveLabel,
   type MenuPrimitiveLabelProps,
-  menuItemVariants,
   menuRadioItemVariants,
 } from '@/primitives/menu-primitive';
 import {
   type MenubarContextValue,
   MenubarMenuProvider,
   MenubarProvider,
+  PortalProvider,
   useMenubar,
   useMenubarMenu,
-  PortalProvider,
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
@@ -207,6 +208,7 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
         // ArrowDown opens menu if active item is a menu trigger
         const isActionKey = e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ';
         if (isActionKey && active) {
+          if (isDialogShortcutEvent(e)) return;
           const activeElement = getItemElement(active);
           if (activeElement && activeElement.getAttribute('aria-haspopup') === 'menu') {
             e.preventDefault();
@@ -701,6 +703,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         }
         // Space and Enter also open/toggle
         else if ((e.key === ' ' || e.key === 'Enter') && !open) {
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           setOpen(true);
         }
@@ -1540,6 +1543,7 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
         onKeyDown?.(e);
         // Space/Enter key selects the radio item
         if (e.key === ' ' || e.key === 'Enter') {
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (!disabled) {
             setValue(value);

@@ -66,6 +66,20 @@ const canActivate = (scope: DialogActionScope, { element, pending }: DialogActio
   return false;
 };
 
+/** Whether the topmost dialog owns this Enter chord, including inactive or missing actions. */
+export const isDialogShortcutEvent = (keyEvent: KeyboardEvent | { nativeEvent: KeyboardEvent }): boolean => {
+  const event = 'nativeEvent' in keyEvent ? keyEvent.nativeEvent : keyEvent;
+  if (event.key !== 'Enter' || event.altKey || event.getModifierState?.('AltGraph')) return false;
+
+  const target = event.target as Node | null;
+  const document = target?.nodeType === 9 ? (target as Document) : target?.ownerDocument;
+  if (document == null) return false;
+
+  const hasModifier = isMac(document) ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey;
+  const scope = dialogStacks.get(document)?.scopes.at(-1);
+  return hasModifier && scope != null && scope.containsShortcutEvent(event);
+};
+
 const dispatchKeyDown = (document: Document, event: KeyboardEvent): void => {
   const scope = dialogStacks.get(document)?.scopes.at(-1);
   if (scope == null) return;
@@ -75,15 +89,14 @@ const dispatchKeyDown = (document: Document, event: KeyboardEvent): void => {
     return;
   }
 
-  if (event.defaultPrevented || event.repeat || event.isComposing || event.keyCode === 229) return;
-  if (event.key !== 'Enter' || event.altKey || event.getModifierState?.('AltGraph')) return;
-  const hasModifier = isMac(document) ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey;
-  if (!hasModifier || !scope.containsShortcutEvent(event)) return;
+  if (event.defaultPrevented || !isDialogShortcutEvent(event)) return;
+  // Cancel native Enter activation even when this dialog has no available action.
+  event.preventDefault();
+  if (event.repeat || event.isComposing || event.keyCode === 229) return;
 
   // A disabled winner does not fall through to a duplicate or an underlying dialog.
   const action = scope.actions[event.shiftKey ? 'secondary' : 'primary'][0];
   if (action == null || !canActivate(scope, action)) return;
-  event.preventDefault();
   const eventElements = event.composedPath().filter((target): target is Element => (target as Node).nodeType === 1);
   const originalTarget = eventElements[0];
   action.element?.click();

@@ -17,6 +17,7 @@ import {
 import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/button';
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { Listbox } from '@/components/listbox';
 import { SearchField } from '@/components/search-field';
@@ -408,6 +409,7 @@ const ComboboxRoot = ({
       // is driven by Space on the focused option, not Enter.
       // Also handled in Combobox.Popup for when focus has moved off the input.
       if (e.key === 'Enter' && open) {
+        if (isDialogShortcutEvent(e)) return;
         e.preventDefault();
         if (stagingEnabled) {
           applyStagedSelection();
@@ -848,6 +850,7 @@ const ComboboxValue = ({ className, children, ...props }: ComboboxValueProps): R
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLButtonElement>) => {
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (isDialogShortcutEvent(e)) return;
         e.preventDefault();
         setOpen(true);
       }
@@ -1067,6 +1070,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
         }
 
         if (e.key === 'Enter') {
+          if (isDialogShortcutEvent(e)) return;
           if (selectionMode === 'single' && !stagingEnabled) return;
 
           e.preventDefault();
@@ -1270,6 +1274,7 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
       // mode Space is the selection key, so Enter only commits the popup.
       // Staged mode applies staged selection.
       if (e.key === 'Enter') {
+        if (isDialogShortcutEvent(e)) return;
         if (stagingEnabled) {
           e.preventDefault();
           e.stopPropagation();

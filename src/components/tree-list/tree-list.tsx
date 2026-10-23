@@ -1,8 +1,8 @@
 import { cva } from 'class-variance-authority';
 import { ChevronRight, Circle, Loader2, Square } from 'lucide-react';
 import {
-  type ComponentPropsWithoutRef,
   cloneElement,
+  type ComponentPropsWithoutRef,
   forwardRef,
   type ReactElement,
   type ReactNode,
@@ -13,6 +13,7 @@ import {
   useState,
 } from 'react';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { IconButton, type IconButtonProps } from '@/components/icon-button';
 import {
   useActiveItemFocus,
@@ -622,6 +623,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         // Handle Enter for activation. In single selection mode, Enter mirrors
         // Space — it selects the active item (and fires onActivate).
         if (e.key === 'Enter' && active && canSelectById(fromDomId(active))) {
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           const logicalId = fromDomId(active);
           if (selectionMode === 'single') {
@@ -1269,6 +1271,7 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (e.key === ' ' || e.key === 'Enter') {
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           e.stopPropagation();
           const rowDomId = `${baseId}-item-${rowId}`;

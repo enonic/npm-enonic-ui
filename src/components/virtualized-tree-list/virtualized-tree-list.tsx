@@ -13,6 +13,7 @@ import {
   useState,
 } from 'react';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { IconButton, type IconButtonProps } from '@/components/icon-button';
 import {
   TreeListRowContent,
@@ -624,6 +625,7 @@ const VirtualizedTreeListRoot = forwardRef(
         // selection mode, Enter mirrors Space — it selects the active item
         // before firing onActivate.
         if (e.key === 'Enter' && activeIndex !== null) {
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           const item = items[activeIndex];
           if (item && canSelect(item)) {
@@ -1176,6 +1178,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === ' ' || e.key === 'Enter') {
+        if (isDialogShortcutEvent(e)) return;
         e.preventDefault();
         e.stopPropagation();
         const index = getItemIndex(rowId);

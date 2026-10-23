@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+
 export type FlatNodeBase = {
   id: string;
   level: number;
@@ -286,6 +288,7 @@ export function useVirtualizedKeyboardNavigation<TNode extends FlatNodeBase>(
 
         case 'Enter':
         case ' ':
+          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (activeNode && activeIndex !== null && !isItemDisabled(activeNode)) {
             onSelect?.(activeNode.id, activeIndex);

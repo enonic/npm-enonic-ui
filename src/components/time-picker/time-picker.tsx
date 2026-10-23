@@ -17,6 +17,7 @@ import {
   useState,
 } from 'react';
 
+import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { IconButton } from '@/components/icon-button';
 import { Selector } from '@/components/selector';
 import {
@@ -505,6 +506,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
       onKeyDown?.(event);
       if (event.defaultPrevented) return;
       if ((event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') && !open) {
+        if (isDialogShortcutEvent(event)) return;
         event.preventDefault();
         setShouldFocusSelectors(true);
         setOpen(true);

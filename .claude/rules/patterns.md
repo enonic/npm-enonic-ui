@@ -159,3 +159,7 @@ When a component renders via portal **outside** any dismissible UI's React tree 
 | Component | Attribute Location |
 |-----------|--------------------|
 | `Toast` | Root `<div>` in `ToastRoot` |
+
+## Enter Handlers Inside Dialogs
+
+A handler that reacts to `Enter` and calls `preventDefault()` returns first when `isDialogShortcutEvent(event)` (`@/components/dialog/dialog-actions`) is true. Otherwise the widget swallows the dialog's Cmd/Ctrl+Enter shortcuts while it has focus.
