@@ -104,6 +104,9 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
       startAddon,
       endAddon,
       id,
+      required,
+      'aria-required': ariaRequired,
+      'aria-describedby': ariaDescribedBy,
       disabled,
       readOnly,
       processing,
@@ -114,6 +117,12 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
     ref: ForwardedRef<HTMLInputElement>,
   ) => {
     const inputId = usePrefixedId(unwrap(id));
+    const descriptionId = `${inputId}-description`;
+    const errorId = `${inputId}-error`;
+    const hasError = !processing && !!error;
+    const describedBy =
+      [unwrap(ariaDescribedBy), description && descriptionId, hasError && errorId].filter(Boolean).join(' ') ||
+      undefined;
     const effectiveReadOnly = readOnly || processing;
     const state = processing ? 'processing' : error ? 'error' : 'default';
 
@@ -130,7 +139,11 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
               </label>
             )}
 
-            {description && <div className='text-subtle text-sm'>{description}</div>}
+            {description && (
+              <div id={descriptionId} className='text-subtle text-sm'>
+                {description}
+              </div>
+            )}
           </div>
         )}
         <div
@@ -146,7 +159,10 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={inputId}
-            aria-invalid={!processing && error ? true : undefined}
+            required={required}
+            aria-required={unwrap(required) ? true : ariaRequired}
+            aria-describedby={describedBy}
+            aria-invalid={hasError || undefined}
             aria-busy={processing || undefined}
             className={cn(
               'w-full flex-1 px-4.5 text-base',
@@ -177,12 +193,19 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
 
-        {!processing && error && (
-          <div className='text-error mt-2 flex items-center gap-2 leading-5'>
-            <FilledOctagonAlert size={16} />
-            {error}
-          </div>
-        )}
+        <div
+          id={errorId}
+          aria-live='polite'
+          aria-atomic='true'
+          className={cn('text-error flex items-center gap-2 leading-5', hasError && 'mt-2')}
+        >
+          {hasError && (
+            <>
+              <FilledOctagonAlert size={16} aria-hidden='true' />
+              {error}
+            </>
+          )}
+        </div>
       </div>
     );
   },
