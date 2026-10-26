@@ -772,10 +772,17 @@ ComboboxSearchIcon.displayName = 'Combobox.SearchIcon';
 //
 
 export type ComboboxToggleProps = {
+  'aria-label'?: string;
   className?: string;
-} & Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon'>;
+} & Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon' | 'aria-label'>;
 
-const ComboboxToggle = ({ className, onClick, onPointerDown, ...props }: ComboboxToggleProps): ReactElement => {
+const ComboboxToggle = ({
+  'aria-label': ariaLabel,
+  className,
+  onClick,
+  onPointerDown,
+  ...props
+}: ComboboxToggleProps): ReactElement => {
   const { open, setOpen, disabled } = useCombobox();
   const { onPointerDown: handlePointerDown, isTouchClick } = useTouchClick(onPointerDown);
   const t = usePhrases(comboboxPhrases);
@@ -788,7 +795,7 @@ const ComboboxToggle = ({ className, onClick, onPointerDown, ...props }: Combobo
       size='sm'
       iconSize='lg'
       icon={ChevronDown}
-      aria-label={t('enonic.ui.combobox.toggle')}
+      aria-label={ariaLabel ?? t('enonic.ui.combobox.toggle')}
       onPointerDown={handlePointerDown}
       onClick={event => {
         onClick?.(event);

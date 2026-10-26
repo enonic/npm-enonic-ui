@@ -22,11 +22,13 @@ import {
   useSyncValue,
 } from '@/hooks';
 import { FilledOctagonAlert } from '@/icons';
-import { type TabContextValue, TabProvider, usePrefixedId, useTab } from '@/providers';
+import { type TabContextValue, TabProvider, usePhrases, usePrefixedId, useTab } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
 import { getActiveElement } from '@/utils/dom';
 
 import type { LucideIcon } from '@/types';
+
+import { tabPhrases } from './tab.phrases';
 
 //
 // * Tab.Root
@@ -410,15 +412,20 @@ TabContent.displayName = 'Tab.Content';
  * nesting may require updating the selectors here.
  */
 export type TabListOverflowProps = {
+  /** Overrides the localized accessible name for the scroll-left button. */
+  scrollLeftLabel?: string;
+  /** Overrides the localized accessible name for the scroll-right button. */
+  scrollRightLabel?: string;
   /** Minimum width for each tab (CSS value, e.g. '6rem', '120px'). Defaults to '6.25rem'. */
   minTabWidth?: string;
   children?: ReactNode;
 } & ComponentPropsWithoutRef<'div'>;
 
 const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props, ref): ReactElement => {
-  const { minTabWidth = '6.25rem', children, className, ...restProps } = props;
+  const { scrollLeftLabel, scrollRightLabel, minTabWidth = '6.25rem', children, className, ...restProps } = props;
 
   const { baseId, active } = useTab();
+  const t = usePhrases(tabPhrases);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const { canScrollLeft, canScrollRight, hasOverflow, scrollBy } = useOverflowDetection(scrollRef);
@@ -473,6 +480,7 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
           iconStrokeWidth={1.25}
           tabIndex={-1}
           aria-hidden='true'
+          aria-label={scrollLeftLabel ?? t('enonic.ui.tab.scrollLeft')}
           disabled={!canScrollLeft}
           onClick={() => scrollBy(-(scrollRef.current?.clientWidth ?? 0))}
           className={arrowClassName}
@@ -501,6 +509,7 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
           iconStrokeWidth={1.25}
           tabIndex={-1}
           aria-hidden='true'
+          aria-label={scrollRightLabel ?? t('enonic.ui.tab.scrollRight')}
           disabled={!canScrollRight}
           onClick={() => scrollBy(scrollRef.current?.clientWidth ?? 0)}
           className={arrowClassName}

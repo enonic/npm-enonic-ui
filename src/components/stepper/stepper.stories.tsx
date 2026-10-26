@@ -1,11 +1,11 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
+import { Dialog, IconButton } from '@/components';
+
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 import { Button } from '../button';
-import { Dialog } from '../dialog/dialog';
-import { IconButton } from '../icon-button';
 import { Tooltip } from '../tooltip';
 import { Stepper, type StepperRootProps } from './stepper';
 
@@ -83,13 +83,23 @@ export const NavigationWithButtonsAndDots: Story = {
 
         <div className='grid grid-cols-[1fr_auto_1fr] items-center'>
           <Stepper.Previous asChild>
-            <IconButton icon={ChevronLeft} variant='outline' className='justify-self-start rounded-full' />
+            <IconButton
+              icon={ChevronLeft}
+              aria-label='Previous step'
+              variant='outline'
+              className='justify-self-start rounded-full'
+            />
           </Stepper.Previous>
 
           <Stepper.Dots />
 
           <Stepper.Next asChild>
-            <IconButton icon={ChevronRight} variant='outline' className='justify-self-end rounded-full' />
+            <IconButton
+              icon={ChevronRight}
+              aria-label='Next step'
+              variant='outline'
+              className='justify-self-end rounded-full'
+            />
           </Stepper.Next>
         </div>
       </Stepper.Root>
@@ -464,13 +474,23 @@ export const KeyboardNavigation: Story = {
 
           <div className='grid grid-cols-[1fr_auto_1fr] items-center'>
             <Stepper.Previous asChild>
-              <IconButton icon={ChevronLeft} variant='outline' className='justify-self-start rounded-full' />
+              <IconButton
+                icon={ChevronLeft}
+                aria-label='Previous step'
+                variant='outline'
+                className='justify-self-start rounded-full'
+              />
             </Stepper.Previous>
 
             <Stepper.Dots />
 
             <Stepper.Next asChild>
-              <IconButton icon={ChevronRight} variant='outline' className='justify-self-end rounded-full' />
+              <IconButton
+                icon={ChevronRight}
+                aria-label='Next step'
+                variant='outline'
+                className='justify-self-end rounded-full'
+              />
             </Stepper.Next>
           </div>
         </Stepper.Root>

@@ -3,6 +3,7 @@ import { datePickerPhrases } from '@/components/date-picker/date-picker.phrases'
 import { dialogPhrases } from '@/components/dialog/dialog.phrases';
 import { searchFieldPhrases } from '@/components/search-field/search-field.phrases';
 import { stepperPhrases } from '@/components/stepper/stepper.phrases';
+import { tabPhrases } from '@/components/tab/tab.phrases';
 import { timePickerPhrases } from '@/components/time-picker/time-picker.phrases';
 import { toastPhrases } from '@/components/toast/toast.phrases';
 import { treeListPhrases } from '@/components/tree-list/tree-list.phrases';
@@ -19,6 +20,7 @@ export const uiPhrases = mergePhrases([
   dialogPhrases,
   searchFieldPhrases,
   stepperPhrases,
+  tabPhrases,
   timePickerPhrases,
   toastPhrases,
   treeListPhrases,

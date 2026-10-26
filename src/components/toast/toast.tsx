@@ -128,50 +128,52 @@ const ToastButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<typeo
 );
 ToastButton.displayName = 'Toast.Button';
 
-const ToastClose = forwardRef<HTMLButtonElement, { asChild?: boolean } & Omit<IconButtonProps, 'icon'>>(
-  ({ asChild, onClick, children, className, ...props }, ref): ReactElement => {
-    const { setOpen } = useToast();
-    const t = usePhrases(toastPhrases);
+const ToastClose = forwardRef<
+  HTMLButtonElement,
+  { asChild?: boolean; 'aria-label'?: string } & Omit<IconButtonProps, 'icon' | 'aria-label'>
+>(({ asChild, 'aria-label': ariaLabel, onClick, children, className, ...props }, ref): ReactElement => {
+  const { setOpen } = useToast();
+  const t = usePhrases(toastPhrases);
 
-    const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
-      onClick?.(event);
-      if (!event.defaultPrevented) {
-        setOpen?.(false);
-      }
-    };
-
-    if (asChild) {
-      return (
-        <Slot
-          data-component='Toast.Close'
-          // @ts-expect-error - Slot ref typing incompatibility with Preact
-          ref={ref}
-          onClick={handleClick}
-          {...props}
-        >
-          {children}
-        </Slot>
-      );
+  const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
+    onClick?.(event);
+    if (!event.defaultPrevented) {
+      setOpen?.(false);
     }
+  };
 
+  if (asChild) {
     return (
-      <IconButton
+      <Slot
         data-component='Toast.Close'
+        // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
-        icon={X}
-        iconSize='lg'
-        iconStrokeWidth={1}
-        aria-label={t('enonic.ui.toast.close')}
-        title={t('enonic.ui.toast.close')}
-        variant='text'
-        size='sm'
-        className={cn('text-alt hover:bg-btn-tertiary-hover hover:text-alt bg-transparent', className)}
         onClick={handleClick}
+        aria-label={ariaLabel}
         {...props}
-      />
+      >
+        {children}
+      </Slot>
     );
-  },
-);
+  }
+
+  return (
+    <IconButton
+      data-component='Toast.Close'
+      ref={ref}
+      icon={X}
+      iconSize='lg'
+      iconStrokeWidth={1}
+      aria-label={ariaLabel ?? t('enonic.ui.toast.close')}
+      title={t('enonic.ui.toast.close')}
+      variant='text'
+      size='sm'
+      className={cn('text-alt hover:bg-btn-tertiary-hover hover:text-alt bg-transparent', className)}
+      onClick={handleClick}
+      {...props}
+    />
+  );
+});
 ToastClose.displayName = 'Toast.Close';
 
 export type ToastIconProps = {

@@ -392,8 +392,21 @@ export const OuterNavigation: Story = {
 
     return (
       <div className='min-w-52 p-4'>
-        <IconButton icon={ArrowUp} onClick={() => navHandler(-1)} variant='outline' shape='round' className='mr-1' />
-        <IconButton icon={ArrowDown} onClick={() => navHandler(1)} variant='outline' shape='round' />
+        <IconButton
+          icon={ArrowUp}
+          aria-label='Previous option'
+          onClick={() => navHandler(-1)}
+          variant='outline'
+          shape='round'
+          className='mr-1'
+        />
+        <IconButton
+          icon={ArrowDown}
+          aria-label='Next option'
+          onClick={() => navHandler(1)}
+          variant='outline'
+          shape='round'
+        />
 
         <Listbox
           selectionMode='multiple'

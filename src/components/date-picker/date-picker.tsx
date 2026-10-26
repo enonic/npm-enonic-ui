@@ -43,7 +43,7 @@ import {
   usePortalContainer,
   usePrefixedId,
 } from '@/providers';
-import { cn, getIsMobile, subscribeToMobileChanges, useComposedRefs } from '@/utils';
+import { cn, getIsMobile, subscribeToMobileChanges, unwrap, useComposedRefs } from '@/utils';
 
 import { datePickerPhrases } from './date-picker.phrases';
 
@@ -948,6 +948,7 @@ const DatePickerHeader = ({
           icon={ChevronLeft}
           variant='text'
           size='md'
+          aria-label={t('enonic.ui.datePicker.previousMonth')}
           title={t('enonic.ui.datePicker.previousMonth')}
           onClick={handlePrev}
           onFocus={handlePrevFocus}
@@ -967,6 +968,7 @@ const DatePickerHeader = ({
           icon={ChevronRight}
           variant='text'
           size='md'
+          aria-label={t('enonic.ui.datePicker.nextMonth')}
           title={t('enonic.ui.datePicker.nextMonth')}
           onClick={handleNext}
           onFocus={handleNextFocus}
@@ -1149,7 +1151,10 @@ export type DatePickerTriggerProps = {
 } & Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'children'>;
 
 const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
-  ({ asChild, className, children, onClick, onKeyDown, title, disabled, ...props }, ref): ReactElement => {
+  (
+    { asChild, 'aria-label': ariaLabel, className, children, onClick, onKeyDown, title, disabled, ...props },
+    ref,
+  ): ReactElement => {
     const { baseId, open, setOpen, triggerRef } = useDatePicker();
     const t = usePhrases(datePickerPhrases);
     const composedRefs = useComposedRefs(ref, triggerRef);
@@ -1190,6 +1195,7 @@ const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
           onKeyDown={handleKeyDown}
           className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
           {...props}
+          aria-label={unwrap(ariaLabel) ?? t('enonic.ui.datePicker.open')}
         />
       );
     }
@@ -1210,6 +1216,7 @@ const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
         onKeyDown={handleKeyDown}
         className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
         {...(!asChild && { type: 'button' })}
+        aria-label={ariaLabel}
         {...props}
       >
         {children}

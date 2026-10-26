@@ -1,8 +1,8 @@
 import { Edit, Heart, Monitor, Plus, Save, Search, Settings, Upload } from 'lucide-react';
 
-import type { Meta, StoryObj } from '@storybook/preact-vite';
+import { IconButton, type IconButtonProps } from '@/components';
 
-import { IconButton, type IconButtonProps } from './icon-button';
+import type { Meta, StoryObj } from '@storybook/preact-vite';
 
 type Story = StoryObj<IconButtonProps>;
 
@@ -11,6 +11,12 @@ export default {
   component: IconButton,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Requires an explicit aria-label describing the action. Neither title nor label supplies a naming fallback; title is optional tooltip text.',
+      },
+    },
   },
   tags: ['autodocs'],
   argTypes: {
@@ -37,6 +43,10 @@ export default {
       options: ['square', 'round'],
       description: 'The shape of the button',
     },
+    'aria-label': {
+      control: 'text',
+      description: 'Required explicit accessible action name',
+    },
     title: {
       control: 'text',
       description: 'Tooltip text shown on hover',
@@ -48,6 +58,7 @@ export const Text: Story = {
   name: 'Examples / Text Variant',
   args: {
     icon: Monitor,
+    'aria-label': 'Open monitor',
     variant: 'text',
     title: 'Monitor',
   },
@@ -57,6 +68,7 @@ export const Filled: Story = {
   name: 'Examples / Filled Variant',
   args: {
     icon: Save,
+    'aria-label': 'Save changes',
     variant: 'filled',
     title: 'Save',
   },
@@ -66,6 +78,7 @@ export const Solid: Story = {
   name: 'Examples / Solid Variant',
   args: {
     icon: Upload,
+    'aria-label': 'Upload file',
     variant: 'solid',
     title: 'Upload',
   },
@@ -75,6 +88,7 @@ export const Outline: Story = {
   name: 'Examples / Outline Variant',
   args: {
     icon: Settings,
+    'aria-label': 'Open settings',
     variant: 'outline',
     title: 'Settings',
   },
@@ -87,19 +101,19 @@ export const AllVariantsComparison: Story = {
       <div>
         <h3 className='mb-3 text-sm font-medium'>All Variants - Medium Size</h3>
         <div className='flex flex-wrap gap-3'>
-          <IconButton icon={Monitor} variant='text' title='Text variant' />
-          <IconButton icon={Save} variant='filled' title='Filled variant' />
-          <IconButton icon={Upload} variant='solid' title='Solid variant' />
-          <IconButton icon={Settings} variant='outline' title='Outline variant' />
+          <IconButton icon={Monitor} aria-label='Open monitor' variant='text' title='Text variant' />
+          <IconButton icon={Save} aria-label='Save changes' variant='filled' title='Filled variant' />
+          <IconButton icon={Upload} aria-label='Upload file' variant='solid' title='Solid variant' />
+          <IconButton icon={Settings} aria-label='Open settings' variant='outline' title='Outline variant' />
         </div>
       </div>
       <div>
         <h3 className='mb-3 text-sm font-medium'>All Variants - Disabled</h3>
         <div className='flex flex-wrap gap-3'>
-          <IconButton icon={Monitor} variant='text' title='Text variant' disabled />
-          <IconButton icon={Save} variant='filled' title='Filled variant' disabled />
-          <IconButton icon={Upload} variant='solid' title='Solid variant' disabled />
-          <IconButton icon={Settings} variant='outline' title='Outline variant' disabled />
+          <IconButton icon={Monitor} aria-label='Open monitor' variant='text' title='Text variant' disabled />
+          <IconButton icon={Save} aria-label='Save changes' variant='filled' title='Filled variant' disabled />
+          <IconButton icon={Upload} aria-label='Upload file' variant='solid' title='Solid variant' disabled />
+          <IconButton icon={Settings} aria-label='Open settings' variant='outline' title='Outline variant' disabled />
         </div>
       </div>
     </div>
@@ -113,19 +127,75 @@ export const DisabledStates: Story = {
       <div>
         <h3 className='mb-3 text-sm font-medium'>Square - Disabled</h3>
         <div className='flex flex-wrap gap-3'>
-          <IconButton icon={Monitor} variant='text' shape='square' title='Text variant' disabled />
-          <IconButton icon={Save} variant='filled' shape='square' title='Filled variant' disabled />
-          <IconButton icon={Upload} variant='solid' shape='square' title='Solid variant' disabled />
-          <IconButton icon={Settings} variant='outline' shape='square' title='Outline variant' disabled />
+          <IconButton
+            icon={Monitor}
+            aria-label='Open monitor'
+            variant='text'
+            shape='square'
+            title='Text variant'
+            disabled
+          />
+          <IconButton
+            icon={Save}
+            aria-label='Save changes'
+            variant='filled'
+            shape='square'
+            title='Filled variant'
+            disabled
+          />
+          <IconButton
+            icon={Upload}
+            aria-label='Upload file'
+            variant='solid'
+            shape='square'
+            title='Solid variant'
+            disabled
+          />
+          <IconButton
+            icon={Settings}
+            aria-label='Open settings'
+            variant='outline'
+            shape='square'
+            title='Outline variant'
+            disabled
+          />
         </div>
       </div>
       <div>
         <h3 className='mb-3 text-sm font-medium'>Round - Disabled</h3>
         <div className='flex flex-wrap gap-3'>
-          <IconButton icon={Monitor} variant='text' shape='round' title='Text variant' disabled />
-          <IconButton icon={Save} variant='filled' shape='round' title='Filled variant' disabled />
-          <IconButton icon={Upload} variant='solid' shape='round' title='Solid variant' disabled />
-          <IconButton icon={Settings} variant='outline' shape='round' title='Outline variant' disabled />
+          <IconButton
+            icon={Monitor}
+            aria-label='Open monitor'
+            variant='text'
+            shape='round'
+            title='Text variant'
+            disabled
+          />
+          <IconButton
+            icon={Save}
+            aria-label='Save changes'
+            variant='filled'
+            shape='round'
+            title='Filled variant'
+            disabled
+          />
+          <IconButton
+            icon={Upload}
+            aria-label='Upload file'
+            variant='solid'
+            shape='round'
+            title='Solid variant'
+            disabled
+          />
+          <IconButton
+            icon={Settings}
+            aria-label='Open settings'
+            variant='outline'
+            shape='round'
+            title='Outline variant'
+            disabled
+          />
         </div>
       </div>
     </div>
@@ -138,9 +208,9 @@ export const TextSizes: Story = {
     <div className='space-y-4 p-4'>
       <h3 className='mb-3 text-sm font-medium'>Text Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
-        <IconButton icon={Search} variant='text' size='sm' title='Small search' />
-        <IconButton icon={Search} variant='text' size='md' title='Medium search' />
-        <IconButton icon={Search} variant='text' size='lg' title='Large search' />
+        <IconButton icon={Search} aria-label='Search' variant='text' size='sm' title='Small search' />
+        <IconButton icon={Search} aria-label='Search' variant='text' size='md' title='Medium search' />
+        <IconButton icon={Search} aria-label='Search' variant='text' size='lg' title='Large search' />
       </div>
     </div>
   ),
@@ -152,9 +222,9 @@ export const FilledSizes: Story = {
     <div className='space-y-4 p-4'>
       <h3 className='mb-3 text-sm font-medium'>Filled Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
-        <IconButton icon={Plus} variant='filled' size='sm' title='Small add' />
-        <IconButton icon={Plus} variant='filled' size='md' title='Medium add' />
-        <IconButton icon={Plus} variant='filled' size='lg' title='Large add' />
+        <IconButton icon={Plus} aria-label='Add item' variant='filled' size='sm' title='Small add' />
+        <IconButton icon={Plus} aria-label='Add item' variant='filled' size='md' title='Medium add' />
+        <IconButton icon={Plus} aria-label='Add item' variant='filled' size='lg' title='Large add' />
       </div>
     </div>
   ),
@@ -166,9 +236,9 @@ export const SolidSizes: Story = {
     <div className='space-y-4 p-4'>
       <h3 className='mb-3 text-sm font-medium'>Solid Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
-        <IconButton icon={Edit} variant='solid' size='sm' title='Small edit' />
-        <IconButton icon={Edit} variant='solid' size='md' title='Medium edit' />
-        <IconButton icon={Edit} variant='solid' size='lg' title='Large edit' />
+        <IconButton icon={Edit} aria-label='Edit item' variant='solid' size='sm' title='Small edit' />
+        <IconButton icon={Edit} aria-label='Edit item' variant='solid' size='md' title='Medium edit' />
+        <IconButton icon={Edit} aria-label='Edit item' variant='solid' size='lg' title='Large edit' />
       </div>
     </div>
   ),
@@ -180,9 +250,9 @@ export const OutlineSizes: Story = {
     <div className='space-y-4 p-4'>
       <h3 className='mb-3 text-sm font-medium'>Outline Variant - All Sizes</h3>
       <div className='flex items-center gap-3'>
-        <IconButton icon={Heart} variant='outline' size='sm' title='Small heart' />
-        <IconButton icon={Heart} variant='outline' size='md' title='Medium heart' />
-        <IconButton icon={Heart} variant='outline' size='lg' title='Large heart' />
+        <IconButton icon={Heart} aria-label='Add to favorites' variant='outline' size='sm' title='Small heart' />
+        <IconButton icon={Heart} aria-label='Add to favorites' variant='outline' size='md' title='Medium heart' />
+        <IconButton icon={Heart} aria-label='Add to favorites' variant='outline' size='lg' title='Large heart' />
       </div>
     </div>
   ),
@@ -195,27 +265,60 @@ export const ShapeComparison: Story = {
       <div>
         <h3 className='mb-3 text-sm font-medium'>Square Shape (Default)</h3>
         <div className='flex flex-wrap gap-3'>
-          <IconButton icon={Monitor} variant='text' shape='square' title='Square text' />
-          <IconButton icon={Save} variant='filled' shape='square' title='Square filled' />
-          <IconButton icon={Upload} variant='solid' shape='square' title='Square solid' />
-          <IconButton icon={Settings} variant='outline' shape='square' title='Square outline' />
+          <IconButton icon={Monitor} aria-label='Open monitor' variant='text' shape='square' title='Square text' />
+          <IconButton icon={Save} aria-label='Save changes' variant='filled' shape='square' title='Square filled' />
+          <IconButton icon={Upload} aria-label='Upload file' variant='solid' shape='square' title='Square solid' />
+          <IconButton
+            icon={Settings}
+            aria-label='Open settings'
+            variant='outline'
+            shape='square'
+            title='Square outline'
+          />
         </div>
       </div>
       <div>
         <h3 className='mb-3 text-sm font-medium'>Round Shape</h3>
         <div className='flex flex-wrap gap-3'>
-          <IconButton icon={Monitor} variant='text' shape='round' title='Round text' />
-          <IconButton icon={Save} variant='filled' shape='round' title='Round filled' />
-          <IconButton icon={Upload} variant='solid' shape='round' title='Round solid' />
-          <IconButton icon={Settings} variant='outline' shape='round' title='Round outline' />
+          <IconButton icon={Monitor} aria-label='Open monitor' variant='text' shape='round' title='Round text' />
+          <IconButton icon={Save} aria-label='Save changes' variant='filled' shape='round' title='Round filled' />
+          <IconButton icon={Upload} aria-label='Upload file' variant='solid' shape='round' title='Round solid' />
+          <IconButton
+            icon={Settings}
+            aria-label='Open settings'
+            variant='outline'
+            shape='round'
+            title='Round outline'
+          />
         </div>
       </div>
       <div>
         <h3 className='mb-3 text-sm font-medium'>Round Shape - All Sizes</h3>
         <div className='flex items-center gap-3'>
-          <IconButton icon={Heart} variant='filled' shape='round' size='sm' title='Small round' />
-          <IconButton icon={Heart} variant='filled' shape='round' size='md' title='Medium round' />
-          <IconButton icon={Heart} variant='filled' shape='round' size='lg' title='Large round' />
+          <IconButton
+            icon={Heart}
+            aria-label='Add to favorites'
+            variant='filled'
+            shape='round'
+            size='sm'
+            title='Small round'
+          />
+          <IconButton
+            icon={Heart}
+            aria-label='Add to favorites'
+            variant='filled'
+            shape='round'
+            size='md'
+            title='Medium round'
+          />
+          <IconButton
+            icon={Heart}
+            aria-label='Add to favorites'
+            variant='filled'
+            shape='round'
+            size='lg'
+            title='Large round'
+          />
         </div>
       </div>
     </div>
@@ -226,6 +329,7 @@ export const Interactive: Story = {
   name: 'Features / Interactive',
   args: {
     icon: Monitor,
+    'aria-label': 'Open monitor',
     variant: 'text',
     size: 'md',
     shape: 'square',
