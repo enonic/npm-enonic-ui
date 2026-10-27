@@ -64,6 +64,11 @@ Use `usePortalFocusContainer` hook — portaled components register themselves w
 1. `Dialog.Content` creates a `FocusContainerRegistry` via `FocusContainerContext`
 2. Portaled popups call `usePortalFocusContainer` to register with the registry
 3. `Dialog.Content` passes registered containers to `FocusTrap` via `containerElements`
+4. Registration updates the dialog's portal refs synchronously and increments a registry version.
+5. Popups request focus through the callback returned by `usePortalFocusContainer`. Dialog serves
+   queued requests in a passive `useEffect` after acknowledging the rendered container snapshot.
+   Do not use a layout effect or a frame delay to acknowledge registration: Preact runs hook
+   layout effects before `focus-trap-react` updates its containers in `componentDidUpdate`.
 
 ### Implementation
 
@@ -79,8 +84,16 @@ useLayoutEffect(() => {
   setIsPortalMode(contentRef.current.parentElement === portalContainer);
 }, [open, portalContainer]);
 
-usePortalFocusContainer(contentRef, isPortalMode);
+const requestFocus = usePortalFocusContainer(contentRef, open && isPortalMode);
+
+useLayoutEffect(() => {
+  if (open) return requestFocus(() => contentRef.current?.focus());
+}, [open, requestFocus]);
 ```
+
+The request returns a cancellation callback for close/unmount cleanup. It runs immediately when
+the container is already acknowledged or the registry does not support focus requests. Keep
+selection initialization separate so registry updates do not reset keyboard navigation.
 
 The comparison target is `usePortalContainer()` — `document.body` by default, or the layer a
 `PortalProvider` (typically `AppRoot` inside a shadow root) supplies. Comparing against
@@ -163,3 +176,8 @@ When a component renders via portal **outside** any dismissible UI's React tree 
 ## Enter Handlers Inside Dialogs
 
 A handler that reacts to `Enter` and calls `preventDefault()` returns first when `isDialogShortcutEvent(event)` (`@/components/dialog/dialog-actions`) is true. Otherwise the widget swallows the dialog's Cmd/Ctrl+Enter shortcuts while it has focus.
+
+Use `dialogShortcutBoundaryProps(open)` from the same module on the control and portaled content
+of a popup that commits a pending choice with Enter. The helper documents the ownership rule and
+is the only writer of the boundary attribute. Keep the boundary check in the dialog scope's
+`containsShortcutEvent` so separately bundled older shortcut helpers also honor it.

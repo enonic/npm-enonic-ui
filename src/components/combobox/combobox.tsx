@@ -17,7 +17,7 @@ import {
 import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/button';
-import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+import { dialogShortcutBoundaryProps, isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { IconButton } from '@/components/icon-button/icon-button';
 import { Listbox } from '@/components/listbox';
 import { SearchField } from '@/components/search-field';
@@ -400,6 +400,8 @@ const ComboboxRoot = ({
   // tree container, their own handlers drive navigation and selection.
   const keyHandler = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
+      if (isDialogShortcutEvent(e)) return;
+
       if (disabled) {
         return;
       }
@@ -409,7 +411,6 @@ const ComboboxRoot = ({
       // is driven by Space on the focused option, not Enter.
       // Also handled in Combobox.Popup for when focus has moved off the input.
       if (e.key === 'Enter' && open) {
-        if (isDialogShortcutEvent(e)) return;
         e.preventDefault();
         if (stagingEnabled) {
           applyStagedSelection();
@@ -553,7 +554,7 @@ export type ComboboxContentProps = {
 
 const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
   ({ className, children, onBlur, ...props }, ref): ReactElement => {
-    const { contentRef } = useCombobox();
+    const { contentRef, open, stagingEnabled } = useCombobox();
     const { closeOnFocusExit } = useComboboxFocusBoundary();
 
     const handleOnBlur = useCallback(
@@ -567,6 +568,7 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
     return (
       <div
         data-component='Combobox.Content'
+        {...dialogShortcutBoundaryProps(open && stagingEnabled)}
         ref={useComposedRefs(ref, contentRef)}
         className={cn('relative', className)}
         {...props}
@@ -856,8 +858,9 @@ const ComboboxValue = ({ className, children, ...props }: ComboboxValueProps): R
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (isDialogShortcutEvent(e)) return;
+
       if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        if (isDialogShortcutEvent(e)) return;
         e.preventDefault();
         setOpen(true);
       }
@@ -1062,7 +1065,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     const handleKeyDownCapture = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onApplyTabKeyDownCapture(e);
-        if (e.defaultPrevented) {
+        if (e.defaultPrevented || isDialogShortcutEvent(e)) {
           return;
         }
 
@@ -1077,7 +1080,6 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
         }
 
         if (e.key === 'Enter') {
-          if (isDialogShortcutEvent(e)) return;
           if (selectionMode === 'single' && !stagingEnabled) return;
 
           e.preventDefault();
@@ -1140,6 +1142,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- key handlers redirect to interactive descendants (listbox items / input)
       <div
         data-component='Combobox.Popup'
+        {...dialogShortcutBoundaryProps(stagingEnabled)}
         ref={composedRefs}
         data-combobox-popup=''
         // ! Non-portal mode lays the popup out in flow and ignores `side`, so
@@ -1272,6 +1275,8 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
   // Handle keyboard shortcuts from tree content
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
+      if (isDialogShortcutEvent(e)) return;
+
       const focusInput = (): void => {
         inputRef.current?.focus({ focusVisible: true });
       };
@@ -1281,7 +1286,6 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
       // mode Space is the selection key, so Enter only commits the popup.
       // Staged mode applies staged selection.
       if (e.key === 'Enter') {
-        if (isDialogShortcutEvent(e)) return;
         if (stagingEnabled) {
           e.preventDefault();
           e.stopPropagation();

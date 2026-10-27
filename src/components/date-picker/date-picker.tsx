@@ -19,7 +19,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+import { dialogShortcutBoundaryProps, isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { IconButton } from '@/components/icon-button';
 import { Selector } from '@/components/selector';
 import {
@@ -406,7 +406,7 @@ const DatePickerGrid = ({
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     onKeyDown?.(event);
-    if (event.defaultPrevented) return;
+    if (event.defaultPrevented || isDialogShortcutEvent(event)) return;
 
     switch (event.key) {
       case 'ArrowLeft':
@@ -428,7 +428,6 @@ const DatePickerGrid = ({
       case ' ':
       case 'Spacebar':
       case 'Enter':
-        if (isDialogShortcutEvent(event)) return;
         event.preventDefault();
         if (!isDateDisabled(activeDate)) {
           selectDate(activeDate);
@@ -1049,7 +1048,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
     }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
-    usePortalFocusContainer(contentRef, isPortalMode);
+    const requestFocus = usePortalFocusContainer(contentRef, open && isPortalMode);
 
     useClickOutside({
       enabled: open,
@@ -1058,14 +1057,12 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
       onClose: () => setOpen(false),
     });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (!open) return;
-      if (!contentRef.current) return;
-      const grid = contentRef.current.querySelector('[role="grid"]');
-      if (grid instanceof HTMLElement) {
-        grid.focus();
-      }
-    }, [open]);
+      return requestFocus(() => {
+        contentRef.current?.querySelector<HTMLElement>('[role="grid"]')?.focus();
+      });
+    }, [open, requestFocus]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
       onKeyDown?.(event);
@@ -1110,6 +1107,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
         data-component='DatePicker.Content'
+        {...dialogShortcutBoundaryProps(open)}
         ref={composedRefs}
         id={contentId}
         role='dialog'
@@ -1576,6 +1574,7 @@ const DatePickerRoot = ({
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         data-component='DatePicker.Root'
+        {...dialogShortcutBoundaryProps(open)}
         className={
           children
             ? className

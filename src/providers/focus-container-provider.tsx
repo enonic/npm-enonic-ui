@@ -6,11 +6,13 @@ import { createContext, useContext } from 'react';
  * Used by Dialog.Content to extend focus-trap-react's containerElements
  * to include portaled popups (e.g., Combobox.Popup in portal mode).
  *
- * @see .cursor/rules/patterns.mdc — "Focus Trap with Portaled Content"
+ * @see .claude/rules/patterns.md — "Focus Trap with Portaled Content"
  */
 export type FocusContainerRegistry = {
   register: (element: HTMLElement) => void;
   unregister: (element: HTMLElement) => void;
+  /** Focus once the trap has acknowledged this container. Returns a cancellation callback. */
+  requestFocus?: (container: HTMLElement, focus: () => void) => () => void;
 };
 
 export const FocusContainerContext = createContext<FocusContainerRegistry | null>(null);

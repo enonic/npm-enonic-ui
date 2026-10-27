@@ -268,6 +268,8 @@ export function useGridNavigation(config: GridNavigationConfig): UseGridNavigati
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
+      if (isDialogShortcutEvent(e)) return;
+
       const rows = getRows();
       if (!rows.length) return;
 
@@ -348,7 +350,6 @@ export function useGridNavigation(config: GridNavigationConfig): UseGridNavigati
 
         case 'Enter':
         case ' ':
-          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (activeCell && !isRowDisabled(activeCell.row) && !isCellDisabled(activeCell.row, activeCell.col)) {
             onActivate?.(activeCell.row, activeCell.col);

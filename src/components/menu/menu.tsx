@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { dialogShortcutBoundaryProps } from '@/components/dialog/dialog-actions';
 import {
   type FloatingProps,
   useClickOutside,
@@ -137,6 +138,7 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
     return (
       <Comp
         data-component='Menu.Trigger'
+        {...dialogShortcutBoundaryProps(open)}
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={useComposedRefs(ref, triggerRef)}
         id={triggerId}
@@ -242,25 +244,23 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
-    usePortalFocusContainer(contentRef, isPortalMode);
+    const requestFocus = usePortalFocusContainer(contentRef, open && isPortalMode);
 
-    // Focus menu and initialize active item only on closed -> open transition.
+    // Initialize selection only when opening; registry updates must not reset navigation.
     useEffect(() => {
-      const isOpening = open && !wasOpenRef.current;
-
-      if (isOpening && contentRef.current) {
-        contentRef.current.focus();
-
-        // Select first non-disabled item
+      if (open && !wasOpenRef.current) {
         const items = getItems();
+        if (items.length === 0) return;
         const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
-        if (firstSelectableItem) {
-          setActive(firstSelectableItem);
-        }
+        setActive(firstSelectableItem);
       }
-
       wasOpenRef.current = open;
     }, [open, getItems, isItemDisabled, setActive]);
+
+    useLayoutEffect(() => {
+      if (!open) return;
+      return requestFocus(() => contentRef.current?.focus());
+    }, [open, requestFocus]);
 
     // Keyboard navigation
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
@@ -329,6 +329,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     return (
       <div
         data-component='Menu.Content'
+        {...dialogShortcutBoundaryProps(open)}
         ref={composedRefs}
         id={menuId}
         role='menu'

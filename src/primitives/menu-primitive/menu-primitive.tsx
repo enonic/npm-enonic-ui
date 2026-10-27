@@ -463,9 +463,10 @@ export const MenuPrimitiveRadioItem = forwardRef<HTMLDivElement, MenuPrimitiveRa
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
+        if (isDialogShortcutEvent(e)) return;
+
         // Space/Enter key selects the radio item
         if (e.key === ' ' || e.key === 'Enter') {
-          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (!disabled) {
             setValue(value);
