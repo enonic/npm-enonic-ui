@@ -66,7 +66,12 @@ const canActivate = (scope: DialogActionScope, { element, pending }: DialogActio
   return false;
 };
 
-/** Whether the topmost dialog owns this Enter chord, including inactive or missing actions. */
+/**
+ * Whether the topmost dialog owns this Enter chord, including inactive or missing actions.
+ * Open widgets can keep local Enter behavior with a `data-dialog-shortcuts="block"` boundary.
+ * Widget handlers return before local side effects or event cancellation when this is true,
+ * leaving the bubbling event and native activation cancellation to the dialog dispatcher.
+ */
 export const isDialogShortcutEvent = (keyEvent: KeyboardEvent | { nativeEvent: KeyboardEvent }): boolean => {
   const event = 'nativeEvent' in keyEvent ? keyEvent.nativeEvent : keyEvent;
   if (event.key !== 'Enter' || event.altKey || event.getModifierState?.('AltGraph')) return false;

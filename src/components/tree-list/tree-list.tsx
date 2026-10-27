@@ -327,6 +327,8 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
     // State invalidation when items change (e.g., removed, collapsed, filtered)
     useEffect(() => {
+      // Wait for row registration before pruning initial controlled state.
+      if (registryVersion === 0) return;
       const registeredDomIds = getItems();
       const registeredDomIdSet = new Set(registeredDomIds);
 
@@ -415,6 +417,8 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (isDialogShortcutEvent(e)) return;
+
         // In action mode, let Space/Enter activate the focused button (don't intercept)
         if (actionModeRowId && (e.key === ' ' || e.key === 'Enter')) {
           // Don't preventDefault - let the button handle it natively
@@ -618,7 +622,6 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
         // Handle Enter for activation. In single selection mode, Enter mirrors
         // Space — it selects the active item (and fires onActivate).
         if (e.key === 'Enter' && active && canSelectById(fromDomId(active))) {
-          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           const logicalId = fromDomId(active);
           if (selectionMode === 'single') {
@@ -1264,8 +1267,9 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (isDialogShortcutEvent(e)) return;
+
         if (e.key === ' ' || e.key === 'Enter') {
-          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           e.stopPropagation();
           const rowDomId = `${baseId}-item-${rowId}`;

@@ -225,6 +225,14 @@ If two actions use the same shortcut, the first registered action wins until it 
 development builds warn.
 Buttons keep their ordinary focus, Enter, and Space behavior.
 
+Built-in widgets yield Cmd/Ctrl+Enter and Cmd/Ctrl+Shift+Enter to the topmost dialog when it owns
+the event. Open date and time pickers, menus, context menus, menubar menus, and staged comboboxes keep Enter
+local to select or apply values. Their closed controls yield to the dialog. Other widgets yield
+before changing selection, opening popups, or activating items.
+The dialog reserves these chords even when its action is missing, disabled, or pending. Outside
+the dialog's content and registered portals, widget keyboard behavior stays unchanged. Plain
+Enter, Shift+Enter, and modifier combinations the dialog does not own retain their existing behavior.
+
 Use `shortcutEnabled={false}` to unregister a mounted action without disabling its button; set
 it on inactive views when they share a shortcut. A disabled `Dialog.Shortcut` can render outside
 `Dialog.Content`; enabled registration requires content. For platform-specific hints,

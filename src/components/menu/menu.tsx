@@ -137,6 +137,7 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
     return (
       <Comp
         data-component='Menu.Trigger'
+        data-dialog-shortcuts={open ? 'block' : undefined}
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={useComposedRefs(ref, triggerRef)}
         id={triggerId}
@@ -244,23 +245,25 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     // Register with parent focus trap (e.g., Dialog) when in portal mode
     usePortalFocusContainer(contentRef, isPortalMode);
 
-    // Focus menu and initialize active item only on closed -> open transition.
+    // Initialize selection only when opening; registry updates must not reset navigation.
     useEffect(() => {
-      const isOpening = open && !wasOpenRef.current;
-
-      if (isOpening && contentRef.current) {
-        contentRef.current.focus();
-
-        // Select first non-disabled item
+      if (open && !wasOpenRef.current) {
         const items = getItems();
+        if (items.length === 0) return;
         const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
-        if (firstSelectableItem) {
-          setActive(firstSelectableItem);
-        }
+        setActive(firstSelectableItem);
       }
-
       wasOpenRef.current = open;
     }, [open, getItems, isItemDisabled, setActive]);
+
+    // Wait for portal registration before focusing inside the parent dialog's trap.
+    useEffect(() => {
+      if (!open) return;
+      const frame = requestAnimationFrame(() => {
+        contentRef.current?.focus();
+      });
+      return () => cancelAnimationFrame(frame);
+    }, [open, isPortalMode]);
 
     // Keyboard navigation
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
@@ -329,6 +332,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     return (
       <div
         data-component='Menu.Content'
+        data-dialog-shortcuts={open ? 'block' : undefined}
         ref={composedRefs}
         id={menuId}
         role='menu'
