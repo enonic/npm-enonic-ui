@@ -44,6 +44,9 @@ const oppositeSide = {
   right: 'left',
 } as const;
 
+const TOOLTIP_GAP = 8;
+const CLOSE_DELAY = 100;
+
 function useTooltipPosition(
   isOpen: boolean,
   side: TooltipSide,
@@ -63,7 +66,7 @@ function useTooltipPosition(
 
     const triggerRect = triggerRef.current.getBoundingClientRect();
     const tooltipRect = tooltipRef.current.getBoundingClientRect();
-    const gap = 8;
+    const gap = TOOLTIP_GAP;
     const padding = 8;
 
     const calculatePosition = (targetSide: TooltipSide): TooltipPosition => {
@@ -132,6 +135,8 @@ type TooltipContentProps = {
   className?: string;
   position: TooltipPosition;
   tooltipRef: RefObject<HTMLDivElement>;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 };
 
 type TooltipTriggerProps = {
@@ -184,22 +189,41 @@ function TooltipContent({
   className,
   position,
   tooltipRef,
+  onMouseEnter,
+  onMouseLeave,
 }: TooltipContentProps): ReactElement<TooltipContentProps> {
   // id set → described element; unset → decorative copy (the sr-only node carries the value).
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- mousedown only keeps focus on the trigger
     <div
       data-component='Tooltip.Content'
       id={id}
       ref={tooltipRef}
       role={id == null ? undefined : 'tooltip'}
       aria-hidden={id == null ? 'true' : undefined}
-      className={cn('pointer-events-none fixed z-50 select-none', !position.transformOrigin && 'opacity-0')}
+      className={cn('pointer-events-auto fixed z-50 select-none', !position.transformOrigin && 'opacity-0')}
+      data-click-outside-ignore
+      onMouseDown={e => e.preventDefault()}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,
         transformOrigin: position.transformOrigin,
       }}
     >
+      {/* Keep the visual gap hoverable, even when the pointer crosses it slowly. */}
+      <div
+        aria-hidden='true'
+        className={cn(
+          'absolute',
+          actualSide === 'top' && 'top-full left-0 w-full',
+          actualSide === 'bottom' && 'bottom-full left-0 w-full',
+          actualSide === 'left' && 'top-0 left-full h-full',
+          actualSide === 'right' && 'top-0 right-full h-full',
+        )}
+        style={actualSide === 'top' || actualSide === 'bottom' ? { height: TOOLTIP_GAP } : { width: TOOLTIP_GAP }}
+      />
       <div
         className={cn(
           'relative w-fit rounded-xs px-2 py-1 text-xs',
@@ -243,36 +267,79 @@ export function Tooltip({
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number>();
+  const hoveredRef = useRef<'trigger' | 'content' | undefined>();
+  const focusedRef = useRef(false);
 
   const isEmpty = value == null || value === '';
   const canShow = isOpen && !isEmpty;
   const coords = useTooltipPosition(canShow, side, triggerRef, tooltipRef, value);
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
+  const clearTimer = useCallback(() => {
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = undefined;
   }, []);
 
+  useEffect(() => clearTimer, [clearTimer]);
+
+  useLayoutEffect(() => {
+    if (!canShow) {
+      // Removing hovered content does not dispatch mouseleave.
+      if (hoveredRef.current === 'content') hoveredRef.current = undefined;
+      return;
+    }
+    const document = triggerRef.current?.ownerDocument;
+    if (document == null) return;
+
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape' || event.defaultPrevented || event.isComposing) return;
+      // Dismiss the tooltip before Escape reaches an enclosing dialog or menu.
+      event.preventDefault();
+      event.stopPropagation();
+      clearTimer();
+      setIsOpen(false);
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [canShow, clearTimer]);
+
+  const handleContentMouseEnter = useCallback(() => {
+    hoveredRef.current = 'content';
+    clearTimer();
+  }, [clearTimer]);
+
   const handleMouseEnter = useCallback(() => {
+    hoveredRef.current = 'trigger';
+    clearTimer();
+    if (isOpen) return;
     if (isEmpty) return;
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (delay > 0) {
       timeoutRef.current = window.setTimeout(() => setIsOpen(true), delay);
     } else {
       setIsOpen(true);
     }
-  }, [delay, isEmpty]);
+  }, [clearTimer, delay, isEmpty, isOpen]);
 
   const handleMouseLeave = useCallback(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setIsOpen(false);
-  }, []);
+    hoveredRef.current = undefined;
+    clearTimer();
+    if (!focusedRef.current) {
+      timeoutRef.current = window.setTimeout(() => setIsOpen(false), CLOSE_DELAY);
+    }
+  }, [clearTimer]);
 
   const handleFocus = useCallback(() => {
+    focusedRef.current = true;
+    clearTimer();
     if (!isEmpty) setIsOpen(true);
-  }, [isEmpty]);
-  const handleBlur = useCallback(() => setIsOpen(false), []);
+  }, [clearTimer, isEmpty]);
+  const handleBlur = useCallback(() => {
+    focusedRef.current = false;
+    if (!hoveredRef.current) {
+      clearTimer();
+      setIsOpen(false);
+    }
+  }, [clearTimer]);
   const hasHoverTrigger = trigger === 'hover' || trigger === 'hover-focus';
   const hasFocusTrigger = trigger === 'focus' || trigger === 'hover-focus';
 
@@ -310,6 +377,8 @@ export function Tooltip({
             className={className}
             position={coords}
             tooltipRef={tooltipRef}
+            onMouseEnter={handleContentMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             {value}
           </TooltipContent>,

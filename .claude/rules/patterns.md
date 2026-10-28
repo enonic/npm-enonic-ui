@@ -159,6 +159,7 @@ When a component renders via portal **outside** any dismissible UI's React tree 
 | Component | Attribute Location |
 |-----------|--------------------|
 | `Toast` | Root `<div>` in `ToastRoot` |
+| `Tooltip` | Root `<div>` in `TooltipContent` |
 
 ## Enter Handlers Inside Dialogs
 
