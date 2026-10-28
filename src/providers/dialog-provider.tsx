@@ -1,12 +1,19 @@
-import { createContext, type ReactElement, type ReactNode, useContext } from 'react';
+import {
+  createContext,
+  type Dispatch,
+  type ReactElement,
+  type ReactNode,
+  type SetStateAction,
+  useContext,
+} from 'react';
 
 export type DialogContextValue = {
   open: boolean;
   setOpen: (next: boolean) => void;
-  titleId: string;
-  descriptionId: string;
-  setTitleId: (id: string) => void;
-  setDescriptionId: (id: string) => void;
+  titleId: string | undefined;
+  descriptionId: string | undefined;
+  setTitleId: Dispatch<SetStateAction<string | undefined>>;
+  setDescriptionId: Dispatch<SetStateAction<string | undefined>>;
   isUsingStepper?: boolean;
 };
 
