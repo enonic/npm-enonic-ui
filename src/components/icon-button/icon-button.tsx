@@ -31,14 +31,26 @@ const iconButtonVariants = cva(['p-0'], {
 
 export type IconButtonProps = {
   icon: LucideIcon;
+  /** Explicit accessible action name; title and label are not naming fallbacks. */
+  'aria-label': string;
   iconClassName?: string;
   disabled?: boolean;
+  label?: never;
 } & IconButtonVariantsProps &
-  ComponentPropsWithoutRef<'button'>;
+  Omit<ComponentPropsWithoutRef<'button'>, 'aria-label'>;
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   (
-    { className, variant = 'text', size = 'md', shape = 'square', icon, iconClassName, ...props }: IconButtonProps,
+    {
+      className,
+      variant = 'text',
+      size = 'md',
+      shape = 'square',
+      icon,
+      'aria-label': ariaLabel,
+      iconClassName,
+      ...props
+    }: IconButtonProps,
     ref: ForwardedRef<HTMLButtonElement>,
   ) => {
     return (
@@ -50,8 +62,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         size={size}
         startIcon={icon}
         startIconClassName={iconClassName}
-        label=''
         {...props}
+        label=''
+        aria-label={ariaLabel}
       />
     );
   },

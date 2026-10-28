@@ -42,7 +42,7 @@ export const WithIconButton: Story = {
   name: 'Examples / With IconButton',
   render: () => (
     <Tooltip value='More information'>
-      <IconButton icon={Info} variant='outline' />
+      <IconButton icon={Info} aria-label='More information' variant='outline' />
     </Tooltip>
   ),
 };
@@ -75,7 +75,7 @@ export const MultipleTooltips: Story = {
       </Tooltip>
 
       <Tooltip value='Icon tooltip'>
-        <IconButton icon={Info} shape='round' />
+        <IconButton icon={Info} aria-label='More information' shape='round' />
       </Tooltip>
     </div>
   ),

@@ -54,7 +54,7 @@ TagRoot.displayName = 'Tag';
 // * Handle — a drag handle, for a tag in a sortable list
 //
 
-export type TagHandleProps = Omit<IconButtonProps, 'icon' | 'aria-label'> & { 'aria-label': string };
+export type TagHandleProps = Omit<IconButtonProps, 'icon'>;
 
 /** The grip at the left edge, a 24px target; the sortable's listeners and `aria-label` are the caller's. */
 const TagHandle = forwardRef<HTMLButtonElement, TagHandleProps>(
@@ -132,7 +132,7 @@ TagLabel.displayName = 'Tag.Label';
 // * Remove
 //
 
-export type TagRemoveProps = Omit<IconButtonProps, 'icon' | 'aria-label'> & { 'aria-label': string };
+export type TagRemoveProps = Omit<IconButtonProps, 'icon'>;
 
 /** The cross at the right edge, a 24px target; `aria-label` is the caller's, naming what it removes. */
 const TagRemove = forwardRef<HTMLButtonElement, TagRemoveProps>(

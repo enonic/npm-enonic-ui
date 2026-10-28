@@ -172,9 +172,15 @@ SearchFieldInput.displayName = 'SearchField.Input';
 // * SearchFieldClear
 //
 
-export type SearchFieldClearProps = Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon' | 'onClick'>;
+export type SearchFieldClearProps = {
+  'aria-label'?: string;
+} & Omit<ComponentPropsWithoutRef<typeof IconButton>, 'icon' | 'onClick' | 'aria-label'>;
 
-const SearchFieldClear = ({ className, ...props }: SearchFieldClearProps): ReactElement | null => {
+const SearchFieldClear = ({
+  'aria-label': ariaLabel,
+  className,
+  ...props
+}: SearchFieldClearProps): ReactElement | null => {
   const { value, disabled, readOnly, clearLabel, setValue, inputRef } = useSearchField();
 
   if (!value || disabled || readOnly) {
@@ -191,6 +197,7 @@ const SearchFieldClear = ({ className, ...props }: SearchFieldClearProps): React
       data-component='SearchField.Clear'
       className={cn('text-subtle -mx-1.5 flex size-7 shrink-0 items-center justify-center', className)}
       icon={X}
+      aria-label={ariaLabel ?? clearLabel}
       title={clearLabel}
       onClick={handleClear}
       disabled={disabled}

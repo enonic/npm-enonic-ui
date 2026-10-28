@@ -1159,8 +1159,9 @@ export type TreeListRowExpandControlProps = {
   onToggle?: () => void;
   icon?: LucideIcon;
   selected?: boolean;
+  'aria-label'?: string;
   className?: string;
-} & Omit<IconButtonProps, 'icon' | 'onClick'>;
+} & Omit<IconButtonProps, 'icon' | 'onClick' | 'aria-label'>;
 
 export const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRowExpandControlProps>(
   (
@@ -1171,6 +1172,7 @@ export const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRo
       onToggle,
       icon = ChevronRight,
       selected = false,
+      'aria-label': ariaLabel,
       className,
       ...props
     },
@@ -1200,6 +1202,7 @@ export const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRo
         ref={ref}
         icon={icon}
         variant='text'
+        aria-label={ariaLabel ?? (expanded ? t('enonic.ui.treeList.collapse') : t('enonic.ui.treeList.expand'))}
         title={expanded ? t('enonic.ui.treeList.collapse') : t('enonic.ui.treeList.expand')}
         tabIndex={-1}
         className={cn(

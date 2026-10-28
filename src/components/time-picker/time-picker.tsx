@@ -33,7 +33,7 @@ import {
   useRovingTabIndex,
 } from '@/hooks';
 import { type TimePickerContextValue, TimePickerProvider, usePhrases, usePrefixedId, useTimePicker } from '@/providers';
-import { cn, getIsMobile, subscribeToMobileChanges, useComposedRefs } from '@/utils';
+import { cn, getIsMobile, subscribeToMobileChanges, unwrap, useComposedRefs } from '@/utils';
 import { getRoot } from '@/utils/dom';
 
 import { timePickerPhrases } from './time-picker.phrases';
@@ -489,7 +489,10 @@ export type TimePickerTriggerProps = {
 } & Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'children'>;
 
 const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
-  ({ asChild, className, children, onClick, onKeyDown, title, disabled, ...props }, ref): ReactElement => {
+  (
+    { asChild, 'aria-label': ariaLabel, className, children, onClick, onKeyDown, title, disabled, ...props },
+    ref,
+  ): ReactElement => {
     const { baseId, open, setOpen, triggerRef, setShouldFocusSelectors, invalid } = useTimePicker();
     const t = usePhrases(timePickerPhrases);
     const composedRefs = useComposedRefs(ref, triggerRef);
@@ -534,6 +537,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
           onKeyDown={handleKeyDown}
           className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
           {...props}
+          aria-label={unwrap(ariaLabel) ?? t('enonic.ui.timePicker.open')}
         />
       );
     }
@@ -555,6 +559,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
         onKeyDown={handleKeyDown}
         className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
         {...(!asChild && { type: 'button' })}
+        aria-label={ariaLabel}
         {...props}
       >
         {children}

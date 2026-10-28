@@ -84,6 +84,7 @@ export const Basic: Story = {
                 <GridList.Action>
                   <IconButton
                     icon={MoreHorizontal}
+                    aria-label={`More actions for ${project.name}`}
                     size='sm'
                     variant='text'
                     onClick={() => alert(`Menu for: ${project.name}`)}
@@ -141,6 +142,7 @@ export const DisabledRow: Story = {
                 <GridList.Action>
                   <IconButton
                     icon={MoreHorizontal}
+                    aria-label={`More actions for ${project.name}`}
                     size='sm'
                     variant='text'
                     onClick={() => alert(`Menu for: ${project.name}`)}
@@ -270,12 +272,24 @@ export const DynamicRows: Story = {
               </GridList.Cell>
               <GridList.Cell>
                 <GridList.Action>
-                  <IconButton icon={Edit2} size='sm' variant='text' onClick={() => alert(`Edit: ${task.name}`)} />
+                  <IconButton
+                    icon={Edit2}
+                    aria-label={`Edit ${task.name}`}
+                    size='sm'
+                    variant='text'
+                    onClick={() => alert(`Edit: ${task.name}`)}
+                  />
                 </GridList.Action>
               </GridList.Cell>
               <GridList.Cell>
                 <GridList.Action>
-                  <IconButton icon={Trash2} size='sm' variant='text' onClick={() => alert(`Delete: ${task.name}`)} />
+                  <IconButton
+                    icon={Trash2}
+                    aria-label={`Delete ${task.name}`}
+                    size='sm'
+                    variant='text'
+                    onClick={() => alert(`Delete: ${task.name}`)}
+                  />
                 </GridList.Action>
               </GridList.Cell>
             </GridList.Row>
@@ -335,6 +349,7 @@ export const KeyboardNavigation: Story = {
                     <GridList.Action>
                       <IconButton
                         icon={Edit2}
+                        aria-label={`Edit ${project.name}`}
                         size='sm'
                         variant='text'
                         onClick={() => setLastAction(`Edit: ${project.name}`)}
@@ -345,6 +360,7 @@ export const KeyboardNavigation: Story = {
                     <GridList.Action>
                       <IconButton
                         icon={Trash2}
+                        aria-label={`Delete ${project.name}`}
                         size='sm'
                         variant='text'
                         onClick={() => setLastAction(`Delete: ${project.name}`)}
