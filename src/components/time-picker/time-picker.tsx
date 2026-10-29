@@ -507,9 +507,8 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
       onKeyDown?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented || isDialogShortcutEvent(event)) return;
       if ((event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') && !open) {
-        if (isDialogShortcutEvent(event)) return;
         event.preventDefault();
         setShouldFocusSelectors(true);
         setOpen(true);
@@ -520,6 +519,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
       return (
         <IconButton
           data-component='TimePicker.Trigger'
+          data-dialog-shortcuts={open ? 'block' : undefined}
           ref={composedRefs}
           icon={Clock}
           variant='text'
@@ -547,6 +547,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
     return (
       <Comp
         data-component='TimePicker.Trigger'
+        data-dialog-shortcuts={open ? 'block' : undefined}
         // @ts-expect-error - Radix Slot ref type is incompatible with ForwardedRef
         ref={composedRefs}
         id={triggerId}
@@ -727,6 +728,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
         data-component='TimePicker.Content'
+        data-dialog-shortcuts='block'
         ref={composedRefs}
         id={contentId}
         role='dialog'
@@ -972,7 +974,13 @@ const TimePickerRoot = ({
     return (
       <TimePickerProvider value={contextValue}>
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-        <div data-component='TimePicker.Root' className={className} onKeyDown={handleInlineKeyDown} {...props}>
+        <div
+          data-component='TimePicker.Root'
+          data-dialog-shortcuts={open || hourSelectOpen || minuteSelectOpen ? 'block' : undefined}
+          className={className}
+          onKeyDown={handleInlineKeyDown}
+          {...props}
+        >
           {children}
         </div>
       </TimePickerProvider>
@@ -994,6 +1002,7 @@ const TimePickerRoot = ({
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         data-component='TimePicker.Root'
+        data-dialog-shortcuts={open || hourSelectOpen || minuteSelectOpen ? 'block' : undefined}
         className={cn(
           'border-bdr-subtle bg-surface-neutral flex w-fit items-center gap-2 rounded-sm border p-3',
           shouldUseNative && 'border-none bg-transparent p-0',

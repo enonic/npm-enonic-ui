@@ -125,7 +125,7 @@ export type ContextMenuTriggerProps = {
 
 const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
   ({ asChild, disabled = false, onContextMenu, className, children, ...props }, ref): ReactElement => {
-    const { setOpen, setPosition } = useContextMenu();
+    const { open, setOpen, setPosition } = useContextMenu();
 
     const handleContextMenu = useCallback(
       (e: React.MouseEvent<HTMLDivElement>): void => {
@@ -145,6 +145,7 @@ const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
     return (
       <Comp
         data-component='ContextMenu.Trigger'
+        data-dialog-shortcuts={open ? 'block' : undefined}
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         data-disabled={disabled || undefined}
@@ -370,6 +371,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
       <ContextMenuContentProvider value={contentContextValue}>
         <div
           data-component='ContextMenu.Content'
+          data-dialog-shortcuts={open ? 'block' : undefined}
           ref={composedRefs}
           id={menuId}
           role='menu'
@@ -688,10 +690,10 @@ const ContextMenuSubTrigger = forwardRef<HTMLDivElement, ContextMenuSubTriggerPr
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
+        if (isDialogShortcutEvent(e)) return;
         if (disabled) return;
 
         if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
-          if (isDialogShortcutEvent(e)) return;
           if (!open) {
             e.preventDefault();
             e.stopPropagation();
@@ -857,6 +859,8 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (isDialogShortcutEvent(e)) return;
+
         // ? SubContent is portaled but React synthetic events still bubble through the
         // component tree. Stop propagation on every handled key so the parent Content
         // doesn't also react to ArrowDown/Enter/etc. and move *its* active item.
@@ -886,7 +890,6 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         }
 
         if (['ArrowUp', 'ArrowDown', 'Home', 'End', 'ArrowRight', 'Enter', ' '].includes(e.key)) {
-          if (isDialogShortcutEvent(e)) return;
           e.stopPropagation();
           setIsUsingKeyboard(true);
         }
@@ -961,6 +964,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         <ContextMenuContentProvider value={contentContextValue}>
           <div
             data-component='ContextMenu.SubContent'
+            data-dialog-shortcuts={open ? 'block' : undefined}
             ref={composedRefs}
             id={contentId}
             role='menu'

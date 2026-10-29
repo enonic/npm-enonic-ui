@@ -280,14 +280,19 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         actions: { primary: [], secondary: [] },
         onEscape: event => escapeHandlerRef.current(event),
         containsShortcutEvent: event => {
-          const content = contentRef.current;
-          const document = content?.ownerDocument;
-          // Hidden step panels can leave focus on body; only modal dialogs accept that fallback.
-          if (modalRef.current && document != null && (event.target === document || event.target === document.body)) {
-            return true;
+          // Keep widget ownership on the scope so older helpers and listeners honor it too.
+          const boundaries = getActionBoundaries();
+          for (const target of event.composedPath()) {
+            if ((target as Node).nodeType !== 1) continue;
+            const element = target as Element;
+            if (element.getAttribute('data-dialog-shortcuts') === 'block') return false;
+            // Stop at this dialog or its portal before reaching an outer widget boundary.
+            if (boundaries.includes(element)) return true;
           }
-          const path = event.composedPath();
-          return getActionBoundaries().some(boundary => path.includes(boundary));
+
+          const document = contentRef.current?.ownerDocument;
+          // Hidden step panels can leave focus on body; only modal dialogs accept that fallback.
+          return modalRef.current && document != null && (event.target === document || event.target === document.body);
         },
         getActionBoundaries,
         focusContent: () => {

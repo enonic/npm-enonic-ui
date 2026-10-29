@@ -406,7 +406,7 @@ const DatePickerGrid = ({
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     onKeyDown?.(event);
-    if (event.defaultPrevented) return;
+    if (event.defaultPrevented || isDialogShortcutEvent(event)) return;
 
     switch (event.key) {
       case 'ArrowLeft':
@@ -428,7 +428,6 @@ const DatePickerGrid = ({
       case ' ':
       case 'Spacebar':
       case 'Enter':
-        if (isDialogShortcutEvent(event)) return;
         event.preventDefault();
         if (!isDateDisabled(activeDate)) {
           selectDate(activeDate);
@@ -1060,12 +1059,12 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
 
     useEffect(() => {
       if (!open) return;
-      if (!contentRef.current) return;
-      const grid = contentRef.current.querySelector('[role="grid"]');
-      if (grid instanceof HTMLElement) {
-        grid.focus();
-      }
-    }, [open]);
+      // Let the parent focus trap register the portal before moving focus into it.
+      const frame = requestAnimationFrame(() => {
+        contentRef.current?.querySelector<HTMLElement>('[role="grid"]')?.focus();
+      });
+      return () => cancelAnimationFrame(frame);
+    }, [open, isPortalMode]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
       onKeyDown?.(event);
@@ -1110,6 +1109,7 @@ const DatePickerContent = forwardRef<HTMLDivElement, DatePickerContentProps>(
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
       <div
         data-component='DatePicker.Content'
+        data-dialog-shortcuts={open ? 'block' : undefined}
         ref={composedRefs}
         id={contentId}
         role='dialog'
@@ -1576,6 +1576,7 @@ const DatePickerRoot = ({
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         data-component='DatePicker.Root'
+        data-dialog-shortcuts={open ? 'block' : undefined}
         className={
           children
             ? className

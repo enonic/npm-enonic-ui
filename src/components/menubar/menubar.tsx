@@ -204,11 +204,11 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
     const handleKeyDown_ = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
+        if (isDialogShortcutEvent(e)) return;
 
         // ArrowDown opens menu if active item is a menu trigger
         const isActionKey = e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ';
         if (isActionKey && active) {
-          if (isDialogShortcutEvent(e)) return;
           const activeElement = getItemElement(active);
           if (activeElement && activeElement.getAttribute('aria-haspopup') === 'menu') {
             e.preventDefault();
@@ -694,6 +694,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLButtonElement>): void => {
         onKeyDown?.(e);
+        if (isDialogShortcutEvent(e)) return;
         if (disabled) return;
 
         // ArrowDown opens the menu when this trigger is active
@@ -703,7 +704,6 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
         }
         // Space and Enter also open/toggle
         else if ((e.key === ' ' || e.key === 'Enter') && !open) {
-          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           setOpen(true);
         }
@@ -780,6 +780,7 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
     return (
       <Comp
         data-component='Menubar.Trigger'
+        data-dialog-shortcuts={open ? 'block' : undefined}
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={menuId}
@@ -1101,6 +1102,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
       <MenubarContentContext.Provider value={contentContextValue}>
         <div
           data-component='Menubar.Content'
+          data-dialog-shortcuts={open ? 'block' : undefined}
           ref={composedRefs}
           id={contentId}
           role='menu'
@@ -1541,9 +1543,10 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
     const handleKeyDown_ = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
+        if (isDialogShortcutEvent(e)) return;
+
         // Space/Enter key selects the radio item
         if (e.key === ' ' || e.key === 'Enter') {
-          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (!disabled) {
             setValue(value);
