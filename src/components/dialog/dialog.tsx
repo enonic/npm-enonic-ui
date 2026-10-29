@@ -261,8 +261,6 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     ref,
   ): ReactElement | null => {
     const { open, setOpen, titleId, descriptionId, isUsingStepper } = useDialog();
-    const ariaLabel = props['aria-label'];
-    const ariaLabelledBy = props['aria-labelledby'];
     const focusStateRef = useContext(DialogFocusContext);
     const contentRef = useRef<HTMLDivElement>(null);
     const parentScope = useContext(DialogActionContext);
@@ -420,24 +418,6 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       closeOn: 'click',
       onClose: modal ? () => setOpen(false) : undefined,
     });
-
-    useEffect(() => {
-      if (!import.meta.env.DEV || !open) return;
-      const frame = requestAnimationFrame(() => {
-        const content = contentRef.current;
-        if (
-          content != null &&
-          !content.getAttribute('aria-label')?.trim() &&
-          !content.getAttribute('aria-labelledby')?.trim()
-        ) {
-          // oxlint-disable-next-line no-console -- Report a missing accessible dialog name to consumers.
-          console.warn(
-            'Dialog.Content: provide a Dialog.Title, aria-label, or aria-labelledby for an accessible name.',
-          );
-        }
-      });
-      return () => cancelAnimationFrame(frame);
-    }, [open, titleId, ariaLabel, ariaLabelledBy]);
 
     if (!forceMount && !open) {
       return null;
