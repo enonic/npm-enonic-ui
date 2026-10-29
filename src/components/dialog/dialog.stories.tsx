@@ -106,7 +106,7 @@ export const LoadingDialog: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-100'>
+            <Dialog.Content className='w-100' aria-label='Processing your request'>
               <Dialog.Body className='flex flex-col items-center justify-center space-y-4 py-8'>
                 <Loader2 className='text-main size-12 animate-spin' />
                 <div className='space-y-2 text-center'>
@@ -151,7 +151,7 @@ export const QuickConfirmation: Story = {
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
             <Dialog.Overlay />
-            <Dialog.Content className='w-96'>
+            <Dialog.Content className='w-96' aria-label='Enable experimental features?'>
               <Dialog.Body className='py-2 text-center'>
                 <p className='font-medium'>Enable experimental features?</p>
                 <p className='text-subtle mt-1 text-sm'>This may affect application stability.</p>
@@ -401,7 +401,7 @@ export const NestedConfirmation: Story = {
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <Dialog.Portal>
             <Dialog.Overlay className='z-40 bg-transparent' />
-            <Dialog.Content className='w-96'>
+            <Dialog.Content className='w-96' aria-label='Discard changes?'>
               <Dialog.Body className='py-2'>
                 <h2 className='text-lg font-semibold'>Discard changes?</h2>
                 <p className='text-subtle mt-2 text-sm'>You have unsaved changes that will be lost.</p>
@@ -579,6 +579,48 @@ export const CustomHeader: Story = {
           </Dialog.Portal>
         </Dialog>
       </div>
+    );
+  },
+};
+
+export const AccessibleNaming: Story = {
+  name: 'Behavior / Accessible Naming',
+  render: () => {
+    const [header, setHeader] = useState<'full' | 'title' | 'label'>('full');
+
+    return (
+      <Dialog>
+        <Dialog.Trigger asChild>
+          <Button label='Open dialog' />
+        </Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Overlay />
+          <Dialog.Content aria-label={header === 'label' ? 'Custom header' : undefined}>
+            <Dialog.Header>
+              {header === 'label' ? (
+                <h2>Custom header</h2>
+              ) : (
+                <Dialog.Title asChild>
+                  <h2 id={header === 'title' ? 'naming-title' : undefined}>
+                    {header === 'title' ? 'Title only' : 'Dialog with description'}
+                  </h2>
+                </Dialog.Title>
+              )}
+              {header === 'full' && <Dialog.Description>Extra context for this dialog.</Dialog.Description>}
+            </Dialog.Header>
+            <Dialog.Body className='flex flex-wrap gap-2'>
+              <Button label='Full header' onClick={() => setHeader('full')} />
+              <Button label='Title only' onClick={() => setHeader('title')} />
+              <Button label='Custom label' onClick={() => setHeader('label')} />
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Dialog.Close asChild>
+                <Button label='Close dialog' />
+              </Dialog.Close>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
     );
   },
 };

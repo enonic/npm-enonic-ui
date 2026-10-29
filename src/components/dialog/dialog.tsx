@@ -19,7 +19,7 @@ import {
 import { createPortal } from 'react-dom';
 
 import { IconButton } from '@/components/icon-button/icon-button';
-import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
+import { useClickOutside, useControlledState, useScrollLock } from '@/hooks';
 import {
   PortalProvider,
   usePhrases,
@@ -84,10 +84,8 @@ const DialogRoot = ({
 }: DialogRootProps): ReactElement => {
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
   const focusStateRef = useRef<DialogFocusState>({ previous: undefined, restorePrevented: false });
-  const defaultTitleId = usePrefixedId();
-  const defaultDescriptionId = usePrefixedId();
-  const [titleId, setTitleId] = useState(defaultTitleId);
-  const [descriptionId, setDescriptionId] = useState(defaultDescriptionId);
+  const [titleId, setTitleId] = useState<string>();
+  const [descriptionId, setDescriptionId] = useState<string>();
   const isUsingStepper = Boolean(step || defaultStep || onStepChange);
 
   const context = useMemo<DialogContextValue>(
@@ -619,18 +617,49 @@ export type DialogTitleProps = {
   asChild?: boolean;
 } & ComponentPropsWithoutRef<'h2'>;
 
+const useDialogAriaId = <T extends HTMLElement>(
+  id: string | undefined,
+  setId: DialogContextValue['setTitleId'],
+): readonly [string, MutableRefObject<T | null>] => {
+  const generatedId = usePrefixedId();
+  const resolvedId = id ?? generatedId;
+  const elementRef = useRef<T>(null);
+  const registeredIdRef = useRef<string>();
+
+  useLayoutEffect(() => {
+    const element = elementRef.current;
+    if (element == null) return;
+    // Slot children can override the ID, so register the mounted element's actual ID.
+    if (!element.id) element.id = resolvedId;
+    if (registeredIdRef.current === element.id) return;
+    registeredIdRef.current = element.id;
+    setId(element.id);
+  });
+
+  useLayoutEffect(
+    () => () => {
+      const registeredId = registeredIdRef.current;
+      registeredIdRef.current = undefined;
+      setId(current => (current === registeredId ? undefined : current));
+    },
+    [setId],
+  );
+
+  return [resolvedId, elementRef] as const;
+};
+
 const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
   ({ children, className, asChild, id, ...props }, ref): ReactElement => {
-    const { titleId, setTitleId } = useDialog();
+    const { setTitleId } = useDialog();
+    const [titleId, titleRef] = useDialogAriaId<HTMLHeadingElement>(id, setTitleId);
+    const composedRef = useComposedRefs(ref, titleRef);
     const Comp = asChild ? Slot : 'h2';
-
-    useSyncValue(id, setTitleId);
 
     return (
       <Comp
         data-component='Dialog.Title'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
-        ref={ref}
+        ref={composedRef}
         id={titleId}
         className={cn('text-2xl font-semibold', className)}
         {...props}
@@ -653,16 +682,16 @@ export type DialogDescriptionProps = {
 
 const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProps>(
   ({ id, children, asChild, ...props }, ref): ReactElement => {
-    const { descriptionId, setDescriptionId } = useDialog();
+    const { setDescriptionId } = useDialog();
+    const [descriptionId, descriptionRef] = useDialogAriaId<HTMLParagraphElement>(id, setDescriptionId);
+    const composedRef = useComposedRefs(ref, descriptionRef);
     const Comp = asChild ? Slot : 'p';
-
-    useSyncValue(id, setDescriptionId);
 
     return (
       <Comp
         data-component='Dialog.Description'
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
-        ref={ref}
+        ref={composedRef}
         id={descriptionId}
         {...props}
       >

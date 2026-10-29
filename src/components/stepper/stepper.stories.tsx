@@ -118,7 +118,7 @@ export const DialogWithStepper: Story = {
 
         <Dialog.Portal>
           <Dialog.Overlay />
-          <Dialog.Content className='max-w-auto w-120'>
+          <Dialog.Content className='max-w-auto w-120' aria-label='Setup steps'>
             <Stepper.Root defaultValue='step1' smallOnEdges maxVisible={5}>
               <Dialog.Body className='flex size-full flex-col gap-4 p-1.5'>
                 <div className='border-bdr-subtle flex h-48 w-full items-center justify-center rounded-md border border-dashed'>
