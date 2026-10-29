@@ -1,17 +1,17 @@
-import { cva, type VariantProps } from 'class-variance-authority';
 import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef } from 'react';
 
 import { Button, type ButtonIconProps, type ButtonVariantsProps } from '@/components/button';
 import { cn } from '@/utils';
+import { cv, type CvProps } from '@/utils/cv';
 
 import type { LucideIcon } from '@/types';
 
-export type IconButtonVariantsProps = VariantProps<typeof iconButtonVariants> & ButtonVariantsProps & ButtonIconProps;
+export type IconButtonVariantsProps = CvProps<typeof iconButtonVariants> & ButtonVariantsProps & ButtonIconProps;
 export type IconButtonVariant = NonNullable<IconButtonVariantsProps['variant']>;
 export type IconButtonSize = NonNullable<IconButtonVariantsProps['size']>;
 export type IconButtonShape = NonNullable<IconButtonVariantsProps['shape']>;
 
-const iconButtonVariants = cva(['p-0'], {
+const iconButtonVariants = cv(['p-0'], {
   variants: {
     size: {
       sm: 'size-9',
