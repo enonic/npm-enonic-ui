@@ -34,19 +34,15 @@ The skill accepts a component name or description as arguments:
 
 #### Step 1: Read Project Rules
 
-Read all relevant rules files to understand project conventions. Look for rules in:
+Read the project docs to understand project conventions:
 
 ```
-.cursor/rules/react.mdc      - Component patterns, hooks, props
-.cursor/rules/typescript.mdc - Type definitions, naming
-.cursor/rules/tailwind.mdc   - Styling with cn(), cva()
-.cursor/rules/structure.mdc  - File organization, exports
-.cursor/rules/storybook.mdc  - Story organization
-.cursor/rules/preact.mdc     - Preact/React compatibility
-.cursor/rules/comments.mdc   - Documentation style
+docs/components.md - File layout, exports, props, providers, labels
+docs/patterns.md   - Portals, focus traps, click-outside, autofocus
+docs/runtimes.md   - Preact 10 and React 19 differences
+docs/styling.md    - Styling with cn(), cva(), color tokens
+docs/storybook.md  - Story organization
 ```
-
-If rules files don't exist, use the standard patterns documented below.
 
 #### Step 2: Fetch External Documentation
 
