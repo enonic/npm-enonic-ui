@@ -1,8 +1,3 @@
----
-paths:
-  - "src/**/*.tsx"
----
-
 # UI Patterns
 
 ## Click Target Expansion via Pseudo-Element
@@ -13,11 +8,11 @@ Extend clickable area to fill gaps between list items using `::after` pseudo-ele
 
 **Formula:** `-inset-y-{n}` where `n = gap / 2`
 
-| Container Gap | Item Inset |
-|---------------|------------|
-| `gap-y-1` | `after:-inset-y-0.5` |
-| `gap-y-1.5` | `after:-inset-y-0.75` |
-| `gap-y-2` | `after:-inset-y-1` |
+| Container Gap | Item Inset            |
+| ------------- | --------------------- |
+| `gap-y-1`     | `after:-inset-y-0.5`  |
+| `gap-y-1.5`   | `after:-inset-y-0.75` |
+| `gap-y-2`     | `after:-inset-y-1`    |
 
 ### When NOT to Use
 
@@ -27,30 +22,30 @@ Extend clickable area to fill gaps between list items using `::after` pseudo-ele
 
 ### Current Usage
 
-| Component | Container Gap | Item Pattern |
-|-----------|---------------|--------------|
-| TreeList.Row | `gap-y-1.5` | `after:-inset-y-0.75` |
-| TreeListContent.Row | `gap-y-1` | `after:-inset-y-0.5` |
-| Listbox Item | `gap-y-1` | `after:-inset-y-0.5` |
-| Selector Item | `gap-y-1` | `after:-inset-y-0.5` |
-| Checkbox (unlabeled) | N/A | `after:-inset-1` (standalone touch target) |
-| Menu Items | No gap | Pattern removed |
+| Component            | Container Gap | Item Pattern                               |
+| -------------------- | ------------- | ------------------------------------------ |
+| TreeList.Row         | `gap-y-1.5`   | `after:-inset-y-0.75`                      |
+| TreeListContent.Row  | `gap-y-1`     | `after:-inset-y-0.5`                       |
+| Listbox Item         | `gap-y-1`     | `after:-inset-y-0.5`                       |
+| Selector Item        | `gap-y-1`     | `after:-inset-y-0.5`                       |
+| Checkbox (unlabeled) | N/A           | `after:-inset-1` (standalone touch target) |
+| Menu Items           | No gap        | Pattern removed                            |
 
 ## Focus Ring on Inverse Backgrounds
 
 When a focusable element appears on an inverse/selected background (e.g., inside a menu item with `data-tone="inverse"`), override the focus ring colors to match:
 
 ```tsx
-'group-data-[tone=inverse]:[--color-ring-offset:var(--color-surface-selected)]'
-'group-data-[tone=inverse]:[--color-ring:var(--color-ring-alt)]'
+'group-data-[tone=inverse]:[--color-ring-offset:var(--color-surface-selected)]';
+'group-data-[tone=inverse]:[--color-ring:var(--color-ring-alt)]';
 ```
 
 **Why:** The focus ring has a 3px offset (`ring-offset-3`). Without this override it shows as a jarring light stripe on dark backgrounds.
 
-| Component | Context |
-|-----------|---------|
-| Button | Inside tree list rows with `data-tone="inverse"` |
-| Checkbox | Inside menu items with `data-tone="inverse"` |
+| Component | Context                                          |
+| --------- | ------------------------------------------------ |
+| Button    | Inside tree list rows with `data-tone="inverse"` |
+| Checkbox  | Inside menu items with `data-tone="inverse"`     |
 
 ## Focus Trap with Portaled Content
 
@@ -61,6 +56,7 @@ When using portaled components (e.g., `Combobox.Portal`) inside a `Dialog`, the 
 Use `usePortalFocusContainer` hook — portaled components register themselves with the parent focus trap.
 
 **How it works:**
+
 1. `Dialog.Content` creates a `FocusContainerRegistry` via `FocusContainerContext`
 2. Portaled popups call `usePortalFocusContainer` to register with the registry
 3. `Dialog.Content` passes registered containers to `FocusTrap` via `containerElements`
@@ -120,24 +116,24 @@ the container the portal actually used, explicit `container` prop included.
 Resolving during render is what makes the guard necessary: reading `document.body` unconditionally
 is exactly what the mount gate exists to avoid.
 
-| Portals through `usePortalContainer` |
-|--------------------------------------|
+| Portals through `usePortalContainer`                                                                           |
+| -------------------------------------------------------------------------------------------------------------- |
 | `Combobox.Portal`, `ContextMenu.Portal`, `DatePicker.Portal`, `Dialog.Portal`, `Menu.Portal`, `Menubar.Portal` |
-| `Selector.Content` (portals inline, no `*.Portal` part) |
-| `Tooltip` (portals its content directly) |
+| `Selector.Content` (portals inline, no `*.Portal` part)                                                        |
+| `Tooltip` (portals its content directly)                                                                       |
 
 ### Current Usage
 
-| Component | Registers With Focus Trap |
-|-----------|---------------------------|
-| `Combobox.Popup` | ✅ Yes |
-| `Menu.Content` | ✅ Yes |
-| `ContextMenu.Content` | ✅ Yes |
-| `DatePicker.Content` | ✅ Yes |
-| `Selector.Content` | ✅ Yes |
-| `Menubar.Content` | ✅ Yes |
-| `Dialog.Content` | Has own trap (provider) |
-| `Tooltip.Content` | No (non-interactive) |
+| Component             | Registers With Focus Trap |
+| --------------------- | ------------------------- |
+| `Combobox.Popup`      | ✅ Yes                    |
+| `Menu.Content`        | ✅ Yes                    |
+| `ContextMenu.Content` | ✅ Yes                    |
+| `DatePicker.Content`  | ✅ Yes                    |
+| `Selector.Content`    | ✅ Yes                    |
+| `Menubar.Content`     | ✅ Yes                    |
+| `Dialog.Content`      | Has own trap (provider)   |
+| `Tooltip.Content`     | No (non-interactive)      |
 
 Files: `src/hooks/use-portal-focus-container.ts`, `src/providers/focus-container-provider.tsx`
 
@@ -146,19 +142,17 @@ Files: `src/hooks/use-portal-focus-container.ts`, `src/providers/focus-container
 When a component renders via portal **outside** any dismissible UI's React tree (e.g., global notifications), add `data-click-outside-ignore` to prevent `useClickOutside` from firing:
 
 ```tsx
-<div data-click-outside-ignore>
-  {/* Content that should never dismiss other UI */}
-</div>
+<div data-click-outside-ignore>{/* Content that should never dismiss other UI */}</div>
 ```
 
-| Use `data-click-outside-ignore` | Use `usePortalFocusContainer` instead |
-|---------------------------------|---------------------------------------|
+| Use `data-click-outside-ignore`                     | Use `usePortalFocusContainer` instead      |
+| --------------------------------------------------- | ------------------------------------------ |
 | Outside dismissible UI's React tree (global toasts) | Inside React tree but portaled (dropdowns) |
-| No focus trap involvement | Must participate in parent's focus trap |
+| No focus trap involvement                           | Must participate in parent's focus trap    |
 
-| Component | Attribute Location |
-|-----------|--------------------|
-| `Toast` | Root `<div>` in `ToastRoot` |
+| Component | Attribute Location               |
+| --------- | -------------------------------- |
+| `Toast`   | Root `<div>` in `ToastRoot`      |
 | `Tooltip` | Root `<div>` in `TooltipContent` |
 
 ## Enter Handlers Inside Dialogs
@@ -170,7 +164,7 @@ A handler that reacts to `Enter` and calls `preventDefault()` returns first when
 Mark the element to focus with `data-autofocus`; the library owns the timing. `Stepper.Next` / `Previous` focus the first marked element in the new panel; `Dialog.Content` does the same on open (active panel only, or the whole content without steps, a plain dialog nested in a step dialog included) unless `onOpenAutoFocus` prevents it. No marker: focus stays on the button, unless it is about to disable (first / last step), then the first focusable element. Dots and controlled `value` changes never move focus.
 
 ```tsx
-<Input data-autofocus={name === '' || undefined} />  // `|| undefined`, never `false`
+<Input data-autofocus={name === '' || undefined} /> // `|| undefined`, never `false`
 ```
 
 Lookup: `getAutofocusTarget` in `src/utils/dom.ts`. Read once per navigation — async-loaded fields focus from their own load effect.

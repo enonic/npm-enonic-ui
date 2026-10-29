@@ -310,7 +310,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     stepperRef.current = stepper;
 
     // Registry for portaled content (e.g., Combobox.Popup) to register with focus trap.
-    // See rules/patterns.mdc — "Focus Trap with Portaled Content"
+    // See docs/patterns.md — "Focus Trap with Portaled Content"
     const focusContainerRegistry = useMemo(
       () => ({
         register: (element: HTMLElement) =>

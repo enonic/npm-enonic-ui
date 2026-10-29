@@ -36,7 +36,7 @@ component/
 
 ### 4. Project Rules
 
-Check `.cursor/rules` files for project-specific guidelines and verify compliance.
+Check `AGENTS.md` and the `docs/` files it lists for project-specific guidelines and verify compliance.
 
 ## Review Guidelines
 

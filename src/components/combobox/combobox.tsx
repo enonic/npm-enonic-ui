@@ -1017,7 +1017,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode.
     // This allows focus to move to the popup even though it's rendered outside the dialog DOM.
-    // See rules/patterns.mdc — "Focus Trap with Portaled Content"
+    // See docs/patterns.md — "Focus Trap with Portaled Content"
     usePortalFocusContainer(innerRef, isPortalMode);
 
     // Floating position for portal mode
