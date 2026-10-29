@@ -1,4 +1,3 @@
-import { cva } from 'class-variance-authority';
 import { Square } from 'lucide-react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
@@ -6,8 +5,9 @@ import { useControlledState } from '@/hooks';
 import { FilledOctagonAlert, FilledSquareCheck, FilledSquareMinus } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
+import { cv } from '@/utils/cv';
 
-const checkboxIconWrapperVariants = cva(['inline-flex shrink-0'], {
+const checkboxIconWrapperVariants = cv(['inline-flex shrink-0'], {
   variants: {
     labeled: {
       true: '',

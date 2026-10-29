@@ -7,14 +7,15 @@ UI component library for Preact 10 and React 19. TypeScript, Vite+ (oxc), Tailwi
 ```bash
 pnpm check:fix  # vp check --fix (oxc format + lint), then typecheck. Run after making changes.
 pnpm typecheck  # TypeScript only
+pnpm test       # unit tests (vp test run, `src/**/*.test.ts`)
 pnpm lint:fix   # oxlint with fixes (vp lint --fix)
 pnpm format     # oxfmt write (vp fmt)
 ```
 
-Linting and formatting run through Vite+ (`vp`); config lives in `vite.config.ts` (`lint`/`fmt`/`staged`).
+Linting and formatting run through Vite+ (`vp`); config lives in `vite.config.ts` (`lint`/`fmt`/`staged`/`test`).
 
-`pnpm test` is a no-op. Behavior is covered by Storybook `play` functions: `pnpm test:storybook` runs the stories tagged
-`interactions-smoke`.
+`pnpm test` covers utilities only. Component behavior is covered by Storybook `play` functions: `pnpm test:storybook`
+runs the stories tagged `interactions-smoke`.
 
 ## Read Before You Edit
 
@@ -23,7 +24,7 @@ Linting and formatting run through Vite+ (`vp`); config lives in `vite.config.ts
 | Component files, props, exports, providers, labels               | [docs/components.md](docs/components.md) |
 | Focus traps, portals, click-outside, autofocus, dialog shortcuts | [docs/patterns.md](docs/patterns.md)     |
 | Focus, effect timing, portals or events on either runtime        | [docs/runtimes.md](docs/runtimes.md)     |
-| Classes, `cn`/`cva`, color tokens                                | [docs/styling.md](docs/styling.md)       |
+| Classes, `cn`/`cv`, color tokens                                 | [docs/styling.md](docs/styling.md)       |
 | Stories and `.storybook/`                                        | [docs/storybook.md](docs/storybook.md)   |
 
 ## Rules That Break Silently
