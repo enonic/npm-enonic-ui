@@ -26,6 +26,9 @@ export const StepperProvider = ({ value, children }: StepperProviderProps): Reac
 
 StepperProvider.displayName = 'StepperProvider';
 
+/** The enclosing stepper, if any — for parts that adapt to steps without requiring them. */
+export const useStepperOptional = (): StepperContextValue | undefined => useContext(StepperContext);
+
 export const useStepper = (): StepperContextValue => {
   const context = useContext(StepperContext);
   if (!context) {

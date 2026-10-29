@@ -20,14 +20,21 @@ import { createPortal } from 'react-dom';
 
 import { IconButton } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock, useSyncValue } from '@/hooks';
-import { PortalProvider, usePhrases, usePortalContainer, usePrefixedId, useStepper } from '@/providers';
+import {
+  PortalProvider,
+  usePhrases,
+  usePortalContainer,
+  usePrefixedId,
+  useStepper,
+  useStepperOptional,
+} from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { FocusContainerContext } from '@/providers/focus-container-provider';
 import { cn, useComposedRefs } from '@/utils';
-import { getActiveElement } from '@/utils/dom';
+import { containsDeep, getActiveElement, getAutofocusTarget, getRoot } from '@/utils/dom';
 
 import { Button } from '../button';
-import { Stepper, type StepperDotsProps } from '../stepper';
+import { getStepperPanelId, Stepper, type StepperDotsProps } from '../stepper';
 import {
   activateDialogScope,
   DialogActionContext,
@@ -81,11 +88,11 @@ const DialogRoot = ({
   const defaultDescriptionId = usePrefixedId();
   const [titleId, setTitleId] = useState(defaultTitleId);
   const [descriptionId, setDescriptionId] = useState(defaultDescriptionId);
-  const isUsingStepper = step || defaultStep || onStepChange;
+  const isUsingStepper = Boolean(step || defaultStep || onStepChange);
 
   const context = useMemo<DialogContextValue>(
-    () => ({ open, setOpen, titleId, descriptionId, setTitleId, setDescriptionId }),
-    [open, titleId, descriptionId, setOpen],
+    () => ({ open, setOpen, titleId, descriptionId, setTitleId, setDescriptionId, isUsingStepper }),
+    [open, titleId, descriptionId, setOpen, isUsingStepper],
   );
 
   useLayoutEffect(() => {
@@ -255,7 +262,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     },
     ref,
   ): ReactElement | null => {
-    const { open, setOpen, titleId, descriptionId } = useDialog();
+    const { open, setOpen, titleId, descriptionId, isUsingStepper } = useDialog();
     const focusStateRef = useContext(DialogFocusContext);
     const contentRef = useRef<HTMLDivElement>(null);
     const parentScope = useContext(DialogActionContext);
@@ -297,6 +304,12 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     const onCloseAutoFocusRef = useRef(onCloseAutoFocus);
     onOpenAutoFocusRef.current = onOpenAutoFocus;
     onCloseAutoFocusRef.current = onCloseAutoFocus;
+
+    // Context crosses the portal, so a nested plain dialog sees the outer stepper. Only the owner scopes to a panel.
+    const nearestStepper = useStepperOptional();
+    const stepper = isUsingStepper ? nearestStepper : undefined;
+    const stepperRef = useRef(stepper);
+    stepperRef.current = stepper;
 
     // Registry for portaled content (e.g., Combobox.Popup) to register with focus trap.
     // See rules/patterns.mdc — "Focus Trap with Portaled Content"
@@ -360,11 +373,34 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         focusStateRef.current.restorePrevented = false;
       }
 
-      contentRef.current?.focus();
-      const event = new Event('openautofocus', { bubbles: true, cancelable: true });
-      onOpenAutoFocusRef.current?.(event);
+      // ? Deferred past this commit: Preact runs layout effects before `componentDidMount`, so the
+      // ? focus trap below is not active yet. Nested in another dialog, that dialog's still-listening
+      // ? trap would pull the focus straight back out.
+      let cancelled = false;
+      queueMicrotask(() => {
+        if (cancelled || containsDeep(contentRef.current, getActiveElement())) return;
+        contentRef.current?.focus();
+        const event = new Event('openautofocus', { bubbles: true, cancelable: true });
+        onOpenAutoFocusRef.current?.(event);
+        if (event.defaultPrevented) return;
+
+        const content = contentRef.current;
+        const stepper = stepperRef.current;
+        let autofocusScope: Element | null;
+
+        if (stepper == null) {
+          autofocusScope = content;
+        } else if (stepper.value == null) {
+          autofocusScope = null;
+        } else {
+          autofocusScope = getRoot(content)?.getElementById(getStepperPanelId(stepper.baseId, stepper.value)) ?? null;
+        }
+
+        getAutofocusTarget(autofocusScope)?.focus();
+      });
 
       return () => {
+        cancelled = true;
         const event = new Event('closeautofocus', { bubbles: true, cancelable: true });
         onCloseAutoFocusRef.current?.(event);
         if (event.defaultPrevented && focusState != null) {

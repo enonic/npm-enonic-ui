@@ -5,4 +5,4 @@ export type {
   StepperPreviousProps,
   StepperRootProps,
 } from './stepper';
-export { Stepper } from './stepper';
+export { getStepperPanelId, Stepper } from './stepper';

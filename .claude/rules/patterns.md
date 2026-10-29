@@ -163,3 +163,13 @@ When a component renders via portal **outside** any dismissible UI's React tree 
 ## Enter Handlers Inside Dialogs
 
 A handler that reacts to `Enter` and calls `preventDefault()` returns first when `isDialogShortcutEvent(event)` (`@/components/dialog/dialog-actions`) is true. Otherwise the widget swallows the dialog's Cmd/Ctrl+Enter shortcuts while it has focus.
+
+## Auto Focus in Steps
+
+Mark the element to focus with `data-autofocus`; the library owns the timing. `Stepper.Next` / `Previous` focus the first marked element in the new panel; `Dialog.Content` does the same on open (active panel only, or the whole content without steps, a plain dialog nested in a step dialog included) unless `onOpenAutoFocus` prevents it. No marker: focus stays on the button, unless it is about to disable (first / last step), then the first focusable element. Dots and controlled `value` changes never move focus.
+
+```tsx
+<Input data-autofocus={name === '' || undefined} />  // `|| undefined`, never `false`
+```
+
+Lookup: `getAutofocusTarget` in `src/utils/dom.ts`. Read once per navigation — async-loaded fields focus from their own load effect.

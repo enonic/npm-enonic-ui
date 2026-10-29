@@ -1,5 +1,5 @@
 import { BadgeInfo, ChevronLeft, ChevronRight, Loader2, Plus, TriangleAlert, User } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { type ReactElement, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { expect, userEvent, waitFor } from 'storybook/test';
 
@@ -1508,6 +1508,301 @@ const byTestId = <T extends HTMLElement>(id: string): T => {
   return element;
 };
 
+const byComponent = <T extends HTMLElement>(name: string): T => {
+  const element = document.querySelector<T>(`[data-component='${name}']`);
+  if (element == null) throw new Error(`No element with data-component="${name}"`);
+  return element;
+};
+
+export const AutoFocusSteps: Story = {
+  name: 'Behavior / Auto Focus Steps',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [step, setStep] = useState('step1');
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+
+    return (
+      <div className='flex flex-col items-center gap-y-3 p-4'>
+        <div className='text-subtle max-w-120 space-y-2 text-sm'>
+          <p>
+            A step marks the field that should take focus with <code>data-autofocus</code>. On open, and after Next or
+            Back, the field marked in the shown step gets focus. Each step decides what to mark, or marks nothing at
+            all.
+          </p>
+          <p>Step 1: Name is required, so it carries the marker while it is empty.</p>
+          <p>Step 2: nothing is required, so nothing is marked and focus stays on the button.</p>
+          <p>Step 3: both fields are required, but Email is pre-filled, so only Phone carries the marker.</p>
+          <p>
+            A field that already has a value drops the marker. On the first and last step the button you pressed
+            disables, so without a marker the first focusable field takes focus instead.
+          </p>
+          <p>Dots are untouched: click them or use arrow keys and focus stays on the dot.</p>
+        </div>
+        <Button
+          data-testid='opener'
+          variant='solid'
+          label='Open'
+          onClick={() => {
+            setStep('step1');
+            setOpen(true);
+          }}
+        />
+
+        <Dialog open={open} onOpenChange={setOpen} step={step} onStepChange={setStep}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120'>
+              <Dialog.StepHeader step='step1' title='1. Identity' withClose />
+              <Dialog.StepHeader step='step2' title='2. Work' withClose />
+              <Dialog.StepHeader step='step3' title='3. Contact' withClose />
+              <Dialog.Body className='-m-2 space-y-4 p-2'>
+                <Dialog.StepContent step='step1'>
+                  <div className='space-y-4'>
+                    <p className='text-subtle text-sm'>Name is required, so it is marked while it is empty.</p>
+                    <div>
+                      <label htmlFor='auto-focus-steps-name' className='text-main mb-2 block text-base font-semibold'>
+                        Name <span className='text-error'>*</span>
+                      </label>
+                      <Input
+                        id='auto-focus-steps-name'
+                        data-testid='name'
+                        data-autofocus={name === '' || undefined}
+                        required
+                        placeholder='Required'
+                        value={name}
+                        onChange={event => setName(event.currentTarget.value)}
+                      />
+                    </div>
+                    <Input data-testid='nickname' label='Nickname' placeholder='Optional' />
+                  </div>
+                </Dialog.StepContent>
+                <Dialog.StepContent step='step2'>
+                  <div className='space-y-4'>
+                    <p className='text-subtle text-sm'>
+                      Nothing is required here, so nothing is marked. Focus stays on the button you pressed.
+                    </p>
+                    <Input data-testid='company' label='Company' placeholder='Optional' />
+                    <Input data-testid='role' label='Role' placeholder='Optional' />
+                  </div>
+                </Dialog.StepContent>
+                <Dialog.StepContent step='step3'>
+                  <div className='space-y-4'>
+                    <p className='text-subtle text-sm'>
+                      Both are required. Email is pre-filled from your account, so only Phone is marked while it is
+                      empty.
+                    </p>
+                    <div>
+                      <label htmlFor='auto-focus-steps-email' className='text-main mb-2 block text-base font-semibold'>
+                        Email <span className='text-error'>*</span>
+                      </label>
+                      <Input
+                        id='auto-focus-steps-email'
+                        data-testid='email'
+                        type='email'
+                        required
+                        defaultValue='you@example.com'
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor='auto-focus-steps-phone' className='text-main mb-2 block text-base font-semibold'>
+                        Phone <span className='text-error'>*</span>
+                      </label>
+                      <Input
+                        id='auto-focus-steps-phone'
+                        data-testid='phone'
+                        data-autofocus={phone === '' || undefined}
+                        type='tel'
+                        required
+                        placeholder='+47 ...'
+                        value={phone}
+                        onChange={event => setPhone(event.currentTarget.value)}
+                      />
+                    </div>
+                  </div>
+                </Dialog.StepContent>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.StepIndicator
+                  previousLabel='Back'
+                  nextLabel='Next'
+                  lastStepLabel='Done'
+                  dots
+                  onLastStep={() => setOpen(false)}
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement, step }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    if (opener == null) throw new Error('No opener button');
+    const next = (): HTMLButtonElement => byComponent('Stepper.Next');
+    const dot = (index: number): HTMLButtonElement => {
+      const element = document.querySelectorAll<HTMLButtonElement>("[data-component='Stepper.Dots'] [role='tab']")[
+        index
+      ];
+      if (element == null) throw new Error(`No dot at index ${index}`);
+      return element;
+    };
+
+    await step('Open: marked Name takes focus', async () => {
+      await userEvent.click(opener);
+      await waitForDialogOpen();
+      await waitForFocus(byTestId('name'));
+    });
+
+    await step('Next to step 2: no marker, focus stays on Next', async () => {
+      // Autofocus lands before the panels register, so Next is disabled for a tick after open.
+      await waitFor(() => expect(next()).toBeEnabled());
+      await userEvent.click(next());
+      await settleFrames();
+      await expect(document.activeElement).toBe(next());
+    });
+
+    await step('Next to step 3: pre-filled Email skipped, Phone takes focus', async () => {
+      await userEvent.click(next());
+      await waitForFocus(byTestId('phone'));
+      await settleFrames();
+      await expect(document.activeElement).toBe(byTestId('phone'));
+    });
+
+    await step('Click dot 1: focus stays on the dot', async () => {
+      await userEvent.click(dot(0));
+      await settleFrames();
+      await expect(document.activeElement).toBe(dot(0));
+    });
+
+    await step('ArrowRight: focus moves to dot 2, not into a field', async () => {
+      await userEvent.keyboard('{ArrowRight}');
+      await waitForFocus(dot(1));
+      await settleFrames();
+      await expect(document.activeElement).toBe(dot(1));
+    });
+
+    await step('Close: focus returns to Open', async () => {
+      await userEvent.click(byComponent('Dialog.DefaultClose'));
+      await waitForDialogClosed();
+      await waitForFocus(opener);
+    });
+  },
+};
+
+export const AutoFocusNestedDialog: Story = {
+  name: 'Behavior / Auto Focus Nested Dialog',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [noteOpen, setNoteOpen] = useState(false);
+    const [step, setStep] = useState('step1');
+
+    return (
+      <div className='flex flex-col items-center gap-y-3 p-4'>
+        <div className='text-subtle max-w-120 space-y-2 text-sm'>
+          <p>
+            A plain dialog opened from inside a step focuses its own <code>data-autofocus</code> field, not the one
+            marked in the step behind it.
+          </p>
+          <p>Step 1 marks Name. The Add note button opens a plain dialog that marks Note.</p>
+        </div>
+        <Button
+          data-testid='opener'
+          variant='solid'
+          label='Open'
+          onClick={() => {
+            setStep('step1');
+            setOpen(true);
+          }}
+        />
+
+        <Dialog open={open} onOpenChange={setOpen} step={step} onStepChange={setStep}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            {/* Clicks in the nested dialog count as outside clicks here, so outside-click dismissal is off. */}
+            <Dialog.Content className='w-120' onInteractOutside={event => event.preventDefault()}>
+              <Dialog.StepHeader step='step1' title='1. Identity' withClose />
+              <Dialog.StepHeader step='step2' title='2. Review' withClose />
+              <Dialog.Body className='-m-2 space-y-4 p-2'>
+                <Dialog.StepContent step='step1'>
+                  <div className='space-y-4'>
+                    <Input data-testid='name' data-autofocus label='Name' placeholder='Marked in this step' />
+                    <Button
+                      data-testid='add-note'
+                      variant='outline'
+                      label='Add note'
+                      startIcon={Plus}
+                      onClick={() => setNoteOpen(true)}
+                    />
+
+                    <Dialog open={noteOpen} onOpenChange={setNoteOpen}>
+                      <Dialog.Portal>
+                        <Dialog.Overlay />
+                        <Dialog.Content className='w-96'>
+                          <Dialog.DefaultHeader title='Add note' withClose />
+                          <Dialog.Body className='-m-2 p-2'>
+                            <Input data-testid='note' data-autofocus label='Note' placeholder='Marked in this dialog' />
+                          </Dialog.Body>
+                          <Dialog.Footer>
+                            <Button
+                              data-testid='note-done'
+                              variant='solid'
+                              label='Done'
+                              onClick={() => setNoteOpen(false)}
+                            />
+                          </Dialog.Footer>
+                        </Dialog.Content>
+                      </Dialog.Portal>
+                    </Dialog>
+                  </div>
+                </Dialog.StepContent>
+                <Dialog.StepContent step='step2'>
+                  <p className='text-subtle text-sm'>Nothing to focus here.</p>
+                </Dialog.StepContent>
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.StepIndicator
+                  previousLabel='Back'
+                  nextLabel='Next'
+                  lastStepLabel='Done'
+                  onLastStep={() => setOpen(false)}
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement, step }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    if (opener == null) throw new Error('No opener button');
+
+    await step('Open: marked Name takes focus', async () => {
+      await userEvent.click(opener);
+      await waitForDialogOpen();
+      await waitForFocus(byTestId('name'));
+    });
+
+    await step('Open nested: its own marked Note takes focus, not Name', async () => {
+      await userEvent.click(byTestId('add-note'));
+      await waitFor(() => byTestId('note'));
+      await waitForFocus(byTestId('note'));
+    });
+
+    await step('Close nested: focus returns to Add note', async () => {
+      await userEvent.click(byTestId('note-done'));
+      await waitFor(() => {
+        if (document.querySelector("[data-testid='note']") != null) throw new Error('Nested dialog is still open');
+      });
+      await waitForFocus(byTestId('add-note'));
+    });
+  },
+};
+
 export const ViewSwapFocus: Story = {
   name: 'Behavior / Focus Across View Swaps',
   tags: ['interactions-smoke'],
@@ -1629,6 +1924,70 @@ export const FocusRestoreOnClose: Story = {
     await waitForFocus(opener);
     await settleFrames();
     await expect(document.activeElement).toBe(opener);
+  },
+};
+
+const EffectFocusedInput = (): ReactElement => {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => ref.current?.focus(), []);
+  return <Input ref={ref} data-testid='focused' label='Focused in useEffect' />;
+};
+
+const LayoutEffectFocusedInput = (): ReactElement => {
+  const ref = useRef<HTMLInputElement>(null);
+  useLayoutEffect(() => ref.current?.focus(), []);
+  return <Input ref={ref} data-testid='focused' label='Focused in useLayoutEffect' />;
+};
+
+export const ConsumerFocusOnOpen: Story = {
+  name: 'Behavior / Consumer Focus On Open',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [mode, setMode] = useState<'effect' | 'layout-effect' | null>(null);
+
+    return (
+      <div className='flex flex-col gap-2.5'>
+        <Button data-testid='open-effect' variant='solid' onClick={() => setMode('effect')} label='Open (effect)' />
+        <Button
+          data-testid='open-layout-effect'
+          variant='solid'
+          onClick={() => setMode('layout-effect')}
+          label='Open (layout effect)'
+        />
+
+        <Dialog open={mode != null} onOpenChange={open => !open && setMode(null)}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120'>
+              <Dialog.DefaultHeader title='Consumer focus' description='A field focused on mount keeps the focus' />
+              <Dialog.Body className='flex flex-col gap-2.5'>
+                <Input data-autofocus label='Marked with data-autofocus' />
+                {mode === 'layout-effect' ? <LayoutEffectFocusedInput /> : <EffectFocusedInput />}
+              </Dialog.Body>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const effectOpener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='open-effect']");
+    const layoutEffectOpener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='open-layout-effect']");
+    if (effectOpener == null || layoutEffectOpener == null) throw new Error('Missing openers');
+
+    await userEvent.click(effectOpener);
+    await waitForDialogOpen();
+    await settleFrames();
+    await expect(document.activeElement).toBe(byTestId('focused'));
+
+    await userEvent.keyboard('{Escape}');
+    await waitForDialogClosed();
+    await waitForFocus(effectOpener);
+
+    await userEvent.click(layoutEffectOpener);
+    await waitForDialogOpen();
+    await settleFrames();
+    await expect(document.activeElement).toBe(byTestId('focused'));
   },
 };
 
