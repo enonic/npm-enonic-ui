@@ -7,17 +7,39 @@ import { usePhrases, usePrefixedId } from '@/providers';
 import { type StepperContextValue, StepperProvider, useStepper } from '@/providers/stepper-provider';
 import { cn, useComposedRefs } from '@/utils';
 import { fixedCountRangeAround } from '@/utils/array';
-import { getRoot } from '@/utils/dom';
+import { getAutofocusTarget, getRoot } from '@/utils/dom';
 
 import type { ComponentPropsWithoutRef, ReactElement, ReactNode } from 'react';
 
 import { stepperPhrases } from './stepper.phrases';
 
-const getPanelId = (baseId: string, itemId: string): string => `${baseId}-panel-${itemId}`;
+/** DOM id of a `Stepper.Panel`, so a wrapper can find the active panel through its context. */
+export const getStepperPanelId = (baseId: string, itemId: string): string => `${baseId}-panel-${itemId}`;
+const getPanelId = getStepperPanelId;
 const getButtonId = (baseId: string, itemId: string): string => `${baseId}-tab-${itemId}`;
 
 const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/**
+ * Moves focus into a panel a frame after navigation, once it is no longer hidden. The
+ * `[data-autofocus]` target wins; `fallbackToFirstFocusable` covers the button that is about to
+ * disable, so focus does not drop to `body`.
+ */
+const focusPanelAfterNavigation = (
+  root: Document | ShadowRoot | null,
+  panelId: string,
+  fallbackToFirstFocusable: boolean,
+): void => {
+  requestAnimationFrame(() => {
+    const panel = root?.getElementById(panelId);
+    if (panel == null) return;
+    const target =
+      getAutofocusTarget(panel) ??
+      (fallbackToFirstFocusable ? panel.querySelector<HTMLElement>(FOCUSABLE_SELECTOR) : null);
+    target?.focus();
+  });
+};
 
 //
 // * Stepper.Root
@@ -112,6 +134,16 @@ StepperRoot.displayName = 'Stepper';
 // * Stepper.Panel
 //
 
+/**
+ * Focus after `Stepper.Next` / `Stepper.Previous` lands on the first `[data-autofocus]` element in
+ * the new panel — the consumer marks the target, the stepper owns the timing. Without a marker,
+ * focus stays on the button, except when that button is about to disable (first / last step):
+ * there the first focusable element in the panel takes it, so focus is not lost.
+ *
+ * Not triggered by `Stepper.Dots` (focus stays on the dot so arrow keys keep working) nor by a
+ * controlled `value` change made outside Next / Previous. The marker is read once, right after
+ * navigation: a step whose fields render after an async load focuses from its own load effect.
+ */
 export type StepperPanelProps = {
   /** Value that identifies this panel */
   value: string;
@@ -363,12 +395,7 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
 
     const beforePrev = items[currentIndex - 2];
     const willBeDisabled = beforePrev == null || isItemDisabled(beforePrev);
-    if (willBeDisabled) {
-      const root = getRoot(e.currentTarget);
-      requestAnimationFrame(() => {
-        root?.getElementById(getPanelId(baseId, prevValue))?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
-      });
-    }
+    focusPanelAfterNavigation(getRoot(e.currentTarget), getPanelId(baseId, prevValue), willBeDisabled);
   };
 
   const Comp = asChild ? Slot : 'button';
@@ -425,12 +452,7 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
 
     const afterNext = items[currentIndex + 2];
     const willBeDisabled = afterNext == null || isItemDisabled(afterNext);
-    if (willBeDisabled) {
-      const root = getRoot(e.currentTarget);
-      requestAnimationFrame(() => {
-        root?.getElementById(getPanelId(baseId, nextValue))?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus();
-      });
-    }
+    focusPanelAfterNavigation(getRoot(e.currentTarget), getPanelId(baseId, nextValue), willBeDisabled);
   };
 
   const Comp = asChild ? Slot : 'button';

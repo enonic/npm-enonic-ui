@@ -7,6 +7,7 @@ export type DialogContextValue = {
   descriptionId: string;
   setTitleId: (id: string) => void;
   setDescriptionId: (id: string) => void;
+  isUsingStepper?: boolean;
 };
 
 const DialogContext = createContext<DialogContextValue | undefined>(undefined);

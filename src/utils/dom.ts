@@ -53,3 +53,21 @@ export const containsDeep = (container: Node | null | undefined, node: Node | nu
   }
   return false;
 };
+
+const AUTOFOCUS_SELECTOR = '[data-autofocus]:not([data-autofocus="false"]):not([disabled])';
+
+/**
+ * The element a container asks to receive focus: the first `[data-autofocus]` that is not under a
+ * `[hidden]` ancestor. The consumer marks the target; the caller decides when focus moves.
+ *
+ * `data-autofocus="false"` is skipped, since Preact writes a `false` boolean to a `data-*`
+ * attribute as a string — toggle the marker with `data-autofocus={condition || undefined}`.
+ */
+export const getAutofocusTarget = (container: Element | null | undefined): HTMLElement | null => {
+  if (container == null) return null;
+
+  for (const candidate of container.querySelectorAll<HTMLElement>(AUTOFOCUS_SELECTOR)) {
+    if (candidate.closest('[hidden]') == null) return candidate;
+  }
+  return null;
+};
