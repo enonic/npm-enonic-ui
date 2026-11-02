@@ -1,4 +1,3 @@
-import { cva } from 'class-variance-authority';
 import { ChevronRight, Circle, Loader2, Square } from 'lucide-react';
 import {
   cloneElement,
@@ -31,6 +30,7 @@ import {
   useTreeList,
 } from '@/providers/tree-list-provider';
 import { cn, setRef } from '@/utils';
+import { cv } from '@/utils/cv';
 import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
 
 import type { ItemInteraction, LucideIcon } from '@/types';
@@ -43,7 +43,7 @@ const calcSpacerWidth = (level: number, indent: number): number => indent * (lev
 // * Row Variants
 //
 
-export const treeListRowVariants = cva(
+export const treeListRowVariants = cv(
   [
     'group hover:bg-surface-neutral-hover relative z-0 flex items-center gap-2.5 px-2.5 py-1 outline-none',
     // Click target expansion: -inset-y-{n} where n = gap / 2

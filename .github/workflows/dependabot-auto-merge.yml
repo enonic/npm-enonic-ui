@@ -17,12 +17,14 @@ jobs:
 
       # A 0.x minor is breaking by convention but reports as `semver-minor`,
       # so the update-type gate alone would auto-merge it.
+      # `dependency-names` is joined with ', ', and a bare `contains` on 'cn' would match any
+      # name containing it, so `cn` is matched as a whole list entry.
       - name: Enable auto-merge for patch and minor updates
         if: |
           (steps.meta.outputs.update-type == 'version-update:semver-patch' ||
            steps.meta.outputs.update-type == 'version-update:semver-minor') &&
           !contains(steps.meta.outputs.dependency-names, 'vite-plus') &&
-          !contains(steps.meta.outputs.dependency-names, 'class-variance-authority')
+          !contains(format(', {0},', steps.meta.outputs.dependency-names), ', cn,')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}"

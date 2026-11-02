@@ -1,5 +1,4 @@
 import { Slot } from '@radix-ui/react-slot';
-import { cva } from 'class-variance-authority';
 import { Circle, CircleDot } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -18,6 +17,7 @@ import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
+import { cv } from '@/utils/cv';
 import { getActiveElement } from '@/utils/dom';
 
 //
@@ -38,7 +38,7 @@ export type MenuContextOperations = {
 // * Item Variants
 //
 
-export const menuItemVariants = cva(
+export const menuItemVariants = cv(
   [
     'transition-highlight relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none',
   ],
@@ -342,7 +342,7 @@ MenuPrimitiveRadioGroup.displayName = 'MenuPrimitive.RadioGroup';
 // * RadioItem Variants
 //
 
-export const menuRadioItemVariants = cva(
+export const menuRadioItemVariants = cv(
   [
     'transition-highlight relative z-0 flex w-full cursor-pointer items-center gap-x-1.25 px-4.5 py-2.5 text-sm outline-none',
   ],

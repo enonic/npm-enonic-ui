@@ -1,12 +1,12 @@
-import { cva } from 'class-variance-authority';
 import { LockKeyhole } from 'lucide-react';
 import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef, type ReactNode, type Ref } from 'react';
 
 import { FilledOctagonAlert } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap } from '@/utils';
+import { cv } from '@/utils/cv';
 
-const inputContainerVariants = cva(
+const inputContainerVariants = cv(
   [
     'group/input relative flex overflow-hidden rounded-sm',
     'focus-within:border-bdr-solid h-12 border',

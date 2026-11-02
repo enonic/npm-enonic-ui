@@ -40,7 +40,7 @@ Read the project docs to understand project conventions:
 docs/components.md - File layout, exports, props, providers, labels
 docs/patterns.md   - Portals, focus traps, click-outside, autofocus
 docs/runtimes.md   - Preact 10 and React 19 differences
-docs/styling.md    - Styling with cn(), cva(), color tokens
+docs/styling.md    - Styling with cn(), cv(), color tokens
 docs/storybook.md  - Story organization
 ```
 
@@ -133,7 +133,7 @@ Use AskUserQuestion tool to clarify design decisions:
 
 3. **Variants** (if applicable)
    - Single variant dimension (use cn())
-   - Multiple variant dimensions (use cva())
+   - Multiple variant dimensions (use cv())
    - No variants
 
 4. **Special features** (multiselect)
@@ -327,7 +327,7 @@ Follow hierarchical grouping:
 
 - Use `forwardRef` for all interactive components
 - Set `displayName` for debugging
-- Use `cn()` for class composition (cva() only for 2+ variant dimensions)
+- Use `cn()` for class composition (cv() only for 2+ variant dimensions)
 - Props: required first, className/children last
 - Import from `'react'`, not `'preact'`
 - Use `useControlledState` for controlled/uncontrolled support

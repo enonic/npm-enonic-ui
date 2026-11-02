@@ -1,4 +1,3 @@
-import { cva } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -23,6 +22,7 @@ import {
 } from '@/hooks';
 import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
+import { cv } from '@/utils/cv';
 
 const EMPTY_SELECTION: readonly string[] = [];
 
@@ -276,7 +276,7 @@ ListboxContent.displayName = 'Listbox.Content';
 // * Listbox Item
 //
 
-const listboxItemVariants = cva(
+const listboxItemVariants = cv(
   [
     'group transition-highlight relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-1 outline-none',
     // Click target expansion: -inset-y-{n} where n = gap / 2

@@ -1,4 +1,3 @@
-import { cva, type VariantProps } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
   createContext,
@@ -10,8 +9,9 @@ import {
 } from 'react';
 
 import { cn } from '@/utils';
+import { cv, type CvProps } from '@/utils/cv';
 
-const skeletonVariants = cva('bg-muted', {
+const skeletonVariants = cv('bg-muted', {
   variants: {
     shape: {
       rectangle: 'rounded-sm',
@@ -38,7 +38,7 @@ const skeletonVariants = cva('bg-muted', {
   },
 });
 
-type SkeletonVariantsProps = VariantProps<typeof skeletonVariants>;
+type SkeletonVariantsProps = CvProps<typeof skeletonVariants>;
 
 export type SkeletonShape = NonNullable<SkeletonVariantsProps['shape']>;
 export type SkeletonSize = NonNullable<SkeletonVariantsProps['size']>;

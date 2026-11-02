@@ -1,4 +1,3 @@
-import { cva } from 'class-variance-authority';
 import { ChevronDown } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -44,6 +43,7 @@ import {
 } from '@/providers';
 import { cn } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
+import { cv } from '@/utils/cv';
 import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
 import { useComposedRefs } from '@/utils/ref';
 
@@ -583,7 +583,7 @@ ComboboxContent.displayName = 'Combobox.Content';
 // * Control
 //
 
-const comboboxControlVariants = cva(
+const comboboxControlVariants = cv(
   [
     'flex items-center gap-2.5',
     'bg-surface-neutral h-12 rounded-sm border',

@@ -10,10 +10,12 @@ Combine classes with `cn` (internal: `@/utils`), with `className` last so the pa
 const classNames = cn('rounded px-4 py-2 font-medium', disabled && 'cursor-not-allowed opacity-50', className);
 ```
 
-Use `cva` only for two or more variant dimensions with multiple options each. Simple true/false states go through `cn`.
+Use `cv` (`@/utils/cv`) only for two or more variant dimensions with multiple options each. Simple true/false states go
+through `cn`. `cv` mirrors `cva` from `class-variance-authority` and joins classes without merging them; derive prop
+types with `CvProps<typeof buttonVariants>`.
 
 ```typescript
-const buttonVariants = cva('rounded font-medium transition-colors', {
+const buttonVariants = cv('rounded font-medium transition-colors', {
   variants: {
     variant: { primary: '...', secondary: '...' },
     size: { sm: '...', md: '...' },

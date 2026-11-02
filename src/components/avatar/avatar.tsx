@@ -1,4 +1,3 @@
-import { cva, type VariantProps } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
@@ -11,8 +10,9 @@ import {
 
 import { type AvatarContextValue, type AvatarImageLoadingStatus, AvatarProvider, useAvatar } from '@/providers';
 import { cn } from '@/utils';
+import { cv, type CvProps } from '@/utils/cv';
 
-const avatarVariants = cva('relative flex shrink-0 overflow-hidden', {
+const avatarVariants = cv('relative flex shrink-0 overflow-hidden', {
   variants: {
     size: {
       sm: 'size-6 text-xs',
@@ -33,7 +33,7 @@ const avatarVariants = cva('relative flex shrink-0 overflow-hidden', {
 export type AvatarRootProps = {
   className?: string;
   children?: React.ReactNode;
-} & VariantProps<typeof avatarVariants> &
+} & CvProps<typeof avatarVariants> &
   ComponentPropsWithoutRef<'span'>;
 
 const AvatarRoot = forwardRef<HTMLSpanElement, AvatarRootProps>(

@@ -1,5 +1,4 @@
 import { Slot } from '@radix-ui/react-slot';
-import { cva } from 'class-variance-authority';
 import { CircleAlert, CircleCheck, CircleX, Info, type LucideIcon, X } from 'lucide-react';
 import {
   Children,
@@ -20,6 +19,7 @@ import { Link, type LinkProps } from '@/components/link';
 import { useControlledState } from '@/hooks';
 import { ToastProvider, usePhrases, useToast } from '@/providers';
 import { cn } from '@/utils';
+import { cv } from '@/utils/cv';
 
 import { toastPhrases } from './toast.phrases';
 
@@ -42,7 +42,7 @@ const toneIcons: Record<ToastTone, LucideIcon> = {
   error: CircleX,
 };
 
-const toastIconVariants = cva('row-start-1 flex size-6 flex-none items-center justify-center', {
+const toastIconVariants = cv('row-start-1 flex size-6 flex-none items-center justify-center', {
   variants: {
     variant: {
       success: '[&_svg]:fill-success',

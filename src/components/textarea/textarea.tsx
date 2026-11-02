@@ -1,4 +1,3 @@
-import { cva } from 'class-variance-authority';
 import { LockKeyhole } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -13,6 +12,7 @@ import {
 import { FilledOctagonAlert } from '@/icons';
 import { usePrefixedId } from '@/providers/id-provider';
 import { cn, unwrap, useComposedRefs } from '@/utils';
+import { cv } from '@/utils/cv';
 import { SUPPORTS_FIELD_SIZING } from '@/utils/feature-support';
 
 const adjustTextareaHeight = (el: HTMLTextAreaElement): void => {
@@ -20,7 +20,7 @@ const adjustTextareaHeight = (el: HTMLTextAreaElement): void => {
   el.style.height = `${el.scrollHeight}px`;
 };
 
-const textareaContainerVariants = cva(
+const textareaContainerVariants = cv(
   [
     'relative flex overflow-hidden rounded-sm',
     'focus-within:border-bdr-solid border',

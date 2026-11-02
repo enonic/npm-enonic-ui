@@ -1,4 +1,3 @@
-import { cva } from 'class-variance-authority';
 import { Check, ChevronDown } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
@@ -34,6 +33,7 @@ import {
   useSelector,
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
+import { cv } from '@/utils/cv';
 
 //
 // * Selector Root
@@ -194,7 +194,7 @@ SelectorRoot.displayName = 'Selector';
 // * Selector Trigger
 //
 
-const selectorTriggerVariants = cva(
+const selectorTriggerVariants = cv(
   [
     'flex w-full items-center justify-between gap-2.5',
     'bg-surface-neutral h-12 rounded-sm border px-4',
@@ -534,7 +534,7 @@ SelectorViewport.displayName = 'Selector.Viewport';
 // * Selector Item
 //
 
-const selectorItemVariants = cva(
+const selectorItemVariants = cv(
   [
     'group transition-highlight relative z-0 flex w-full cursor-pointer items-center gap-x-2.5 px-4.5 py-2 outline-none',
     // Click target expansion: -inset-y-{n} where n = gap / 2

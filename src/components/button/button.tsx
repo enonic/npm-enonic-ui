@@ -1,11 +1,11 @@
-import { cva, type VariantProps } from 'class-variance-authority';
 import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef } from 'react';
 
 import { cn } from '@/utils';
+import { cv, type CvProps } from '@/utils/cv';
 
 import type { LucideIcon } from '@/types';
 
-const buttonVariants = cva(
+const buttonVariants = cv(
   [
     'inline-flex items-center justify-center',
     'text-main font-semibold',
@@ -38,7 +38,7 @@ const buttonVariants = cva(
   },
 );
 
-export type ButtonVariantsProps = VariantProps<typeof buttonVariants>;
+export type ButtonVariantsProps = CvProps<typeof buttonVariants>;
 export type ButtonVariant = NonNullable<ButtonVariantsProps['variant']>;
 export type ButtonSize = NonNullable<ButtonVariantsProps['size']>;
 export type ButtonIconProps = {

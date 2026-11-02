@@ -193,7 +193,7 @@ export default defineConfig({
     },
     sortPackageJson: false,
     sortTailwindcss: {
-      functions: ['cn', 'clsx', 'cva', 'twMerge', 'twJoin'],
+      functions: ['cn', 'cv'],
     },
   },
   plugins: [
@@ -210,7 +210,7 @@ export default defineConfig({
       tsconfigPath: './tsconfig.build.json',
       outDirs: 'dist/types',
       aliasesExclude: ['react', 'react-dom', 'react-dom/test-utils'],
-      exclude: ['**/*.stories.tsx', '.storybook/**/*'],
+      exclude: ['**/*.stories.tsx', '**/*.test.ts', '.storybook/**/*'],
     }),
     visualizer({
       filename: 'dist/stats.html',
@@ -273,6 +273,10 @@ export default defineConfig({
         assetFileNames: 'styles/style[extname]',
       },
     },
+  },
+  test: {
+    include: ['src/**/*.test.ts'],
+    environment: 'node',
   },
   resolve: {
     alias: {

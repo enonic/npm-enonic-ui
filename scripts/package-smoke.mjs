@@ -44,7 +44,7 @@ const CSS_SENTINELS = {
   'utilities.css': ['@utility'],
 };
 
-const EXPECTED_EXPORTS = JSON.stringify(['Button', 'Input', 'Dialog', 'Tooltip', 'cn']);
+const EXPECTED_EXPORTS = JSON.stringify(['Button', 'Input', 'Dialog', 'Tooltip', 'cn', 'cv']);
 
 const failures = [];
 const skipped = [];
