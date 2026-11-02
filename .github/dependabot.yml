@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'monthly'
+      interval: 'weekly'
     open-pull-requests-limit: 5
     # The default, `increase`, would keep raising published range floors.
     versioning-strategy: 'increase-if-necessary'
