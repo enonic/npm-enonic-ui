@@ -29,6 +29,7 @@ import {
   useScrollActiveIntoView,
   useSubmenuSafeArea,
 } from '@/hooks';
+import { useFocusOutside } from '@/hooks/use-focus-outside';
 import {
   type MenuItemOwnProps,
   menuItemVariants,
@@ -238,7 +239,9 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     const menuId = `${baseId}-content`;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
-    const [isPortalMode, setIsPortalMode] = useState(false);
+    const wasOpenRef = useRef(false);
+    const hasSelectedRef = useRef(false);
+    const [isPortalMode, setIsPortalMode] = useState<boolean>();
 
     const [active, setActive] = useState<string | undefined>(undefined);
     const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
@@ -259,20 +262,26 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
-    usePortalFocusContainer(contentRef, isPortalMode);
+    const isFocusReady = usePortalFocusContainer(contentRef, open && isPortalMode === true);
 
-    // Focus menu when it opens and select first selectable item
+    // Focus and initialize selection only on the closed -> open transition.
     useEffect(() => {
-      if (open && contentRef.current) {
+      if (open && (isPortalMode === undefined || !isFocusReady)) return;
+      if (open && !wasOpenRef.current && contentRef.current) {
         contentRef.current.focus();
+      }
 
+      if (open && !hasSelectedRef.current) {
         const items = getItems();
         const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
         if (firstSelectableItem) {
+          hasSelectedRef.current = true;
           setActive(firstSelectableItem);
         }
       }
-    }, [open, getItems, isItemDisabled]);
+      if (!open) hasSelectedRef.current = false;
+      wasOpenRef.current = open;
+    }, [open, getItems, isItemDisabled, isPortalMode, isFocusReady]);
 
     // Reset active item when menu closes
     useEffect(() => {
@@ -342,6 +351,13 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
       onClose: () => setOpen(false),
     });
 
+    const registerFocusBranch = useFocusOutside({
+      enabled: open && isPortalMode !== undefined && isFocusReady,
+      contentRef,
+      onInteractOutside,
+      onClose: () => setOpen(false),
+    });
+
     useScrollActiveIntoView({
       containerRef: contentRef,
       activeId: active,
@@ -357,9 +373,10 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
         getItems,
         isItemDisabled,
         getItemElement,
+        registerFocusBranch,
         safeAreaCheckRef,
       }),
-      [active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement],
+      [active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement, registerFocusBranch],
     );
 
     if (!forceMount && !open) {
@@ -781,7 +798,16 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
     const { contentId, open, setOpen, triggerRef, parentContent, subId } = useContextMenuSub();
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
-    const [isPortalMode, setIsPortalMode] = useState(false);
+    const wasOpenRef = useRef(false);
+    const hasSelectedRef = useRef(false);
+    const [isPortalMode, setIsPortalMode] = useState<boolean>();
+    const { registerFocusBranch } = parentContent;
+
+    useLayoutEffect(() => {
+      const content = contentRef.current;
+      if (!open || !content) return;
+      return registerFocusBranch(content);
+    }, [open, registerFocusBranch]);
 
     const [active, setActive] = useState<string | undefined>(undefined);
     const { registerItem, unregisterItem, getItems, isItemDisabled, getItemElement } = useItemRegistry();
@@ -824,24 +850,32 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       setIsPortalMode(contentRef.current.parentElement === portalContainer);
     }, [open, portalContainer]);
 
-    usePortalFocusContainer(contentRef, isPortalMode);
+    const isFocusReady = usePortalFocusContainer(contentRef, open && isPortalMode === true);
 
-    // Focus the submenu and select first item once positioned. Gate on `isPositioned`
-    // (not `position` identity) so resize/scroll — which produce a fresh position object
-    // every time — don't reset the user's active selection.
+    // Focus once per opening, after positioning and focus-trap registration finish.
     const isPositioned = position !== null;
     useEffect(() => {
-      if (open && isPositioned && contentRef.current) {
+      if (open && (!isPositioned || isPortalMode === undefined || !isFocusReady)) return;
+      if (open && !wasOpenRef.current && contentRef.current) {
         contentRef.current.focus();
+      }
+      if (open && !hasSelectedRef.current) {
         const items = getItems();
         const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
         if (firstSelectableItem) {
+          hasSelectedRef.current = true;
           setActive(firstSelectableItem);
         }
       } else if (!open) {
-        setActive(undefined);
+        hasSelectedRef.current = false;
       }
-    }, [open, isPositioned, getItems, isItemDisabled]);
+      wasOpenRef.current = open;
+    }, [open, isPositioned, getItems, isItemDisabled, isPortalMode, isFocusReady]);
+
+    // Reset selection only when closing, independently of positioning and item registration.
+    useEffect(() => {
+      if (!open) setActive(undefined);
+    }, [open]);
 
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
       getItems,
@@ -947,9 +981,10 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         getItems,
         isItemDisabled,
         getItemElement,
+        registerFocusBranch,
         safeAreaCheckRef,
       }),
-      [active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement],
+      [active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement, registerFocusBranch],
     );
 
     if (!forceMount && !open) {
