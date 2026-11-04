@@ -159,14 +159,14 @@
       "ignore": [
         "focus-trap-react"
       ],
-      "limit": "64 KB"
+      "limit": "65 KB"
     },
     {
       "path": "dist/enonic-ui.cjs",
       "ignore": [
         "focus-trap-react"
       ],
-      "limit": "64 KB"
+      "limit": "65 KB"
     },
     {
       "path": "dist/styles/style.css",

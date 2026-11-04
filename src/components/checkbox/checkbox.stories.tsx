@@ -1,4 +1,5 @@
-import { type Dispatch, type ReactElement, type SetStateAction, useEffect, useState } from 'react';
+import { type Dispatch, type MouseEvent, type ReactElement, type SetStateAction, useEffect, useState } from 'react';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 
@@ -385,6 +386,101 @@ export const UnlabeledClickArea: Story = {
         </div>
       </div>
     );
+  },
+};
+
+export const SingleClickCall: Story = {
+  name: 'Behavior / Single Click Call',
+  render: () => {
+    const [onClickChecked, setOnClickChecked] = useState(false);
+    const [onChangeChecked, setOnChangeChecked] = useState(false);
+    const [calls, setCalls] = useState<string[]>([]);
+    const [stopChecked, setStopChecked] = useState(false);
+    const [parentClicks, setParentClicks] = useState(0);
+    const [disabled, setDisabled] = useState(false);
+    const [disablingCalls, setDisablingCalls] = useState(0);
+
+    const handleClick = (e: MouseEvent<HTMLLabelElement>): void => {
+      const target = (e.target as HTMLElement).tagName;
+      setCalls(prev => [...prev, target]);
+      setOnClickChecked(!onClickChecked);
+    };
+
+    return (
+      <div className='space-y-4 p-4'>
+        <p className='text-subtle max-w-md text-sm'>
+          <code>onClick</code> is called once per click, whether the click lands on the label text, on the box or comes
+          from Space. State can be toggled in it, although <code>onCheckedChange</code> is the API for that. Stopping
+          propagation in it keeps the whole click from parent handlers. Disabling the checkbox in it does not swallow
+          the next click after it is enabled again.
+        </p>
+        <div className='space-y-2'>
+          <Checkbox label='Toggles in onClick' checked={onClickChecked} onClick={handleClick} />
+          <Checkbox
+            label='Toggles in onCheckedChange'
+            checked={onChangeChecked}
+            onCheckedChange={checked => setOnChangeChecked(checked === true)}
+          />
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+          <div onClick={() => setParentClicks(prev => prev + 1)}>
+            <Checkbox
+              label='Stops propagation'
+              checked={stopChecked}
+              onCheckedChange={checked => setStopChecked(checked === true)}
+              onClick={e => e.stopPropagation()}
+            />
+          </div>
+          <Checkbox
+            label='Disables in onClick'
+            disabled={disabled}
+            onClick={() => {
+              setDisablingCalls(prev => prev + 1);
+              setDisabled(true);
+            }}
+          />
+        </div>
+        <div className='text-subtle space-y-1 text-xs'>
+          <div>onClick calls: {calls.length === 0 ? '—' : calls.join(', ')}</div>
+          <div>Parent clicks: {parentClicks}</div>
+          <div>Disabling onClick calls: {disablingCalls}</div>
+          <button type='button' className='underline' onClick={() => setDisabled(false)}>
+            Enable
+          </button>
+          <button type='button' className='underline' onClick={() => setCalls([])}>
+            Clear
+          </button>
+        </div>
+      </div>
+    );
+  },
+  tags: ['interactions-smoke'],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const checkbox = canvas.getByRole('checkbox', { name: 'Toggles in onClick' });
+
+    await userEvent.click(canvas.getByText('Toggles in onClick'));
+    await waitFor(() => expect(checkbox).toBeChecked());
+    await expect(canvas.getByText('onClick calls: SPAN')).toBeInTheDocument();
+
+    checkbox.focus();
+    await userEvent.keyboard(' ');
+    await waitFor(() => expect(checkbox).not.toBeChecked());
+    await expect(canvas.getByText('onClick calls: SPAN, INPUT')).toBeInTheDocument();
+
+    await userEvent.click(canvas.getByText('Stops propagation'));
+    await waitFor(() => expect(canvas.getByRole('checkbox', { name: 'Stops propagation' })).toBeChecked());
+    await expect(canvas.getByText('Parent clicks: 0')).toBeInTheDocument();
+
+    const disabling = canvas.getByRole('checkbox', { name: 'Disables in onClick' });
+    await userEvent.click(canvas.getByText('Disables in onClick'));
+    await waitFor(() => expect(disabling).toBeDisabled());
+    await expect(canvas.getByText('Disabling onClick calls: 1')).toBeInTheDocument();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Enable' }));
+    await waitFor(() => expect(disabling).toBeEnabled());
+    disabling.focus();
+    await userEvent.keyboard(' ');
+    await expect(canvas.getByText('Disabling onClick calls: 2')).toBeInTheDocument();
   },
 };
 
