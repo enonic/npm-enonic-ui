@@ -29,7 +29,7 @@ import {
   useStepperOptional,
 } from '@/providers';
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
-import { FocusContainerContext } from '@/providers/focus-container-provider';
+import { FocusContainerContext, type FocusContainerRegistry } from '@/providers/focus-container-provider';
 import { cn, useComposedRefs } from '@/utils';
 import { containsDeep, getActiveElement, getAutofocusTarget, getRoot } from '@/utils/dom';
 
@@ -38,6 +38,8 @@ import { getStepperPanelId, Stepper, type StepperDotsProps } from '../stepper';
 import {
   activateDialogScope,
   DialogActionContext,
+  DIALOG_SHORTCUT_BOUNDARY_ATTRIBUTE,
+  DIALOG_SHORTCUT_BOUNDARY_VALUE,
   type DialogActionRegistration,
   type DialogActionScope,
   type DialogShortcutType,
@@ -266,6 +268,10 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     const parentScope = useContext(DialogActionContext);
     const escapeHandlerRef = useRef<(event: KeyboardEvent) => void>(() => undefined);
     const portalContainersRef = useRef<HTMLElement[]>([]);
+    const acknowledgedContainersRef = useRef<HTMLElement[]>([]);
+    const pendingFocusRequestsRef = useRef(new Set<{ container: HTMLElement; focus: () => void }>());
+    const focusRequestsEnabledRef = useRef(open);
+    focusRequestsEnabledRef.current = open;
     const modalRef = useRef(modal);
     modalRef.current = modal;
     const actionScope = useMemo<DialogActionScope>(() => {
@@ -278,14 +284,20 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         actions: { primary: [], secondary: [] },
         onEscape: event => escapeHandlerRef.current(event),
         containsShortcutEvent: event => {
-          const content = contentRef.current;
-          const document = content?.ownerDocument;
-          // Hidden step panels can leave focus on body; only modal dialogs accept that fallback.
-          if (modalRef.current && document != null && (event.target === document || event.target === document.body)) {
-            return true;
+          // Keep widget ownership on the scope so older helpers and listeners honor it too.
+          const boundaries = getActionBoundaries();
+          for (const target of event.composedPath()) {
+            if ((target as Node).nodeType !== 1) continue;
+            const element = target as Element;
+            if (element.getAttribute(DIALOG_SHORTCUT_BOUNDARY_ATTRIBUTE) === DIALOG_SHORTCUT_BOUNDARY_VALUE)
+              return false;
+            // Stop at this dialog or its portal before reaching an outer widget boundary.
+            if (boundaries.includes(element)) return true;
           }
-          const path = event.composedPath();
-          return getActionBoundaries().some(boundary => path.includes(boundary));
+
+          const document = contentRef.current?.ownerDocument;
+          // Hidden step panels can leave focus on body; only modal dialogs accept that fallback.
+          return modalRef.current && document != null && (event.target === document || event.target === document.body);
         },
         getActionBoundaries,
         focusContent: () => {
@@ -294,7 +306,8 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
         },
       };
     }, [parentScope]);
-    const [portalContainers, setPortalContainers] = useState<HTMLElement[]>([]);
+    const [registryVersion, setRegistryVersion] = useState(0);
+    const portalContainers = portalContainersRef.current;
 
     const composedRef = useComposedRefs(ref, contentRef);
 
@@ -311,11 +324,36 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 
     // Registry for portaled content (e.g., Combobox.Popup) to register with focus trap.
     // See docs/patterns.md — "Focus Trap with Portaled Content"
-    const focusContainerRegistry = useMemo(
+    const focusContainerRegistry = useMemo<FocusContainerRegistry>(
       () => ({
-        register: (element: HTMLElement) =>
-          setPortalContainers(prev => (prev.includes(element) ? prev : [...prev, element])),
-        unregister: (element: HTMLElement) => setPortalContainers(prev => prev.filter(el => el !== element)),
+        register: element => {
+          if (portalContainersRef.current.includes(element)) return;
+          portalContainersRef.current = [...portalContainersRef.current, element];
+          setRegistryVersion(version => version + 1);
+        },
+        unregister: element => {
+          for (const request of pendingFocusRequestsRef.current) {
+            if (containsDeep(element, request.container)) pendingFocusRequestsRef.current.delete(request);
+          }
+          acknowledgedContainersRef.current = acknowledgedContainersRef.current.filter(
+            container => container !== element,
+          );
+          if (!portalContainersRef.current.includes(element)) return;
+          portalContainersRef.current = portalContainersRef.current.filter(container => container !== element);
+          setRegistryVersion(version => version + 1);
+        },
+        requestFocus: (container, focus) => {
+          if (!focusRequestsEnabledRef.current || !container.isConnected) return () => undefined;
+          if (acknowledgedContainersRef.current.some(boundary => containsDeep(boundary, container))) {
+            focus();
+            return () => undefined;
+          }
+          const request = { container, focus };
+          pendingFocusRequestsRef.current.add(request);
+          return () => {
+            pendingFocusRequestsRef.current.delete(request);
+          };
+        },
       }),
       [],
     );
@@ -327,6 +365,38 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
       result.push(...portalContainers);
       return result.length > 0 ? result : undefined;
     }, [portalContainers]);
+
+    // Preact runs hook layout effects before FocusTrap.componentDidUpdate. Only a passive
+    // effect can acknowledge the container snapshot delivered to that class component.
+    useEffect(() => {
+      if (!open || !focusRequestsEnabledRef.current) return;
+      const content = contentRef.current;
+      const snapshot = containerElements ?? (content ? [content] : []);
+      acknowledgedContainersRef.current = snapshot.filter(
+        container => container === content || portalContainersRef.current.includes(container),
+      );
+      // Focus callbacks can enqueue or cancel other requests; serve only this snapshot.
+      const pendingRequests = [...pendingFocusRequestsRef.current];
+      for (const request of pendingRequests) {
+        if (!pendingFocusRequestsRef.current.has(request)) continue;
+        if (!request.container.isConnected) {
+          pendingFocusRequestsRef.current.delete(request);
+        } else if (acknowledgedContainersRef.current.some(boundary => containsDeep(boundary, request.container))) {
+          pendingFocusRequestsRef.current.delete(request);
+          request.focus();
+        }
+      }
+    }, [open, registryVersion, containerElements]);
+
+    // Render owns `focusRequestsEnabledRef`: a StrictMode cleanup and re-run must leave requests enabled.
+    useLayoutEffect(() => {
+      if (!open) return;
+      const pendingFocusRequests = pendingFocusRequestsRef.current;
+      return () => {
+        acknowledgedContainersRef.current = [];
+        pendingFocusRequests.clear();
+      };
+    }, [open]);
 
     useScrollLock(open && modal);
 
@@ -347,8 +417,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 
     useLayoutEffect(() => {
       escapeHandlerRef.current = handleEscapeKey;
-      portalContainersRef.current = portalContainers;
-    }, [handleEscapeKey, portalContainers]);
+    }, [handleEscapeKey]);
 
     useLayoutEffect(() => {
       const document = contentRef.current?.ownerDocument;

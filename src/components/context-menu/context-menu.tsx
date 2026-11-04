@@ -14,7 +14,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+import { dialogShortcutBoundaryProps, isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import {
   type FloatingProps,
   toFloatingStyle,
@@ -126,7 +126,7 @@ export type ContextMenuTriggerProps = {
 
 const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
   ({ asChild, disabled = false, onContextMenu, className, children, ...props }, ref): ReactElement => {
-    const { setOpen, setPosition } = useContextMenu();
+    const { open, setOpen, setPosition } = useContextMenu();
 
     const handleContextMenu = useCallback(
       (e: React.MouseEvent<HTMLDivElement>): void => {
@@ -146,6 +146,7 @@ const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
     return (
       <Comp
         data-component='ContextMenu.Trigger'
+        {...dialogShortcutBoundaryProps(open)}
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         data-disabled={disabled || undefined}
@@ -239,7 +240,6 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     const menuId = `${baseId}-content`;
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
-    const wasOpenRef = useRef(false);
     const hasSelectedRef = useRef(false);
     const [isPortalMode, setIsPortalMode] = useState<boolean>();
 
@@ -262,15 +262,14 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     }, [open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
-    const isFocusReady = usePortalFocusContainer(contentRef, open && isPortalMode === true);
+    const requestFocus = usePortalFocusContainer(contentRef, open && isPortalMode === true);
 
-    // Focus and initialize selection only on the closed -> open transition.
+    useLayoutEffect(() => {
+      if (open) return requestFocus(() => contentRef.current?.focus());
+    }, [open, requestFocus]);
+
+    // Select the first selectable item once per opening; items register after the content mounts.
     useEffect(() => {
-      if (open && (isPortalMode === undefined || !isFocusReady)) return;
-      if (open && !wasOpenRef.current && contentRef.current) {
-        contentRef.current.focus();
-      }
-
       if (open && !hasSelectedRef.current) {
         const items = getItems();
         const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
@@ -280,8 +279,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
         }
       }
       if (!open) hasSelectedRef.current = false;
-      wasOpenRef.current = open;
-    }, [open, getItems, isItemDisabled, isPortalMode, isFocusReady]);
+    }, [open, getItems, isItemDisabled]);
 
     // Reset active item when menu closes
     useEffect(() => {
@@ -352,7 +350,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
     });
 
     const registerFocusBranch = useFocusOutside({
-      enabled: open && isPortalMode !== undefined && isFocusReady,
+      enabled: open && isPortalMode !== undefined,
       contentRef,
       onInteractOutside,
       onClose: () => setOpen(false),
@@ -387,6 +385,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
       <ContextMenuContentProvider value={contentContextValue}>
         <div
           data-component='ContextMenu.Content'
+          {...dialogShortcutBoundaryProps(open)}
           ref={composedRefs}
           id={menuId}
           role='menu'
@@ -705,10 +704,10 @@ const ContextMenuSubTrigger = forwardRef<HTMLDivElement, ContextMenuSubTriggerPr
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
+        if (isDialogShortcutEvent(e)) return;
         if (disabled) return;
 
         if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
-          if (isDialogShortcutEvent(e)) return;
           if (!open) {
             e.preventDefault();
             e.stopPropagation();
@@ -798,7 +797,6 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
     const { contentId, open, setOpen, triggerRef, parentContent, subId } = useContextMenuSub();
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
-    const wasOpenRef = useRef(false);
     const hasSelectedRef = useRef(false);
     const [isPortalMode, setIsPortalMode] = useState<boolean>();
     const { registerFocusBranch } = parentContent;
@@ -850,16 +848,16 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       setIsPortalMode(contentRef.current.parentElement === portalContainer);
     }, [open, portalContainer]);
 
-    const isFocusReady = usePortalFocusContainer(contentRef, open && isPortalMode === true);
+    const requestFocus = usePortalFocusContainer(contentRef, open && isPortalMode === true);
 
     // Focus once per opening, after positioning and focus-trap registration finish.
     const isPositioned = position !== null;
+    useLayoutEffect(() => {
+      if (open && isPositioned) return requestFocus(() => contentRef.current?.focus());
+    }, [open, isPositioned, requestFocus]);
+
     useEffect(() => {
-      if (open && (!isPositioned || isPortalMode === undefined || !isFocusReady)) return;
-      if (open && !wasOpenRef.current && contentRef.current) {
-        contentRef.current.focus();
-      }
-      if (open && !hasSelectedRef.current) {
+      if (open && isPositioned && !hasSelectedRef.current) {
         const items = getItems();
         const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
         if (firstSelectableItem) {
@@ -869,8 +867,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
       } else if (!open) {
         hasSelectedRef.current = false;
       }
-      wasOpenRef.current = open;
-    }, [open, isPositioned, getItems, isItemDisabled, isPortalMode, isFocusReady]);
+    }, [open, isPositioned, getItems, isItemDisabled]);
 
     // Reset selection only when closing, independently of positioning and item registration.
     useEffect(() => {
@@ -891,6 +888,8 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (isDialogShortcutEvent(e)) return;
+
         // ? SubContent is portaled but React synthetic events still bubble through the
         // component tree. Stop propagation on every handled key so the parent Content
         // doesn't also react to ArrowDown/Enter/etc. and move *its* active item.
@@ -920,7 +919,6 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         }
 
         if (['ArrowUp', 'ArrowDown', 'Home', 'End', 'ArrowRight', 'Enter', ' '].includes(e.key)) {
-          if (isDialogShortcutEvent(e)) return;
           e.stopPropagation();
           setIsUsingKeyboard(true);
         }
@@ -996,6 +994,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         <ContextMenuContentProvider value={contentContextValue}>
           <div
             data-component='ContextMenu.SubContent'
+            {...dialogShortcutBoundaryProps(open)}
             ref={composedRefs}
             id={contentId}
             role='menu'

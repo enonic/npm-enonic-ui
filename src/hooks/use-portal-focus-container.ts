@@ -1,6 +1,6 @@
-import { type RefObject, useEffect, useState } from 'react';
+import { type RefObject, useCallback, useEffect } from 'react';
 
-import { type FocusContainerRegistry, useFocusContainerRegistry } from '@/providers';
+import { useFocusContainerRegistry } from '@/providers';
 
 /**
  * Registers a portal element with a parent focus trap (e.g., Dialog).
@@ -9,7 +9,7 @@ import { type FocusContainerRegistry, useFocusContainerRegistry } from '@/provid
  *
  * @param elementRef - Ref to the popup element to register
  * @param isEnabled - Whether registration is active (typically: open && isPortalMode)
- * @returns Whether registration is ready for a passive autofocus effect.
+ * @returns A stable callback for cancellable focus after the parent trap acknowledges the container.
  *
  * @example
  * ```tsx
@@ -22,30 +22,37 @@ import { type FocusContainerRegistry, useFocusContainerRegistry } from '@/provid
  *   setIsPortalMode(contentRef.current.parentElement === portalContainer);
  * }, [open, portalContainer]);
  *
- * usePortalFocusContainer(contentRef, isPortalMode);
+ * const requestFocus = usePortalFocusContainer(contentRef, open && isPortalMode);
+ * useLayoutEffect(() => {
+ *   if (open) return requestFocus(() => contentRef.current?.focus());
+ * }, [open, requestFocus]);
  * ```
  */
-export const usePortalFocusContainer = (elementRef: RefObject<HTMLElement | null>, isEnabled: boolean): boolean => {
+export const usePortalFocusContainer = (
+  elementRef: RefObject<HTMLElement | null>,
+  isEnabled: boolean,
+): ((focus: () => void) => () => void) => {
   const focusContainerRegistry = useFocusContainerRegistry();
-  const [registration, setRegistration] = useState<{
-    element: HTMLElement;
-    registry: FocusContainerRegistry;
-  } | null>(null);
 
   useEffect(() => {
     const element = elementRef.current;
     if (element && isEnabled && focusContainerRegistry) {
       focusContainerRegistry.register(element);
-      // Autofocus must wait for a render that also commits the trap's updated containers.
-      setRegistration({ element, registry: focusContainerRegistry });
       return () => focusContainerRegistry.unregister(element);
     }
-    setRegistration(null);
   }, [elementRef, isEnabled, focusContainerRegistry]);
 
-  return (
-    !isEnabled ||
-    !focusContainerRegistry ||
-    (registration?.element === elementRef.current && registration?.registry === focusContainerRegistry)
+  return useCallback(
+    (focus: () => void): (() => void) => {
+      const element = elementRef.current;
+      if (!element?.isConnected) return () => undefined;
+      if (focusContainerRegistry?.requestFocus) {
+        return focusContainerRegistry.requestFocus(element, focus);
+      }
+      // No Dialog, or a consumer registry implementing only the original registration contract.
+      focus();
+      return () => undefined;
+    },
+    [elementRef, focusContainerRegistry],
   );
 };

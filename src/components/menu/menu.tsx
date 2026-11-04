@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { dialogShortcutBoundaryProps } from '@/components/dialog/dialog-actions';
 import {
   type FloatingProps,
   useClickOutside,
@@ -159,6 +160,7 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
     return (
       <Comp
         data-component='Menu.Trigger'
+        {...dialogShortcutBoundaryProps(open)}
         // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={useComposedRefs(ref, triggerRef)}
         id={triggerId}
@@ -255,7 +257,6 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     const menuId = `${baseId}-content`;
     const composedRefs = useComposedRefs(ref, contentRef);
     const wasOpenRef = useRef(false);
-    const hasSelectedRef = useRef(false);
     const [isPortalMode, setIsPortalMode] = useState<boolean>();
     const position = useFloatingPosition({
       enabled: open,
@@ -275,30 +276,24 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     }, [open, portalContainer, contentRef]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
-    const isFocusReady = usePortalFocusContainer(contentRef, open && isPortalMode === true);
+    const requestFocus = usePortalFocusContainer(contentRef, open && isPortalMode === true);
 
-    // Focus menu and initialize active item only on closed -> open transition.
+    // Initialize selection only when opening; registry updates must not reset navigation.
     useEffect(() => {
-      if (open && (isPortalMode === undefined || !isFocusReady)) return;
-      const isOpening = open && !wasOpenRef.current;
-
-      if (isOpening && contentRef.current) {
-        contentRef.current.focus();
-      }
-
-      if (open && !hasSelectedRef.current) {
-        // Select first non-disabled item
+      if (open && !wasOpenRef.current) {
         const items = getItems();
+        // Items register after the content mounts; `getItems` changes then and re-runs this.
+        if (items.length === 0) return;
         const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
-        if (firstSelectableItem) {
-          hasSelectedRef.current = true;
-          setActive(firstSelectableItem);
-        }
+        setActive(firstSelectableItem);
       }
-      if (!open) hasSelectedRef.current = false;
-
       wasOpenRef.current = open;
-    }, [open, getItems, isItemDisabled, setActive, contentRef, isPortalMode, isFocusReady]);
+    }, [open, getItems, isItemDisabled, setActive]);
+
+    useLayoutEffect(() => {
+      if (!open) return;
+      return requestFocus(() => contentRef.current?.focus());
+    }, [open, requestFocus, contentRef]);
 
     // Keyboard navigation
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
@@ -344,7 +339,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     });
 
     useFocusOutside({
-      enabled: open && isPortalMode !== undefined && isFocusReady,
+      enabled: open && isPortalMode !== undefined,
       contentRef,
       onInteractOutside,
       onClose: () => setOpen(false),
@@ -374,6 +369,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     return (
       <div
         data-component='Menu.Content'
+        {...dialogShortcutBoundaryProps(open)}
         ref={composedRefs}
         id={menuId}
         role='menu'
