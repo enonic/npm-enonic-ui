@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 import { Square } from 'lucide-react';
-import { type ComponentPropsWithoutRef, forwardRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, useRef } from 'react';
 
 import { useControlledState } from '@/hooks';
 import { FilledOctagonAlert, FilledSquareCheck, FilledSquareMinus } from '@/icons';
@@ -111,12 +111,41 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       setCheckedState(nextValue);
     };
 
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const skipInputClick = useRef(false);
+    const stopInputClick = useRef(false);
+
+    // ! A click on the label content makes the browser dispatch a second click to the input, which bubbles back here
+    const handleLabelClick = (e: React.MouseEvent<HTMLLabelElement>): void => {
+      const input = inputRef.current;
+
+      if (e.target === input) {
+        if (skipInputClick.current) {
+          skipInputClick.current = false;
+          if (stopInputClick.current) e.stopPropagation();
+          return;
+        }
+        onClick?.(e);
+        return;
+      }
+
+      onClick?.(e);
+      skipInputClick.current = !e.defaultPrevented && input != null && !input.disabled;
+      stopInputClick.current =
+        (e as { isPropagationStopped?: () => boolean }).isPropagationStopped?.() ?? e.cancelBubble;
+      // ? The forwarded click never arrives when an ancestor prevents default or onClick disables the input, so the flags would stay armed for the next Space press
+      setTimeout(() => {
+        skipInputClick.current = false;
+        stopInputClick.current = false;
+      }, 0);
+    };
+
     return (
       <div data-component='Checkbox' className='flex w-fit flex-col gap-1'>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
         <label
           htmlFor={inputId}
-          onClick={onClick}
+          onClick={handleLabelClick}
           onClickCapture={onClickCapture}
           onMouseDown={onMouseDown}
           className={cn(
@@ -139,6 +168,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         >
           <input
             ref={el => {
+              inputRef.current = el;
               if (typeof ref === 'function') ref(el);
               else if (ref) ref.current = el;
               if (el) el.indeterminate = isIndeterminate;
