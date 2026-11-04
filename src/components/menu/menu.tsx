@@ -23,6 +23,7 @@ import {
   usePortalFocusContainer,
   useScrollActiveIntoView,
 } from '@/hooks';
+import { useFocusOutside } from '@/hooks/use-focus-outside';
 import {
   type MenuItemOwnProps,
   MenuPrimitiveItem,
@@ -46,6 +47,7 @@ import {
   usePrefixedId,
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
+import { containsDeep, getActiveElement, getRoot, isShadowRoot } from '@/utils/dom';
 
 //
 // * Menu
@@ -65,6 +67,7 @@ const MenuRoot = ({
   children,
 }: MenuRootProps): ReactElement => {
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const baseId = usePrefixedId();
 
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
@@ -84,6 +87,7 @@ const MenuRoot = ({
       isItemDisabled,
       getItemElement,
       triggerRef,
+      contentRef,
     }),
     [baseId, open, active, registerItem, unregisterItem, getItems, isItemDisabled, getItemElement, setOpen],
   );
@@ -94,8 +98,17 @@ const MenuRoot = ({
     if (open) {
       hasOpenedRef.current = true;
     } else if (hasOpenedRef.current && triggerRef.current) {
-      // Return focus to trigger when menu closes (can't be in MenuContent - it unmounts)
-      triggerRef.current.focus();
+      const trigger = triggerRef.current;
+      const root = getRoot(trigger);
+      // The document cannot see focus inside a closed shadow root, but its contents can.
+      const focused = (isShadowRoot(root) ? root.activeElement : null) ?? getActiveElement();
+      if (
+        focused === trigger.ownerDocument.body ||
+        (isShadowRoot(root) && focused === root.host) ||
+        containsDeep(contentRef.current, focused)
+      ) {
+        trigger.focus();
+      }
     }
   }, [open]);
 
@@ -114,14 +127,23 @@ export type MenuTriggerProps = {
 } & Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'children'>;
 
 const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
-  ({ asChild, onClick, onKeyDown, className, children, ...props }, ref): ReactElement => {
+  ({ asChild, onClick, onPointerDown, onKeyDown, className, children, ...props }, ref): ReactElement => {
     const { baseId, open, setOpen, triggerRef } = useMenu();
     const triggerId = `${baseId}-trigger`;
     const menuId = `${baseId}-content`;
+    const pointerOpenRef = useRef<boolean | undefined>(undefined);
+
+    const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>): void => {
+      pointerOpenRef.current = e.button === 0 ? open : undefined;
+      onPointerDown?.(e);
+    };
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
       onClick?.(e);
-      setOpen(!open);
+      // Focus dismissal can close the menu between pointerdown and click.
+      const wasOpen = e.detail > 0 ? (pointerOpenRef.current ?? open) : open;
+      pointerOpenRef.current = undefined;
+      setOpen(!wasOpen);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>): void => {
@@ -145,6 +167,7 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
         data-active={open}
         aria-controls={open ? menuId : undefined}
         onClick={handleClick}
+        onPointerDown={handlePointerDown}
         onKeyDown={handleKeyDown}
         className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
         {...(!asChild && { type: 'button' })}
@@ -217,13 +240,23 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     },
     ref,
   ): ReactElement | null => {
-    const { baseId, open, setOpen, active, setActive, getItems, isItemDisabled, getItemElement, triggerRef } =
-      useMenu();
+    const {
+      baseId,
+      open,
+      setOpen,
+      active,
+      setActive,
+      getItems,
+      isItemDisabled,
+      getItemElement,
+      triggerRef,
+      contentRef,
+    } = useMenu();
     const menuId = `${baseId}-content`;
-    const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
     const wasOpenRef = useRef(false);
-    const [isPortalMode, setIsPortalMode] = useState(false);
+    const hasSelectedRef = useRef(false);
+    const [isPortalMode, setIsPortalMode] = useState<boolean>();
     const position = useFloatingPosition({
       enabled: open,
       anchorRef: triggerRef,
@@ -239,28 +272,33 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     useLayoutEffect(() => {
       if (!open || !contentRef.current) return;
       setIsPortalMode(contentRef.current.parentElement === portalContainer);
-    }, [open, portalContainer]);
+    }, [open, portalContainer, contentRef]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
-    usePortalFocusContainer(contentRef, isPortalMode);
+    const isFocusReady = usePortalFocusContainer(contentRef, open && isPortalMode === true);
 
     // Focus menu and initialize active item only on closed -> open transition.
     useEffect(() => {
+      if (open && (isPortalMode === undefined || !isFocusReady)) return;
       const isOpening = open && !wasOpenRef.current;
 
       if (isOpening && contentRef.current) {
         contentRef.current.focus();
+      }
 
+      if (open && !hasSelectedRef.current) {
         // Select first non-disabled item
         const items = getItems();
         const firstSelectableItem = items.find(itemId => !isItemDisabled(itemId));
         if (firstSelectableItem) {
+          hasSelectedRef.current = true;
           setActive(firstSelectableItem);
         }
       }
+      if (!open) hasSelectedRef.current = false;
 
       wasOpenRef.current = open;
-    }, [open, getItems, isItemDisabled, setActive]);
+    }, [open, getItems, isItemDisabled, setActive, contentRef, isPortalMode, isFocusReady]);
 
     // Keyboard navigation
     const { handleKeyDown: handleNavKeyDown } = useKeyboardNavigation({
@@ -301,6 +339,13 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       contentRef,
       excludeRefs: triggerRef ? [triggerRef] : undefined,
       onPointerDownOutside,
+      onInteractOutside,
+      onClose: () => setOpen(false),
+    });
+
+    useFocusOutside({
+      enabled: open && isPortalMode !== undefined && isFocusReady,
+      contentRef,
       onInteractOutside,
       onClose: () => setOpen(false),
     });

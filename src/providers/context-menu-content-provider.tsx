@@ -15,6 +15,7 @@ export type ContextMenuContentContextValue = {
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
   getItemElement: (id: string) => HTMLElement | null;
+  registerFocusBranch: (element: HTMLElement) => () => void;
   /**
    * Safe-triangle check registered by a currently-open child `Sub`. When non-null,
    * the Content's pointer-move capture handler consults it to decide whether to

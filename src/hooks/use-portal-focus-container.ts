@@ -1,6 +1,6 @@
-import { type RefObject, useEffect } from 'react';
+import { type RefObject, useEffect, useState } from 'react';
 
-import { useFocusContainerRegistry } from '@/providers';
+import { type FocusContainerRegistry, useFocusContainerRegistry } from '@/providers';
 
 /**
  * Registers a portal element with a parent focus trap (e.g., Dialog).
@@ -9,6 +9,7 @@ import { useFocusContainerRegistry } from '@/providers';
  *
  * @param elementRef - Ref to the popup element to register
  * @param isEnabled - Whether registration is active (typically: open && isPortalMode)
+ * @returns Whether registration is ready for a passive autofocus effect.
  *
  * @example
  * ```tsx
@@ -24,14 +25,27 @@ import { useFocusContainerRegistry } from '@/providers';
  * usePortalFocusContainer(contentRef, isPortalMode);
  * ```
  */
-export const usePortalFocusContainer = (elementRef: RefObject<HTMLElement | null>, isEnabled: boolean): void => {
+export const usePortalFocusContainer = (elementRef: RefObject<HTMLElement | null>, isEnabled: boolean): boolean => {
   const focusContainerRegistry = useFocusContainerRegistry();
+  const [registration, setRegistration] = useState<{
+    element: HTMLElement;
+    registry: FocusContainerRegistry;
+  } | null>(null);
 
   useEffect(() => {
     const element = elementRef.current;
     if (element && isEnabled && focusContainerRegistry) {
       focusContainerRegistry.register(element);
+      // Autofocus must wait for a render that also commits the trap's updated containers.
+      setRegistration({ element, registry: focusContainerRegistry });
       return () => focusContainerRegistry.unregister(element);
     }
+    setRegistration(null);
   }, [elementRef, isEnabled, focusContainerRegistry]);
+
+  return (
+    !isEnabled ||
+    !focusContainerRegistry ||
+    (registration?.element === elementRef.current && registration?.registry === focusContainerRegistry)
+  );
 };
