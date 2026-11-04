@@ -191,6 +191,8 @@ export function useVirtualizedKeyboardNavigation<TNode extends FlatNodeBase>(
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
+      if (isDialogShortcutEvent(e)) return;
+
       if (!items.length) {
         return;
       }
@@ -288,7 +290,6 @@ export function useVirtualizedKeyboardNavigation<TNode extends FlatNodeBase>(
 
         case 'Enter':
         case ' ':
-          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (activeNode && activeIndex !== null && !isItemDisabled(activeNode)) {
             onSelect?.(activeNode.id, activeIndex);

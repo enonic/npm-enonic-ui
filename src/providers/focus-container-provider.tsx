@@ -11,6 +11,8 @@ import { createContext, useContext } from 'react';
 export type FocusContainerRegistry = {
   register: (element: HTMLElement) => void;
   unregister: (element: HTMLElement) => void;
+  /** Focus once the trap has acknowledged this container. Returns a cancellation callback. */
+  requestFocus?: (container: HTMLElement, focus: () => void) => () => void;
 };
 
 export const FocusContainerContext = createContext<FocusContainerRegistry | null>(null);

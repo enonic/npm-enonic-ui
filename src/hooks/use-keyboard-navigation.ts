@@ -175,6 +175,8 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
+      if (isDialogShortcutEvent(e)) return;
+
       const items = getItems();
       if (!items.length) {
         return;
@@ -217,7 +219,6 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
 
         case 'Enter':
         case ' ':
-          if (isDialogShortcutEvent(e)) return;
           e.preventDefault();
           if (active && !isItemDisabled(active)) {
             onSelect?.(active);

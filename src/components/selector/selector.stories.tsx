@@ -788,27 +788,33 @@ export const DialogShortcuts: Story = {
     const counts = page.getByTestId('selector-shortcut-counts');
     inside.focus();
     await waitFor(() => expect(inside).toHaveFocus());
-    let count = 0;
+    // A closed selector passes both chords to the dialog.
+    await userEvent.keyboard(primaryChord);
+    await waitFor(() => expect(counts).toHaveTextContent('1,0'));
+    await userEvent.keyboard(secondaryChord);
+    await waitFor(() => expect(counts).toHaveTextContent('1,1'));
+    await expect(inside).toHaveAttribute('aria-expanded', 'false');
+    await expect(inside).toHaveTextContent('one');
+    const count = 1;
 
-    for (const open of [false, true]) {
-      if (open) {
-        await userEvent.keyboard('{ArrowDown}');
-        await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'true'));
-        await waitFor(() => expect(inside.getAttribute('aria-activedescendant')).toBeTruthy());
-        await settleFrames();
-      }
-      await userEvent.keyboard(primaryChord);
-      count++;
-      await waitFor(() => expect(counts).toHaveTextContent(`${count},${count - 1}`));
-      await userEvent.keyboard(secondaryChord);
-      await waitFor(() => expect(counts).toHaveTextContent(`${count},${count}`));
-      await expect(inside).toHaveAttribute('aria-expanded', String(open));
-      await expect(inside).toHaveTextContent('one');
-      if (open) {
-        await userEvent.keyboard('{Escape}');
-        await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'false'));
-        await expect(dialog).toBeVisible();
-      }
+    // An open selector keeps both chords to commit the highlighted option.
+    for (const [chord, navigation, value] of [
+      [primaryChord, '{End}', 'two'],
+      [secondaryChord, '{Home}', 'one'],
+    ] as const) {
+      await userEvent.keyboard('{ArrowDown}');
+      await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'true'));
+      await settleFrames();
+      await userEvent.keyboard(navigation);
+      await waitFor(() =>
+        expect(inside.getAttribute('aria-activedescendant')).toMatch(new RegExp(`-option-${value}$`)),
+      );
+      await userEvent.keyboard(chord);
+      await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'false'));
+      await waitFor(() => expect(inside).toHaveTextContent(value));
+      await expect(counts).toHaveTextContent(`${count},${count}`);
+      await expect(dialog).toBeVisible();
+      await waitFor(() => expect(inside).toHaveFocus());
     }
 
     // A modifier the dialog does not own must still open and select, including Ctrl+Enter on macOS.

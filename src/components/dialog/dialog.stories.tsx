@@ -6,8 +6,10 @@ import { expect, userEvent, waitFor } from 'storybook/test';
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';
 import { Combobox } from '@/components/combobox';
+import { DatePicker } from '@/components/date-picker';
 import { Input } from '@/components/input';
 import { Listbox } from '@/components/listbox';
+import { Menu } from '@/components/menu';
 import { RadioGroup } from '@/components/radio-group';
 import { Stepper } from '@/components/stepper';
 import { Tab } from '@/components/tab';
@@ -2341,9 +2343,12 @@ export const WidgetShortcuts: Story = {
     }
 
     // Radio Enter/Space are consumed; arrow navigation selects, Home/End move to the bounds.
-    byTestId('shortcut-radio-one').focus();
+    byTestId('shortcut-radio-two').focus();
     await userEvent.keyboard('{Enter} ');
+    await settleFrames();
+    await expect(byTestId('shortcut-radio-two')).toHaveAttribute('aria-checked', 'false');
     await expect(byTestId('shortcut-radio-one')).toHaveAttribute('aria-checked', 'true');
+    byTestId('shortcut-radio-one').focus();
     await userEvent.keyboard('{ArrowDown}');
     await waitFor(() => expect(byTestId('shortcut-radio-two')).toHaveFocus());
     await userEvent.keyboard('{Home}');
@@ -2393,5 +2398,140 @@ export const WidgetShortcuts: Story = {
     await waitFor(() => expect(byTestId('shortcut-outside-two')).toHaveAttribute('aria-selected', 'true'));
     await userEvent.keyboard(`{${modifier}>}{Shift>}{Enter}{/Shift}{/${modifier}}`);
     await waitFor(() => expect(byTestId('shortcut-outside-two')).toHaveAttribute('aria-selected', 'false'));
+  },
+};
+
+export const OpenWidgetShortcuts: Story = {
+  name: 'Behavior / Shortcuts Kept By Open Widgets',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [primaryCount, setPrimaryCount] = useState(0);
+    const [secondaryCount, setSecondaryCount] = useState(0);
+    const [menuAction, setMenuAction] = useState('none');
+    const [date, setDate] = useState<Date | null>(new Date(2026, 9, 15));
+    const [staged, setStaged] = useState<readonly string[]>([]);
+
+    return (
+      <Dialog>
+        <Dialog.Trigger asChild>
+          <Button label='Open kept shortcuts' />
+        </Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Overlay />
+          <Dialog.Content className='w-140'>
+            <Dialog.DefaultHeader title='Kept shortcuts' />
+            <Dialog.Body className='space-y-4'>
+              <Menu>
+                <Menu.Trigger data-testid='kept-menu-trigger'>Open menu</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Content data-testid='kept-menu-content'>
+                    <Menu.Item onSelect={() => setMenuAction('one')}>One</Menu.Item>
+                    <Menu.Item onSelect={() => setMenuAction('two')}>Two</Menu.Item>
+                  </Menu.Content>
+                </Menu.Portal>
+              </Menu>
+              <DatePicker native={false} value={date} onValueChange={setDate}>
+                <DatePicker.Trigger data-testid='kept-date-trigger'>Choose date</DatePicker.Trigger>
+                <DatePicker.Portal>
+                  <DatePicker.Content />
+                </DatePicker.Portal>
+              </DatePicker>
+              <Combobox selectionMode='staged' selection={staged} onSelectionChange={setStaged}>
+                <Combobox.Content>
+                  <Combobox.Control>
+                    <Combobox.Search>
+                      <Combobox.Input aria-label='Kept combobox' data-testid='kept-combo-input' />
+                      <Combobox.Apply />
+                    </Combobox.Search>
+                  </Combobox.Control>
+                  <Combobox.Portal>
+                    <Combobox.Popup>
+                      <Listbox.Content label='Kept combobox options'>
+                        <Listbox.Item value='one'>Combo one</Listbox.Item>
+                        <Listbox.Item value='two'>Combo two</Listbox.Item>
+                      </Listbox.Content>
+                    </Combobox.Popup>
+                  </Combobox.Portal>
+                </Combobox.Content>
+              </Combobox>
+              <output data-testid='kept-values'>
+                {JSON.stringify({ menuAction, day: date?.getDate() ?? null, staged })}
+              </output>
+              <output data-testid='kept-counts'>
+                {primaryCount},{secondaryCount}
+              </output>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Dialog.Shortcut onClick={() => setPrimaryCount(count => count + 1)}>Primary</Dialog.Shortcut>
+              <Dialog.Shortcut shortcut='secondary' onClick={() => setSecondaryCount(count => count + 1)}>
+                Secondary
+              </Dialog.Shortcut>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector('[data-component="Dialog.Trigger"]');
+    if (opener == null) throw new Error('No opener button');
+    await userEvent.click(opener);
+    await waitForDialogOpen();
+    const isMac = /Mac|iPhone|iPad/i.test(navigator.platform);
+    const modifier = isMac ? 'Meta' : 'Control';
+    const primaryChord = `{${modifier}>}{Enter}{/${modifier}}`;
+    const counts = byTestId('kept-counts');
+    const values = byTestId('kept-values');
+    let count = 0;
+
+    const expectChordPasses = async (target: HTMLElement): Promise<void> => {
+      target.focus();
+      await settleFrames();
+      await userEvent.keyboard(primaryChord);
+      count++;
+      await waitFor(() => expect(counts).toHaveTextContent(`${count},0`));
+    };
+    const expectValue = async (key: string, value: unknown): Promise<void> => {
+      await waitFor(() => expect(JSON.parse(values.textContent ?? '{}')[key]).toEqual(value));
+    };
+
+    // Menu: focus moves into the portaled content, and the chord activates the active item.
+    const menuTrigger = byTestId('kept-menu-trigger');
+    await expectChordPasses(menuTrigger);
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(byTestId('kept-menu-content').contains(document.activeElement)).toBe(true));
+    await settleFrames();
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard(primaryChord);
+    await expectValue('menuAction', 'two');
+    await waitFor(() => expect(menuTrigger).toHaveAttribute('aria-expanded', 'false'));
+    await expect(counts).toHaveTextContent(`${count},0`);
+    await expectChordPasses(menuTrigger);
+
+    // DatePicker: focus moves to the grid, and the chord selects the active date.
+    const dateTrigger = byTestId('kept-date-trigger');
+    await expectChordPasses(dateTrigger);
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(document.activeElement?.getAttribute('role')).toBe('grid'));
+    await settleFrames();
+    await userEvent.keyboard('{ArrowRight}');
+    await userEvent.keyboard(primaryChord);
+    await expectValue('day', 16);
+    await expect(counts).toHaveTextContent(`${count},0`);
+    await waitFor(() => expect(document.querySelector("[data-component='DatePicker.Content']")).toBeNull());
+    await expectChordPasses(dateTrigger);
+
+    // Staged Combobox: the chord applies the staged selection instead of the dialog action.
+    const comboInput = byTestId('kept-combo-input');
+    await expectChordPasses(comboInput);
+    await userEvent.keyboard('{ArrowDown}');
+    await waitFor(() => expect(comboInput).toHaveAttribute('aria-expanded', 'true'));
+    await settleFrames();
+    await userEvent.keyboard(' ');
+    await userEvent.keyboard(primaryChord);
+    await expectValue('staged', ['one']);
+    await waitFor(() => expect(comboInput).toHaveAttribute('aria-expanded', 'false'));
+    await expect(counts).toHaveTextContent(`${count},0`);
+    await expectChordPasses(comboInput);
   },
 };

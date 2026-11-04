@@ -14,6 +14,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { dialogShortcutBoundaryProps } from '@/components/dialog/dialog-actions';
 import {
   type FloatingProps,
   useActiveOnOpen,
@@ -250,6 +251,7 @@ const SelectorTrigger = forwardRef<HTMLButtonElement, SelectorTriggerProps>(
     return (
       <button
         data-component='Selector.Trigger'
+        {...dialogShortcutBoundaryProps(open)}
         ref={useComposedRefs(ref, triggerRef)}
         type='button'
         id={`${baseId}-trigger`}
@@ -427,7 +429,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
     }, [portal, open, portalContainer]);
 
     // Register with parent focus trap (e.g., Dialog) when in portal mode
-    usePortalFocusContainer(contentRef, portal && isPortalMode);
+    usePortalFocusContainer(contentRef, open && portal && isPortalMode);
 
     useClickOutside({
       enabled: open,
@@ -468,6 +470,7 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
     const content = (
       <div
         data-component='Selector.Content'
+        {...dialogShortcutBoundaryProps(open)}
         ref={composedRefs}
         id={`${baseId}-content`}
         role='listbox'

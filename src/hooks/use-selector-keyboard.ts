@@ -128,14 +128,14 @@ export function useSelectorKeyboard(config: UseSelectorKeyboardConfig): UseSelec
   // Combined keyboard handler
   const keyHandler = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
+      if (isDialogShortcutEvent(e)) return;
+
       if (disabled) {
         return;
       }
 
       // Closed selectors leave Escape to their parent.
       if (e.key === 'Escape' && !open) return;
-
-      if (isDialogShortcutEvent(e)) return;
 
       // Handle opening when closed
       if (!open) {
