@@ -11,16 +11,15 @@ export type ContextMenuContextValue = {
   baseId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-  /** Pointer coordinates where the menu was opened (set by Trigger onContextMenu) */
+  /** Coordinates where the menu was opened, from the pointer or keyboard target. */
   position: { x: number; y: number } | null;
   setPosition: (pos: { x: number; y: number } | null) => void;
   /**
    * Tracks whether the user has started keyboard navigation.
    *
-   * Context menus are always opened via pointer (right-click), so focus-visible
-   * rings are hidden initially. Once the user presses a navigation key (Arrow keys,
-   * Home, End), this becomes `true` and focus rings appear. The state resets to
-   * `false` when the menu closes.
+   * Keyboard openings show focus-visible rings immediately. Pointer openings
+   * show them once the user presses a navigation key (Arrow keys, Home, End).
+   * The state resets to `false` when the menu closes.
    */
   isUsingKeyboard: boolean;
   setIsUsingKeyboard: (value: boolean) => void;

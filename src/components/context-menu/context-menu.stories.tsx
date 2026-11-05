@@ -538,3 +538,25 @@ export const InsideShadowRoot: Story = {
     );
   },
 };
+
+export const Accessibility: Story = {
+  name: 'Accessibility / Key Trigger',
+  render: () => (
+    <div className='flex flex-col items-center gap-y-3 p-4'>
+      <div className='text-subtle max-w-120 text-sm'>
+        Context menu can be opened via keyboard by focusing the trigger and pressing Shift+F10.
+      </div>
+      <ContextMenu>
+        <ContextMenu.Trigger asChild>
+          <Button variant='outline'>Focus on me</Button>
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Content>
+            <ContextMenu.Item>Very cool :)</ContextMenu.Item>
+            <ContextMenu.Item>And accessible!</ContextMenu.Item>
+          </ContextMenu.Content>
+        </ContextMenu.Portal>
+      </ContextMenu>
+    </div>
+  ),
+};
