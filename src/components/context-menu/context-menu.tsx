@@ -62,8 +62,20 @@ import {
   usePrefixedId,
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
+import { containsDeep, getActiveElement, getRoot, isShadowRoot } from '@/utils/dom';
 
 const SUBMENU_OPEN_DELAY_MS = 100;
+
+const isContextMenuShortcutEvent = (keyEvent: KeyboardEvent | { nativeEvent: KeyboardEvent }): boolean => {
+  const event = 'nativeEvent' in keyEvent ? keyEvent.nativeEvent : keyEvent;
+  return (
+    !event.altKey &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.isComposing &&
+    (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey))
+  );
+};
 
 //
 // * ContextMenu
@@ -125,20 +137,82 @@ export type ContextMenuTriggerProps = {
 } & Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'children'>;
 
 const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
-  ({ asChild, disabled = false, onContextMenu, className, children, ...props }, ref): ReactElement => {
-    const { open, setOpen, setPosition } = useContextMenu();
+  ({ asChild, disabled = false, onContextMenu, onKeyDown, className, children, ...props }, ref): ReactElement => {
+    const { baseId, open, setOpen, setPosition, setIsUsingKeyboard } = useContextMenu();
+    const returnFocusRef = useRef<HTMLElement | null>(null);
+
+    useLayoutEffect(() => {
+      if (open || returnFocusRef.current == null) return;
+
+      const target = returnFocusRef.current;
+      returnFocusRef.current = null;
+      const root = getRoot(target);
+      const active = (isShadowRoot(root) ? root.activeElement : null) ?? getActiveElement();
+      const focusLost =
+        active == null ||
+        active === target.ownerDocument.body ||
+        (isShadowRoot(root) && root.activeElement == null && active === root.host);
+      // A menu action may have moved focus into a dialog. Only restore focus left in the closing menu.
+      const menuOwner = active?.closest('[data-context-menu-root]')?.getAttribute('data-context-menu-root');
+      if (target.isConnected && (focusLost || menuOwner === baseId)) {
+        target.focus({ preventScroll: true });
+      }
+    }, [open, baseId]);
 
     const handleContextMenu = useCallback(
       (e: React.MouseEvent<HTMLDivElement>): void => {
-        if (disabled) {
-          return;
-        }
+        if (disabled) return;
+
         e.preventDefault();
         onContextMenu?.(e);
+        setIsUsingKeyboard(false);
         setPosition({ x: e.clientX, y: e.clientY });
         setOpen(true);
       },
-      [disabled, setOpen, setPosition, onContextMenu],
+      [disabled, setOpen, setPosition, setIsUsingKeyboard, onContextMenu],
+    );
+
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        onKeyDown?.(e);
+        if (
+          disabled ||
+          open ||
+          e.defaultPrevented ||
+          !isContextMenuShortcutEvent(e) ||
+          !(e.target instanceof HTMLElement)
+        ) {
+          return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.repeat) return;
+
+        const target = e.target;
+        const activeId = target.getAttribute('aria-activedescendant');
+        const activeItem = activeId ? getRoot(target)?.getElementById(activeId) : null;
+        const anchor = activeItem && containsDeep(e.currentTarget, activeItem) ? activeItem : target;
+        const rect = anchor.getBoundingClientRect();
+        const root = getRoot(target);
+        const focused = (isShadowRoot(root) ? root.activeElement : null) ?? getActiveElement();
+        returnFocusRef.current = focused instanceof HTMLElement ? focused : target;
+
+        // Use the same contextmenu event as a pointer opening, including the consumer's row selection handler.
+        anchor.dispatchEvent(
+          new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            button: 0,
+            clientX: rect.left,
+            clientY: rect.bottom,
+            view: window,
+          }),
+        );
+        setIsUsingKeyboard(true);
+      },
+      [disabled, open, onKeyDown, setIsUsingKeyboard],
     );
 
     const Comp = asChild ? Slot : 'div';
@@ -151,6 +225,7 @@ const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
         ref={ref}
         data-disabled={disabled || undefined}
         onContextMenu={handleContextMenu}
+        onKeyDown={handleKeyDown}
         className={className}
         {...props}
       >
@@ -206,11 +281,9 @@ ContextMenuPortal.displayName = 'ContextMenu.Portal';
  * The component that pops out when the context menu is open.
  *
  * @remarks
- * **Focus-visible behavior**: Since context menus are always opened via pointer
- * (right-click), focus rings are hidden initially to avoid visual noise. Once the
- * user presses a navigation key (ArrowUp, ArrowDown, Home, End), focus rings appear
- * and remain visible until the menu closes. This provides a clean experience for
- * pointer users while maintaining accessibility for keyboard users.
+ * **Focus-visible behavior**: Keyboard openings show focus rings immediately.
+ * Pointer openings hide them until the user presses a navigation key
+ * (ArrowUp, ArrowDown, Home, End). Rings then remain visible until the menu closes.
  */
 export type ContextMenuContentProps = {
   forceMount?: boolean;
@@ -385,6 +458,7 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
       <ContextMenuContentProvider value={contentContextValue}>
         <div
           data-component='ContextMenu.Content'
+          data-context-menu-root={baseId}
           {...dialogShortcutBoundaryProps(open)}
           ref={composedRefs}
           id={menuId}
@@ -793,7 +867,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
     },
     ref,
   ): ReactElement | null => {
-    const { setOpen: setRootOpen, setIsUsingKeyboard } = useContextMenu();
+    const { baseId, setOpen: setRootOpen, setIsUsingKeyboard } = useContextMenu();
     const { contentId, open, setOpen, triggerRef, parentContent, subId } = useContextMenuSub();
     const contentRef = useRef<HTMLDivElement>(null);
     const composedRefs = useComposedRefs(ref, contentRef);
@@ -994,6 +1068,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
         <ContextMenuContentProvider value={contentContextValue}>
           <div
             data-component='ContextMenu.SubContent'
+            data-context-menu-root={baseId}
             {...dialogShortcutBoundaryProps(open)}
             ref={composedRefs}
             id={contentId}
