@@ -74,10 +74,19 @@ const isContentRootHost = (contentRoot: Document | ShadowRoot | null, focused: E
   return false;
 };
 
+// The document sees only the host of a closed root and only the `<iframe>` of another frame, so focus
+// is read through the content's root: the held closed root, or the frame's document while it has focus.
+const getFocusedFromContent = (contentRoot: Document | ShadowRoot | null): Element | null => {
+  if (isShadowRoot(contentRoot)) return getActiveElement(contentRoot) ?? getActiveElement();
+  const frame = contentRoot?.defaultView?.frameElement;
+  if (frame != null && getActiveElement() === frame) return getActiveElement(contentRoot);
+  return getActiveElement();
+};
+
 // ? Focus is free to restore when it was dropped with the content or still sits in it. Anything
 // ? else claimed it during the deferral — a menu opened right after closing — and keeps it.
 const isFocusUnclaimed = (content: HTMLElement | null, contentRoot: Document | ShadowRoot | null): boolean => {
-  const focused = getActiveElement();
+  const focused = getFocusedFromContent(contentRoot);
   return (
     focused == null ||
     focused === focused.ownerDocument.body ||
