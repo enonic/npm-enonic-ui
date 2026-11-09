@@ -276,6 +276,7 @@ export const InsideShadowRoot: Story = {
     if (close == null) throw new Error('No close button in the dialog');
     await userEvent.click(close);
     await waitFor(() => expect(layer?.querySelector("[data-component='Dialog.Content']")).toBeNull());
+    await waitFor(() => expect(shadow.activeElement).toBe(findShadowButton(shadow, 'Open dialog')));
 
     const hoverButton = findShadowButton(shadow, 'Hover me');
     await userEvent.hover(hoverButton);

@@ -27,11 +27,15 @@ export const getRoot = (node: Node | null | undefined): Document | ShadowRoot | 
 /**
  * The deeply focused element. From outside a shadow root `document.activeElement` reports the host
  * rather than the focused element inside it. Stops at a closed root, whose `shadowRoot` is hidden.
+ *
+ * Reads from `root` when given instead of the global document: a held reference to a closed root
+ * still sees inside it, and another frame's document has its own focus.
  */
-export const getActiveElement = (): Element | null => {
-  if (typeof document === 'undefined') return null;
+export const getActiveElement = (root?: Document | ShadowRoot | null): Element | null => {
+  const scope = root ?? (typeof document === 'undefined' ? null : document);
+  if (scope == null) return null;
 
-  let active = document.activeElement;
+  let active = scope.activeElement;
   while (active?.shadowRoot?.activeElement != null) {
     active = active.shadowRoot.activeElement;
   }

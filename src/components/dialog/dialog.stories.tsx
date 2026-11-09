@@ -15,6 +15,7 @@ import { Stepper } from '@/components/stepper';
 import { Tab } from '@/components/tab';
 import { Toast } from '@/components/toast';
 import { Tooltip } from '@/components/tooltip';
+import { cn } from '@/utils';
 
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 
@@ -1966,6 +1967,393 @@ export const FocusRestoreOnClose: Story = {
     await userEvent.click(byTestId('close'));
     await waitForDialogClosed();
     await waitForFocus(opener);
+    await settleFrames();
+    await expect(document.activeElement).toBe(opener);
+  },
+};
+
+// Programmatic focus after a mouse click does not match `:focus-visible`, so the ring keys off `:focus`.
+const focusRingClassName = 'focus:ring-3 focus:ring-ring focus:ring-offset-3 focus:ring-offset-ring-offset';
+
+const describeFocus = (element: EventTarget | null): string => {
+  if (!(element instanceof Element) || element === element.ownerDocument.body) return 'nothing (body)';
+  const label = element.getAttribute('aria-label');
+  if (label != null) return label;
+  if (element instanceof HTMLButtonElement) return element.textContent?.trim() || 'button';
+  return element.getAttribute('role') ?? element.tagName.toLowerCase();
+};
+
+const useFocusHistory = (): [history: string[], clear: () => void] => {
+  const [history, setHistory] = useState<string[]>([]);
+
+  useEffect(() => {
+    const push = (entry: string): void => setHistory(previous => [...previous, entry].slice(-6));
+    const handleFocusIn = (event: FocusEvent): void => push(describeFocus(event.composedPath()[0] ?? null));
+    const handleFocusOut = (event: FocusEvent): void => {
+      if (event.relatedTarget == null) push(describeFocus(null));
+    };
+    document.addEventListener('focusin', handleFocusIn, true);
+    document.addEventListener('focusout', handleFocusOut, true);
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn, true);
+      document.removeEventListener('focusout', handleFocusOut, true);
+    };
+  }, []);
+
+  return [history, () => setHistory([])];
+};
+
+const SelfFocusingButton = (): ReactElement => {
+  const ref = useRef<HTMLButtonElement>(null);
+  useLayoutEffect(() => ref.current?.focus(), []);
+  return <Button ref={ref} data-testid='claimed' variant='outline' label='New button' className={focusRingClassName} />;
+};
+
+// A focusable shadow host with nothing focused inside reads like focus dropped from a shadow root.
+const SelfFocusingShadowHost = (): ReactElement => {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const host = ref.current;
+    if (host == null) return;
+    if (host.shadowRoot == null) host.attachShadow({ mode: 'open' }).textContent = 'New shadow host';
+    host.focus();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      role='button'
+      aria-label='New shadow host'
+      data-testid='claimed'
+      tabIndex={0}
+      className={cn('border-bdr-subtle rounded border px-4 py-2 outline-none', focusRingClassName)}
+    />
+  );
+};
+
+type FocusClaimer = 'button' | 'shadow-host';
+
+export const FocusClaimedBeforeRestore: Story = {
+  name: 'Behavior / Focus Claimed Before Restore',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [claimer, setClaimer] = useState<FocusClaimer | null>(null);
+    const [history, clearHistory] = useFocusHistory();
+
+    const closeAndClaim = (next: FocusClaimer): void => {
+      setOpen(false);
+      setClaimer(next);
+    };
+
+    return (
+      <div className='flex w-120 flex-col gap-5'>
+        <p className='text-subtle text-sm'>
+          Open the dialog and close it with one of its buttons. Each one closes the dialog and, in the same render, adds
+          a new element that focuses itself, the way a menu opened right after a dialog does. The dialog restores focus
+          to <strong>Open</strong> a frame later, and that restore must leave the new element focused.
+        </p>
+
+        <div className='flex items-center gap-2.5'>
+          <Button
+            data-testid='opener'
+            variant='solid'
+            className={focusRingClassName}
+            onClick={() => {
+              clearHistory();
+              setClaimer(null);
+              setOpen(true);
+            }}
+            label='Open'
+          />
+          {claimer === 'button' && <SelfFocusingButton />}
+          {claimer === 'shadow-host' && <SelfFocusingShadowHost />}
+        </div>
+
+        <div className='border-bdr-subtle flex flex-col gap-2.5 rounded border p-4 text-sm'>
+          <p className='font-semibold'>Where focus went since Open was clicked</p>
+          <ol className='flex list-decimal flex-col gap-1 ps-5 font-mono text-xs'>
+            {history.map((entry, index) => (
+              <li
+                key={index}
+                data-last={index === history.length - 1}
+                className='text-subtle data-[last=true]:text-main data-[last=true]:font-semibold'
+              >
+                {entry}
+              </li>
+            ))}
+          </ol>
+          <p className='text-subtle text-xs'>
+            Expected: the history ends on the new element. A final jump back to <strong>Open</strong> means the dialog
+            took the focus back.
+          </p>
+        </div>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content className='w-120'>
+              <Dialog.DefaultHeader
+                title='Focus claimed before restore'
+                description='Each button closes this dialog and focuses a new element in the same render'
+              />
+              <Dialog.Footer>
+                <Button
+                  data-testid='close-and-claim-button'
+                  variant='outline'
+                  label='Focus a button'
+                  onClick={() => closeAndClaim('button')}
+                />
+                <Button
+                  data-testid='close-and-claim-shadow-host'
+                  variant='solid'
+                  label='Focus a shadow host'
+                  onClick={() => closeAndClaim('shadow-host')}
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    if (opener == null) throw new Error('No opener button');
+
+    for (const claimer of ['button', 'shadow-host'] satisfies FocusClaimer[]) {
+      await userEvent.click(opener);
+      await waitForDialogOpen();
+
+      await userEvent.click(byTestId(`close-and-claim-${claimer}`));
+      await waitForDialogClosed();
+      await settleFrames();
+      await expect(document.activeElement).toBe(byTestId('claimed'));
+    }
+  },
+};
+
+export const ReopenBeforeRestore: Story = {
+  name: 'Behavior / Reopen Before Restore',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [reopen, setReopen] = useState(false);
+
+    // Reopens in the commit after the close, before the closed dialog's deferred restore runs.
+    useLayoutEffect(() => {
+      if (open || !reopen) return;
+      setReopen(false);
+      setOpen(true);
+    }, [open, reopen]);
+
+    return (
+      <div className='flex w-120 flex-col gap-5'>
+        <p className='text-subtle text-sm'>
+          Open the dialog and press <strong>Close and reopen</strong>. The dialog closes and opens again before the
+          frame in which the closed one restores focus to <strong>Open</strong>. That restore must not pull focus out of
+          the reopened dialog. The dialog is non-modal: a modal one would mask the bug, since its focus trap pulls focus
+          straight back in.
+        </p>
+        <Button data-testid='opener' variant='solid' onClick={() => setOpen(true)} label='Open' />
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay />
+            <Dialog.Content modal={false} className='w-120'>
+              <Dialog.DefaultHeader title='Reopen before restore' description='Focus stays in the reopened dialog' />
+              <Dialog.Body>
+                <Input data-autofocus data-testid='field' label='Focused on open' />
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Button
+                  data-testid='close-and-reopen'
+                  variant='solid'
+                  label='Close and reopen'
+                  onClick={() => {
+                    setReopen(true);
+                    setOpen(false);
+                  }}
+                />
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    if (opener == null) throw new Error('No opener button');
+
+    await userEvent.click(opener);
+    await waitForDialogOpen();
+    await waitForFocus(byTestId('field'));
+
+    await userEvent.click(byTestId('close-and-reopen'));
+    await settleFrames();
+    await settleFrames();
+    await expect(dialogContent()).not.toBeNull();
+    await expect(document.activeElement).toBe(byTestId('field'));
+  },
+};
+
+// A closed root is unreachable from the host, so the story keeps it for its play function.
+const closedShadowRoots = new WeakMap<Element, ShadowRoot>();
+
+export const FocusClaimedInClosedShadowRoot: Story = {
+  name: 'Behavior / Focus Claimed In Closed Shadow Root',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const hostRef = useRef<HTMLDivElement>(null);
+    const [container, setContainer] = useState<HTMLElement | null>(null);
+    const [open, setOpen] = useState(false);
+    const [claimed, setClaimed] = useState(false);
+
+    useLayoutEffect(() => {
+      const host = hostRef.current;
+      if (host == null || closedShadowRoots.has(host)) return;
+      const root = host.attachShadow({ mode: 'closed' });
+      closedShadowRoots.set(host, root);
+      const element = document.createElement('div');
+      root.append(element);
+      setContainer(element);
+    }, []);
+
+    return (
+      <div className='flex w-120 flex-col gap-5'>
+        <p className='text-subtle text-sm'>
+          The dialog renders into a <strong>closed</strong> shadow root (unstyled, the page styles do not reach it).
+          Closing it focuses a button in the same root. From outside, the document only sees the root&apos;s host, so
+          the dialog must read focus through the root itself and leave the button focused.
+        </p>
+        <Button
+          data-testid='opener'
+          variant='solid'
+          onClick={() => {
+            setClaimed(false);
+            setOpen(true);
+          }}
+          label='Open'
+        />
+        <div ref={hostRef} data-testid='closed-host' />
+        {claimed && container != null && createPortal(<SelfFocusingButton />, container)}
+
+        {container != null && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog.Portal container={container}>
+              <Dialog.Content modal={false}>
+                <Dialog.DefaultHeader title='Closed shadow root' />
+                <Dialog.Footer>
+                  <Button
+                    data-testid='close-and-claim'
+                    variant='solid'
+                    label='Focus a button'
+                    onClick={() => {
+                      setOpen(false);
+                      setClaimed(true);
+                    }}
+                  />
+                </Dialog.Footer>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog>
+        )}
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    const host = canvasElement.querySelector("[data-testid='closed-host']");
+    const root = host == null ? undefined : closedShadowRoots.get(host);
+    if (opener == null || root == null) throw new Error('Missing opener or closed shadow root');
+
+    const inRoot = (id: string): HTMLElement | null => root.querySelector<HTMLElement>(`[data-testid='${id}']`);
+
+    await userEvent.click(opener);
+    const close = await waitFor(() => {
+      const element = inRoot('close-and-claim');
+      if (element == null) throw new Error('Dialog did not open into the closed root');
+      return element;
+    });
+
+    await userEvent.click(close);
+    await waitFor(() => {
+      if (root.querySelector("[data-component='Dialog.Content']") != null) throw new Error('Dialog is still open');
+    });
+    await settleFrames();
+    await expect(root.activeElement).toBe(inRoot('claimed'));
+  },
+};
+
+export const FocusRestoreFromFrame: Story = {
+  name: 'Behavior / Focus Restore From Frame',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [container, setContainer] = useState<HTMLElement | null>(null);
+    const [open, setOpen] = useState(false);
+
+    const attachContainer = (frame: HTMLIFrameElement): void => {
+      const frameDocument = frame.contentDocument;
+      if (frameDocument == null) return;
+      const element = frameDocument.createElement('div');
+      frameDocument.body.append(element);
+      setContainer(element);
+    };
+
+    return (
+      <div className='flex w-120 flex-col gap-5'>
+        <p className='text-subtle text-sm'>
+          The dialog is non-modal and renders into the frame below (unstyled). Closing it drops focus inside the frame,
+          while the page only sees the <code>&lt;iframe&gt;</code> as focused. The dialog must read focus through the
+          frame&apos;s document and return it to <strong>Open</strong>.
+        </p>
+        <Button data-testid='opener' variant='solid' onClick={() => setOpen(true)} label='Open' />
+        <iframe
+          data-testid='frame'
+          title='Dialog frame'
+          srcDoc='<!doctype html><body></body>'
+          className='border-bdr-subtle h-40 w-full rounded border'
+          onLoad={event => attachContainer(event.currentTarget)}
+        />
+
+        {container != null && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog.Portal container={container}>
+              <Dialog.Content modal={false}>
+                <Dialog.DefaultHeader title='Dialog in a frame' />
+                <Dialog.Footer>
+                  <Button data-testid='close' variant='solid' label='Close' onClick={() => setOpen(false)} />
+                </Dialog.Footer>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog>
+        )}
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const opener = canvasElement.querySelector<HTMLButtonElement>("[data-testid='opener']");
+    const frame = canvasElement.querySelector<HTMLIFrameElement>("[data-testid='frame']");
+    if (opener == null || frame == null) throw new Error('Missing opener or frame');
+
+    await waitFor(() => {
+      if (frame.contentDocument?.querySelector('div') == null) throw new Error('Frame container is not ready');
+    });
+    await userEvent.click(opener);
+    const close = await waitFor(() => {
+      const element = frame.contentDocument?.querySelector<HTMLElement>("[data-testid='close']");
+      if (element == null) throw new Error('Dialog did not open into the frame');
+      return element;
+    });
+
+    close.focus();
+    await expect(document.activeElement).toBe(frame);
+    close.click();
+    await waitFor(() => {
+      if (frame.contentDocument?.querySelector("[data-component='Dialog.Content']") != null) {
+        throw new Error('Dialog is still open');
+      }
+    });
     await settleFrames();
     await expect(document.activeElement).toBe(opener);
   },

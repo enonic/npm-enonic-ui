@@ -31,7 +31,7 @@ import {
 import { type DialogContextValue, DialogProvider, useDialog } from '@/providers/dialog-provider';
 import { FocusContainerContext, type FocusContainerRegistry } from '@/providers/focus-container-provider';
 import { cn, useComposedRefs } from '@/utils';
-import { containsDeep, getActiveElement, getAutofocusTarget, getRoot } from '@/utils/dom';
+import { containsDeep, getActiveElement, getAutofocusTarget, getRoot, isShadowRoot } from '@/utils/dom';
 
 import { Button } from '../button';
 import { getStepperPanelId, Stepper, type StepperDotsProps } from '../stepper';
@@ -57,9 +57,43 @@ type DialogFocusState = {
   previous: HTMLElement | null | undefined;
   /** Set by a content whose `onCloseAutoFocus` prevented the default restore. */
   restorePrevented: boolean;
+  /** The open content and the root it renders in, read on close for the deferred restore. */
+  content: HTMLElement | null;
+  contentRoot: Document | ShadowRoot | null;
 };
 
 const DialogFocusContext = createContext<MutableRefObject<DialogFocusState> | null>(null);
+
+// Focus dropped with content inside a shadow root reads as one of the hosts that root sits under.
+const isContentRootHost = (contentRoot: Document | ShadowRoot | null, focused: Element): boolean => {
+  let root = contentRoot;
+  while (isShadowRoot(root)) {
+    if (root.host === focused) return true;
+    root = getRoot(root.host);
+  }
+  return false;
+};
+
+// The document sees only the host of a closed root and only the `<iframe>` of another frame, so focus
+// is read through the content's root: the held closed root, or the frame's document while it has focus.
+const getFocusedFromContent = (contentRoot: Document | ShadowRoot | null): Element | null => {
+  if (isShadowRoot(contentRoot)) return getActiveElement(contentRoot) ?? getActiveElement();
+  const frame = contentRoot?.defaultView?.frameElement;
+  if (frame != null && getActiveElement() === frame) return getActiveElement(contentRoot);
+  return getActiveElement();
+};
+
+// ? Focus is free to restore when it was dropped with the content or still sits in it. Anything
+// ? else claimed it during the deferral — a menu opened right after closing — and keeps it.
+const isFocusUnclaimed = (content: HTMLElement | null, contentRoot: Document | ShadowRoot | null): boolean => {
+  const focused = getFocusedFromContent(contentRoot);
+  return (
+    focused == null ||
+    focused === focused.ownerDocument.body ||
+    isContentRootHost(contentRoot, focused) ||
+    containsDeep(content, focused)
+  );
+};
 
 //
 // * Dialog
@@ -85,7 +119,12 @@ const DialogRoot = ({
   children,
 }: DialogRootProps): ReactElement => {
   const [open, setOpen] = useControlledState(controlledOpen, defaultOpen, onOpenChange);
-  const focusStateRef = useRef<DialogFocusState>({ previous: undefined, restorePrevented: false });
+  const focusStateRef = useRef<DialogFocusState>({
+    previous: undefined,
+    restorePrevented: false,
+    content: null,
+    contentRoot: null,
+  });
   const [titleId, setTitleId] = useState<string>();
   const [descriptionId, setDescriptionId] = useState<string>();
   const isUsingStepper = Boolean(step || defaultStep || onStepChange);
@@ -101,7 +140,7 @@ const DialogRoot = ({
     }
     const focusState = focusStateRef.current;
     return () => {
-      const { previous } = focusState;
+      const { previous, content, contentRoot } = focusState;
       focusState.previous = undefined;
       // Deferred past the focus trap teardown — while still listening, its focusout handler would
       // catch this focus change and redirect to its fallback. `restorePrevented` is read in the
@@ -110,7 +149,7 @@ const DialogRoot = ({
       requestAnimationFrame(() => {
         const { restorePrevented } = focusState;
         focusState.restorePrevented = false;
-        if (!restorePrevented) previous?.focus();
+        if (!restorePrevented && isFocusUnclaimed(content, contentRoot)) previous?.focus();
       });
     };
   }, [open, focusStateRef]);
@@ -438,6 +477,8 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           focusStateRef.current.previous = activeElement instanceof HTMLElement ? activeElement : null;
         }
         focusStateRef.current.restorePrevented = false;
+        focusStateRef.current.content = contentRef.current;
+        focusStateRef.current.contentRoot = getRoot(contentRef.current);
       }
 
       // ? Deferred past this commit: Preact runs layout effects before `componentDidMount`, so the
