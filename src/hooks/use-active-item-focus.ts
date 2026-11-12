@@ -1,4 +1,4 @@
-import { type RefObject, useEffect } from 'react';
+import { type RefObject, useLayoutEffect } from 'react';
 
 import { containsDeep, getActiveElement } from '@/utils/dom';
 
@@ -98,7 +98,10 @@ export function useActiveItemFocus({
   checkFocusWithin,
   onProgrammaticFocus,
 }: UseActiveItemFocusConfig): void {
-  useEffect(() => {
+  // ! A layout effect, not a passive one. Preact flushes a component's pending passive effects
+  //   before re-rendering it, so a passive focus effect could run with a stale `isActive` after
+  //   another item became active, and two items could keep taking focus from each other.
+  useLayoutEffect(() => {
     if (!ref?.current) {
       return;
     }
