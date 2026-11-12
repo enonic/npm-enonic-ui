@@ -18,9 +18,11 @@ import {
   Upload,
 } from 'lucide-react';
 import { useCallback, useState } from 'preact/hooks';
+import { expect, fireEvent, waitFor, within } from 'storybook/test';
 
 import { Button } from '@/components/button';
 import { IconButton } from '@/components/icon-button';
+import { Toolbar } from '@/components/toolbar';
 
 import type { Meta, StoryObj } from '@storybook/preact-vite';
 
@@ -809,5 +811,74 @@ export const DisabledRadioItems: Story = {
         </Menu>
       </div>
     );
+  },
+};
+
+// Resolves in the microtask after the commit that marks an item active, before its passive effects run.
+const waitForActiveMenuItem = (): Promise<HTMLElement> =>
+  new Promise(resolve => {
+    const observer = new MutationObserver(() => {
+      const item = document.querySelector<HTMLElement>("[role='menuitem'][data-active]");
+      if (item == null) return;
+      observer.disconnect();
+      resolve(item);
+    });
+    observer.observe(document.body, { subtree: true, childList: true, attributeFilter: ['data-active'] });
+  });
+
+export const ClickRightAfterOpen: Story = {
+  name: 'Behavior / Click Right After Open',
+  tags: ['interactions-smoke'],
+  render: () => {
+    const [selected, setSelected] = useState('Nothing');
+
+    return (
+      <div className='flex flex-col items-center gap-y-3 p-4'>
+        <div className='text-subtle max-w-120 text-sm'>
+          The test opens the menu and clicks <strong>Request publishing</strong> before the menu has focused its first
+          item. The click must select the item and close the menu. Before the fix, this froze the page in an endless
+          focus loop between the two items.
+        </div>
+        {/* Portaled items start a new render tree. The loop needs the menu at least as deep as its items, as in a real
+            app, so that Preact re-renders the items before the menu that holds the new active item. */}
+        <Toolbar>
+          <Toolbar.Container aria-label='Content actions'>
+            <Menu>
+              <Menu.Trigger asChild>
+                <Button variant='outline' endIcon={ChevronDown} label='Actions' />
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Content>
+                  <Menu.Item onSelect={() => setSelected('Publish')}>Publish</Menu.Item>
+                  <Menu.Item onSelect={() => setSelected('Request publishing')}>Request publishing</Menu.Item>
+                  <Menu.Item onSelect={() => setSelected('Create issue')}>Create issue</Menu.Item>
+                </Menu.Content>
+              </Menu.Portal>
+            </Menu>
+          </Toolbar.Container>
+        </Toolbar>
+        <p data-testid='selected' className='text-sm'>
+          Selected: {selected}
+        </p>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const activeItem = waitForActiveMenuItem();
+    void fireEvent.click(canvas.getByRole('button', { name: 'Actions' }));
+    await expect((await activeItem).textContent).toBe('Publish');
+
+    const target = [...document.querySelectorAll<HTMLElement>("[role='menuitem']")].find(
+      item => item.textContent === 'Request publishing',
+    );
+    if (target == null) throw new Error('No Request publishing item');
+    void fireEvent.pointerMove(target);
+    // A task between hover and click, as with real input, lets the hover render before the first item's effects run.
+    await new Promise(resolve => setTimeout(resolve, 0));
+    void fireEvent.click(target);
+
+    await waitFor(() => expect(document.querySelector("[role='menu']")).toBeNull());
+    await expect(canvas.getByTestId('selected').textContent).toBe('Selected: Request publishing');
   },
 };
