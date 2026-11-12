@@ -13,6 +13,7 @@ import { createPortal } from 'react-dom';
 
 import { usePortalContainer, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
+import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 export type TooltipTrigger = 'hover' | 'focus' | 'hover-focus';
@@ -35,6 +36,12 @@ export type TooltipProps = {
   asChild?: boolean;
   delay?: number;
   trigger?: TooltipTrigger;
+  /** Whether the child has logical focus while DOM focus stays on a container. */
+  virtualFocus?: boolean;
+  /** Keyboard opening delay in milliseconds. Hover uses delay; existing focus behavior defaults to immediate. */
+  focusDelay?: number;
+  /** Hide the tooltip and cancel pending opening without disabling its child. */
+  disabled?: boolean;
 };
 
 const oppositeSide = {
@@ -260,6 +267,9 @@ export function Tooltip({
   asChild = true,
   delay = 0,
   trigger = 'hover-focus',
+  virtualFocus = false,
+  focusDelay = 0,
+  disabled = false,
 }: TooltipProps): ReactElement<TooltipProps> {
   const tooltipId = usePrefixedId(undefined, 'tooltip');
   const portalContainer = usePortalContainer();
@@ -267,19 +277,53 @@ export function Tooltip({
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number | undefined>(undefined);
+  const openAtRef = useRef<number | undefined>(undefined);
   const hoveredRef = useRef<'trigger' | 'content' | undefined>(undefined);
   const focusedRef = useRef(false);
+  const hasHoverTrigger = trigger === 'hover' || trigger === 'hover-focus';
+  const hasFocusTrigger = trigger === 'focus' || trigger === 'hover-focus';
 
-  const isEmpty = value == null || value === '';
+  const isEmpty = disabled || value == null || value === '';
   const canShow = isOpen && !isEmpty;
   const coords = useTooltipPosition(canShow, side, triggerRef, tooltipRef, value);
 
   const clearTimer = useCallback(() => {
-    clearTimeout(timeoutRef.current);
+    window.clearTimeout(timeoutRef.current);
     timeoutRef.current = undefined;
+    openAtRef.current = undefined;
   }, []);
+  const openAfter = useCallback(
+    (wait: number): void => {
+      if (isEmpty) {
+        clearTimer();
+        return;
+      }
+      const openAt = Date.now() + wait;
+      // A second trigger must not postpone an opening that is already pending.
+      if (openAtRef.current != null && openAtRef.current <= openAt) return;
+      clearTimer();
+      if (wait > 0) {
+        openAtRef.current = openAt;
+        timeoutRef.current = window.setTimeout(() => {
+          timeoutRef.current = undefined;
+          openAtRef.current = undefined;
+          setIsOpen(true);
+        }, wait);
+      } else {
+        setIsOpen(true);
+      }
+    },
+    [clearTimer, isEmpty],
+  );
 
   useEffect(() => clearTimer, [clearTimer]);
+
+  useLayoutEffect(() => {
+    if (!isEmpty) return;
+    clearTimer();
+    hoveredRef.current = undefined;
+    setIsOpen(false);
+  }, [isEmpty, clearTimer]);
 
   useLayoutEffect(() => {
     if (!canShow) {
@@ -295,6 +339,7 @@ export function Tooltip({
       // Dismiss the tooltip before Escape reaches an enclosing dialog or menu.
       event.preventDefault();
       event.stopPropagation();
+      focusedRef.current = false;
       clearTimer();
       setIsOpen(false);
     };
@@ -310,29 +355,24 @@ export function Tooltip({
 
   const handleMouseEnter = useCallback(() => {
     hoveredRef.current = 'trigger';
-    clearTimer();
-    if (isOpen) return;
-    if (isEmpty) return;
-    if (delay > 0) {
-      timeoutRef.current = window.setTimeout(() => setIsOpen(true), delay);
-    } else {
-      setIsOpen(true);
+    if (isOpen) {
+      clearTimer();
+      return;
     }
-  }, [clearTimer, delay, isEmpty, isOpen]);
+    openAfter(delay);
+  }, [clearTimer, delay, isOpen, openAfter]);
 
   const handleMouseLeave = useCallback(() => {
     hoveredRef.current = undefined;
+    if (focusedRef.current) return;
     clearTimer();
-    if (!focusedRef.current) {
-      timeoutRef.current = window.setTimeout(() => setIsOpen(false), CLOSE_DELAY);
-    }
+    timeoutRef.current = window.setTimeout(() => setIsOpen(false), CLOSE_DELAY);
   }, [clearTimer]);
 
   const handleFocus = useCallback(() => {
     focusedRef.current = true;
-    clearTimer();
-    if (!isEmpty) setIsOpen(true);
-  }, [clearTimer, isEmpty]);
+    openAfter(focusDelay);
+  }, [focusDelay, openAfter]);
   const handleBlur = useCallback(() => {
     focusedRef.current = false;
     if (!hoveredRef.current) {
@@ -340,15 +380,27 @@ export function Tooltip({
       setIsOpen(false);
     }
   }, [clearTimer]);
-  const hasHoverTrigger = trigger === 'hover' || trigger === 'hover-focus';
-  const hasFocusTrigger = trigger === 'focus' || trigger === 'hover-focus';
+
+  useEffect(() => {
+    if (!hasFocusTrigger) {
+      handleBlur();
+      return;
+    }
+    const hasNativeFocus = (): boolean =>
+      containsDeep(triggerRef.current, getActiveElement(getRoot(triggerRef.current)));
+    if (!virtualFocus && !hasNativeFocus()) return;
+    handleFocus();
+    return () => {
+      if (!hasNativeFocus()) handleBlur();
+    };
+  }, [hasFocusTrigger, virtualFocus, handleFocus, handleBlur]);
 
   // Plain-text values get a persistent sr-only description (read in any trigger mode,
   // incl. hover-only, and while closed). Rich content is described by the visible node
   // only while open — duplicating it would create phantom tab stops / duplicate ids.
   const isTextValue = typeof value === 'string' || typeof value === 'number';
   const hasPersistentDescription = !isEmpty && isTextValue;
-  const describedById = hasPersistentDescription || (!isEmpty && isOpen) ? tooltipId : undefined;
+  const describedById = hasPersistentDescription || canShow ? tooltipId : undefined;
 
   return (
     <>
