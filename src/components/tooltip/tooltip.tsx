@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom';
 
 import { usePortalContainer, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
-import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
+import { containsDeep, getActiveElement, getRoot, isPortaledEvent } from '@/utils/dom';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 export type TooltipTrigger = 'hover' | 'focus' | 'hover-focus';
@@ -412,6 +412,19 @@ export function Tooltip({
     };
   }, [hasFocusTrigger, virtualFocus, handleFocus, handleBlur]);
 
+  const handleTriggerFocus = useCallback(
+    (e?: React.FocusEvent<HTMLElement>): void => {
+      if (e == null || !isPortaledEvent(e)) handleFocus();
+    },
+    [handleFocus],
+  );
+  const handleTriggerBlur = useCallback(
+    (e?: React.FocusEvent<HTMLElement>): void => {
+      if (e == null || !isPortaledEvent(e)) handleBlur();
+    },
+    [handleBlur],
+  );
+
   // Plain-text values get a persistent sr-only description (read in any trigger mode,
   // incl. hover-only, and while closed). Rich content is described by the visible node
   // only while open — duplicating it would create phantom tab stops / duplicate ids.
@@ -427,8 +440,8 @@ export function Tooltip({
         describedById={describedById}
         onMouseEnter={hasHoverTrigger ? handleMouseEnter : undefined}
         onMouseLeave={hasHoverTrigger ? handleMouseLeave : undefined}
-        onFocus={hasFocusTrigger ? handleFocus : undefined}
-        onBlur={hasFocusTrigger ? handleBlur : undefined}
+        onFocus={hasFocusTrigger ? handleTriggerFocus : undefined}
+        onBlur={hasFocusTrigger ? handleTriggerBlur : undefined}
       >
         {children}
       </TooltipTrigger>
