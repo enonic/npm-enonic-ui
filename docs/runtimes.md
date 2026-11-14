@@ -8,8 +8,7 @@ Storybook and the `interactions-smoke` tests run on Preact 10: `.storybook/main.
 brings those aliases. The only React and latest-Preact coverage is the package smoke check (`pnpm check:package`), which
 installs the packed tarball into fixtures on the Preact Storybook uses, on Preact 11.2.0 and on React 19.3.1, plus
 the latest Preact and React, and server-renders a component. A failure on a `latest` fixture alone means a new
-release broke the package. It
-does not exercise focus, effects or portals.
+release broke the package. It does not exercise focus, effects or portals.
 
 Any change that touches focus, effect timing, portals or click-outside has to be considered on both runtimes.
 
