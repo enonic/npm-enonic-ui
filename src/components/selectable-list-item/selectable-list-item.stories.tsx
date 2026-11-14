@@ -1,5 +1,5 @@
 import { File, FileText, Folder, Image, MoreVertical, Package, Pen, Settings, User, Video, X } from 'lucide-react';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from 'react';
 
 import { IconButton } from '@/components/icon-button';
 

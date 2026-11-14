@@ -1,6 +1,6 @@
 # Storybook
 
-Storybook runs on `@storybook/preact-vite`, so stories render under Preact only. See [runtimes.md](runtimes.md).
+Storybook runs on `@storybook/preact-vite`, so stories render under Preact 10 only. See [runtimes.md](runtimes.md).
 
 ## Story Grouping
 
@@ -48,6 +48,8 @@ Stories tagged `interactions-smoke` run their `play` functions in CI through `pn
 `.storybook/main.ts` adjusts the Vite config Storybook merges from the root `vite.config.ts`. Each step is load-bearing:
 
 - Drops the library-only plugins (`unplugin-dts`, `visualizer`)
+- Adds `@preact/preset-vite`. The root config builds against React, and the preset's `react` → `preact/compat` aliases
+  are what make stories render on Preact
 - Replaces the `@storybook/react-dom-shim` alias with the absolute path of its React 18 entry. The preset misreads
   `preact/compat` as legacy React and points the shim at a bare specifier Vite cannot resolve
 - Adds the `@` alias for `src/`

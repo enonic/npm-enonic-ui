@@ -1,5 +1,11 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { type ComponentPropsWithoutRef, type ForwardedRef, forwardRef } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  type ForwardedRef,
+  type ForwardRefExoticComponent,
+  forwardRef,
+  type RefAttributes,
+} from 'react';
 
 import { Button, type ButtonIconProps, type ButtonVariantsProps } from '@/components/button';
 import { cn } from '@/utils';
@@ -39,7 +45,11 @@ export type IconButtonProps = {
 } & IconButtonVariantsProps &
   Omit<ComponentPropsWithoutRef<'button'>, 'aria-label'>;
 
-export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+// Annotated so declarations name `IconButtonProps` instead of inlining its cva variant types.
+export const IconButton: ForwardRefExoticComponent<IconButtonProps & RefAttributes<HTMLButtonElement>> = forwardRef<
+  HTMLButtonElement,
+  IconButtonProps
+>(
   (
     {
       className,

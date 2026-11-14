@@ -13,9 +13,6 @@ export default defineConfig({
     ],
   },
   rules: {
-    // Off: `onDblClick` is the deliberate Preact/React dual handler, and oxlint's
-    // `react/no-unknown-property` in vite.config.ts already covers every other prop.
-    'react-doctor/no-unknown-property': 'off',
     // Off for the same reason as `jsx-a11y/prefer-tag-over-role` in vite.config.ts.
     'react-doctor/prefer-tag-over-role': 'off',
     // Off: every hit is over a handful of elements, so a Set buys nothing.

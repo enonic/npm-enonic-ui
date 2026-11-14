@@ -9,7 +9,7 @@ export type SearchFieldContextValue = {
   placeholder?: string;
   clearLabel: string;
   setValue: (v: string) => void;
-  inputRef: RefObject<HTMLInputElement>;
+  inputRef: RefObject<HTMLInputElement | null>;
 };
 
 const SearchFieldContext = createContext<SearchFieldContextValue | undefined>(undefined);

@@ -1,4 +1,4 @@
-import { createContext, type RefObject, useContext } from 'react';
+import { type Context, createContext, type RefObject, useContext } from 'react';
 
 import type { ContextMenuContentContextValue } from './context-menu-content-provider';
 
@@ -18,7 +18,7 @@ export type ContextMenuSubContextValue = {
   /** Open/close the submenu */
   setOpen: (open: boolean) => void;
   /** Ref to the SubTrigger DOM node (for ArrowLeft refocus and collision anchoring) */
-  triggerRef: RefObject<HTMLDivElement> | null;
+  triggerRef: RefObject<HTMLDivElement | null> | null;
   /**
    * Snapshot of the parent content context captured at mount time.
    * Used by SubContent's ArrowLeft handler to set parent `active` back to the trigger.
@@ -28,7 +28,9 @@ export type ContextMenuSubContextValue = {
 
 const ContextMenuSubContext = createContext<ContextMenuSubContextValue | undefined>(undefined);
 
-export const ContextMenuSubProvider = ContextMenuSubContext.Provider;
+// `Context['Provider']` rather than the inferred `Provider` type, which `preact/compat` does not export.
+export const ContextMenuSubProvider: Context<ContextMenuSubContextValue | undefined>['Provider'] =
+  ContextMenuSubContext.Provider;
 
 export const useContextMenuSub = (): ContextMenuSubContextValue => {
   const context = useContext(ContextMenuSubContext);

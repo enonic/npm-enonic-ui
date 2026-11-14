@@ -30,10 +30,9 @@ on the same primitives. Focus trapping in overlays delegates to `focus-trap-reac
 
 ## Preact and React
 
-The library is authored in Preact 10 against `preact/compat`, and published with `react` and
-`react-dom` left external. React 19 apps consume it directly. Preact apps alias those two to
-`preact/compat` — which `@preact/preset-vite` already does for you. Icon props accept both
-`lucide-react` and `lucide-preact` icons.
+The library is built against React 19 and published with `react`, `react/jsx-runtime`, and
+`react-dom` left external. React apps consume it directly. Preact apps alias those to
+`preact/compat` and `preact/jsx-runtime` — which `@preact/preset-vite` already does for you.
 
 ## Links
 

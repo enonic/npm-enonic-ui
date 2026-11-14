@@ -1,8 +1,14 @@
 # Runtimes: Preact 10 and React 19
 
-The package ships for both React 19 and Preact 10 (see `peerDependencies` and the README). Development runs on Preact
-only: the source imports from `react`, which the Vite preset aliases to `preact/compat`, and Storybook, the
-`interactions-smoke` tests and CI all run on Preact. A green CI run therefore says nothing about React.
+The library is built against React: the bundle imports `react`, `react/jsx-runtime` and `react-dom` without inlining
+any of them, and the types reference only `react`. React 19 apps consume it as is. Preact apps alias those specifiers to `preact/compat` and
+`preact/jsx-runtime`, so their own Preact creates every vnode and the two copies can never disagree.
+
+Storybook and the `interactions-smoke` tests run on Preact 10: `.storybook/main.ts` adds `@preact/preset-vite`, which
+brings those aliases. The only React and latest-Preact coverage is the package smoke check (`pnpm check:package`), which
+installs the packed tarball into fixtures on the Preact Storybook uses, on Preact 11.2.0 and on React 19.3.1, plus
+the latest Preact and React, and server-renders a component. A failure on a `latest` fixture alone means a new
+release broke the package. It does not exercise focus, effects or portals.
 
 Any change that touches focus, effect timing, portals or click-outside has to be considered on both runtimes.
 
@@ -35,18 +41,9 @@ React bubbles synthetic events through portals along the component tree, so a cl
 `onClick` handlers on its React ancestors. Preact bubbles along the DOM, so the same click never reaches them. Handlers
 that rely on either behavior, such as click-outside detection or a parent stopping propagation, must work under both.
 
-### Radix UI Slot ref types
+### Event types
 
-With `@radix-ui/react-slot` and `forwardRef`, the ref types do not align under `preact/compat`. The ref works at
-runtime; suppress the type error with an explanation instead of casting:
-
-```typescript
-<Comp
-  // @ts-expect-error - Preact's ForwardedRef is incompatible with Radix UI Slot's expected ref type
-  ref={ref}
-  {...props}
-/>
-```
-
-Use `@ts-expect-error`, not `as any` or `as React.Ref<HTMLElement>`. Other Radix UI primitives work through
-`preact/compat` without this.
+Handlers receive React's synthetic events under React and native DOM events under Preact. Type them with React's event
+types (`React.KeyboardEvent<HTMLDivElement>`), which `preact/compat` maps onto the native ones, and read only what both
+share. Where a prop takes a native `Event`, as `onSelect` on menu items does, omit the same-named DOM prop from the
+`ComponentPropsWithoutRef` it is intersected with, or the two signatures collapse into one no caller can satisfy.

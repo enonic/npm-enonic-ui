@@ -1,6 +1,7 @@
 # @enonic/ui
 
-UI component library for Preact 10 and React 19. TypeScript, Vite+ (oxc), Tailwind CSS v4, Storybook.
+UI component library for React 19, also consumed by Preact 10+ apps through `preact/compat`. TypeScript, Vite+ (oxc),
+Tailwind CSS v4, Storybook.
 
 ## Commands
 
@@ -28,7 +29,7 @@ Linting and formatting run through Vite+ (`vp`); config lives in `vite.config.ts
 
 ## Rules That Break Silently
 
-- The package ships for both Preact 10 and React 19, but Storybook and CI run on Preact only. Consider any change to
+- The package is built against React and used by both React 19 and Preact apps, but Storybook runs on Preact only. Consider any change to
   focus, effect timing, portals or click-outside on both runtimes. See [docs/runtimes.md](docs/runtimes.md)
 - Import from `react`, never from `preact`. Use `ReactNode`, never `ComponentChildren`
 - Import components from their folder (`@/components/button`), never from the `@/components` barrel

@@ -39,7 +39,7 @@ export type SelectorContextValue = {
   keyHandler: (e: React.KeyboardEvent<HTMLElement>) => void;
 
   // Refs
-  triggerRef: RefObject<HTMLButtonElement>;
+  triggerRef: RefObject<HTMLButtonElement | null>;
 };
 
 const SelectorContext = createContext<SelectorContextValue | undefined>(undefined);

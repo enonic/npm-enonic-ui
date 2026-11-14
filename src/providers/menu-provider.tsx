@@ -11,8 +11,8 @@ export type MenuContextValue = {
   getItems: () => string[];
   isItemDisabled: (id: string) => boolean;
   getItemElement: (id: string) => HTMLElement | null;
-  triggerRef: RefObject<HTMLButtonElement> | null;
-  contentRef: RefObject<HTMLDivElement>;
+  triggerRef: RefObject<HTMLButtonElement | null> | null;
+  contentRef: RefObject<HTMLDivElement | null>;
 };
 
 const MenuContext = createContext<MenuContextValue | undefined>(undefined);

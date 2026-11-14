@@ -537,7 +537,7 @@ const GridListAction = ({ children }: GridListActionProps): ReactElement => {
   if (!isValidElement(children)) {
     return children;
   }
-  return cloneElement(children, { tabIndex: -1 });
+  return cloneElement(children as ReactElement<{ tabIndex?: number }>, { tabIndex: -1 });
 };
 GridListAction.displayName = 'GridList.Action';
 

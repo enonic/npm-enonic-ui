@@ -2,6 +2,8 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import {
   type ComponentPropsWithoutRef,
   forwardRef,
+  type ForwardRefExoticComponent,
+  type RefAttributes,
   type ReactElement,
   useCallback,
   useEffect,
@@ -36,36 +38,38 @@ export type AvatarRootProps = {
 } & VariantProps<typeof avatarVariants> &
   ComponentPropsWithoutRef<'span'>;
 
-const AvatarRoot = forwardRef<HTMLSpanElement, AvatarRootProps>(
-  ({ children, className, size, shape, ...props }, ref): ReactElement => {
-    const [imageLoadingStatus, setImageLoadingStatus] = useState<AvatarImageLoadingStatus>('idle');
+// Annotated (with `Avatar` below) so declarations name `AvatarRootProps` instead of inlining its cva variant types.
+const AvatarRoot: ForwardRefExoticComponent<AvatarRootProps & RefAttributes<HTMLSpanElement>> = forwardRef<
+  HTMLSpanElement,
+  AvatarRootProps
+>(({ children, className, size, shape, ...props }, ref): ReactElement => {
+  const [imageLoadingStatus, setImageLoadingStatus] = useState<AvatarImageLoadingStatus>('idle');
 
-    const handleImageLoadingStatusChange = useCallback((status: AvatarImageLoadingStatus) => {
-      setImageLoadingStatus(status);
-    }, []);
+  const handleImageLoadingStatusChange = useCallback((status: AvatarImageLoadingStatus) => {
+    setImageLoadingStatus(status);
+  }, []);
 
-    const contextValue = useMemo<AvatarContextValue>(
-      () => ({
-        imageLoadingStatus,
-        onImageLoadingStatusChange: handleImageLoadingStatusChange,
-      }),
-      [imageLoadingStatus, handleImageLoadingStatusChange],
-    );
+  const contextValue = useMemo<AvatarContextValue>(
+    () => ({
+      imageLoadingStatus,
+      onImageLoadingStatusChange: handleImageLoadingStatusChange,
+    }),
+    [imageLoadingStatus, handleImageLoadingStatusChange],
+  );
 
-    return (
-      <AvatarProvider value={contextValue}>
-        <span
-          data-component='Avatar.Root'
-          ref={ref}
-          className={cn(avatarVariants({ size, shape }), className)}
-          {...props}
-        >
-          {children}
-        </span>
-      </AvatarProvider>
-    );
-  },
-);
+  return (
+    <AvatarProvider value={contextValue}>
+      <span
+        data-component='Avatar.Root'
+        ref={ref}
+        className={cn(avatarVariants({ size, shape }), className)}
+        {...props}
+      >
+        {children}
+      </span>
+    </AvatarProvider>
+  );
+});
 AvatarRoot.displayName = 'Avatar';
 
 export type AvatarImageProps = {
@@ -182,7 +186,13 @@ const AvatarFallback = forwardRef<HTMLSpanElement, AvatarFallbackProps>(
 );
 AvatarFallback.displayName = 'Avatar.Fallback';
 
-export const Avatar = Object.assign(AvatarRoot, {
+type AvatarComponent = typeof AvatarRoot & {
+  Root: typeof AvatarRoot;
+  Image: typeof AvatarImage;
+  Fallback: typeof AvatarFallback;
+};
+
+export const Avatar: AvatarComponent = Object.assign(AvatarRoot, {
   Root: AvatarRoot,
   Image: AvatarImage,
   Fallback: AvatarFallback,

@@ -495,7 +495,9 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
           left: position?.left,
           right: position?.right,
           maxHeight: position?.maxHeight,
-          '--trigger-width': triggerRef.current ? `${triggerRef.current.offsetWidth}px` : undefined,
+          ...({
+            '--trigger-width': triggerRef.current ? `${triggerRef.current.offsetWidth}px` : undefined,
+          } as React.CSSProperties),
         }}
         {...props}
       >

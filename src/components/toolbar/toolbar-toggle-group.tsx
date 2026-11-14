@@ -327,7 +327,6 @@ const ToolbarToggleItem = forwardRef<HTMLButtonElement, ToolbarToggleItemProps>(
     return (
       <Comp
         data-component='Toolbar.ToggleItem'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRef}
         id={id}
         {...(selectionMode === 'single' ? { 'aria-pressed': isSelected } : { 'aria-checked': isSelected })}

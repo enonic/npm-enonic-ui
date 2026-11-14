@@ -10,28 +10,40 @@ import path from 'node:path';
 const REPO = process.cwd();
 const PKG = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8'));
 
-// The bundle emits bare `react`/`react-dom` imports, so a consumer supplies them as compat aliases.
-// The plain-React fixture is disabled because the bundle takes `createPortal` from `react`, which
-// real React does not export — tracked in #544. Enable it once the specifier is fixed.
+// The bundle is built against React and imports bare `react`, `react/jsx-runtime` and `react-dom`.
+// Preact consumers supply those as `preact/compat` aliases, so their own Preact creates every vnode.
+const PREACT_COMPAT_DEPS = [
+  'react@npm:@preact/compat',
+  'react-dom@npm:@preact/compat',
+  '@radix-ui/react-slot@1',
+  'focus-trap-react@12',
+  'preact-render-to-string@6',
+];
+
+const REACT_DEPS = ['@radix-ui/react-slot@1', 'focus-trap-react@12'];
+
+// The Preact Storybook runs on, so a failure here and not in Storybook points at the package, not the source.
+const PREACT_DEV = PKG.devDependencies.preact.replace(/^[~^]/, '');
+
+// Exact versions give a stable baseline; `latest` catches a new release breaking the package before
+// consumers do. Preact 11.1 stopped rendering vnodes created by another copy's JSX factory, and only a
+// fixture on the newest release would have shown it. A failure on `latest` alone means a new release.
 const FIXTURES = [
   {
-    name: 'preact',
-    deps: [
-      'preact@10',
-      'react@npm:@preact/compat',
-      'react-dom@npm:@preact/compat',
-      '@radix-ui/react-slot@1',
-      'focus-trap-react@12',
-      'preact-render-to-string@6',
-    ],
+    name: `preact-${PREACT_DEV}`,
+    deps: [`preact@${PREACT_DEV}`, ...PREACT_COMPAT_DEPS],
     runtime: 'preact',
+    version: PREACT_DEV,
   },
+  { name: 'preact-11.2.0', deps: ['preact@11.2.0', ...PREACT_COMPAT_DEPS], runtime: 'preact', version: '11.2.0' },
+  { name: 'preact-latest', deps: ['preact@latest', ...PREACT_COMPAT_DEPS], runtime: 'preact' },
   {
-    name: 'react',
-    deps: ['react@19', 'react-dom@19', '@radix-ui/react-slot@1', 'focus-trap-react@12'],
+    name: 'react-19.3.1',
+    deps: ['react@19.3.1', 'react-dom@19.3.1', ...REACT_DEPS],
     runtime: 'react',
-    skip: 'bundle imports createPortal from react (#544)',
+    version: '19.3.1',
   },
+  { name: 'react-latest', deps: ['react@latest', 'react-dom@latest', ...REACT_DEPS], runtime: 'react' },
 ];
 
 // A stylesheet that lost every component rule is still non-empty, so assert on utilities the
@@ -97,8 +109,13 @@ const esmProbe = framework => `
   import fs from 'node:fs';
   import path from 'node:path';
   import { createRequire } from 'node:module';
-  import { render } from 'preact-render-to-string';
-  import { h } from 'preact';
+  ${
+    framework === 'preact'
+      ? `import { render } from 'preact-render-to-string';
+         import { h } from 'preact';`
+      : `import { renderToString as render } from 'react-dom/server';
+         import { createElement as h } from 'react';`
+  }
 
   const require = createRequire(path.join(process.cwd(), 'noop.js'));
   const resolved = require.resolve('react');
@@ -111,13 +128,9 @@ const esmProbe = framework => `
     if (m[name] === undefined) throw new Error('missing export: ' + name);
   }
 
-  ${
-    framework === 'preact'
-      ? `const html = render(h(m.Button, { variant: 'filled' }, 'Go'));
-         if (!/^<button[^>]*class="[^"]*inline-flex/.test(html)) {
-           throw new Error('Button did not render with its classes: ' + html.slice(0, 160));
-         }`
-      : ''
+  const html = render(h(m.Button, { variant: 'filled' }, 'Go'));
+  if (!/^<button[^>]*class="[^"]*inline-flex/.test(html)) {
+    throw new Error('Button did not render with its classes: ' + html.slice(0, 160));
   }
 
   await import('${PKG.name}/style');
@@ -175,6 +188,13 @@ const main = () => {
     );
   }
   check('no source shipped', () => assert(![...shipped].some(f => f.startsWith('src/')), 'src/ is in the tarball'));
+  // The bundle and types must reference React only; a Preact specifier would tie consumers to one Preact copy.
+  check('no preact specifier in shipped code or types', () => {
+    const offenders = [...shipped]
+      .filter(f => /\.(c?js|d\.ts)$/.test(f))
+      .filter(f => /["']preact(\/[^"']*)?["']/.test(fs.readFileSync(path.join(extracted, 'package', f), 'utf8')));
+    assert(offenders.length === 0, `references preact: ${offenders.join(', ')}`);
+  });
   check('no build report shipped', () =>
     assert(![...shipped].some(f => f.endsWith('stats.html')), 'dist/stats.html is in the tarball'),
   );
@@ -223,6 +243,16 @@ const main = () => {
       failures.push(`${fixture.name}: install`);
       console.log(`  FAIL  install\n          ${install.out.split('\n').slice(-4).join('\n          ')}`);
       continue;
+    }
+
+    const { version } = JSON.parse(
+      fs.readFileSync(path.join(dir, 'node_modules', fixture.runtime, 'package.json'), 'utf8'),
+    );
+    console.log(`  info  ${fixture.runtime}@${version}`);
+    if (fixture.version) {
+      check(`${fixture.name}: installed the pinned version`, () =>
+        assert(version === fixture.version, `expected ${fixture.version}, got ${version}`),
+      );
     }
 
     const esm = tryRun('node', ['--input-type=module', '-e', esmProbe(fixture.runtime)], dir);

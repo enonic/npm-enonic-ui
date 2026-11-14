@@ -1,4 +1,4 @@
-import { createContext, type RefObject, useContext } from 'react';
+import { type Context, createContext, type RefObject, useContext } from 'react';
 
 import type { MenubarContextValue } from './menubar-provider';
 
@@ -19,12 +19,14 @@ export type MenubarMenuContextValue = {
   /** Reference to the parent menubar context */
   menubarContext: MenubarContextValue;
   /** Reference to the trigger element */
-  triggerRef: RefObject<HTMLButtonElement> | null;
+  triggerRef: RefObject<HTMLButtonElement | null> | null;
 };
 
 export const MenubarMenuContext = createContext<MenubarMenuContextValue | undefined>(undefined);
 
-export const MenubarMenuProvider = MenubarMenuContext.Provider;
+// `Context['Provider']` rather than the inferred `Provider` type, which `preact/compat` does not export.
+export const MenubarMenuProvider: Context<MenubarMenuContextValue | undefined>['Provider'] =
+  MenubarMenuContext.Provider;
 
 /**
  * Access the menubar menu context.

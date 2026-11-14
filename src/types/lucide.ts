@@ -1,8 +1,12 @@
-import type { LucideIcon as LucideIconPreact } from 'lucide-preact';
-import type { LucideIcon as LucideIconReact } from 'lucide-react';
+import type { ComponentType } from 'react';
 
 /**
- * Unified LucideIcon type that accepts icons from both lucide-react and lucide-preact.
- * This allows the UI library to work seamlessly with both React and Preact projects.
+ * An icon component as the library renders it. Structural rather than `lucide-react`'s own type, so icons from
+ * both `lucide-react` and `lucide-preact` fit.
  */
-export type LucideIcon = LucideIconPreact | LucideIconReact;
+export type LucideIcon = ComponentType<{
+  size?: string | number;
+  strokeWidth?: string | number;
+  className?: string;
+  'aria-hidden'?: boolean | 'true' | 'false';
+}>;

@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp } from 'lucide-react';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 import { Checkbox } from '@/components/checkbox';
 import { IconButton } from '@/components/icon-button';

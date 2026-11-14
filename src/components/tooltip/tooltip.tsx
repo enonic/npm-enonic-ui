@@ -1,6 +1,5 @@
 import { Root } from '@radix-ui/react-slot';
 import {
-  createPortal,
   type ReactElement,
   type ReactNode,
   type RefObject,
@@ -10,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 
 import { usePortalContainer, usePrefixedId } from '@/providers';
 import { cn } from '@/utils';
@@ -50,8 +50,8 @@ const CLOSE_DELAY = 100;
 function useTooltipPosition(
   isOpen: boolean,
   side: TooltipSide,
-  triggerRef: RefObject<HTMLElement>,
-  tooltipRef: RefObject<HTMLElement>,
+  triggerRef: RefObject<HTMLElement | null>,
+  tooltipRef: RefObject<HTMLElement | null>,
   _value?: ReactNode,
 ): TooltipPosition {
   const [coords, setCoords] = useState<TooltipPosition>({
@@ -134,7 +134,7 @@ type TooltipContentProps = {
   actualSide: TooltipSide;
   className?: string;
   position: TooltipPosition;
-  tooltipRef: RefObject<HTMLDivElement>;
+  tooltipRef: RefObject<HTMLDivElement | null>;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
 };
@@ -142,7 +142,7 @@ type TooltipContentProps = {
 type TooltipTriggerProps = {
   children: ReactNode;
   asChild: boolean;
-  triggerRef: RefObject<HTMLDivElement>;
+  triggerRef: RefObject<HTMLDivElement | null>;
   describedById?: string;
   onMouseEnter?: (e?: React.MouseEvent<HTMLElement>) => void;
   onMouseLeave?: (e?: React.MouseEvent<HTMLElement>) => void;
@@ -266,8 +266,8 @@ export function Tooltip({
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<number>();
-  const hoveredRef = useRef<'trigger' | 'content' | undefined>();
+  const timeoutRef = useRef<number | undefined>(undefined);
+  const hoveredRef = useRef<'trigger' | 'content' | undefined>(undefined);
   const focusedRef = useRef(false);
 
   const isEmpty = value == null || value === '';

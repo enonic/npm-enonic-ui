@@ -18,8 +18,9 @@ With Preact:
 pnpm add @enonic/ui preact @radix-ui/react-slot
 ```
 
-`@radix-ui/react-slot` is required either way — it backs the `asChild` prop. One more peer is
-optional: `react-virtuoso` for `VirtualizedTreeList`.
+`@radix-ui/react-slot` is required either way — it backs the `asChild` prop. Preact apps also need
+the `react` aliases described in [Preact projects](#preact-projects). `VirtualizedTreeList` is meant
+to be rendered with `react-virtuoso`.
 
 ## 2. Load the styles
 
@@ -85,33 +86,61 @@ function App() {
 
 ## Preact projects
 
-The published files import from `react` and `react-dom`, so a Preact app needs both aliased to
-`preact/compat`. Using `@preact/preset-vite` covers this already. Configuring Vite by hand:
+The published files import from `react`, `react/jsx-runtime`, and `react-dom`, so a Preact app
+aliases them to `preact/compat` and `preact/jsx-runtime`. Using `@preact/preset-vite` covers this
+already. Configuring Vite by hand:
 
 ```ts
 // vite.config.ts
 export default defineConfig({
   resolve: {
     alias: {
+      'react/jsx-runtime': 'preact/jsx-runtime',
       'react-dom/test-utils': 'preact/test-utils',
       'react-dom': 'preact/compat',
       react: 'preact/compat',
     },
+    dedupe: ['preact'],
   },
 });
+```
+
+A plain `react` alias also catches `react/jsx-runtime` as a subpath, but an exact-match alias (a
+`/^react$/` regex, or `react$` in webpack) does not. React's JSX runtime then ends up in the Preact
+app and its elements do not render, so list `react/jsx-runtime` explicitly.
+
+TypeScript needs the same mapping. The package's types import `react`, and a Preact app has no React
+types to resolve them with — with `skipLibCheck` on, every component then silently types as `any`:
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "paths": {
+      "react": ["./node_modules/preact/compat"],
+      "react-dom": ["./node_modules/preact/compat"],
+      "react/jsx-runtime": ["./node_modules/preact/jsx-runtime"]
+    }
+  }
+}
 ```
 
 ## Icons
 
 Icons used inside components are bundled — no icon package is needed for components to render. Install
-a Lucide package only to pass your own icon to a component that takes one, such as the `icon` prop on
-`Tab`, `Link`, or `VirtualizedTreeList`:
+a Lucide package only to pass your own icon to a component that takes one, such as `icon` on
+`IconButton` or `Tab.DefaultTrigger`, or `leftIcon` on `Link`. Either `lucide-react` or
+`lucide-preact` works:
 
 ```tsx
 import { Tab } from '@enonic/ui';
-import { Star } from 'lucide-react'; // lucide-preact in Preact projects
+import { Star } from 'lucide-react'; // or lucide-preact
 
-<Tab icon={Star} label='Favorites' />;
+<Tab.DefaultTrigger value='favorites' icon={Star}>
+  Favorites
+</Tab.DefaultTrigger>;
 ```
 
 ## Requirements

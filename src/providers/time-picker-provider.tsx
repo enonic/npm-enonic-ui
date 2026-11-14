@@ -11,9 +11,9 @@ export type TimePickerContextValue = {
   baseId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-  triggerRef: RefObject<HTMLButtonElement>;
-  hourTriggerRef: RefObject<HTMLButtonElement>;
-  minuteTriggerRef: RefObject<HTMLButtonElement>;
+  triggerRef: RefObject<HTMLButtonElement | null>;
+  hourTriggerRef: RefObject<HTMLButtonElement | null>;
+  minuteTriggerRef: RefObject<HTMLButtonElement | null>;
   hourSelectId: string;
   minuteSelectId: string;
   selectorActive: string | undefined;

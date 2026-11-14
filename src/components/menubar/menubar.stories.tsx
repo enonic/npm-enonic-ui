@@ -1,5 +1,5 @@
 import { ChevronDown, File, Folder, Globe, Printer, Save, Settings } from 'lucide-react';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 import { Button } from '@/components/button';
 

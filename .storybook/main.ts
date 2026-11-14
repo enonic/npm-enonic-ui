@@ -1,3 +1,4 @@
+import preactPreset from '@preact/preset-vite';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
@@ -32,6 +33,9 @@ const config: StorybookConfig = {
       const name = plugin != null && typeof plugin === 'object' && 'name' in plugin ? plugin.name : undefined;
       return name !== 'unplugin-dts' && name !== 'visualizer';
     });
+    // The library builds against React; Storybook runs it on Preact through the preset's
+    // `react` → `preact/compat` aliases, the same way Preact consumers do.
+    config.plugins.push(...preactPreset({ devToolsEnabled: false }));
 
     type AliasEntry = { find: string | RegExp; replacement: string };
     const existing = config.resolve.alias;

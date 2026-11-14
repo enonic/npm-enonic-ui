@@ -317,7 +317,7 @@ export type MenubarButtonProps = {
   asChild?: boolean;
   className?: string;
   children: ReactNode;
-} & Omit<ComponentPropsWithoutRef<'button'>, 'id' | 'children'>;
+} & Omit<ComponentPropsWithoutRef<'button'>, 'id' | 'children' | 'onSelect'>;
 
 const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
   (
@@ -426,7 +426,6 @@ const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
     return (
       <Comp
         data-component='Menubar.Button'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
         role='menuitem'
@@ -781,7 +780,6 @@ const MenubarTrigger = forwardRef<HTMLButtonElement, MenubarTriggerProps>(
       <Comp
         data-component='Menubar.Trigger'
         {...dialogShortcutBoundaryProps(open)}
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={menuId}
         role='menuitem'
@@ -1074,7 +1072,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
     useClickOutside({
       enabled: open,
       contentRef,
-      excludeRefs: [triggerRef as React.RefObject<HTMLElement>],
+      excludeRefs: [triggerRef as React.RefObject<HTMLElement | null>],
       onPointerDownOutside,
       onInteractOutside,
       onClose: () => setOpen(false),
@@ -1179,7 +1177,7 @@ export type MenubarItemProps = {
   asChild?: boolean;
   className?: string;
   children: ReactNode;
-} & Omit<ComponentPropsWithoutRef<'div'>, 'id' | 'children'>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'id' | 'children' | 'onSelect'>;
 
 const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
   (
@@ -1275,12 +1273,11 @@ const MenubarItem = forwardRef<HTMLDivElement, MenubarItemProps>(
     return (
       <Comp
         data-component='Menubar.Item'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
         role='menuitem'
         tabIndex={tabIndex}
-        disabled={disabled}
+        {...(asChild ? { disabled } : undefined)}
         aria-disabled={disabled}
         data-active={isActive || undefined}
         data-disabled={disabled || undefined}
@@ -1486,7 +1483,7 @@ export type MenubarRadioItemProps = {
   asChild?: boolean;
   className?: string;
   children: ReactNode;
-} & Omit<ComponentPropsWithoutRef<'div'>, 'id' | 'children'>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'id' | 'children' | 'onSelect'>;
 
 const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
   (
@@ -1613,7 +1610,6 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
     return (
       <Comp
         data-component='Menubar.RadioItem'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
         role='menuitemradio'

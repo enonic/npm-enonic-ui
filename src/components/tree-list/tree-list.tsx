@@ -1017,10 +1017,7 @@ const TreeListRow = forwardRef<HTMLDivElement, TreeListRowProps>(
         data-tone={isSelected ? 'inverse' : undefined}
         data-active={isActive || undefined}
         onClick={handleClick}
-        // Preact uses onDblClick, React uses onDoubleClick. We need both for cross-framework compatibility.
-        // Spread bypasses Preact's JSX types which don't include onDoubleClick. See architecture.md.
-        onDblClick={handleDoubleClick}
-        {...{ onDoubleClick: handleDoubleClick }}
+        onDoubleClick={handleDoubleClick}
         className={cn(
           treeListRowVariants({
             active: isActive,
@@ -1114,7 +1111,7 @@ export type TreeListActionProps = {
  * accessible via F2 action mode.
  */
 export const TreeListAction = ({ children }: TreeListActionProps): ReactElement => {
-  return cloneElement(children, { tabIndex: -1 });
+  return cloneElement(children as ReactElement<{ tabIndex?: number }>, { tabIndex: -1 });
 };
 
 TreeListAction.displayName = 'TreeList.Action';
@@ -1140,7 +1137,7 @@ export const TreeListRowLevelSpacer = forwardRef<HTMLDivElement, TreeListRowLeve
       <div
         data-component='TreeList.RowLevelSpacer'
         ref={ref}
-        style={{ '--level-indent': `${calcSpacerWidth(level, levelIndent)}px` }}
+        style={{ '--level-indent': `${calcSpacerWidth(level, levelIndent)}px` } as React.CSSProperties}
         className={cn('pl-(--level-indent)', className)}
         {...props}
       />
@@ -1215,9 +1212,7 @@ export const TreeListRowExpandControl = forwardRef<HTMLButtonElement, TreeListRo
           className,
         )}
         onClick={handleClick}
-        // Preact/React dual event handler. See architecture.md for details.
-        onDblClick={e => e.stopPropagation()}
-        {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
+        onDoubleClick={e => e.stopPropagation()}
         {...props}
       />
     );
@@ -1301,9 +1296,7 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
           tabIndex={-1}
           className={cn('flex size-4 cursor-pointer items-center', className)}
           onKeyDown={handleKeyDown}
-          // Preact/React dual event handler. See architecture.md for details.
-          onDblClick={e => e.stopPropagation()}
-          {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
+          onDoubleClick={e => e.stopPropagation()}
           {...props}
           onClick={handleClick}
         >
@@ -1323,9 +1316,7 @@ export const TreeListRowSelectionControl = forwardRef<HTMLDivElement, TreeListRo
         tabIndex={-1}
         className={cn('flex size-4 cursor-pointer items-center', className)}
         onKeyDown={handleKeyDown}
-        // Preact/React dual event handler. See architecture.md for details.
-        onDblClick={e => e.stopPropagation()}
-        {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
+        onDoubleClick={e => e.stopPropagation()}
         {...props}
         onClick={handleClick}
       >

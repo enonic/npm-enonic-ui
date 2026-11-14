@@ -10,11 +10,11 @@ export type ComboboxApplyOptions = Pick<ComboboxOpenOptions, 'restoreFocus'>;
 
 export type ComboboxContextValue = {
   baseId: string;
-  contentRef: RefObject<HTMLDivElement>;
-  controlRef: RefObject<HTMLDivElement> | null;
-  inputRef: RefObject<HTMLInputElement>;
-  applyRef: RefObject<HTMLButtonElement>;
-  popupRef: RefObject<HTMLDivElement>;
+  contentRef: RefObject<HTMLDivElement | null>;
+  controlRef: RefObject<HTMLDivElement | null> | null;
+  inputRef: RefObject<HTMLInputElement | null>;
+  applyRef: RefObject<HTMLButtonElement | null>;
+  popupRef: RefObject<HTMLDivElement | null>;
   restoreFocusOnCloseRef: RefObject<boolean>;
   inputFocusIntentRef: RefObject<boolean>;
   ignoreFocusExitCloseRef: RefObject<boolean>;
