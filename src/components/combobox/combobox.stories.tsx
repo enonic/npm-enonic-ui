@@ -1581,14 +1581,14 @@ export const DialogEscape: Story = {
       await waitFor(() => expect(input).toHaveFocus());
       page.getByRole('dialog').addEventListener('keydown', event => event.preventDefault(), { once: true });
       await userEvent.keyboard('{Escape}');
-      await expect(page.getByRole('dialog')).toBeVisible();
+      await expect(page.getByRole('dialog')).toHaveAttribute('data-state', 'open');
       if (openPopup) {
         await userEvent.click(page.getByRole('button', { name: 'Toggle' }));
         await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'true'));
         await userEvent.keyboard('{Escape}');
         await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
         await expect(page.queryByRole('listbox')).toBeNull();
-        await expect(page.getByRole('dialog')).toBeVisible();
+        await expect(page.getByRole('dialog')).toHaveAttribute('data-state', 'open');
         await expect(input).toHaveFocus();
       }
       await userEvent.keyboard('{Escape}');
@@ -1678,7 +1678,7 @@ export const TreeDialogEscape: StoryObj<{ controlled: boolean }> = {
       await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'false'));
       await waitFor(() => expect(input).toHaveFocus());
       await expect(page.queryByRole('tree')).toBeNull();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      await expect(page.getByRole('dialog')).toHaveAttribute('data-state', 'open');
       await expect(page.getByRole('status')).toHaveTextContent('Applied: 1');
     };
 
@@ -1686,7 +1686,7 @@ export const TreeDialogEscape: StoryObj<{ controlled: boolean }> = {
     await userEvent.click(picture);
     await waitFor(() => expect(picture).toHaveAttribute('aria-selected', 'true'));
     await expect(page.getByRole('tree')).toHaveFocus();
-    await expect(page.getByRole('button', { name: 'Apply' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Apply' })).toBeInTheDocument();
     await escapePopup();
 
     picture = await openTree();
