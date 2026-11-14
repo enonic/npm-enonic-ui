@@ -1,5 +1,6 @@
 import { Info } from 'lucide-react';
 import { useState } from 'react';
+import { expect, userEvent, waitFor } from 'storybook/test';
 
 import { Combobox } from '@/components/combobox';
 import { Dialog } from '@/components/dialog';
@@ -263,7 +264,7 @@ export const InsideDialog: Story = {
 
     return (
       <div className='flex flex-col gap-2.5'>
-        <Button variant='solid' onClick={() => setOpen(true)} label='Open dialog' />
+        <Button data-testid='opener' variant='solid' onClick={() => setOpen(true)} label='Open dialog' />
 
         <Dialog open={open} onOpenChange={setOpen}>
           <Dialog.Portal>
@@ -275,7 +276,7 @@ export const InsideDialog: Story = {
               />
               <Dialog.Body>
                 <Tooltip value='Press me, the dialog stays open'>
-                  <Button label='Hover me' />
+                  <Button data-testid='trigger' label='Hover me' />
                 </Tooltip>
               </Dialog.Body>
             </Dialog.Content>
@@ -376,9 +377,13 @@ export const DisabledTooltip: Story = {
     return (
       <div className='flex flex-col items-start gap-4'>
         <p className='max-w-100 text-sm'>Disabling the tooltip keeps its button usable.</p>
-        <Button label={disabled ? 'Enable tooltip' : 'Disable tooltip'} onClick={() => setDisabled(value => !value)} />
+        <Button
+          data-testid='toggle'
+          label={disabled ? 'Enable tooltip' : 'Disable tooltip'}
+          onClick={() => setDisabled(value => !value)}
+        />
         <Tooltip value='Tooltip details' disabled={disabled}>
-          <Button label='Hover or focus me' />
+          <Button data-testid='trigger' label='Hover or focus me' />
         </Tooltip>
       </div>
     );
@@ -398,4 +403,141 @@ export const DelayedFocus: Story = {
       </div>
     </div>
   ),
+};
+
+//
+// * Tests
+//
+
+// Hidden from the sidebar so the demos above stay interactive; `pnpm test:storybook` still runs them.
+
+const TEST_TAGS = ['!dev', '!autodocs', 'interactions-smoke'];
+
+const tooltipContent = (): HTMLElement | null => document.querySelector("[data-component='Tooltip.Content']");
+
+const byTestId = (id: string): HTMLElement => {
+  const element = document.querySelector<HTMLElement>(`[data-testid='${id}']`);
+  if (element == null) throw new Error(`No element with data-testid="${id}"`);
+  return element;
+};
+
+const waitForTooltip = async (): Promise<HTMLElement> =>
+  await waitFor(() => {
+    const element = tooltipContent();
+    if (element == null) throw new Error('Tooltip did not open');
+    return element;
+  });
+
+const pause = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+
+export const InsideDialogTest: Story = {
+  name: 'Tests / Inside Dialog',
+  tags: TEST_TAGS,
+  render: InsideDialog.render,
+  play: async () => {
+    const dialog = (): HTMLElement | null => document.querySelector("[data-component='Dialog.Content']");
+
+    await userEvent.click(byTestId('opener'));
+    const content = await waitFor(() => {
+      const element = dialog();
+      if (element == null || !element.contains(document.activeElement)) throw new Error('Dialog is not ready');
+      return element;
+    });
+
+    await userEvent.hover(byTestId('trigger'));
+    await userEvent.click(await waitForTooltip());
+    await pause(50);
+    await expect(dialog()).not.toBeNull();
+    await expect(content.contains(document.activeElement)).toBe(true);
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(tooltipContent()).toBeNull());
+    await pause(50);
+    await expect(dialog()).not.toBeNull();
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(dialog()).toBeNull());
+  },
+};
+
+export const InsideComboboxTest: Story = {
+  name: 'Tests / Inside Combobox',
+  tags: TEST_TAGS,
+  render: InsideCombobox.render,
+  play: async ({ canvasElement }) => {
+    const input = canvasElement.querySelector<HTMLInputElement>("[data-component='Combobox.Input']");
+    if (input == null) throw new Error('No combobox input');
+    const popup = (): HTMLElement | null => canvasElement.querySelector("[data-component='Combobox.Popup']");
+
+    await userEvent.type(input, 'r');
+    const option = await waitFor(() => {
+      const element = canvasElement.querySelector<HTMLElement>("[role='option'] span");
+      if (element == null) throw new Error('No combobox option');
+      return element;
+    });
+
+    await userEvent.hover(option);
+    await userEvent.click(await waitForTooltip());
+    await pause(50);
+    await expect(popup()).not.toBeNull();
+    await expect(document.activeElement).toBe(input);
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(tooltipContent()).toBeNull());
+    await pause(50);
+    await expect(popup()).not.toBeNull();
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(popup()).toBeNull());
+  },
+};
+
+export const VirtualFocusTest: Story = {
+  name: 'Tests / Virtual Focus',
+  tags: TEST_TAGS,
+  render: ExternalFocus.render,
+  play: async ({ canvasElement }) => {
+    const list = canvasElement.querySelector<HTMLElement>("[role='listbox']");
+    if (list == null) throw new Error('No listbox');
+
+    list.focus();
+    await pause(200);
+    await expect(tooltipContent()).toBeNull();
+    await waitFor(() => expect(tooltipContent()).toHaveTextContent('First details'));
+
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(tooltipContent()).toBeNull());
+    await expect(document.activeElement).toBe(list);
+
+    await userEvent.keyboard('{ArrowDown}');
+    await waitFor(() => expect(tooltipContent()).toHaveTextContent('Second details'));
+
+    // Escape while the next opening is still pending cancels it.
+    await userEvent.keyboard('{ArrowUp}');
+    await waitFor(() => expect(tooltipContent()).toBeNull());
+    await userEvent.keyboard('{Escape}');
+    await pause(700);
+    await expect(tooltipContent()).toBeNull();
+
+    list.blur();
+  },
+};
+
+export const DisabledTooltipTest: Story = {
+  name: 'Tests / Disabled Tooltip',
+  tags: TEST_TAGS,
+  render: DisabledTooltip.render,
+  play: async () => {
+    const trigger = byTestId('trigger');
+
+    trigger.focus();
+    await pause(100);
+    await expect(tooltipContent()).toBeNull();
+    await expect(trigger).not.toHaveAttribute('aria-describedby');
+
+    await userEvent.click(byTestId('toggle'));
+    trigger.focus();
+    await waitFor(() => expect(tooltipContent()).toHaveTextContent('Tooltip details'));
+    await expect(trigger).toHaveAttribute('aria-describedby');
+  },
 };
