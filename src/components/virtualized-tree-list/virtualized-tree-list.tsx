@@ -77,12 +77,6 @@ export type VirtualizedTreeListItemProps = {
   'aria-expanded': boolean | undefined;
   'aria-level': number;
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
-  /**
-   * Double-click handler (Preact). Preact uses `onDblClick`, React uses `onDoubleClick`.
-   * Both are provided for cross-framework compatibility. See architecture.md.
-   */
-  onDblClick: () => void;
-  /** Double-click handler (React). See `onDblClick` comment above. */
   onDoubleClick: () => void;
   active: boolean;
   selected: boolean;
@@ -814,7 +808,6 @@ const VirtualizedTreeListRoot = forwardRef(
           'aria-expanded': node.hasChildren ? node.isExpanded : undefined,
           'aria-level': node.level,
           onClick: (e: React.MouseEvent<HTMLElement>) => handleRowClick(node.id, index, e),
-          onDblClick: () => onActivate?.(node.id),
           onDoubleClick: () => onActivate?.(node.id),
           active: isActive,
           selected: isSelected,
@@ -915,7 +908,7 @@ const VirtualizedTreeListRoot = forwardRef(
           data-component='VirtualizedTreeList'
           id={baseId}
           ref={node => {
-            (innerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+            innerRef.current = node;
             if (typeof ref === 'function') {
               ref(node);
             } else if (ref) {
@@ -1025,7 +1018,7 @@ export type VirtualizedTreeListActionProps = {
  * accessible via F2 action mode.
  */
 export const VirtualizedTreeListAction = ({ children }: VirtualizedTreeListActionProps): ReactElement => {
-  return cloneElement(children, { tabIndex: -1 });
+  return cloneElement(children as ReactElement<{ tabIndex?: number }>, { tabIndex: -1 });
 };
 
 VirtualizedTreeListAction.displayName = 'VirtualizedTreeList.Action';
@@ -1121,9 +1114,7 @@ export const VirtualizedTreeListRowExpandControl = forwardRef<
         )}
         onPointerDown={handlePointerDown}
         onClick={handleClick}
-        // Preact/React dual event handler. See architecture.md for details.
-        onDblClick={e => e.stopPropagation()}
-        {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
+        onDoubleClick={e => e.stopPropagation()}
         {...props}
       />
     );
@@ -1212,9 +1203,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
         tabIndex={-1}
         className={cn('flex size-4 cursor-pointer items-center', className)}
         onKeyDown={handleKeyDown}
-        // Preact/React dual event handler. See architecture.md for details.
-        onDblClick={e => e.stopPropagation()}
-        {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
+        onDoubleClick={e => e.stopPropagation()}
         {...props}
         onClick={handleClick}
       >
@@ -1238,9 +1227,7 @@ export const VirtualizedTreeListRowSelectionControl = forwardRef<
         className,
       )}
       onKeyDown={handleKeyDown}
-      // Preact/React dual event handler. See architecture.md for details.
-      onDblClick={e => e.stopPropagation()}
-      {...{ onDoubleClick: (e: MouseEvent) => e.stopPropagation() }}
+      onDoubleClick={e => e.stopPropagation()}
       {...props}
       onClick={handleClick}
     >

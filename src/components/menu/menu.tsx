@@ -161,7 +161,6 @@ const MenuTrigger = forwardRef<HTMLButtonElement, MenuTriggerProps>(
       <Comp
         data-component='Menu.Trigger'
         {...dialogShortcutBoundaryProps(open)}
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={useComposedRefs(ref, triggerRef)}
         id={triggerId}
         aria-haspopup='menu'
@@ -216,7 +215,7 @@ MenuPortal.displayName = 'Menu.Portal';
 export type MenuContentProps = {
   forceMount?: boolean;
   loop?: boolean;
-  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onEscapeKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
   onInteractOutside?: (event: Event) => void;
   className?: string;
@@ -355,7 +354,7 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       return null;
     }
 
-    const styleOverride = (style ?? {}) as React.CSSProperties;
+    const styleOverride = style ?? {};
 
     const contentStyle: React.CSSProperties = {
       top: position?.top,

@@ -221,7 +221,6 @@ const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
       <Comp
         data-component='ContextMenu.Trigger'
         {...dialogShortcutBoundaryProps(open)}
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         data-disabled={disabled || undefined}
         onContextMenu={handleContextMenu}
@@ -288,7 +287,7 @@ ContextMenuPortal.displayName = 'ContextMenu.Portal';
 export type ContextMenuContentProps = {
   forceMount?: boolean;
   loop?: boolean;
-  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onEscapeKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
   onInteractOutside?: (event: Event) => void;
   className?: string;
@@ -836,7 +835,7 @@ ContextMenuSubTrigger.displayName = 'ContextMenu.SubTrigger';
 export type ContextMenuSubContentProps = {
   forceMount?: boolean;
   loop?: boolean;
-  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onEscapeKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   onPointerDownOutside?: (event: PointerEvent) => void;
   onInteractOutside?: (event: Event) => void;
   /**
@@ -1032,7 +1031,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
     useClickOutside({
       enabled: open,
       contentRef,
-      excludeRefs: [triggerRef as React.RefObject<HTMLElement>],
+      excludeRefs: [triggerRef as React.RefObject<HTMLElement | null>],
       onPointerDownOutside,
       onInteractOutside,
       onClose: () => setOpen(false),

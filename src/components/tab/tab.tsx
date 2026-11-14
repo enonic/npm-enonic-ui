@@ -489,7 +489,7 @@ const TabListOverflow = forwardRef<HTMLDivElement, TabListOverflowProps>((props,
       )}
       <div
         ref={scrollRef}
-        style={{ '--tab-min-w': minTabWidth }}
+        style={{ '--tab-min-w': minTabWidth } as React.CSSProperties}
         className={cn(
           '-my-1.5 min-w-0 flex-1 scroll-px-1.5 scrollbar-none overflow-x-auto py-1.5',
           'focus-visible:ring-ring/10 outline-none focus-visible:ring-2 focus-visible:ring-inset',

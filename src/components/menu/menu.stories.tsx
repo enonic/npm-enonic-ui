@@ -17,7 +17,7 @@ import {
   Trash2,
   Upload,
 } from 'lucide-react';
-import { useCallback, useState } from 'preact/hooks';
+import { useCallback, useState } from 'react';
 import { expect, fireEvent, waitFor, within } from 'storybook/test';
 
 import { Button } from '@/components/button';

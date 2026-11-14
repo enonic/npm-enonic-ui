@@ -350,11 +350,10 @@ const ToolbarItem = forwardRef<HTMLDivElement, ToolbarItemProps>(
     return (
       <Comp
         data-component='Toolbar.Item'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
         tabIndex={tabIndex}
-        disabled={disabled}
+        {...(asChild ? { disabled } : undefined)}
         aria-disabled={disabled}
         data-disabled={disabled || undefined}
         onPointerDown={handlePointerDown}

@@ -2,7 +2,7 @@ import { type RefObject, useLayoutEffect } from 'react';
 
 export type UseScrollActiveIntoViewConfig = {
   /** Reference to the container element */
-  containerRef: RefObject<HTMLElement> | null;
+  containerRef: RefObject<HTMLElement | null> | null;
   /** ID of the currently active item (undefined if no active item) */
   activeId: string | undefined;
   /**

@@ -18,7 +18,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-import { IconButton } from '@/components/icon-button/icon-button';
+import { IconButton, type IconButtonProps } from '@/components/icon-button/icon-button';
 import { useClickOutside, useControlledState, useScrollLock } from '@/hooks';
 import {
   PortalProvider,
@@ -193,7 +193,6 @@ const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
     return (
       <Comp
         data-component='Dialog.Trigger'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         onClick={handleClick}
         {...(!asChild && { type: 'button' })}
@@ -638,7 +637,6 @@ const DialogClose = forwardRef<HTMLButtonElement, DialogCloseProps>(
     return (
       <Comp
         data-component='Dialog.Close'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={ref}
         onClick={handleClick}
         {...(!asChild && { type: 'button' })}
@@ -704,7 +702,6 @@ const DialogShortcut = forwardRef<HTMLButtonElement, DialogShortcutProps>(
     return (
       <Comp
         data-component='Dialog.Shortcut'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRef}
         aria-keyshortcuts={shortcutEnabled ? getDialogShortcutKeys(shortcut) : undefined}
         aria-busy={pending || undefined}
@@ -734,7 +731,7 @@ const useDialogAriaId = <T extends HTMLElement>(
   const generatedId = usePrefixedId();
   const resolvedId = id ?? generatedId;
   const elementRef = useRef<T>(null);
-  const registeredIdRef = useRef<string>();
+  const registeredIdRef = useRef<string | undefined>(undefined);
 
   useLayoutEffect(() => {
     const element = elementRef.current;
@@ -768,7 +765,6 @@ const DialogTitle = forwardRef<HTMLHeadingElement, DialogTitleProps>(
     return (
       <Comp
         data-component='Dialog.Title'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRef}
         id={titleId}
         className={cn('text-2xl font-semibold', className)}
@@ -798,13 +794,7 @@ const DialogDescription = forwardRef<HTMLParagraphElement, DialogDescriptionProp
     const Comp = asChild ? Slot : 'p';
 
     return (
-      <Comp
-        data-component='Dialog.Description'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
-        ref={composedRef}
-        id={descriptionId}
-        {...props}
-      >
+      <Comp data-component='Dialog.Description' ref={composedRef} id={descriptionId} {...props}>
         {children}
       </Comp>
     );
@@ -862,7 +852,7 @@ DialogFooter.displayName = 'Dialog.Footer';
 // * DialogDefaultClose
 //
 
-type DialogDefaultCloseProps = Partial<ComponentPropsWithoutRef<typeof IconButton>>;
+type DialogDefaultCloseProps = Partial<IconButtonProps>;
 
 const DialogDefaultClose = forwardRef<HTMLButtonElement, DialogDefaultCloseProps>(
   ({ 'aria-label': ariaLabel, ...props }, ref): ReactElement => {

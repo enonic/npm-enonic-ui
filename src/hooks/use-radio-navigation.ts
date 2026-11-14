@@ -8,7 +8,7 @@ export type RadioNavigationConfig = {
   baseId: string;
   getItems: () => string[];
   getItemId?: (baseId: string, itemId: string) => string;
-  rootRef?: RefObject<HTMLElement>;
+  rootRef?: RefObject<HTMLElement | null>;
   value: string | undefined;
   onValueChange: (value: string) => void;
   isItemDisabled: (id: string) => boolean;

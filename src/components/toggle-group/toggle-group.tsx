@@ -337,7 +337,6 @@ const ToggleGroupItem = forwardRef<HTMLButtonElement, ToggleGroupItemProps>(
     return (
       <Comp
         data-component='ToggleGroup.Item'
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRef}
         {...(selectionMode === 'single' ? { 'aria-pressed': isSelected } : { 'aria-checked': isSelected })}
         data-state={isSelected ? 'on' : 'off'}

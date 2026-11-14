@@ -8,7 +8,7 @@ export type UseSubmenuSafeAreaConfig = {
   /** Whether the submenu is open (tracking is active) */
   enabled: boolean;
   /** Reference to the submenu content element — used to compute its near edge */
-  submenuRef: RefObject<HTMLElement>;
+  submenuRef: RefObject<HTMLElement | null>;
   /**
    * Which side the submenu sits on relative to its trigger.
    * - 'right': near edge is the submenu's LEFT edge; pointer travels right toward it

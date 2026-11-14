@@ -1,4 +1,4 @@
-type Signalish<T> = T | SignalLike<T>;
+export type Signalish<T> = T | SignalLike<T>;
 
 type SignalLike<T> = {
   value: T;

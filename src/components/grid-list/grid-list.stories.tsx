@@ -1,5 +1,5 @@
 import { Edit2, MoreHorizontal, Trash2 } from 'lucide-react';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 import { Button } from '@/components/button';
 import { Checkbox } from '@/components/checkbox';

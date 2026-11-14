@@ -1,4 +1,3 @@
-import preactPreset from '@preact/preset-vite';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -73,8 +72,7 @@ export default defineConfig({
       'prefer-const': 'error',
       'prefer-rest-params': 'error',
       'prefer-spread': 'error',
-      // Allow-list Preact's non-standard DOM props instead of disabling the rule.
-      'react/no-unknown-property': ['error', { ignore: ['onDblClick'] }],
+      'react/no-unknown-property': 'error',
       'typescript/explicit-function-return-type': [
         'error',
         { allowExpressions: true, allowConciseArrowFunctionExpressionsStartingWithVoid: true },
@@ -126,8 +124,7 @@ export default defineConfig({
       'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true, ignoreVoidOperator: true }],
       'typescript/no-mixed-enums': 'error',
 
-      // Off: react and react-dom both alias to preact/compat, so the resolver false-flags dual imports.
-      'import/no-duplicates': 'off',
+      'import/no-duplicates': 'error',
       'typescript/adjacent-overload-signatures': 'error',
       'typescript/ban-tslint-comment': 'error',
       'typescript/class-literal-property-style': 'off',
@@ -196,20 +193,17 @@ export default defineConfig({
       functions: ['cn', 'clsx', 'cva', 'twMerge', 'twJoin'],
     },
   },
+  // The library is built against React; Preact consumers alias `react` to `preact/compat`.
+  // Storybook adds the Preact preset on top of this config in `.storybook/main.ts`.
+  oxc: {
+    jsx: { runtime: 'automatic', importSource: 'react' },
+  },
   plugins: [
-    // Library build is always production: drop prefresh HMR, and strip the devtools/
-    // hook-name plugins the preset always wires in — they inject nothing without an HTML
-    // entry but still run resolveId/transform on every module. Filtered by name; if the
-    // preset renames them this degrades to the old (working) overhead, not a breakage.
-    ...preactPreset({ prefreshEnabled: false, devToolsEnabled: false }).filter(
-      p => p.name !== 'preact:devtools' && p.name !== 'preact:transform-hook-names',
-    ),
     tailwindcss(),
     EnvironmentPlugin('all'),
     dts({
       tsconfigPath: './tsconfig.build.json',
       outDirs: 'dist/types',
-      aliasesExclude: ['react', 'react-dom', 'react-dom/test-utils'],
       exclude: ['**/*.stories.tsx', '.storybook/**/*'],
     }),
     visualizer({
@@ -246,12 +240,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        'preact',
-        'preact-render-to-string',
-        'preact/hooks',
-        'preact/compat',
-        'react',
-        'react-dom',
+        /^react(\/.*)?$/,
+        /^react-dom(\/.*)?$/,
         '@radix-ui/react-slot',
         'focus-trap-react',
         //? Possible external dependencies
@@ -262,9 +252,6 @@ export default defineConfig({
       ],
       output: {
         globals: {
-          preact: 'Preact',
-          'preact/hooks': 'PreactHooks',
-          'preact/compat': 'PreactCompat',
           react: 'React',
           'react-dom': 'ReactDOM',
           // 'lucide-react': 'LucideReact',
@@ -278,10 +265,6 @@ export default defineConfig({
     alias: {
       // Allow imports like `import { Button } from 'enonic-ui'`
       '@': path.resolve(__dirname, './src'),
-      // Aim for React, but use Preact during migration
-      'react-dom/test-utils': 'preact/test-utils',
-      'react-dom': 'preact/compat',
-      react: 'preact/compat',
     },
   },
 });

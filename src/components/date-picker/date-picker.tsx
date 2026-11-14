@@ -554,7 +554,7 @@ const DatePickerMonthSelect = forwardRef<HTMLButtonElement, DatePickerMonthSelec
     } = useDatePicker();
     const t = usePhrases(datePickerPhrases);
     const options = useMemo(() => getMonthOptions(locale, monthFormat), [locale, monthFormat]);
-    const isDisabled = disabled as boolean | undefined;
+    const isDisabled = disabled;
     const isActive = headerActive === monthSelectId;
     const triggerRef = useRef<HTMLButtonElement>(null);
     const composedRefs = useComposedRefs(ref, triggerRef);
@@ -698,7 +698,7 @@ const DatePickerYearSelect = forwardRef<HTMLButtonElement, DatePickerYearSelectP
       () => Array.from({ length: maxYear - minYear + 1 }, (_, index) => minYear + index),
       [minYear, maxYear],
     );
-    const isDisabled = disabled as boolean | undefined;
+    const isDisabled = disabled;
     const isActive = headerActive === yearSelectId;
     const triggerRef = useRef<HTMLButtonElement>(null);
     const composedRefs = useComposedRefs(ref, triggerRef);
@@ -987,7 +987,7 @@ DatePickerHeader.displayName = 'DatePicker.Header';
 
 export type DatePickerContentProps = {
   /** Optional reference to an anchor element for positioning (defaults to trigger) */
-  anchorRef?: RefObject<HTMLElement>;
+  anchorRef?: RefObject<HTMLElement | null>;
   forceMount?: boolean;
   className?: string;
   children?: ReactNode;
@@ -1188,7 +1188,7 @@ const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
           aria-expanded={open}
           aria-controls={open ? contentId : undefined}
           data-active={open}
-          disabled={disabled as boolean | undefined}
+          disabled={disabled}
           onClick={handleClick}
           onKeyDown={handleKeyDown}
           className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
@@ -1203,7 +1203,6 @@ const DatePickerTrigger = forwardRef<HTMLButtonElement, DatePickerTriggerProps>(
     return (
       <Comp
         data-component='DatePicker.Trigger'
-        // @ts-expect-error - Radix Slot ref type is incompatible with ForwardedRef
         ref={composedRefs}
         id={triggerId}
         aria-haspopup='dialog'
@@ -1350,7 +1349,7 @@ export type DatePickerRootProps = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  focusOnCloseRef?: RefObject<HTMLElement>;
+  focusOnCloseRef?: RefObject<HTMLElement | null>;
   month?: Date;
   defaultMonth?: Date;
   onMonthChange?: (month: Date) => void;

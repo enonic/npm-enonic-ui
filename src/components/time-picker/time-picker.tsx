@@ -150,7 +150,7 @@ const TimePickerHourSelect = forwardRef<HTMLButtonElement, TimePickerHourSelectP
     } = useTimePicker();
     const t = usePhrases(timePickerPhrases);
     const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => i), []);
-    const isDisabled = disabled as boolean | undefined;
+    const isDisabled = disabled;
     const isActive = selectorActive === hourSelectId;
     const triggerRef = useRef<HTMLButtonElement>(null);
     const composedRefs = useComposedRefs(ref, triggerRef, hourTriggerRef);
@@ -275,7 +275,7 @@ const TimePickerMinuteSelect = forwardRef<HTMLButtonElement, TimePickerMinuteSel
     } = useTimePicker();
     const t = usePhrases(timePickerPhrases);
     const minutes = useMemo(() => Array.from({ length: 60 }, (_, i) => i), []);
-    const isDisabled = disabled as boolean | undefined;
+    const isDisabled = disabled;
     const isActive = selectorActive === minuteSelectId;
     const triggerRef = useRef<HTMLButtonElement>(null);
     const composedRefs = useComposedRefs(ref, triggerRef, minuteTriggerRef);
@@ -532,7 +532,7 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
           aria-invalid={invalid || undefined}
           data-active={open}
           // Cast: Preact Signalish<boolean> from ComponentPropsWithoutRef vs boolean
-          disabled={disabled as boolean | undefined}
+          disabled={disabled}
           onClick={handleClick}
           onKeyDown={handleKeyDown}
           className={cn('data-[active=true]:bg-btn-active data-[active=true]:text-alt', className)}
@@ -548,7 +548,6 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
       <Comp
         data-component='TimePicker.Trigger'
         {...dialogShortcutBoundaryProps(open)}
-        // @ts-expect-error - Radix Slot ref type is incompatible with ForwardedRef
         ref={composedRefs}
         id={triggerId}
         aria-haspopup='dialog'
@@ -577,7 +576,7 @@ TimePickerTrigger.displayName = 'TimePicker.Trigger';
 
 export type TimePickerContentProps = {
   /** Optional reference to an anchor element for positioning (defaults to trigger) */
-  anchorRef?: RefObject<HTMLElement>;
+  anchorRef?: RefObject<HTMLElement | null>;
   className?: string;
   children?: ReactNode;
 } & FloatingProps &

@@ -18,7 +18,7 @@ import {
   Video,
   X,
 } from 'lucide-react';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from 'react';
 
 import { Checkbox, type CheckboxChecked } from '@/components/checkbox';
 import { IconButton } from '@/components/icon-button';
@@ -367,7 +367,9 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
           selected={selected}
           onClick={() => setSelected(!selected)}
           className='cursor-pointer'
-          style={selected ? { '--color-ring-offset': 'var(--color-surface-selected)' } : undefined}
+          style={
+            selected ? ({ '--color-ring-offset': 'var(--color-surface-selected)' } as React.CSSProperties) : undefined
+          }
         >
           {args.showLeft && (
             <ListItem.Left>

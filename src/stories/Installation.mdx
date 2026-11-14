@@ -18,8 +18,9 @@ With Preact:
 pnpm add @enonic/ui preact @radix-ui/react-slot
 ```
 
-`@radix-ui/react-slot` is required either way — it backs the `asChild` prop. One more peer is
-optional: `react-virtuoso` for `VirtualizedTreeList`.
+`@radix-ui/react-slot` is required either way — it backs the `asChild` prop. Preact apps also need
+the `react` aliases described in [Preact projects](#preact-projects). `VirtualizedTreeList` is meant
+to be rendered with `react-virtuoso`.
 
 ## 2. Load the styles
 
@@ -85,21 +86,27 @@ function App() {
 
 ## Preact projects
 
-The published files import from `react` and `react-dom`, so a Preact app needs both aliased to
-`preact/compat`. Using `@preact/preset-vite` covers this already. Configuring Vite by hand:
+The published files import from `react`, `react/jsx-runtime`, and `react-dom`, so a Preact app
+aliases them to `preact/compat` and `preact/jsx-runtime`. Using `@preact/preset-vite` covers this
+already. Configuring Vite by hand:
 
 ```ts
 // vite.config.ts
 export default defineConfig({
   resolve: {
     alias: {
+      'react/jsx-runtime': 'preact/jsx-runtime',
       'react-dom/test-utils': 'preact/test-utils',
       'react-dom': 'preact/compat',
       react: 'preact/compat',
     },
+    dedupe: ['preact'],
   },
 });
 ```
+
+Leaving out `react/jsx-runtime` pulls React's JSX runtime into a Preact app, and its elements do not
+render.
 
 ## Icons
 
@@ -109,7 +116,7 @@ a Lucide package only to pass your own icon to a component that takes one, such 
 
 ```tsx
 import { Tab } from '@enonic/ui';
-import { Star } from 'lucide-react'; // lucide-preact in Preact projects
+import { Star } from 'lucide-react';
 
 <Tab icon={Star} label='Favorites' />;
 ```

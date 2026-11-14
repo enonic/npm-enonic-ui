@@ -29,9 +29,6 @@ importers:
       lucide-react:
         specifier: ^1.16.0
         version: 1.65.0(@types/react@19.3.0)(react@19.3.1)
-      preact:
-        specifier: '>=10.0.0'
-        version: 10.29.8
       react:
         specifier: ^19.0.0
         version: 19.3.1
@@ -84,12 +81,12 @@ importers:
       http-server:
         specifier: ^14.1.1
         version: 14.1.1
-      lucide-preact:
-        specifier: ~1.65.0
-        version: 1.65.0(preact@10.29.8)
       playwright:
         specifier: ^1.62.1
         version: 1.64.1
+      preact:
+        specifier: ~10.29.8
+        version: 10.29.8
       publint:
         specifier: ^0.3.24
         version: 0.3.25
@@ -4400,11 +4397,6 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
-
-  lucide-preact@1.65.0:
-    resolution: {integrity: sha512-3WYdNgmacu4aFTn2DCOQFmX7cyh8C/J699nWicAAGfl6GHrtcPmQWd2s9jb1q0GhMY+xxudaWn34KQNLOA4y+g==}
-    peerDependencies:
-      preact: ^10.27.2 || ^11.0.0-0
 
   lucide-react@1.65.0:
     resolution: {integrity: sha512-roSdtzudEY39i2hn5LLjA8toYfhF2z4S10WSqZF4ubXpHlOmNTvaxMxZLdJfQDi6pEifQWX+cRmYihKSsvAxfA==}
@@ -9444,10 +9436,6 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
-
-  lucide-preact@1.65.0(preact@10.29.8):
-    dependencies:
-      preact: 10.29.8
 
   lucide-react@1.65.0(@types/react@19.3.0)(react@19.3.1):
     dependencies:

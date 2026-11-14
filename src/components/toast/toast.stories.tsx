@@ -1,5 +1,5 @@
 import { Bell } from 'lucide-react';
-import { useState } from 'preact/hooks';
+import { useState } from 'react';
 
 import { Button } from '@/components/button';
 

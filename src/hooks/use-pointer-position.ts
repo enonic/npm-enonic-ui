@@ -13,7 +13,7 @@ export type UsePointerPositionConfig = {
   /** Mouse/pointer position where the menu was triggered */
   mousePosition: { x: number; y: number } | null;
   /** Reference to the floating content element */
-  contentRef: RefObject<HTMLElement> | null;
+  contentRef: RefObject<HTMLElement | null> | null;
 };
 
 /**

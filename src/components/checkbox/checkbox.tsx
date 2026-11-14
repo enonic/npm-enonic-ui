@@ -131,8 +131,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
       onClick?.(e);
       skipInputClick.current = !e.defaultPrevented && input != null && !input.disabled;
-      stopInputClick.current =
-        (e as { isPropagationStopped?: () => boolean }).isPropagationStopped?.() ?? e.cancelBubble;
+      const stopped = e as { isPropagationStopped?: () => boolean; cancelBubble?: boolean };
+      stopInputClick.current = stopped.isPropagationStopped?.() ?? stopped.cancelBubble ?? false;
       // ? The forwarded click never arrives when an ancestor prevents default or onClick disables the input, so the flags would stay armed for the next Space press
       setTimeout(() => {
         skipInputClick.current = false;

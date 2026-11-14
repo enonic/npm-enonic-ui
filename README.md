@@ -32,6 +32,8 @@ npm install @enonic/ui preact @radix-ui/react-slot            # Preact
 
 </details>
 
+The package is built against React. A Preact app aliases `react`, `react-dom`, and `react/jsx-runtime` to `preact/compat` and `preact/jsx-runtime`; `@preact/preset-vite` does this by default.
+
 **2. Load the styles.** Components use Tailwind utility classes and render unstyled until a stylesheet is present. The prebuilt one needs no configuration:
 
 ```css
@@ -135,12 +137,12 @@ A Lucide package is needed only when you pass your own icon to a component that 
 
 ```tsx
 import { Tab } from '@enonic/ui';
-import { Star } from 'lucide-react'; // lucide-preact in Preact projects
+import { Star } from 'lucide-react';
 
 <Tab icon={Star} label='Favorites' />;
 ```
 
-The `icon` prop accepts either package.
+In Preact projects `lucide-react` works through the same `preact/compat` alias.
 
 ## Requirements
 
@@ -149,10 +151,10 @@ The `icon` prop accepts either package.
 | Requirement                                     | Notes                               |
 | ----------------------------------------------- | ----------------------------------- |
 | `@radix-ui/react-slot`                          | Required — backs the `asChild` prop |
-| `react` + `react-dom` v19, **or** `preact` v10+ | Pick one framework                  |
+| `react` + `react-dom` v19, **or** `preact` v10+ | Preact needs the `react` aliases    |
 | Tailwind CSS v4                                 | Only for the `preset.css` path      |
 
-Optional peers, needed per feature:
+Optional packages, needed per feature:
 
 | Package          | Needed for                                        |
 | ---------------- | ------------------------------------------------- |

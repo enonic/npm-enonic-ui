@@ -58,7 +58,7 @@ const updateArrayIfChanged =
   (prev: readonly T[]): readonly T[] =>
     areArraysEquals(prev, next) ? prev : next;
 
-const containsFocusTarget = (ref: React.RefObject<HTMLElement>, target: EventTarget | null): boolean => {
+const containsFocusTarget = (ref: React.RefObject<HTMLElement | null>, target: EventTarget | null): boolean => {
   return target instanceof Node && containsDeep(ref.current, target);
 };
 
@@ -1124,7 +1124,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     // Hide in portal mode until position is calculated
     const isHidden = isPortalMode && !position;
 
-    const styleOverride = (style ?? {}) as React.CSSProperties;
+    const styleOverride = style ?? {};
     const popupStyle: React.CSSProperties = isPortalMode
       ? {
           position: 'fixed',
@@ -1264,7 +1264,7 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
   // Virtuoso needs an explicit pixel height, which the consumer sets without
   // knowing the popup was clamped. A string `style` passes through untouched —
   // spreading one would shatter it into indexed keys.
-  const consumerStyle = typeof style === 'object' && style !== null ? (style as React.CSSProperties) : undefined;
+  const consumerStyle = typeof style === 'object' && style !== null ? style : undefined;
   const consumerHeight = consumerStyle?.height;
   const mergedStyle =
     consumerStyle && typeof consumerHeight === 'number' && popupLayout?.maxHeight !== undefined

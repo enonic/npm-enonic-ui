@@ -30,7 +30,7 @@ export type ToastProps = {
   onOpenChange?: (open: boolean) => void;
   withClose?: boolean;
   children?: ReactNode;
-} & ComponentPropsWithoutRef<'div'>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'id'>;
 
 const toastTones = ['success', 'info', 'warning', 'error'] as const;
 export type ToastTone = (typeof toastTones)[number];
@@ -66,7 +66,6 @@ const ToastTitle = forwardRef<HTMLHeadingElement, { asChild?: boolean } & Compon
     return (
       <Comp
         data-component='Toast.Title'
-        // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
         className={cn('text-alt text-lg font-semibold', className)}
         {...props}
@@ -84,7 +83,6 @@ const ToastDescription = forwardRef<HTMLParagraphElement, { asChild?: boolean } 
     return (
       <Comp
         data-component='Toast.Description'
-        // @ts-expect-error - Slot ref typing incompatibility with Preact
         ref={ref}
         className={cn('text-md overflow-hidden text-ellipsis', className)}
         {...props}
@@ -144,14 +142,7 @@ const ToastClose = forwardRef<
 
   if (asChild) {
     return (
-      <Slot
-        data-component='Toast.Close'
-        // @ts-expect-error - Slot ref typing incompatibility with Preact
-        ref={ref}
-        onClick={handleClick}
-        aria-label={ariaLabel}
-        {...props}
-      >
+      <Slot data-component='Toast.Close' ref={ref} onClick={handleClick} aria-label={ariaLabel} {...props}>
         {children}
       </Slot>
     );
@@ -250,7 +241,7 @@ const ToastRoot = forwardRef<HTMLDivElement, ToastProps>(
     const actionButtons = childArray.filter(
       (child): child is ReactElement => isValidElement(child) && child.type === ToastButton,
     );
-    const contentChildren = childArray.filter(child => !actionButtons.includes(child));
+    const contentChildren = childArray.filter(child => !isValidElement(child) || child.type !== ToastButton);
 
     if (!open) {
       return null;

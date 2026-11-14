@@ -1,6 +1,14 @@
 import { File, Folder, ListTree } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
-import { forwardRef, type ReactElement, type RefObject, useRef } from 'react';
+import {
+  forwardRef,
+  type ReactElement,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import { expect, fireEvent, userEvent, waitFor, within } from 'storybook/test';
 
@@ -41,7 +49,7 @@ export default {
   tags: ['autodocs'],
 } satisfies Meta;
 
-const createInputRefAndFocus = (): RefObject<HTMLInputElement> => {
+const createInputRefAndFocus = (): RefObject<HTMLInputElement | null> => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -306,7 +314,7 @@ export const WithLeftToggleButton: Story = {
     }, []);
 
     // Keyboard shortcut: Ctrl/Cmd + Shift + V to toggle view mode
-    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'v') {
         e.preventDefault();
         setIsTreeView(prev => !prev);
@@ -1218,7 +1226,7 @@ const StagedTreeContent = ({
   onActiveChange: (id: string | null) => void;
   onExpand: (id: string) => void;
   onCollapse: (id: string) => void;
-  virtuosoRef: RefObject<VirtuosoHandle>;
+  virtuosoRef: RefObject<VirtuosoHandle | null>;
   treeHeight: number;
 }): ReactElement => {
   const { selection, onSelectionChange } = useCombobox();

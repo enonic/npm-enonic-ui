@@ -9,7 +9,7 @@ export type SelectableListItemProps = {
   readOnly?: boolean;
 } & Pick<ListItemDefaultContentProps, 'label' | 'description' | 'metadata' | 'icon'> &
   Pick<CheckboxProps, 'checked' | 'defaultChecked' | 'onCheckedChange'> &
-  Omit<ListItemProps, 'children'>;
+  Omit<ListItemProps, 'children' | 'defaultChecked'>;
 
 export const SelectableListItem = ({
   className,

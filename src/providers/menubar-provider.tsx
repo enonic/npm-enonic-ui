@@ -40,7 +40,7 @@ export type MenubarContextValue = {
   /**
    * Ref to the menubar container element for focus management.
    */
-  menubarRef: RefObject<HTMLDivElement> | null;
+  menubarRef: RefObject<HTMLDivElement | null> | null;
 };
 
 const MenubarContext = createContext<MenubarContextValue | undefined>(undefined);

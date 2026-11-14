@@ -403,7 +403,6 @@ const StepperPrevious = forwardRef<HTMLButtonElement, StepperPreviousProps>((pro
   return (
     <Comp
       data-component='Stepper.Previous'
-      // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
       ref={ref}
       onClick={handleClick}
       aria-disabled={isDisabled}
@@ -460,7 +459,6 @@ const StepperNext = forwardRef<HTMLButtonElement, StepperNextProps>((props, ref)
   return (
     <Comp
       data-component='Stepper.Next'
-      // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
       ref={ref}
       onClick={handleClick}
       aria-disabled={isDisabled}

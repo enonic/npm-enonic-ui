@@ -7,8 +7,6 @@
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "paths": {
-      "react": ["./node_modules/preact/compat/"],
-      "react-dom": ["./node_modules/preact/compat/"],
       "@/*": ["./src/*"]
     },
     /* Types for Users */
@@ -23,7 +21,7 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "jsx": "react-jsx",
-    "jsxImportSource": "preact",
+    "jsxImportSource": "react",
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

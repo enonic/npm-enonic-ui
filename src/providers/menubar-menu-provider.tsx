@@ -19,7 +19,7 @@ export type MenubarMenuContextValue = {
   /** Reference to the parent menubar context */
   menubarContext: MenubarContextValue;
   /** Reference to the trigger element */
-  triggerRef: RefObject<HTMLButtonElement> | null;
+  triggerRef: RefObject<HTMLButtonElement | null> | null;
 };
 
 export const MenubarMenuContext = createContext<MenubarMenuContextValue | undefined>(undefined);

@@ -4,7 +4,7 @@ import { containsDeep, getActiveElement } from '@/utils/dom';
 
 export type UseActiveItemFocusConfig = {
   /** Reference to the item element to focus */
-  ref: RefObject<HTMLElement> | null;
+  ref: RefObject<HTMLElement | null> | null;
   /** Whether this item is currently active */
   isActive: boolean;
   /** Whether this item is disabled */

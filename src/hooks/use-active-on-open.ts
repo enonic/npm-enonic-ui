@@ -26,7 +26,7 @@ export type UseActiveOnOpenConfig = {
    * updated (useful for tests or virtualized consumers handling scroll
    * through their own adapter).
    */
-  containerRef?: RefObject<HTMLElement> | null;
+  containerRef?: RefObject<HTMLElement | null> | null;
   /**
    * Build the option element's DOM id from a registry id. Defaults to
    * identity. Match the consumer's `buildElementId` used elsewhere.

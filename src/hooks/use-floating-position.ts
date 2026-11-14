@@ -41,9 +41,9 @@ export type UseFloatingPositionConfig = {
   /** Whether the floating element is open/visible */
   enabled: boolean;
   /** Reference to the anchor element to position relative to */
-  anchorRef: RefObject<HTMLElement> | null;
+  anchorRef: RefObject<HTMLElement | null> | null;
   /** Reference to the floating content element */
-  contentRef: RefObject<HTMLElement> | null;
+  contentRef: RefObject<HTMLElement | null> | null;
   /**
    * Preferred side relative to the anchor.
    * @default 'bottom'

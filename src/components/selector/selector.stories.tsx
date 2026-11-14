@@ -299,7 +299,7 @@ export const Required: Story = {
     const formRef = useRef<HTMLFormElement>(null);
     const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = (e: Event): void => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
       e.preventDefault();
       setSubmitted(true);
     };
@@ -414,7 +414,7 @@ export const WithForm: Story = {
   render: () => {
     const [formData, setFormData] = useState<{ name: string; fruit: string } | null>(null);
 
-    const handleSubmit = (e: Event): void => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
       e.preventDefault();
       const form = e.target as HTMLFormElement;
       const data = new FormData(form);

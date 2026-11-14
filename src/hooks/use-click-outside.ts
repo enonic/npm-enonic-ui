@@ -4,12 +4,12 @@ export type UseClickOutsideConfig = {
   /** Whether the click outside listener is active */
   enabled: boolean;
   /** Reference to the content element (clicks inside are ignored) */
-  contentRef: RefObject<HTMLElement>;
+  contentRef: RefObject<HTMLElement | null>;
   /**
    * Optional references to elements that should be excluded from "outside" detection.
    * Typically used for trigger buttons that toggle the content visibility.
    */
-  excludeRefs?: (RefObject<HTMLElement> | undefined)[];
+  excludeRefs?: (RefObject<HTMLElement | null> | undefined)[];
   /** Callback when pointer down occurs outside */
   onPointerDownOutside?: (event: PointerEvent) => void;
   /** Callback when any interaction occurs outside */

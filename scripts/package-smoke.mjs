@@ -10,27 +10,33 @@ import path from 'node:path';
 const REPO = process.cwd();
 const PKG = JSON.parse(fs.readFileSync(path.join(REPO, 'package.json'), 'utf8'));
 
-// The bundle emits bare `react`/`react-dom` imports, so a consumer supplies them as compat aliases.
-// The plain-React fixture is disabled because the bundle takes `createPortal` from `react`, which
-// real React does not export — tracked in #544. Enable it once the specifier is fixed.
+// The bundle is built against React and imports bare `react`, `react/jsx-runtime` and `react-dom`.
+// Preact consumers supply those as `preact/compat` aliases, so their own Preact creates every vnode.
+const PREACT_COMPAT_DEPS = [
+  'react@npm:@preact/compat',
+  'react-dom@npm:@preact/compat',
+  '@radix-ui/react-slot@1',
+  'focus-trap-react@12',
+  'preact-render-to-string@6',
+];
+
 const FIXTURES = [
   {
-    name: 'preact',
-    deps: [
-      'preact@10',
-      'react@npm:@preact/compat',
-      'react-dom@npm:@preact/compat',
-      '@radix-ui/react-slot@1',
-      'focus-trap-react@12',
-      'preact-render-to-string@6',
-    ],
+    name: 'preact-10',
+    deps: ['preact@10', ...PREACT_COMPAT_DEPS],
+    runtime: 'preact',
+  },
+  // The newest Preact, not the one the library was developed on: Preact 11.1 stopped rendering vnodes
+  // created by another copy's JSX factory, which a bundle that inlines its own factory cannot survive.
+  {
+    name: 'preact-latest',
+    deps: ['preact@latest', ...PREACT_COMPAT_DEPS],
     runtime: 'preact',
   },
   {
     name: 'react',
     deps: ['react@19', 'react-dom@19', '@radix-ui/react-slot@1', 'focus-trap-react@12'],
     runtime: 'react',
-    skip: 'bundle imports createPortal from react (#544)',
   },
 ];
 
@@ -97,8 +103,13 @@ const esmProbe = framework => `
   import fs from 'node:fs';
   import path from 'node:path';
   import { createRequire } from 'node:module';
-  import { render } from 'preact-render-to-string';
-  import { h } from 'preact';
+  ${
+    framework === 'preact'
+      ? `import { render } from 'preact-render-to-string';
+         import { h } from 'preact';`
+      : `import { renderToString as render } from 'react-dom/server';
+         import { createElement as h } from 'react';`
+  }
 
   const require = createRequire(path.join(process.cwd(), 'noop.js'));
   const resolved = require.resolve('react');
@@ -111,13 +122,9 @@ const esmProbe = framework => `
     if (m[name] === undefined) throw new Error('missing export: ' + name);
   }
 
-  ${
-    framework === 'preact'
-      ? `const html = render(h(m.Button, { variant: 'filled' }, 'Go'));
-         if (!/^<button[^>]*class="[^"]*inline-flex/.test(html)) {
-           throw new Error('Button did not render with its classes: ' + html.slice(0, 160));
-         }`
-      : ''
+  const html = render(h(m.Button, { variant: 'filled' }, 'Go'));
+  if (!/^<button[^>]*class="[^"]*inline-flex/.test(html)) {
+    throw new Error('Button did not render with its classes: ' + html.slice(0, 160));
   }
 
   await import('${PKG.name}/style');
@@ -224,6 +231,11 @@ const main = () => {
       console.log(`  FAIL  install\n          ${install.out.split('\n').slice(-4).join('\n          ')}`);
       continue;
     }
+
+    const { version } = JSON.parse(
+      fs.readFileSync(path.join(dir, 'node_modules', fixture.runtime, 'package.json'), 'utf8'),
+    );
+    console.log(`  info  ${fixture.runtime}@${version}`);
 
     const esm = tryRun('node', ['--input-type=module', '-e', esmProbe(fixture.runtime)], dir);
     check(`${fixture.name}: import, render, subpaths`, () => assert(esm.ok, esm.out));

@@ -11,8 +11,8 @@ export type DatePickerContextValue = {
   baseId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
-  triggerRef: RefObject<HTMLButtonElement>;
-  focusOnCloseRef?: RefObject<HTMLElement>;
+  triggerRef: RefObject<HTMLButtonElement | null>;
+  focusOnCloseRef?: RefObject<HTMLElement | null>;
   monthSelectId: string;
   yearSelectId: string;
   prevButtonId: string;

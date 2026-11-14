@@ -2,7 +2,7 @@ import { createContext, type ReactElement, type ReactNode, useContext } from 're
 
 export type ToolbarContextValue = {
   toolbarId: string;
-  toolbarRef: React.RefObject<HTMLDivElement>;
+  toolbarRef: React.RefObject<HTMLDivElement | null>;
   active: string | undefined;
   setActive: (id: string | undefined) => void;
   registerItem: (id: string, disabled?: boolean, element?: HTMLElement | null) => void;

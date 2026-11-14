@@ -18,7 +18,7 @@ export type ContextMenuSubContextValue = {
   /** Open/close the submenu */
   setOpen: (open: boolean) => void;
   /** Ref to the SubTrigger DOM node (for ArrowLeft refocus and collision anchoring) */
-  triggerRef: RefObject<HTMLDivElement> | null;
+  triggerRef: RefObject<HTMLDivElement | null> | null;
   /**
    * Snapshot of the parent content context captured at mount time.
    * Used by SubContent's ArrowLeft handler to set parent `active` back to the trigger.

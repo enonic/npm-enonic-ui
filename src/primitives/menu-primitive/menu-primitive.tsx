@@ -83,7 +83,7 @@ export type MenuItemOwnProps = {
   onSelect?: (event: Event) => void;
   className?: string;
   children: ReactNode;
-} & ComponentPropsWithoutRef<'div'>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'onSelect'>;
 
 /** Internal primitive props (own props + context operations for dependency injection) */
 export type MenuPrimitiveItemProps = MenuItemOwnProps & MenuContextOperations;
@@ -186,12 +186,11 @@ export const MenuPrimitiveItem = forwardRef<HTMLDivElement, MenuPrimitiveItemPro
 
     return (
       <Comp
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
         role='menuitem'
         tabIndex={tabIndex}
-        disabled={disabled}
+        {...(asChild ? { disabled } : undefined)}
         aria-disabled={disabled || undefined}
         data-active={isActive || undefined}
         data-disabled={disabled || undefined}
@@ -399,7 +398,7 @@ export type MenuRadioItemOwnProps = {
   onSelect?: (event: Event) => void;
   className?: string;
   children: ReactNode;
-} & ComponentPropsWithoutRef<'div'>;
+} & Omit<ComponentPropsWithoutRef<'div'>, 'onSelect'>;
 
 /** Internal primitive props (own props + context operations except setOpen, which comes from RadioGroup) */
 export type MenuPrimitiveRadioItemProps = MenuRadioItemOwnProps & Omit<MenuContextOperations, 'setOpen'>;
@@ -529,7 +528,6 @@ export const MenuPrimitiveRadioItem = forwardRef<HTMLDivElement, MenuPrimitiveRa
 
     return (
       <Comp
-        // @ts-expect-error - Preact's ForwardedRef type is incompatible with Radix UI Slot's expected ref type
         ref={composedRefs}
         id={id}
         role='menuitemradio'
