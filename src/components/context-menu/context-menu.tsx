@@ -161,7 +161,11 @@ const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
 
     const handleContextMenu = useCallback(
       (e: React.MouseEvent<HTMLDivElement>): void => {
-        if (disabled || isPortaledEvent(e)) return;
+        if (disabled) return;
+        if (isPortaledEvent(e)) {
+          onContextMenu?.(e);
+          return;
+        }
 
         e.preventDefault();
         onContextMenu?.(e);
