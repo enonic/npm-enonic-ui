@@ -36,11 +36,17 @@ export type TooltipProps = {
   asChild?: boolean;
   delay?: number;
   trigger?: TooltipTrigger;
-  /** Whether the child has logical focus while DOM focus stays on a container. */
+  /**
+   * Whether the child has logical focus while DOM focus stays on a container. Opens the tooltip as soon as it is
+   * true, even on mount, so pass it only while the container itself holds DOM focus.
+   */
   virtualFocus?: boolean;
   /** Keyboard opening delay in milliseconds. Hover uses delay; existing focus behavior defaults to immediate. */
   focusDelay?: number;
-  /** Hide the tooltip and cancel pending opening without disabling its child. */
+  /**
+   * Hide the tooltip and cancel pending opening without disabling its child. Re-enabling reopens it only for a
+   * focused trigger; a hovered one needs the pointer to leave and re-enter.
+   */
   disabled?: boolean;
 };
 
@@ -278,6 +284,7 @@ export function Tooltip({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number | undefined>(undefined);
   const openAtRef = useRef<number | undefined>(undefined);
+  const removeEscapeListenerRef = useRef<(() => void) | undefined>(undefined);
   const hoveredRef = useRef<'trigger' | 'content' | undefined>(undefined);
   const focusedRef = useRef(false);
   const hasHoverTrigger = trigger === 'hover' || trigger === 'hover-focus';
@@ -291,6 +298,8 @@ export function Tooltip({
     window.clearTimeout(timeoutRef.current);
     timeoutRef.current = undefined;
     openAtRef.current = undefined;
+    removeEscapeListenerRef.current?.();
+    removeEscapeListenerRef.current = undefined;
   }, []);
   const openAfter = useCallback(
     (wait: number): void => {
@@ -305,10 +314,18 @@ export function Tooltip({
       if (wait > 0) {
         openAtRef.current = openAt;
         timeoutRef.current = window.setTimeout(() => {
-          timeoutRef.current = undefined;
-          openAtRef.current = undefined;
+          clearTimer();
           setIsOpen(true);
         }, wait);
+        // Escape before the delay runs out cancels the opening, but stays the enclosing widget's to handle.
+        const document = triggerRef.current?.ownerDocument;
+        if (document != null) {
+          const handleKeyDown = (event: KeyboardEvent): void => {
+            if (event.key === 'Escape' && !event.isComposing) clearTimer();
+          };
+          document.addEventListener('keydown', handleKeyDown, true);
+          removeEscapeListenerRef.current = () => document.removeEventListener('keydown', handleKeyDown, true);
+        }
       } else {
         setIsOpen(true);
       }
