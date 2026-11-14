@@ -20,7 +20,7 @@ import {
 } from '@/hooks';
 import { type ToolbarContextValue, ToolbarProvider, usePrefixedId, useToolbar } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
-import { getRoot } from '@/utils/dom';
+import { getRoot, isPortaledEvent } from '@/utils/dom';
 import { isElementVisible } from '@/utils/is';
 
 import { ToolbarToggleGroup, ToolbarToggleItem } from './toolbar-toggle-group';
@@ -192,6 +192,7 @@ const ToolbarContainer = forwardRef<HTMLDivElement, ToolbarContainerProps>(
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLDivElement>): void => {
         onBlur?.(e);
+        if (isPortaledEvent(e)) return;
 
         // Check if focus is leaving the toolbar structure entirely
         const relatedTarget = e.relatedTarget;

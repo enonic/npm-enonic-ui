@@ -48,7 +48,7 @@ import {
   usePrefixedId,
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
-import { containsDeep, getActiveElement, getRoot, isShadowRoot } from '@/utils/dom';
+import { containsDeep, getActiveElement, getRoot, isPortaledEvent, isShadowRoot } from '@/utils/dom';
 
 //
 // * Menu
@@ -310,6 +310,8 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
     // Wrap keyboard handler to handle Tab and Escape (with prop callback)
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (isPortaledEvent(e)) return;
+
         if (e.key === 'Tab') {
           // Close menu and return focus to trigger
           setOpen(false);

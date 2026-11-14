@@ -23,6 +23,7 @@ import {
 } from '@/hooks';
 import { type ListboxContextValue, ListboxProvider, useListbox, usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
+import { isPortaledEvent } from '@/utils/dom';
 
 const EMPTY_SELECTION: readonly string[] = [];
 
@@ -203,18 +204,28 @@ const ListboxContent = forwardRef<HTMLDivElement, ListboxContentProps>(
     });
 
     // Allow custom keyHandler to override (used by Combobox)
-    const handleKeyDown = keyHandler ?? handleNavKeyDown;
+    const keyDownHandler = keyHandler ?? handleNavKeyDown;
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (!isPortaledEvent(e)) keyDownHandler(e);
+      },
+      [keyDownHandler],
+    );
 
     // In activedescendant mode, activate first item when container receives focus
-    const handleContainerFocus = useCallback(() => {
-      if (focusMode === 'activedescendant' && !active && !disabled) {
-        const items = getItems();
-        const firstEnabled = items.find(id => !isItemDisabled(id));
-        if (firstEnabled) {
-          setActive(firstEnabled);
+    const handleContainerFocus = useCallback(
+      (e: React.FocusEvent<HTMLDivElement>) => {
+        if (isPortaledEvent(e)) return;
+        if (focusMode === 'activedescendant' && !active && !disabled) {
+          const items = getItems();
+          const firstEnabled = items.find(id => !isItemDisabled(id));
+          if (firstEnabled) {
+            setActive(firstEnabled);
+          }
         }
-      }
-    }, [focusMode, active, disabled, setActive, getItems, isItemDisabled]);
+      },
+      [focusMode, active, disabled, setActive, getItems, isItemDisabled],
+    );
 
     const buildOptionId = useCallback((id: string) => `${baseId}-listbox-option-${id}`, [baseId]);
 

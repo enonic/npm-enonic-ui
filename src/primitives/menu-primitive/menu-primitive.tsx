@@ -18,7 +18,7 @@ import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
 import { useActiveItemFocus, useControlledState, useRovingTabIndex } from '@/hooks';
 import { usePrefixedId } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
-import { getActiveElement } from '@/utils/dom';
+import { getActiveElement, isPortaledEvent } from '@/utils/dom';
 
 //
 // * Shared Context Operations Type
@@ -462,7 +462,7 @@ export const MenuPrimitiveRadioItem = forwardRef<HTMLDivElement, MenuPrimitiveRa
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
-        if (isDialogShortcutEvent(e)) return;
+        if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
         // Space/Enter key selects the radio item
         if (e.key === ' ' || e.key === 'Enter') {

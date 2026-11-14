@@ -204,7 +204,7 @@ export default defineConfig({
     dts({
       tsconfigPath: './tsconfig.build.json',
       outDirs: 'dist/types',
-      exclude: ['**/*.stories.tsx', '.storybook/**/*'],
+      exclude: ['**/*.stories.tsx', '**/*.test.{ts,tsx}', 'src/testing/**', '.storybook/**/*'],
     }),
     visualizer({
       filename: 'dist/stats.html',
@@ -260,6 +260,12 @@ export default defineConfig({
         assetFileNames: 'styles/style[extname]',
       },
     },
+  },
+  // Storybook runs on Preact only, so these tests are the one place the source runs on React.
+  test: {
+    environment: 'jsdom',
+    include: ['src/**/*.test.{ts,tsx}'],
+    setupFiles: ['src/testing/setup.ts'],
   },
   resolve: {
     alias: {

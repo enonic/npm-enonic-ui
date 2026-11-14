@@ -1,6 +1,6 @@
 import { type RefObject, useCallback, useMemo } from 'react';
 
-import { getRoot } from '@/utils/dom';
+import { getRoot, isPortaledEvent } from '@/utils/dom';
 
 export type StepNavigationConfig = {
   baseId: string;
@@ -127,6 +127,8 @@ export function useStepNavigation(config: StepNavigationConfig): UseStepNavigati
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
+      if (isPortaledEvent(e)) return;
+
       switch (e.key) {
         case 'ArrowLeft': {
           e.preventDefault();

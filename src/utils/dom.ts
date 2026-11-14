@@ -58,6 +58,18 @@ export const containsDeep = (container: Node | null | undefined, node: Node | nu
   return false;
 };
 
+type BubbledEvent = { currentTarget: EventTarget | null; target: EventTarget | null };
+
+const isNode = (target: EventTarget | null): target is Node => target != null && 'nodeType' in target;
+
+/**
+ * Whether an event reached its handler from a portal rendered inside it rather than from the
+ * handler's own DOM. React bubbles events along the component tree, through portals, while Preact
+ * bubbles along the DOM. Container handlers return early on these so both runtimes behave alike.
+ */
+export const isPortaledEvent = ({ currentTarget, target }: BubbledEvent): boolean =>
+  isNode(currentTarget) && isNode(target) && !containsDeep(currentTarget, target);
+
 const AUTOFOCUS_SELECTOR = '[data-autofocus]:not([data-autofocus="false"]):not([disabled])';
 
 /**

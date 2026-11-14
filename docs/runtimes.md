@@ -5,10 +5,12 @@ any of them, and the types reference only `react`. React 19 apps consume it as i
 `preact/jsx-runtime`, so their own Preact creates every vnode and the two copies can never disagree.
 
 Storybook and the `interactions-smoke` tests run on Preact 10: `.storybook/main.ts` adds `@preact/preset-vite`, which
-brings those aliases. The only React and latest-Preact coverage is the package smoke check (`pnpm check:package`), which
-installs the packed tarball into fixtures on the Preact Storybook uses, on Preact 11.2.0 and on React 19.3.1, plus
-the latest Preact and React, and server-renders a component. A failure on a `latest` fixture alone means a new
-release broke the package. It does not exercise focus, effects or portals.
+brings those aliases. React behavior is covered by `pnpm test`: Vitest renders `src/` with React 19 in jsdom, from
+`*.test.tsx` files next to the component and the helpers in `src/testing/`. Write a test there for anything that
+behaves differently on React. The package smoke check (`pnpm check:package`) installs the packed tarball into fixtures
+on the Preact Storybook uses, on Preact 11.2.0 and on React 19.3.1, plus the latest Preact and React, and
+server-renders a component. A failure on a `latest` fixture alone means a new release broke the package. It does not
+exercise focus, effects or portals.
 
 Any change that touches focus, effect timing, portals or click-outside has to be considered on both runtimes.
 
@@ -40,6 +42,13 @@ React, while under Preact it did not.
 React bubbles synthetic events through portals along the component tree, so a click inside portaled content reaches
 `onClick` handlers on its React ancestors. Preact bubbles along the DOM, so the same click never reaches them. Handlers
 that rely on either behavior, such as click-outside detection or a parent stopping propagation, must work under both.
+
+A library handler on an element that renders consumer children (`onKeyDown`, `onContextMenu`, `onFocus`, `onBlur`)
+returns early on `isPortaledEvent(e)` from `@/utils/dom`, which is true when the target is outside the element's own
+DOM. Under React a `Dialog` or `Menu` rendered inside `Toolbar.Container` would otherwise have its keys prevented by
+the toolbar. Call a consumer's own handler before the check, so it still sees what React delivers. The shared
+navigation hooks (`useKeyboardNavigation`, `useGridNavigation`, `useStepNavigation`) already check, so containers
+built on them need the guard only in logic they run outside the hook.
 
 ### Event types
 

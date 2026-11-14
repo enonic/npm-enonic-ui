@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+import { isPortaledEvent } from '@/utils/dom';
 
 export type KeyboardNavigationConfig = {
   /**
@@ -175,7 +176,7 @@ export function useKeyboardNavigation(config: KeyboardNavigationConfig): UseKeyb
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
-      if (isDialogShortcutEvent(e)) return;
+      if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
       const items = getItems();
       if (!items.length) {
