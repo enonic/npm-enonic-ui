@@ -6,7 +6,9 @@ any of them, and the types reference only `react`. React 19 apps consume it as i
 
 Storybook and the `interactions-smoke` tests run on Preact 10: `.storybook/main.ts` adds `@preact/preset-vite`, which
 brings those aliases. The only React and latest-Preact coverage is the package smoke check (`pnpm check:package`), which
-installs the packed tarball into a React 19, a Preact 10 and a latest-Preact fixture and server-renders a component. It
+installs the packed tarball into fixtures on the Preact Storybook uses, on Preact 11.2.0 and on React 19.3.1, plus
+the latest Preact and React, and server-renders a component. A failure on a `latest` fixture alone means a new
+release broke the package. It
 does not exercise focus, effects or portals.
 
 Any change that touches focus, effect timing, portals or click-outside has to be considered on both runtimes.

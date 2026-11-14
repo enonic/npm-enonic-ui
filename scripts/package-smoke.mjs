@@ -20,24 +20,30 @@ const PREACT_COMPAT_DEPS = [
   'preact-render-to-string@6',
 ];
 
+const REACT_DEPS = ['@radix-ui/react-slot@1', 'focus-trap-react@12'];
+
+// The Preact Storybook runs on, so a failure here and not in Storybook points at the package, not the source.
+const PREACT_DEV = PKG.devDependencies.preact.replace(/^[~^]/, '');
+
+// Exact versions give a stable baseline; `latest` catches a new release breaking the package before
+// consumers do. Preact 11.1 stopped rendering vnodes created by another copy's JSX factory, and only a
+// fixture on the newest release would have shown it. A failure on `latest` alone means a new release.
 const FIXTURES = [
   {
-    name: 'preact-10',
-    deps: ['preact@10', ...PREACT_COMPAT_DEPS],
+    name: `preact-${PREACT_DEV}`,
+    deps: [`preact@${PREACT_DEV}`, ...PREACT_COMPAT_DEPS],
     runtime: 'preact',
+    version: PREACT_DEV,
   },
-  // The newest Preact, not the one the library was developed on: Preact 11.1 stopped rendering vnodes
-  // created by another copy's JSX factory, which a bundle that inlines its own factory cannot survive.
+  { name: 'preact-11.2.0', deps: ['preact@11.2.0', ...PREACT_COMPAT_DEPS], runtime: 'preact', version: '11.2.0' },
+  { name: 'preact-latest', deps: ['preact@latest', ...PREACT_COMPAT_DEPS], runtime: 'preact' },
   {
-    name: 'preact-latest',
-    deps: ['preact@latest', ...PREACT_COMPAT_DEPS],
-    runtime: 'preact',
-  },
-  {
-    name: 'react',
-    deps: ['react@19', 'react-dom@19', '@radix-ui/react-slot@1', 'focus-trap-react@12'],
+    name: 'react-19.3.1',
+    deps: ['react@19.3.1', 'react-dom@19.3.1', ...REACT_DEPS],
     runtime: 'react',
+    version: '19.3.1',
   },
+  { name: 'react-latest', deps: ['react@latest', 'react-dom@latest', ...REACT_DEPS], runtime: 'react' },
 ];
 
 // A stylesheet that lost every component rule is still non-empty, so assert on utilities the
@@ -243,6 +249,11 @@ const main = () => {
       fs.readFileSync(path.join(dir, 'node_modules', fixture.runtime, 'package.json'), 'utf8'),
     );
     console.log(`  info  ${fixture.runtime}@${version}`);
+    if (fixture.version) {
+      check(`${fixture.name}: installed the pinned version`, () =>
+        assert(version === fixture.version, `expected ${fixture.version}, got ${version}`),
+      );
+    }
 
     const esm = tryRun('node', ['--input-type=module', '-e', esmProbe(fixture.runtime)], dir);
     check(`${fixture.name}: import, render, subpaths`, () => assert(esm.ok, esm.out));

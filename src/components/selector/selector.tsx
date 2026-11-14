@@ -490,15 +490,15 @@ const SelectorContent = forwardRef<HTMLDivElement, SelectorContentProps>(
           !position && 'pointer-events-none opacity-0',
           className,
         )}
-        style={
-          {
-            top: position?.top,
-            left: position?.left,
-            right: position?.right,
-            maxHeight: position?.maxHeight,
+        style={{
+          top: position?.top,
+          left: position?.left,
+          right: position?.right,
+          maxHeight: position?.maxHeight,
+          ...({
             '--trigger-width': triggerRef.current ? `${triggerRef.current.offsetWidth}px` : undefined,
-          } as React.CSSProperties
-        }
+          } as React.CSSProperties),
+        }}
         {...props}
       >
         {children}
