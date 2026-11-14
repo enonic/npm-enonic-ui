@@ -22,9 +22,12 @@ applies to component, story and test files.
 ```typescript
 // ✅
 import { forwardRef, useState, type ReactElement, type ReactNode } from 'react';
+```
 
+```typescript
 // ❌
 import { forwardRef, useState } from 'preact';
+
 import type { ComponentChildren } from 'preact';
 ```
 

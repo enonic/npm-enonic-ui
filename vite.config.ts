@@ -120,6 +120,8 @@ export default defineConfig({
       // hooks rather than suppressing per line — tracked in #538.
       'react/refs': 'off',
       'react/set-state-in-effect': 'off',
+      // Off: every hit is a deliberate read of the current date during render (today, default time).
+      'react/purity': 'off',
       'typescript/ban-ts-comment': ['error', { minimumDescriptionLength: 10 }],
       'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true, ignoreVoidOperator: true }],
       'typescript/no-mixed-enums': 'error',

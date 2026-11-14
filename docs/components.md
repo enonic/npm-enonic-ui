@@ -29,7 +29,9 @@ for external consumers only.
 ```typescript
 // ✅
 import { IconButton } from '@/components/icon-button';
+```
 
+```typescript
 // ❌
 import { IconButton } from '@/components';
 ```
