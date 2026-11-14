@@ -182,6 +182,13 @@ const main = () => {
     );
   }
   check('no source shipped', () => assert(![...shipped].some(f => f.startsWith('src/')), 'src/ is in the tarball'));
+  // The bundle and types must reference React only; a Preact specifier would tie consumers to one Preact copy.
+  check('no preact specifier in shipped code or types', () => {
+    const offenders = [...shipped]
+      .filter(f => /\.(c?js|d\.ts)$/.test(f))
+      .filter(f => /["']preact(\/[^"']*)?["']/.test(fs.readFileSync(path.join(extracted, 'package', f), 'utf8')));
+    assert(offenders.length === 0, `references preact: ${offenders.join(', ')}`);
+  });
   check('no build report shipped', () =>
     assert(![...shipped].some(f => f.endsWith('stats.html')), 'dist/stats.html is in the tarball'),
   );

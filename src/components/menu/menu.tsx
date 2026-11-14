@@ -361,7 +361,6 @@ const MenuContent = forwardRef<HTMLDivElement, MenuContentProps>(
       left: position?.left,
       right: position?.right,
       maxHeight: position?.maxHeight,
-      // eslint-disable-next-line typescript/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
       ...styleOverride,
     };
 

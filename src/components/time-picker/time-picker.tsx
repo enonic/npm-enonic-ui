@@ -531,7 +531,6 @@ const TimePickerTrigger = forwardRef<HTMLButtonElement, TimePickerTriggerProps>(
           aria-controls={open ? contentId : undefined}
           aria-invalid={invalid || undefined}
           data-active={open}
-          // Cast: Preact Signalish<boolean> from ComponentPropsWithoutRef vs boolean
           disabled={disabled}
           onClick={handleClick}
           onKeyDown={handleKeyDown}

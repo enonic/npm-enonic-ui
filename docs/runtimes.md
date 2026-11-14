@@ -1,7 +1,7 @@
 # Runtimes: Preact 10 and React 19
 
-The library is built against React: the bundle and its types import `react`, `react/jsx-runtime` and `react-dom`, and
-none of them is inlined. React 19 apps consume it as is. Preact apps alias those specifiers to `preact/compat` and
+The library is built against React: the bundle imports `react`, `react/jsx-runtime` and `react-dom` without inlining
+any of them, and the types reference only `react`. React 19 apps consume it as is. Preact apps alias those specifiers to `preact/compat` and
 `preact/jsx-runtime`, so their own Preact creates every vnode and the two copies can never disagree.
 
 Storybook and the `interactions-smoke` tests run on Preact 10: `.storybook/main.ts` adds `@preact/preset-vite`, which

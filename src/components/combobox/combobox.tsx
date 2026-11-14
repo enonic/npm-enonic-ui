@@ -1133,7 +1133,6 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
           right: position?.right !== undefined ? `${position.right}px` : undefined,
           width: portalWidth,
           maxHeight: position?.maxHeight,
-          // eslint-disable-next-line typescript/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
           ...styleOverride,
         }
       : styleOverride;
@@ -1268,8 +1267,7 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
   const consumerHeight = consumerStyle?.height;
   const mergedStyle =
     consumerStyle && typeof consumerHeight === 'number' && popupLayout?.maxHeight !== undefined
-      ? // eslint-disable-next-line typescript/no-misused-spread -- preact's Signalish<string | CSSProperties> trips the rule; cast above narrows intent
-        { ...consumerStyle, height: Math.min(consumerHeight, popupLayout.maxHeight) }
+      ? { ...consumerStyle, height: Math.min(consumerHeight, popupLayout.maxHeight) }
       : style;
 
   // Handle keyboard shortcuts from tree content

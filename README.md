@@ -32,7 +32,7 @@ npm install @enonic/ui preact @radix-ui/react-slot            # Preact
 
 </details>
 
-The package is built against React. A Preact app aliases `react`, `react-dom`, and `react/jsx-runtime` to `preact/compat` and `preact/jsx-runtime`; `@preact/preset-vite` does this by default.
+The package is built against React. A Preact app aliases `react`, `react-dom`, and `react/jsx-runtime` to `preact/compat` and `preact/jsx-runtime` — `@preact/preset-vite` does this in the bundler by default — and maps the same three in `tsconfig.json` `paths`, or the package's types resolve to `any`. See [Preact projects](https://enonic.github.io/npm-enonic-ui/?path=/docs/getting-started-installation--docs) for both configs.
 
 **2. Load the styles.** Components use Tailwind utility classes and render unstyled until a stylesheet is present. The prebuilt one needs no configuration:
 
@@ -133,16 +133,18 @@ Inside a shadow root the document's theme does not reach in, even though custom 
 
 Icons used inside components are bundled — no icon package is needed for components to render.
 
-A Lucide package is needed only when you pass your own icon to a component that takes one, such as the `icon` prop on `Tab`, `Link`, or `VirtualizedTreeList`:
+A Lucide package is needed only when you pass your own icon to a component that takes one, such as `icon` on `IconButton` or `Tab.DefaultTrigger`, or `leftIcon` on `Link`:
 
 ```tsx
 import { Tab } from '@enonic/ui';
-import { Star } from 'lucide-react';
+import { Star } from 'lucide-react'; // or lucide-preact
 
-<Tab icon={Star} label='Favorites' />;
+<Tab.DefaultTrigger value='favorites' icon={Star}>
+  Favorites
+</Tab.DefaultTrigger>;
 ```
 
-In Preact projects `lucide-react` works through the same `preact/compat` alias.
+Icon props accept icons from either package.
 
 ## Requirements
 

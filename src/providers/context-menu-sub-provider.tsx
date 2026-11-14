@@ -1,4 +1,4 @@
-import { createContext, type RefObject, useContext } from 'react';
+import { type Context, createContext, type RefObject, useContext } from 'react';
 
 import type { ContextMenuContentContextValue } from './context-menu-content-provider';
 
@@ -28,7 +28,9 @@ export type ContextMenuSubContextValue = {
 
 const ContextMenuSubContext = createContext<ContextMenuSubContextValue | undefined>(undefined);
 
-export const ContextMenuSubProvider = ContextMenuSubContext.Provider;
+// `Context['Provider']` rather than the inferred `Provider` type, which `preact/compat` does not export.
+export const ContextMenuSubProvider: Context<ContextMenuSubContextValue | undefined>['Provider'] =
+  ContextMenuSubContext.Provider;
 
 export const useContextMenuSub = (): ContextMenuSubContextValue => {
   const context = useContext(ContextMenuSubContext);
