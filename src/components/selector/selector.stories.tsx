@@ -783,7 +783,7 @@ export const DialogShortcuts: Story = {
     const secondaryChord = `{${modifier}>}{Shift>}{Enter}{/Shift}{/${modifier}}`;
     const opener = within(canvasElement).getByRole('button', { name: 'Open selector dialog' });
     await userEvent.click(opener);
-    const dialog = await page.findByRole('dialog');
+    await page.findByRole('dialog');
     const inside = page.getByTestId('selector-inside-dialog');
     const counts = page.getByTestId('selector-shortcut-counts');
     inside.focus();
@@ -813,7 +813,7 @@ export const DialogShortcuts: Story = {
       await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'false'));
       await waitFor(() => expect(inside).toHaveTextContent(value));
       await expect(counts).toHaveTextContent(`${count},${count}`);
-      await expect(dialog).toBeVisible();
+      await expect(page.getByRole('dialog')).toHaveAttribute('data-state', 'open');
       await waitFor(() => expect(inside).toHaveFocus());
     }
 
@@ -834,7 +834,7 @@ export const DialogShortcuts: Story = {
     await settleFrames();
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(inside).toHaveAttribute('aria-expanded', 'false'));
-    await expect(dialog).toBeVisible();
+    await expect(page.getByRole('dialog')).toHaveAttribute('data-state', 'open');
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(page.queryByRole('dialog')).toBeNull());
     await waitFor(() => expect(opener).toHaveFocus());
