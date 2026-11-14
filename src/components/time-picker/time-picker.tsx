@@ -34,7 +34,7 @@ import {
 } from '@/hooks';
 import { type TimePickerContextValue, TimePickerProvider, usePhrases, usePrefixedId, useTimePicker } from '@/providers';
 import { cn, getIsMobile, subscribeToMobileChanges, unwrap, useComposedRefs } from '@/utils';
-import { getRoot } from '@/utils/dom';
+import { getRoot, isPortaledEvent } from '@/utils/dom';
 
 import { timePickerPhrases } from './time-picker.phrases';
 
@@ -635,7 +635,7 @@ const TimePickerContent = forwardRef<HTMLDivElement, TimePickerContentProps>(
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
       onKeyDown?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented || isPortaledEvent(event)) return;
       if (event.key === 'Escape') {
         event.preventDefault();
         setOpen(false);
@@ -942,7 +942,7 @@ const TimePickerRoot = ({
   const handleInlineKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>): void => {
       onKeyDown?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented || isPortaledEvent(event)) return;
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       const target = event.target as HTMLElement | null;
       const selectorTrigger = target?.closest(

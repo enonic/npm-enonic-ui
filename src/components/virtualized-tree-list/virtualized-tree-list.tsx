@@ -36,7 +36,7 @@ import { CircleDisc, FilledSquareCheck } from '@/icons';
 import { usePhrases, usePrefixedId } from '@/providers';
 import { useVirtualizedTreeList, VirtualizedTreeListProvider } from '@/providers/virtualized-tree-list-provider';
 import { cn } from '@/utils';
-import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
+import { containsDeep, getActiveElement, getRoot, isPortaledEvent } from '@/utils/dom';
 
 import type { RowClickSelection } from '@/providers/tree-list-provider';
 import type { ItemInteraction, LucideIcon } from '@/types';
@@ -103,8 +103,8 @@ export type VirtualizedTreeListRenderProps<TData> = {
     tabIndex: 0;
     className: string;
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
-    onFocus: () => void;
-    onBlur: () => void;
+    onFocus: (e?: React.FocusEvent<HTMLElement>) => void;
+    onBlur: (e?: React.FocusEvent<HTMLElement>) => void;
   };
 };
 
@@ -530,7 +530,7 @@ const VirtualizedTreeListRoot = forwardRef(
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLElement>) => {
-        if (isDialogShortcutEvent(e)) return;
+        if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
         setKeyboardActive(true);
 
@@ -816,14 +816,16 @@ const VirtualizedTreeListRoot = forwardRef(
       [baseId, activeIndex, selection, selectionMode, handleRowClick, onActivate],
     );
 
-    const handleContainerFocus = useCallback(() => {
+    const handleContainerFocus = useCallback((e?: React.FocusEvent<HTMLElement>) => {
+      if (e != null && isPortaledEvent(e)) return;
       setFocused(true);
       if (lastInputRef.current === 'keyboard') {
         setKeyboardActive(true);
       }
     }, []);
 
-    const handleContainerBlur = useCallback(() => {
+    const handleContainerBlur = useCallback((e?: React.FocusEvent<HTMLElement>) => {
+      if (e != null && isPortaledEvent(e)) return;
       setFocused(false);
       setKeyboardActive(false);
     }, []);

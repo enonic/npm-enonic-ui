@@ -44,7 +44,7 @@ import {
 } from '@/providers';
 import { cn } from '@/utils';
 import { areArraysEquals } from '@/utils/array';
-import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
+import { containsDeep, getActiveElement, getRoot, isPortaledEvent } from '@/utils/dom';
 import { useComposedRefs } from '@/utils/ref';
 
 import { comboboxPhrases } from './combobox.phrases';
@@ -560,6 +560,7 @@ const ComboboxContent = forwardRef<HTMLDivElement, ComboboxContentProps>(
     const handleOnBlur = useCallback(
       (e: React.FocusEvent<HTMLDivElement>): void => {
         onBlur?.(e);
+        if (isPortaledEvent(e)) return;
         closeOnFocusExit(e);
       },
       [closeOnFocusExit, onBlur],
@@ -1048,7 +1049,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLDivElement>): void => {
         onBlur?.(e);
-        if (isPortalMode) {
+        if (isPortalMode && !isPortaledEvent(e)) {
           closeOnFocusExit(e);
         }
       },
@@ -1064,6 +1065,8 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     //              which triggers single-mode auto-close
     const handleKeyDownCapture = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (isPortaledEvent(e)) return;
+
         onApplyTabKeyDownCapture(e);
         if (e.defaultPrevented || isDialogShortcutEvent(e)) {
           return;
@@ -1100,7 +1103,7 @@ const ComboboxPopup = forwardRef<HTMLDivElement, ComboboxPopupProps>(
     // so the browser delivers the keystroke to it as the next event.
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
-        if (contentType === 'tree') return;
+        if (contentType === 'tree' || isPortaledEvent(e)) return;
         if (e.metaKey || e.ctrlKey || e.altKey) return;
 
         const isPrintable = e.key.length === 1 && e.key !== ' ';
@@ -1273,7 +1276,7 @@ const ComboboxTreeContent = ({ children, className, style, ...props }: ComboboxT
   // Handle keyboard shortcuts from tree content
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>) => {
-      if (isDialogShortcutEvent(e)) return;
+      if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
       const focusInput = (): void => {
         inputRef.current?.focus({ focusVisible: true });

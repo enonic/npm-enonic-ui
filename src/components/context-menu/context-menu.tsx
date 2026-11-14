@@ -62,7 +62,7 @@ import {
   usePrefixedId,
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
-import { containsDeep, getActiveElement, getRoot, isShadowRoot } from '@/utils/dom';
+import { containsDeep, getActiveElement, getRoot, isPortaledEvent, isShadowRoot } from '@/utils/dom';
 
 const SUBMENU_OPEN_DELAY_MS = 100;
 
@@ -161,7 +161,7 @@ const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
 
     const handleContextMenu = useCallback(
       (e: React.MouseEvent<HTMLDivElement>): void => {
-        if (disabled) return;
+        if (disabled || isPortaledEvent(e)) return;
 
         e.preventDefault();
         onContextMenu?.(e);
@@ -179,6 +179,7 @@ const ContextMenuTrigger = forwardRef<HTMLDivElement, ContextMenuTriggerProps>(
           disabled ||
           open ||
           e.defaultPrevented ||
+          isPortaledEvent(e) ||
           !isContextMenuShortcutEvent(e) ||
           !(e.target instanceof HTMLElement)
         ) {
@@ -372,6 +373,8 @@ const ContextMenuContent = forwardRef<HTMLDivElement, ContextMenuContentProps>(
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
+        if (isPortaledEvent(e)) return;
+
         if (e.key === 'Tab') {
           setOpen(false);
           return;
@@ -777,7 +780,7 @@ const ContextMenuSubTrigger = forwardRef<HTMLDivElement, ContextMenuSubTriggerPr
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
-        if (isDialogShortcutEvent(e)) return;
+        if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
         if (disabled) return;
 
         if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
@@ -961,7 +964,7 @@ const ContextMenuSubContent = forwardRef<HTMLDivElement, ContextMenuSubContentPr
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
-        if (isDialogShortcutEvent(e)) return;
+        if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
         // ? SubContent is portaled but React synthetic events still bubble through the
         // component tree. Stop propagation on every handled key so the parent Content

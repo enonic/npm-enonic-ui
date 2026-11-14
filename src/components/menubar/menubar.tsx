@@ -46,7 +46,7 @@ import {
   usePrefixedId,
 } from '@/providers';
 import { cn, useComposedRefs } from '@/utils';
-import { getActiveElement } from '@/utils/dom';
+import { getActiveElement, isPortaledEvent } from '@/utils/dom';
 
 //
 // * MenubarContentContext (internal)
@@ -204,7 +204,7 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
     const handleKeyDown_ = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
-        if (isDialogShortcutEvent(e)) return;
+        if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
         // ArrowDown opens menu if active item is a menu trigger
         const isActionKey = e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ';
@@ -235,6 +235,7 @@ const MenubarNav = forwardRef<HTMLDivElement, MenubarNavProps>(
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLDivElement>): void => {
         onBlur?.(e);
+        if (isPortaledEvent(e)) return;
 
         // Check if focus is leaving the menubar structure entirely
         const relatedTarget = e.relatedTarget;
@@ -980,6 +981,7 @@ const MenubarContent = forwardRef<HTMLDivElement, MenubarContentProps>(
     const handleKeyDown_ = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
+        if (isPortaledEvent(e)) return;
 
         // Escape closes menu and returns focus to the trigger
         if (e.key === 'Escape') {
@@ -1540,7 +1542,7 @@ const MenubarRadioItem = forwardRef<HTMLDivElement, MenubarRadioItemProps>(
     const handleKeyDown_ = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>): void => {
         onKeyDown?.(e);
-        if (isDialogShortcutEvent(e)) return;
+        if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
         // Space/Enter key selects the radio item
         if (e.key === ' ' || e.key === 'Enter') {

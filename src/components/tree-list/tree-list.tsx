@@ -31,7 +31,7 @@ import {
   useTreeList,
 } from '@/providers/tree-list-provider';
 import { cn, setRef } from '@/utils';
-import { containsDeep, getActiveElement, getRoot } from '@/utils/dom';
+import { containsDeep, getActiveElement, getRoot, isPortaledEvent } from '@/utils/dom';
 
 import type { ItemInteraction, LucideIcon } from '@/types';
 
@@ -417,7 +417,7 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (isDialogShortcutEvent(e)) return;
+        if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
         // In action mode, let Space/Enter activate the focused button (don't intercept)
         if (actionModeRowId && (e.key === ' ' || e.key === 'Enter')) {
@@ -758,8 +758,12 @@ const TreeListRoot = forwardRef<HTMLDivElement, TreeListRootProps>(
           aria-multiselectable={selectionMode === 'multiple' ? true : undefined}
           tabIndex={0}
           onKeyDown={handleKeyDown}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          onFocus={e => {
+            if (!isPortaledEvent(e)) setFocused(true);
+          }}
+          onBlur={e => {
+            if (!isPortaledEvent(e)) setFocused(false);
+          }}
           {...props}
         >
           {children}

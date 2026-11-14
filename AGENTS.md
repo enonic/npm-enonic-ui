@@ -14,8 +14,8 @@ pnpm format     # oxfmt write (vp fmt)
 
 Linting and formatting run through Vite+ (`vp`); config lives in `vite.config.ts` (`lint`/`fmt`/`staged`).
 
-`pnpm test` is a no-op. Behavior is covered by Storybook `play` functions: `pnpm test:storybook` runs the stories tagged
-`interactions-smoke`.
+`pnpm test` runs Vitest with React 19 in jsdom, the only place the source runs on React. Preact behavior is covered by
+Storybook `play` functions: `pnpm test:storybook` runs the stories tagged `interactions-smoke`.
 
 ## Read Before You Edit
 
@@ -34,6 +34,8 @@ Linting and formatting run through Vite+ (`vp`); config lives in `vite.config.ts
 - Import from `react`, never from `preact`. Use `ReactNode`, never `ComponentChildren`
 - Import components from their folder (`@/components/button`), never from the `@/components` barrel
 - Portaled overlays compare against `usePortalContainer()`, never `document.body`, or shadow-root consumers break
+- Container `onKeyDown`, `onContextMenu`, `onFocus` and `onBlur` handlers return early on `isPortaledEvent(e)`, or
+  React delivers them events from portaled children that Preact never does
 - Comment prefixes: `// !` marks a critical issue, `// ?` a question or unusual rationale, `// *` a section divider.
   Preserve them in code you touch
 

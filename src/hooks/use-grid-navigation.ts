@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react';
 
 import { isDialogShortcutEvent } from '@/components/dialog/dialog-actions';
+import { isPortaledEvent } from '@/utils/dom';
 
 export type ActiveCell = { row: string; col: number };
 
@@ -268,7 +269,7 @@ export function useGridNavigation(config: GridNavigationConfig): UseGridNavigati
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLElement>): void => {
-      if (isDialogShortcutEvent(e)) return;
+      if (isPortaledEvent(e) || isDialogShortcutEvent(e)) return;
 
       const rows = getRows();
       if (!rows.length) return;
