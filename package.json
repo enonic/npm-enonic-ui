@@ -1,6 +1,6 @@
 {
   "name": "@enonic/ui",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Enonic UI Component Library",
   "author": "Enonic",
   "license": "Apache-2.0",
@@ -127,7 +127,7 @@
     "preact": "~11.2.0",
     "publint": "^0.3.25",
     "react": "~19.3.1",
-    "react-doctor": "0.9.22",
+    "react-doctor": "0.9.23",
     "react-dom": "~19.3.1",
     "react-virtuoso": "^4.18.21",
     "rollup-plugin-visualizer": "~7.1.3",
