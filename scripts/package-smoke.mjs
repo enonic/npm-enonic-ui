@@ -22,6 +22,12 @@ const PREACT_COMPAT_DEPS = [
 
 const REACT_DEPS = ['@radix-ui/react-slot@1', 'focus-trap-react@12'];
 
+const TS_DEV = PKG.devDependencies.typescript.replace(/^[~^]/, '');
+const TYPES_DEPS = {
+  preact: [`typescript@${TS_DEV}`, 'lucide-react@1', 'lucide-preact@1'],
+  react: [`typescript@${TS_DEV}`, 'lucide-react@1', '@types/react@19'],
+};
+
 // The Preact Storybook runs on, so a failure here and not in Storybook points at the package, not the source.
 const PREACT_DEV = PKG.devDependencies.preact.replace(/^[~^]/, '');
 
@@ -140,6 +146,45 @@ const esmProbe = framework => `
   }
 `;
 
+// Consumers pass lucide icons into the library's icon props. Preact apps map `react` to `preact/compat` in
+// `paths`, which also retypes the shipped .d.ts, so a type that holds under React can fail only there.
+const typesProbe = framework => ({
+  'tsconfig.json': JSON.stringify({
+    compilerOptions: {
+      module: 'ESNext',
+      moduleResolution: 'bundler',
+      target: 'ES2022',
+      lib: ['ES2022', 'DOM'],
+      strict: true,
+      skipLibCheck: true,
+      noEmit: true,
+      jsx: 'react-jsx',
+      jsxImportSource: framework,
+      ...(framework === 'preact' && {
+        paths: {
+          react: ['./node_modules/preact/compat'],
+          'react-dom': ['./node_modules/preact/compat'],
+        },
+      }),
+    },
+    include: ['probe.tsx'],
+  }),
+  'probe.tsx': `
+    import { Button, IconButton, Link, Tab, type LucideIcon } from '${PKG.name}';
+    import { Plus } from 'lucide-react';
+    ${framework === 'preact' ? "import { Minus } from 'lucide-preact';" : 'const Minus: LucideIcon = Plus;'}
+
+    export const Probe = () => (
+      <>
+        <Button startIcon={Plus} endIcon={Minus} label='Go' />
+        <IconButton icon={Plus} aria-label='Go' />
+        <Link href='#' leftIcon={Minus}>Go</Link>
+        <Tab.DefaultTrigger value='a' icon={Plus}>Go</Tab.DefaultTrigger>
+      </>
+    );
+  `,
+});
+
 // CJS resolves a named import the bundle asked for but its dependency never exported to undefined
 // rather than throwing, so assert on the values. ESM throws on its own, but checks the same way.
 const CJS_PROBE = `
@@ -236,7 +281,16 @@ const main = () => {
     // itself, which would defeat the point and has been observed to overwrite the compat aliases.
     const install = tryRun(
       'npm',
-      ['install', '--no-audit', '--no-fund', '--no-package-lock', '--legacy-peer-deps', tarball, ...fixture.deps],
+      [
+        'install',
+        '--no-audit',
+        '--no-fund',
+        '--no-package-lock',
+        '--legacy-peer-deps',
+        tarball,
+        ...fixture.deps,
+        ...TYPES_DEPS[fixture.runtime],
+      ],
       dir,
     );
     if (!install.ok) {
@@ -259,6 +313,11 @@ const main = () => {
     check(`${fixture.name}: import, render, subpaths`, () => assert(esm.ok, esm.out));
     const cjs = tryRun('node', ['-e', CJS_PROBE], dir);
     check(`${fixture.name}: require`, () => assert(cjs.ok, cjs.out));
+    for (const [file, content] of Object.entries(typesProbe(fixture.runtime))) {
+      fs.writeFileSync(path.join(dir, file), content);
+    }
+    const types = tryRun('npx', ['--no-install', 'tsc', '-p', '.'], dir);
+    check(`${fixture.name}: lucide icons typecheck`, () => assert(types.ok, types.out));
 
     // Negative control: if removing a dependency the bundle needs does not break the import, the
     // fixture is resolving from somewhere else and every check above is meaningless.
