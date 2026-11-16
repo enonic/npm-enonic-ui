@@ -41,7 +41,7 @@ const FIXTURES = [
     runtime: 'preact',
     version: PREACT_DEV,
   },
-  { name: 'preact-11.2.0', deps: ['preact@11.2.0', ...PREACT_COMPAT_DEPS], runtime: 'preact', version: '11.2.0' },
+  { name: 'preact-10.29.8', deps: ['preact@10.29.8', ...PREACT_COMPAT_DEPS], runtime: 'preact', version: '10.29.8' },
   { name: 'preact-latest', deps: ['preact@latest', ...PREACT_COMPAT_DEPS], runtime: 'preact' },
   {
     name: 'react-19.3.1',

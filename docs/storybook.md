@@ -1,6 +1,6 @@
 # Storybook
 
-Storybook runs on `@storybook/preact-vite`, so stories render under Preact 10 only. See [runtimes.md](runtimes.md).
+Storybook runs on `@storybook/preact-vite`, so stories render under Preact 11 only. See [runtimes.md](runtimes.md).
 
 ## Story Grouping
 

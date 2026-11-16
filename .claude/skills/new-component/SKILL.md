@@ -39,7 +39,7 @@ Read the project docs to understand project conventions:
 ```
 docs/components.md - File layout, exports, props, providers, labels
 docs/patterns.md   - Portals, focus traps, click-outside, autofocus
-docs/runtimes.md   - Preact 10 and React 19 differences
+docs/runtimes.md   - Preact and React 19 differences
 docs/styling.md    - Styling with cn(), cva(), color tokens
 docs/storybook.md  - Story organization
 ```

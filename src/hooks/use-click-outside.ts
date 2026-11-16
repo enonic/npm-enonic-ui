@@ -1,4 +1,4 @@
-import { type RefObject, useCallback, useEffect, useRef } from 'react';
+import { type RefObject, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 
 export type UseClickOutsideConfig = {
   /** Whether the click outside listener is active */
@@ -113,6 +113,7 @@ export function useClickOutside({
   onClose,
 }: UseClickOutsideConfig): void {
   const pendingOutsideClickRef = useRef(false);
+  const activeRef = useRef(false);
   const contentRefRef = useRef(contentRef);
   const excludeRefsRef = useRef(excludeRefs);
   const onPointerDownOutsideRef = useRef(onPointerDownOutside);
@@ -155,7 +156,7 @@ export function useClickOutside({
       pendingOutsideClickRef.current = false;
       const currentCloseOn = closeOnRef.current;
 
-      if (!isOutside(event)) {
+      if (!activeRef.current || !isOutside(event)) {
         return;
       }
 
@@ -182,7 +183,7 @@ export function useClickOutside({
       pendingOutsideClickRef.current = false;
 
       // Guard the stable listener while effect cleanup catches up after closeOn changes.
-      if (closeOnRef.current !== 'click' || !shouldClose || !isOutside(event)) {
+      if (!activeRef.current || closeOnRef.current !== 'click' || !shouldClose || !isOutside(event)) {
         return;
       }
 
@@ -192,6 +193,15 @@ export function useClickOutside({
     },
     [isOutside],
   );
+
+  // ? Both runtimes defer passive cleanups on unmount past paint, so the listeners below outlive
+  // ? their owner for a frame. A layout cleanup runs in the commit and silences them in time.
+  useLayoutEffect(() => {
+    activeRef.current = enabled;
+    return () => {
+      activeRef.current = false;
+    };
+  }, [enabled]);
 
   useEffect(() => {
     if (!enabled) {

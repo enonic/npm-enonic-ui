@@ -1,14 +1,14 @@
-# Runtimes: Preact 10 and React 19
+# Runtimes: Preact and React 19
 
 The library is built against React: the bundle imports `react`, `react/jsx-runtime` and `react-dom` without inlining
 any of them, and the types reference only `react`. React 19 apps consume it as is. Preact apps alias those specifiers to `preact/compat` and
 `preact/jsx-runtime`, so their own Preact creates every vnode and the two copies can never disagree.
 
-Storybook and the `interactions-smoke` tests run on Preact 10: `.storybook/main.ts` adds `@preact/preset-vite`, which
+Storybook and the `interactions-smoke` tests run on Preact 11: `.storybook/main.ts` adds `@preact/preset-vite`, which
 brings those aliases. React behavior is covered by `pnpm test`: Vitest renders `src/` with React 19 in jsdom, from
 `*.test.tsx` files next to the component and the helpers in `src/testing/`. Write a test there for anything that
 behaves differently on React. The package smoke check (`pnpm check:package`) installs the packed tarball into fixtures
-on the Preact Storybook uses, on Preact 11.2.0 and on React 19.3.1, plus the latest Preact and React, and
+on the Preact Storybook uses, on Preact 10.29.8 and on React 19.3.1, plus the latest Preact and React, and
 server-renders a component. A failure on a `latest` fixture alone means a new release broke the package. It does not
 exercise focus, effects or portals.
 
@@ -39,6 +39,11 @@ Under React 19, passive effects flush synchronously after a click-triggered comm
 runs. Under Preact they flush later. Code that defers work with a microtask and expects to run before the next render's
 effects behaves differently: in #583 a deferred autofocus stole focus from a field focused in a mount `useEffect` under
 React, while under Preact it did not.
+
+On unmount, both React 19 and Preact 11 run `useEffect` cleanups after paint, while `useLayoutEffect` cleanups run in
+the commit. A document listener removed in a `useEffect` cleanup still fires for input that lands in that gap, so a
+handler that must stop the moment its owner closes or unmounts also checks a flag cleared in a layout cleanup, as
+`useClickOutside` does.
 
 ### Event bubbling through portals
 
