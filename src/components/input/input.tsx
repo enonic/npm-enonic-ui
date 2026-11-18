@@ -201,7 +201,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
         >
           {hasError && (
             <>
-              <FilledOctagonAlert size={16} aria-hidden='true' />
+              <FilledOctagonAlert size={16} className='shrink-0' aria-hidden='true' />
               {error}
             </>
           )}
