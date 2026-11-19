@@ -85,13 +85,15 @@ jobs:
       - name: Publish
         # --no-git-checks: CI runs in detached HEAD state (tag checkout)
         # --tag: pre-release tags (containing '-') publish to 'beta' dist-tag,
-        #        stable tags publish to 'latest'
+        #        stable tags publish to 'release-1.5', so a patch of this branch
+        #        does not take 'latest' from the newer release line
         # Provenance is disabled because the source repository is private; npm
         # provenance via sigstore requires a public GitHub repository.
-        run: pnpm publish --no-git-checks --tag ${{ contains(github.ref_name, '-') && 'beta' || 'latest' }}
+        run: pnpm publish --no-git-checks --tag ${{ contains(github.ref_name, '-') && 'beta' || 'release-1.5' }}
 
       - name: Create Release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           name: Enonic UI ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-') }}
+          make_latest: false
