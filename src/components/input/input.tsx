@@ -179,7 +179,7 @@ const InputRoot = forwardRef<HTMLInputElement, InputProps>(
 
         {!processing && error && (
           <div className='text-error mt-2 flex items-center gap-2 leading-5'>
-            <FilledOctagonAlert size={16} />
+            <FilledOctagonAlert size={16} className='shrink-0' />
             {error}
           </div>
         )}
