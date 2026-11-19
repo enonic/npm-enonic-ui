@@ -139,7 +139,7 @@ const RadioGroupRoot = forwardRef<HTMLDivElement, RadioGroupRootProps>((props, r
 
         {state === 'error' && errorMessage && (
           <div className={cn('text-error flex items-center gap-2 leading-5')}>
-            <FilledOctagonAlert size={14} />
+            <FilledOctagonAlert size={14} className='shrink-0' />
             {errorMessage}
           </div>
         )}
